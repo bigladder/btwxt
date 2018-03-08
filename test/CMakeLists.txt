@@ -6,6 +6,6 @@ set(library_sources
   interp_test.cpp
 )
 
-link_libraries(bl_interp gtest)
+link_libraries(btwxt gtest)
 
 add_executable(test ${library_sources})

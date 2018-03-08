@@ -8,4 +8,4 @@ set(library_sources
   longtable.cpp
 )
 
-add_library(bl_interp ${library_sources})
+add_library(btwxt ${library_sources})
