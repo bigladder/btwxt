@@ -1,10 +1,11 @@
 # Test Executable
-include_directories("../src")
+include_directories("../src"
+                    "${gtest_SOURCE_DIR}/include")
 
 set(library_sources
   interp_test.cpp
 )
 
-link_libraries(bl_interp)
+link_libraries(bl_interp gtest)
 
 add_executable(test ${library_sources})
