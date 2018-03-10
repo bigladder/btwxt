@@ -41,12 +41,12 @@ std::vector<size_t> LongTable::get_dim_lengths()
 }
 
 // TODO: delete. n-dim upgrade now exists below
-double LongTable::get_value(std::size_t c1, std::size_t c2)
+double LongTable::get_value_2d(std::size_t c1, std::size_t c2)
 {
   return values[c2*grid[0].size() + c1];
 }
 
-double LongTable::get_value_gen(std::vector<size_t> x)
+double LongTable::get_value(std::vector<size_t> x)
 {
   std::size_t index = x[0];
   if (x.size() < 2) {
