@@ -2,7 +2,6 @@
 
 // Standard
 #include<iostream>
-#include "gtest/gtest.h"
 
 // example: https://github.com/Crascit/DownloadProject/blob/master/example.cpp
 // example2: https://github.com/bigladder/kiva/blob/develop/test/unit/foundation.unit.cpp
@@ -124,11 +123,11 @@ int main(int argc, char **argv)
     }
 
     std::cout << "\nthe inputs we seek to interpolate, and how they fit on the grid: " << std::endl;
-    double coords[] = {20, 31, 1.5};
+    double target[] = {20, 31, 1.5};
     std::vector<size_t> floors;
     for (std::size_t d=0; d<ndims; d+=1) {
-      floors.push_back(my_longtable.grid_floor(coords[d], d));
-      std::cout << coords[d] << " is greater than item " << floors[d]
+      floors.push_back(my_longtable.grid_floor(target[d], d));
+      std::cout << target[d] << " is greater than item " << floors[d]
                 << " in dim "<< d << ": " << grid[d][floors[d]]<< std::endl;
     }
 
@@ -137,8 +136,8 @@ int main(int argc, char **argv)
     std::vector<double> fracs;
     // double fracs[2];
     for (std::size_t d=0; d<ndims; d+=1) {
-      fracs.push_back(my_longtable.get_fraction(coords[d], d));
-      // fracs[d] = (coords[d] - grid[d][floors[d]]) / (grid[d][floors[d]+1] - grid[d][floors[d]]);
+      fracs.push_back(my_longtable.get_fraction(target[d], d));
+      // fracs[d] = (target[d] - grid[d][floors[d]]) / (grid[d][floors[d]+1] - grid[d][floors[d]]);
       std::cout << "dim" << d << " fraction = " << fracs[d] << std::endl;
     }
 
