@@ -37,6 +37,20 @@ protected:
 };
 
 
+class OneDFixture : public testing::Test {
+protected:
+  Btwxt::RegularGridInterpolator test_1D_rgi;
+  std::vector<double> target_1D;
+
+  OneDFixture(){
+    std::vector<std::vector<double> > grid = { {0, 10} };
+    std::vector<double> values = {6, 3};
+
+    target_1D = {4};
+    test_1D_rgi = Btwxt::RegularGridInterpolator(grid, values);
+  }
+};
+
 TEST_F(BaseFixture, interpolate) {
   double x = Btwxt::interpolate(0.2, 5, 10);
   EXPECT_EQ(x, 6);
@@ -81,6 +95,15 @@ TEST_F(BaseFixture, function_interpolate) {
   EXPECT_NEAR(result, 26601.5, 0.1);
 }
 
+TEST_F(OneDFixture, ndims) {
+  std::size_t ndims = test_1D_rgi.get_ndims();
+  EXPECT_EQ(ndims, 1);
+}
+
+TEST_F(OneDFixture, function_interpolate) {
+  double result = test_1D_rgi(target_1D);
+  EXPECT_NEAR(result, 4.8, 0.1);
+}
 
 
 int main(int argc, char **argv)
