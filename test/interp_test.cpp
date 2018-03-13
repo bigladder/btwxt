@@ -8,7 +8,7 @@
 // example2: https://github.com/bigladder/kiva/blob/develop/test/unit/foundation.unit.cpp
 
 // btwxt
-#include <longtable.h>
+#include <gridinterp.h>
 
 
 

@@ -5,7 +5,7 @@
 #include<iostream>
 
 //btwxt
-#include "longtable.h"
+#include "gridinterp.h"
 
 namespace Btwxt {
 
@@ -83,7 +83,7 @@ RegularGridInterpolator::RegularGridInterpolator()
 
 };
 
-// LongTable::LongTable(
+// RegularGridInterpolator::RegularGridInterpolator(
 //   std::vector< std::vector<double> > grid,
 //   const double* values) :
 // grid(grid),

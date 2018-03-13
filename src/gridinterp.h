@@ -1,8 +1,8 @@
 /* Copyright (c) 2018 Big Ladder Software LLC. All rights reserved.
 * See the LICENSE file for additional terms and conditions. */
 
-#ifndef LONGTABLE_H_
-#define LONGTABLE_H_
+#ifndef GRIDINTERP_H_
+#define GRIDINTERP_H_
 
 // Standard
 #include <vector>
@@ -52,4 +52,4 @@ std::vector< std::vector<std::size_t> > make_binary_list(std::size_t);
 std::vector<double> collapse_dimension(std::vector<double>, double);
 
 }
-#endif // LONGTABLE_H_
+#endif // GRIDINTERP_H_
