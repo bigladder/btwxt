@@ -26,23 +26,23 @@ public:
   std::size_t get_nvalues();
   std::vector<size_t> get_dim_lengths();
 
-
   double calculate_value_at_target(std::vector<double> target);
   double operator()(std::vector<double> target)
   {
     return calculate_value_at_target(target);
   }
+  std::vector<size_t> find_floor(std::vector<double> target);
+  double get_value(std::vector<size_t>);
 
-  std::vector<size_t> set_floors(std::vector<double> target);
-  std::vector<double> set_weights(std::vector<double> target);
-  double evaluate_linear(std::vector<double> hypercube, std::vector<double> weights);
-  double get_value(std::vector<size_t> x);
-  size_t grid_floor(double, std::size_t);
-  double get_fraction(double, std::size_t);
 private:
   std::size_t ndims;
   std::size_t nvalues;
   std::vector<size_t> dim_lengths;
+
+  std::vector<double> set_weights(std::vector<double> target);
+  double evaluate_linear(std::vector<double> hypercube, std::vector<double> weights);
+  size_t grid_floor(double, std::size_t);
+  double get_fraction(double, std::size_t);
 };
 
 // some free functions

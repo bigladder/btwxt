@@ -98,11 +98,11 @@ RegularGridInterpolator::RegularGridInterpolator()
 // };
 
 RegularGridInterpolator::RegularGridInterpolator(
-  std::vector< std::vector<double> > grid,
-  std::vector<double> values) :
-grid(grid),
-values(values)  // this is an initializer list, apparently
-{
+    std::vector< std::vector<double> > grid,
+    std::vector<double> values) :
+  grid(grid),
+  values(values)
+  {
     ndims = grid.size();
     nvalues = 1;
     for(auto dim : grid){
@@ -114,127 +114,125 @@ values(values)  // this is an initializer list, apparently
     for (auto dim : dim_lengths) {
       std::cout << dim << std::endl;
     }
-};
+  };
 
 
-std::size_t RegularGridInterpolator::get_ndims()
-{
-  return ndims;
-}
-
-std::size_t RegularGridInterpolator::get_nvalues()
-{
-  return nvalues;
-}
-
-std::vector<size_t> RegularGridInterpolator::get_dim_lengths()
-{
-  return dim_lengths;
-}
-
-std::vector<size_t> RegularGridInterpolator::set_floors(std::vector<double> target)
-{
-  std::vector<size_t> floors;
-  for (std::size_t d=0; d<ndims; d+=1) {
-    floors.push_back(grid_floor(target[d], d));
-    std::cout << target[d] << " is greater than item " << floors[d]
-              << " in dim "<< d << ": " << grid[d][floors[d]]<< std::endl;
-  }
-  return floors;
-}
-
-std::vector<double> RegularGridInterpolator::set_weights(std::vector<double> target)
-{
-  std::vector<double> weights;
-  for (std::size_t d=0; d<ndims; d+=1) {
-    weights.push_back(get_fraction(target[d], d));
-    std::cout << "dim" << d << " fraction = " << weights[d] << std::endl;
-  }
-  return weights;
-}
-
-double RegularGridInterpolator::evaluate_linear(
-  std::vector<double> hypercube,
-  std::vector<double> weights)
-{
-  // collapse iteratively from n-dim hypercube to a line.
-  std::cout << "\n#starting interpolation#" << std::endl;
-  for (std::size_t d=ndims-1; d>0; d--) {
-      std::cout << "\nfor dim" << d << ", with frac = " << weights[d] << std::endl;
-      hypercube = collapse_dimension(hypercube, weights[d]);
+  std::size_t RegularGridInterpolator::get_ndims()
+  {
+    return ndims;
   }
 
-  // interpolate final dimension
-  double result = interpolate(weights[0], hypercube[0], hypercube[1]);
-  std::cout << "\nfor dim0, with frac = " << weights[0] << std::endl;
-  std::cout << hypercube[0] << " & " << hypercube[1] << " => " << result << std::endl;
-  return result;
-}
-
-
-double RegularGridInterpolator::calculate_value_at_target(std::vector<double> target)
-{
-  std::cout << "\nthe interpolation target, and how it fits on the grid: " << std::endl;
-  std::vector<size_t> floors = set_floors(target);
-
-  // get fractions of the grid-space crossing on each axis
-  std::cout << "\nhow far in the hypercube in each dimension: " << std::endl;
-  std::vector<double> weights = set_weights(target);
-
-  // collect all of the points in the interpolation hypercube
-  std::vector<double> hypercube;
-
-  std::cout << "\nwe use binary representations to collect hypercube" << std::endl;
-  std::vector< std::vector<std::size_t> > binaries;
-  binaries = make_binary_list(ndims);
-
-  std::cout << "\n#collecting hypercube corners#" << std::endl;
-  for (std::size_t i=0; i<pow(2, ndims); i++) {
-    std::vector<std::size_t> a;
-    for (std::size_t j=0; j<ndims; j++) {
-      a.push_back(floors[j] + binaries[i][j]);
-    }
-    hypercube.push_back(get_value(a));
-    std::cout << get_value(a) << std::endl;
+  std::size_t RegularGridInterpolator::get_nvalues()
+  {
+    return nvalues;
   }
-  double result = evaluate_linear(hypercube, weights);
-  return result;
-}
 
-
-
-double RegularGridInterpolator::get_value(std::vector<size_t> x)
-{
-  std::size_t index = x[0];
-  if (x.size() < 2) {
-    return values[index];
+  std::vector<size_t> RegularGridInterpolator::get_dim_lengths()
+  {
+    return dim_lengths;
   }
-  else {
-    for (std::size_t j=1; j<x.size(); j++) {
-      std::size_t p = x[j];
-      for (std::size_t k=0; k<j; k++) {
-        p *= dim_lengths[k];
+
+
+  double RegularGridInterpolator::calculate_value_at_target(std::vector<double> target)
+  {
+    std::cout << "\nthe interpolation target, and how it fits on the grid: " << std::endl;
+    std::vector<size_t> floor = find_floor(target);
+
+    // get fractions of the grid-space crossing on each axis
+    std::cout << "\nhow far in the hypercube in each dimension: " << std::endl;
+    std::vector<double> weights = set_weights(target);
+
+    // collect all of the points in the interpolation hypercube
+    std::vector<double> hypercube;
+
+    std::cout << "\nwe use binary representations to collect hypercube" << std::endl;
+    std::vector< std::vector<std::size_t> > binaries;
+    binaries = make_binary_list(ndims);
+
+    std::cout << "\n#collecting hypercube corners#" << std::endl;
+    for (std::size_t i=0; i<pow(2, ndims); i++) {
+      std::vector<std::size_t> a;
+      for (std::size_t j=0; j<ndims; j++) {
+        a.push_back(floor[j] + binaries[i][j]);
       }
-      index += p;
+      hypercube.push_back(get_value(a));
+      std::cout << get_value(a) << std::endl;
     }
-    return values[index];
+    double result = evaluate_linear(hypercube, weights);
+    return result;
   }
-}
 
-// TODO: do something smarter if on the grid point
-std::size_t RegularGridInterpolator::grid_floor(double x, std::size_t dim)
-{
-  std::vector<double>::iterator upper;
-  upper = std::upper_bound(grid[dim].begin(), grid[dim].end(), x);
-  std::size_t floor = upper - grid[dim].begin() - 1;
-  return floor;
-}
+  std::vector<size_t> RegularGridInterpolator::find_floor(std::vector<double> target)
+  {
+    std::vector<size_t> floor;
+    for (std::size_t d=0; d<ndims; d+=1) {
+      floor.push_back(grid_floor(target[d], d));
+      std::cout << target[d] << " is greater than item " << floor[d]
+                << " in dim "<< d << ": " << grid[d][floor[d]]<< std::endl;
+    }
+    return floor;
+  }
 
-double RegularGridInterpolator::get_fraction(double x, std::size_t dim)
-{
-  std::size_t floor = RegularGridInterpolator::grid_floor(x, dim);
-  double frac = (x - grid[dim][floor]) / (grid[dim][floor+1] -grid[dim][floor]);
-  return frac;
-}
+  std::vector<double> RegularGridInterpolator::set_weights(std::vector<double> target)
+  {
+    std::vector<double> weights;
+    for (std::size_t d=0; d<ndims; d+=1) {
+      weights.push_back(get_fraction(target[d], d));
+      std::cout << "dim" << d << " fraction = " << weights[d] << std::endl;
+    }
+    return weights;
+  }
+
+  double RegularGridInterpolator::evaluate_linear(
+    std::vector<double> hypercube,
+    std::vector<double> weights)
+  {
+    // collapse iteratively from n-dim hypercube to a line.
+    std::cout << "\n#starting interpolation#" << std::endl;
+    for (std::size_t d=ndims-1; d>0; d--) {
+        std::cout << "\nfor dim" << d << ", with frac = " << weights[d] << std::endl;
+        hypercube = collapse_dimension(hypercube, weights[d]);
+    }
+
+    // interpolate final dimension
+    double result = interpolate(weights[0], hypercube[0], hypercube[1]);
+    std::cout << "\nfor dim0, with frac = " << weights[0] << std::endl;
+    std::cout << hypercube[0] << " & " << hypercube[1] << " => " << result << std::endl;
+    return result;
+  }
+
+  double RegularGridInterpolator::get_value(std::vector<size_t> x)
+  {
+    std::size_t index = x[0];
+    if (x.size() < 2) {
+      return values[index];
+    }
+    else {
+      for (std::size_t j=1; j<x.size(); j++) {
+        std::size_t p = x[j];
+        for (std::size_t k=0; k<j; k++) {
+          p *= dim_lengths[k];
+        }
+        index += p;
+      }
+      return values[index];
+    }
+  }
+
+  // TODO: do something smarter if on the grid point
+  std::size_t RegularGridInterpolator::grid_floor(double x, std::size_t dim)
+  {
+    std::vector<double>::iterator upper;
+    upper = std::upper_bound(grid[dim].begin(), grid[dim].end(), x);
+    std::size_t floor = upper - grid[dim].begin() - 1;
+    return floor;
+  }
+
+  double RegularGridInterpolator::get_fraction(double x, std::size_t dim)
+  {
+    std::size_t floor = RegularGridInterpolator::grid_floor(x, dim);
+    double frac = (x - grid[dim][floor]) / (grid[dim][floor+1] -grid[dim][floor]);
+    return frac;
+  }
 
 }

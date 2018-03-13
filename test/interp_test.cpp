@@ -50,20 +50,24 @@ TEST_F(BaseFixture, raise_to_power) {
 }
 
 TEST_F(BaseFixture, ndims) {
-
   std::size_t ndims = test_rgi.get_ndims();
   EXPECT_EQ(ndims, 2);
 }
 
 TEST_F(BaseFixture, nvalues) {
-
   std::size_t nvalues = test_rgi.get_nvalues();
   EXPECT_EQ(nvalues, 42);
 }
 
+TEST_F(BaseFixture, get_value) {
+  double value = test_rgi.get_value({3, 2});
+  EXPECT_NEAR(value, 26361.3, 0.1);
+}
+
 TEST_F(BaseFixture, find_floor) {
-  std::size_t floor = test_rgi.grid_floor(20, 0);
-  EXPECT_EQ(floor, 3);
+  std::vector<size_t> expected_floor = {3, 2};
+  std::vector<size_t> floor = test_rgi.find_floor({20, 31});
+  EXPECT_EQ(floor, expected_floor);
 }
 
 TEST_F(BaseFixture, can_interpolate) {
