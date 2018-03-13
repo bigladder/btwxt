@@ -51,12 +51,18 @@ protected:
   }
 };
 
-TEST_F(BaseFixture, interpolate) {
+TEST(FreeFunctions, interpolate) {
   double x = Btwxt::interpolate(0.2, 5, 10);
   EXPECT_EQ(x, 6);
 }
 
-TEST_F(BaseFixture, raise_to_power) {
+TEST(FreeFunctions, compute_fraction) {
+  double edge[] = {5, 10};
+  double x = Btwxt::compute_fraction(6, edge);
+  EXPECT_NEAR(x, 0.2, 0.01);
+}
+
+TEST(FreeFunctions, raise_to_power) {
   EXPECT_EQ(Btwxt::pow(2, 5), 32);
   EXPECT_EQ(Btwxt::pow(3, 4), 81);
   EXPECT_EQ(Btwxt::pow(7, 1), 7);

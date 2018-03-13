@@ -39,14 +39,14 @@ private:
   std::size_t nvalues;
   std::vector<size_t> dim_lengths;
 
-  std::vector<double> set_weights(std::vector<double> target);
+  std::vector<double> set_weights(std::vector<double> target, std::vector<size_t> floor);
   double evaluate_linear(std::vector<double> hypercube, std::vector<double> weights);
   size_t grid_floor(double, std::size_t);
-  double get_fraction(double, std::size_t);
 };
 
 // some free functions
 double interpolate(double, double, double);
+double compute_fraction(double, double[2]);
 std::size_t pow(std::size_t, std::size_t);
 std::vector< std::vector<std::size_t> > make_binary_list(std::size_t);
 std::vector<double> collapse_dimension(std::vector<double>, double);

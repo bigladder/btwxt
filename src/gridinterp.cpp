@@ -28,6 +28,11 @@ double interpolate(double t, double a0, double a1) {
   return t*a1 + (1-t)*a0;
 }
 
+double compute_fraction(double x, double edge[2]) {
+  // how far along an edge is the target?
+  return (x - edge[0]) / (edge[1] - edge[0]);
+}
+
 std::size_t pow(std::size_t base, std::size_t power) {
   // raise base to a power (both must be size_t)
   if (power == 0) {return 1;}
@@ -140,7 +145,7 @@ RegularGridInterpolator::RegularGridInterpolator(
 
     // get fractions of the grid-space crossing on each axis
     std::cout << "\nhow far in the hypercube in each dimension: " << std::endl;
-    std::vector<double> weights = set_weights(target);
+    std::vector<double> weights = set_weights(target, floor);
 
     // collect all of the points in the interpolation hypercube
     std::vector<double> hypercube;
@@ -173,11 +178,13 @@ RegularGridInterpolator::RegularGridInterpolator(
     return floor;
   }
 
-  std::vector<double> RegularGridInterpolator::set_weights(std::vector<double> target)
+  std::vector<double> RegularGridInterpolator::set_weights(
+    std::vector<double> target, std::vector<size_t> floor)
   {
     std::vector<double> weights;
     for (std::size_t d=0; d<ndims; d+=1) {
-      weights.push_back(get_fraction(target[d], d));
+      double edge[] = {grid[d][floor[d]], grid[d][floor[d]+1]};
+      weights.push_back(compute_fraction(target[d], edge));
       std::cout << "dim" << d << " fraction = " << weights[d] << std::endl;
     }
     return weights;
@@ -226,13 +233,6 @@ RegularGridInterpolator::RegularGridInterpolator(
     upper = std::upper_bound(grid[dim].begin(), grid[dim].end(), x);
     std::size_t floor = upper - grid[dim].begin() - 1;
     return floor;
-  }
-
-  double RegularGridInterpolator::get_fraction(double x, std::size_t dim)
-  {
-    std::size_t floor = RegularGridInterpolator::grid_floor(x, dim);
-    double frac = (x - grid[dim][floor]) / (grid[dim][floor+1] -grid[dim][floor]);
-    return frac;
   }
 
 }
