@@ -10,6 +10,16 @@
 namespace Btwxt {
 
 
+/*  ##  assumptions we are making  ##
+1. grid vectors line up with nvalues
+  a. number of dimensions = number of grid vectors
+  b. nvalues = product of dimension lengths
+  c. grid arrives in the appropriate order <- have to assume this, i think.
+2. grid vectors arrive sorted
+3. target length = ndims
+4. target falls within grid.  TODO extrapolation
+5. target is in the appropriate order <- have to assume this, too
+*/
 
 
 // some free functions
@@ -68,7 +78,7 @@ std::vector<double> collapse_dimension(std::vector<double> input, double frac) {
 
 
 
-LongTable::LongTable()
+RegularGridInterpolator::RegularGridInterpolator()
 {
 
 };
@@ -87,7 +97,7 @@ LongTable::LongTable()
 //     }
 // };
 
-LongTable::LongTable(
+RegularGridInterpolator::RegularGridInterpolator(
   std::vector< std::vector<double> > grid,
   std::vector<double> values) :
 grid(grid),
@@ -107,22 +117,22 @@ values(values)  // this is an initializer list, apparently
 };
 
 
-std::size_t LongTable::get_ndims()
+std::size_t RegularGridInterpolator::get_ndims()
 {
   return ndims;
 }
 
-std::size_t LongTable::get_nvalues()
+std::size_t RegularGridInterpolator::get_nvalues()
 {
   return nvalues;
 }
 
-std::vector<size_t> LongTable::get_dim_lengths()
+std::vector<size_t> RegularGridInterpolator::get_dim_lengths()
 {
   return dim_lengths;
 }
 
-std::vector<size_t> LongTable::set_floors(std::vector<double> target)
+std::vector<size_t> RegularGridInterpolator::set_floors(std::vector<double> target)
 {
   std::vector<size_t> floors;
   for (std::size_t d=0; d<ndims; d+=1) {
@@ -133,43 +143,43 @@ std::vector<size_t> LongTable::set_floors(std::vector<double> target)
   return floors;
 }
 
-std::vector<double> LongTable::set_fracs(std::vector<double> target)
+std::vector<double> RegularGridInterpolator::set_weights(std::vector<double> target)
 {
-  std::vector<double> fracs;
+  std::vector<double> weights;
   for (std::size_t d=0; d<ndims; d+=1) {
-    fracs.push_back(get_fraction(target[d], d));
-    std::cout << "dim" << d << " fraction = " << fracs[d] << std::endl;
+    weights.push_back(get_fraction(target[d], d));
+    std::cout << "dim" << d << " fraction = " << weights[d] << std::endl;
   }
-  return fracs;
+  return weights;
 }
 
-double LongTable::do_the_interpolation(
+double RegularGridInterpolator::evaluate_linear(
   std::vector<double> hypercube,
-  std::vector<double> fracs)
+  std::vector<double> weights)
 {
   // collapse iteratively from n-dim hypercube to a line.
   std::cout << "\n#starting interpolation#" << std::endl;
   for (std::size_t d=ndims-1; d>0; d--) {
-      std::cout << "\nfor dim" << d << ", with frac = " << fracs[d] << std::endl;
-      hypercube = collapse_dimension(hypercube, fracs[d]);
+      std::cout << "\nfor dim" << d << ", with frac = " << weights[d] << std::endl;
+      hypercube = collapse_dimension(hypercube, weights[d]);
   }
 
   // interpolate final dimension
-  double result = interpolate(fracs[0], hypercube[0], hypercube[1]);
-  std::cout << "\nfor dim0, with frac = " << fracs[0] << std::endl;
+  double result = interpolate(weights[0], hypercube[0], hypercube[1]);
+  std::cout << "\nfor dim0, with frac = " << weights[0] << std::endl;
   std::cout << hypercube[0] << " & " << hypercube[1] << " => " << result << std::endl;
   return result;
 }
 
 
-double LongTable::btwxtify(std::vector<double> target)
+double RegularGridInterpolator::calculate_value_at_target(std::vector<double> target)
 {
   std::cout << "\nthe interpolation target, and how it fits on the grid: " << std::endl;
   std::vector<size_t> floors = set_floors(target);
 
   // get fractions of the grid-space crossing on each axis
   std::cout << "\nhow far in the hypercube in each dimension: " << std::endl;
-  std::vector<double> fracs = set_fracs(target);
+  std::vector<double> weights = set_weights(target);
 
   // collect all of the points in the interpolation hypercube
   std::vector<double> hypercube;
@@ -187,20 +197,13 @@ double LongTable::btwxtify(std::vector<double> target)
     hypercube.push_back(get_value(a));
     std::cout << get_value(a) << std::endl;
   }
-  double result = do_the_interpolation(hypercube, fracs);
+  double result = evaluate_linear(hypercube, weights);
   return result;
 }
 
 
 
-
-// TODO: delete. n-dim upgrade now exists below
-double LongTable::get_value_2d(std::size_t c1, std::size_t c2)
-{
-  return values[c2*grid[0].size() + c1];
-}
-
-double LongTable::get_value(std::vector<size_t> x)
+double RegularGridInterpolator::get_value(std::vector<size_t> x)
 {
   std::size_t index = x[0];
   if (x.size() < 2) {
@@ -219,7 +222,7 @@ double LongTable::get_value(std::vector<size_t> x)
 }
 
 // TODO: do something smarter if on the grid point
-std::size_t LongTable::grid_floor(double x, std::size_t dim)
+std::size_t RegularGridInterpolator::grid_floor(double x, std::size_t dim)
 {
   std::vector<double>::iterator upper;
   upper = std::upper_bound(grid[dim].begin(), grid[dim].end(), x);
@@ -227,9 +230,9 @@ std::size_t LongTable::grid_floor(double x, std::size_t dim)
   return floor;
 }
 
-double LongTable::get_fraction(double x, std::size_t dim)
+double RegularGridInterpolator::get_fraction(double x, std::size_t dim)
 {
-  std::size_t floor = LongTable::grid_floor(x, dim);
+  std::size_t floor = RegularGridInterpolator::grid_floor(x, dim);
   double frac = (x - grid[dim][floor]) / (grid[dim][floor+1] -grid[dim][floor]);
   return frac;
 }

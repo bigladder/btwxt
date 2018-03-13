@@ -14,7 +14,7 @@
 
 class BaseFixture : public testing::Test {
 protected:
-  Btwxt::LongTable test_longtable;
+  Btwxt::RegularGridInterpolator test_rgi;
   std::vector<double> target;
 
   BaseFixture(){
@@ -32,15 +32,10 @@ protected:
       };
 
     target = {20, 31};
-    test_longtable = Btwxt::LongTable(grid, values);
+    test_rgi = Btwxt::RegularGridInterpolator(grid, values);
   }
 };
 
-
-//
-// double interpolate(double t, double a0, double a1) {
-//   return t*a1 + (1-t)*a0;
-// }
 
 TEST_F(BaseFixture, interpolate) {
   double x = Btwxt::interpolate(0.2, 5, 10);
@@ -56,49 +51,32 @@ TEST_F(BaseFixture, raise_to_power) {
 
 TEST_F(BaseFixture, ndims) {
 
-  std::size_t ndims = test_longtable.get_ndims();
+  std::size_t ndims = test_rgi.get_ndims();
   EXPECT_EQ(ndims, 2);
 }
 
 TEST_F(BaseFixture, nvalues) {
 
-  std::size_t nvalues = test_longtable.get_nvalues();
+  std::size_t nvalues = test_rgi.get_nvalues();
   EXPECT_EQ(nvalues, 42);
 }
 
-TEST_F(BaseFixture, longtable_floor) {
-  std::size_t floor = test_longtable.grid_floor(20, 0);
+TEST_F(BaseFixture, find_floor) {
+  std::size_t floor = test_rgi.grid_floor(20, 0);
   EXPECT_EQ(floor, 3);
 }
 
 TEST_F(BaseFixture, can_interpolate) {
-  double result = test_longtable.btwxtify(target);
+  double result = test_rgi.calculate_value_at_target(target);
   EXPECT_NEAR(result, 26601.5, 0.1);
 }
 
 TEST_F(BaseFixture, function_interpolate) {
-  Btwxt::LongTable my_interpolating_function = test_longtable;
+  Btwxt::RegularGridInterpolator my_interpolating_function = test_rgi;
   double result = my_interpolating_function(target);
   EXPECT_NEAR(result, 26601.5, 0.1);
 }
 
-// TEST_F(BaseFixture, btwxt_exists) {
-//   std::size_t ndims = test_btwxt.get_ndims();
-//   EXPECT_EQ(ndims, 2);
-//   std::size_t nvalues = test_btwxt.get_nvalues();
-//   EXPECT_EQ(nvalues, 42);
-//
-//   EXPECT_EQ(test_btwxt.target.size(), 2);
-//   EXPECT_EQ(test_btwxt.target[0], 20);
-//   EXPECT_EQ(test_btwxt.target[1], 31);
-// }
-//
-// TEST_F(BaseFixture, floors) {
-//   std::cout << "trying to get floors" << std::endl;
-//   std::vector<size_t> floors = test_btwxt.get_floors();
-//   EXPECT_EQ(floors[0], 3);
-//   EXPECT_EQ(floors[1], 2);
-// }
 
 
 int main(int argc, char **argv)

@@ -9,13 +9,13 @@
 
 namespace Btwxt {
 
-class LongTable{
+class RegularGridInterpolator{
 public:
-  LongTable();
-  // LongTable(
+  RegularGridInterpolator();
+  // RegularGridInterpolator(
   //   std::vector< std::vector<double> > grid,
   //   const double* values);
-  LongTable(
+  RegularGridInterpolator(
     std::vector< std::vector<double> > grid,
     std::vector<double> values);
 
@@ -27,16 +27,15 @@ public:
   std::vector<size_t> get_dim_lengths();
 
 
-  double btwxtify(std::vector<double> target);
+  double calculate_value_at_target(std::vector<double> target);
   double operator()(std::vector<double> target)
   {
-    return btwxtify(target);
+    return calculate_value_at_target(target);
   }
 
   std::vector<size_t> set_floors(std::vector<double> target);
-  std::vector<double> set_fracs(std::vector<double> target);
-  double do_the_interpolation(std::vector<double> hypercube, std::vector<double> fracs);
-  double get_value_2d(std::size_t, std::size_t);
+  std::vector<double> set_weights(std::vector<double> target);
+  double evaluate_linear(std::vector<double> hypercube, std::vector<double> weights);
   double get_value(std::vector<size_t> x);
   size_t grid_floor(double, std::size_t);
   double get_fraction(double, std::size_t);
