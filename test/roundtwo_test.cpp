@@ -46,11 +46,15 @@ protected:
 TEST_F(OneDFixture, ndims) {
   std::size_t ndims = test_rgi.get_ndims();
   EXPECT_EQ(ndims, 1);
+
+  test_rgi.set_new_grid_point(target);
 };
 
 TEST_F(TwoDFixture, ndims) {
   std::size_t ndims = test_rgi.get_ndims();
   EXPECT_EQ(ndims, 2);
+
+  test_rgi.set_new_grid_point(target);
 };
 
 

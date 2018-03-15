@@ -26,6 +26,8 @@ public:
   // target is an array of doubles specifying the point we are interpolating to.
   GridPoint();
   GridPoint(double* target);
+  GridPoint(std::vector<double> target_vector);
+  std::size_t size;
   double* target;
   std::vector<WhereInTheGridIsThisPoint> floors_and_weights;
   bool is_inbounds;  // for deciding interpolation vs. extrapolation;

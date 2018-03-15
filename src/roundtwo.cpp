@@ -19,6 +19,13 @@ WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint() {};
 
 GridPoint::GridPoint() {};
 GridPoint::GridPoint(double* target) {};
+GridPoint::GridPoint(std::vector<double> target_vector) :
+  size(target_vector.size()),
+  target(new double[size])
+{
+  std::copy(target_vector.begin(), target_vector.end(), target);
+  std::cout << "GridPoint object constructed from vector!" << std::endl;
+};
 
 
 
@@ -119,7 +126,11 @@ std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
   return result;
 };
 
-void RegularGridInterpolator::set_new_grid_point(std::vector<double> target) {};
+void RegularGridInterpolator::set_new_grid_point(std::vector<double> target)
+{
+  current_grid_point = GridPoint(target);
+};
+
 std::vector<size_t> RegularGridInterpolator::get_coordinates_of_current_grid_point()
 {
   std::vector<size_t> result = {0};
