@@ -3,9 +3,7 @@ include_directories("../src"
                     "${gtest_SOURCE_DIR}/include")
 
 set(library_sources
-  interp_test.cpp
-#  scratch.cpp
-#  scratch_func2.cpp
+  roundtwo_test.cpp
 )
 
 link_libraries(btwxt gtest)

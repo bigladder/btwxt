@@ -2,8 +2,8 @@
 
 
 set(library_sources
-  gridinterp.h
-  gridinterp.cpp
+  roundtwo.h
+  roundtwo.cpp
 )
 
 add_library(btwxt ${library_sources})
