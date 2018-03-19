@@ -43,9 +43,10 @@ public:
   // ~GridAxis();
 
   std::size_t size;
-  double *grid;
+  double* grid;
   // bool is_regular;  <-- to add later
 private:
+  bool check_sorted();
   // only called as GridAxis.find_floor_and_weight from within GridAxes.
   // std::pair<std::size_t, double> find_floor_and_weight(double target);
 };
@@ -136,7 +137,7 @@ public:
   }
 
   void set_new_grid_point(std::vector<double> target);
-  std::vector<size_t> get_coordinates_of_current_grid_point();
+  std::vector<double> get_coordinates_of_current_grid_point();
   void clear_current_grid_point();
   std::size_t get_ndims();
 

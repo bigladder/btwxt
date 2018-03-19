@@ -1,5 +1,5 @@
 # this is where there will be build instructions
-# https://github.com/bigladder/penumbra
+# https://github.com/cse/btwxt
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
