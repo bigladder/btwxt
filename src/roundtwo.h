@@ -45,8 +45,6 @@ public:
   // bool is_regular;  <-- to add later
 
   std::size_t get_length();
-private:
-  bool check_sorted();
 };
 
 
@@ -182,6 +180,10 @@ private:
 
   void check_target_dimensions(std::vector<double> target);
 };
+
+
+// free functions
+bool free_check_sorted(std::vector<double>);
 
 }
 #endif // GRIDINTERP_H_

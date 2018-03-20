@@ -34,14 +34,14 @@ GridAxis::GridAxis(std::vector<double> grid_vector) :
   grid(grid_vector)
 {
   showMessage(MSG_INFO, "GridAxis object constructed from vector!");
-  // TODO repair check_sorted and turn back on
-  // bool grid_is_sorted = check_sorted();
-  // if (grid_is_sorted) {
-  //   showMessage(MSG_INFO, "axis is sorted.");
-  // }
-  // else {
-  //   showMessage(MSG_ERR, "axis is not sorted.");
-  // }
+
+  bool grid_is_sorted = Btwxt::free_check_sorted(grid);
+  if (grid_is_sorted) {
+    showMessage(MSG_INFO, "axis is sorted.");
+  }
+  else {
+    showMessage(MSG_ERR, "axis is not sorted.");
+  }
 };
 
 // GridAxis::~GridAxis()
@@ -51,15 +51,6 @@ GridAxis::GridAxis(std::vector<double> grid_vector) :
 
 std::size_t GridAxis::get_length()
 { return grid.size(); };
-
-bool GridAxis::check_sorted() {
-  // this method should allow either ascending or descending order
-  // this method should enforce strict *scending
-  // bool is_asc = std::is_sorted(grid, grid+size);
-  // bool is_desc = std::is_sorted(grid, grid+size, lesser);
-  return true;
-};
-
 
 
 GridAxes::GridAxes() {};
@@ -295,6 +286,34 @@ void RegularGridInterpolator::check_target_dimensions(std::vector<double> target
             + ") does not match length of target (" + std::to_string(target.size()) + ").";
     showMessage(MSG_ERR, message_str);
   }
+};
+
+bool free_check_sorted(std::vector<double> my_vec)
+{
+  std::vector<double>::iterator first = my_vec.begin();
+  std::vector<double>::iterator last = my_vec.end();
+  bool is_asc = true;
+  bool is_desc = true;
+  if (first==last) return true;
+
+  // test for strictly ascending
+  std::vector<double>::iterator next = first;
+  while (++next!=last & is_asc) {
+    if (*next<=*first)
+      is_asc = false;
+    ++first;
+  }
+  if (is_asc) return true;
+
+  // test for strictly ascending
+  first = my_vec.begin();
+  next = first;
+  while (++next!=last & is_desc) {
+    if (*next>=*first)
+      is_desc = false;
+    ++first;
+  }
+  return is_desc;
 };
 
 }
