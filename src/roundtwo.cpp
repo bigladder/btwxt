@@ -20,11 +20,9 @@ WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint() {};
 
 GridPoint::GridPoint() {};
 GridPoint::GridPoint(double* target) {};
-GridPoint::GridPoint(std::vector<double> target_vector) :
-  size(target_vector.size()),
-  target(new double[size])
+GridPoint::GridPoint(std::vector<double> &target_vector) :
+  target(target_vector)
 {
-  std::copy(target_vector.begin(), target_vector.end(), target);
   showMessage(MSG_INFO, "GridPoint object constructed from vector!");
 };
 
@@ -33,18 +31,17 @@ GridPoint::GridPoint(std::vector<double> target_vector) :
 GridAxis::GridAxis() {};
 GridAxis::GridAxis(double* grid, std::size_t size) {};
 GridAxis::GridAxis(std::vector<double> grid_vector) :
-  size(grid_vector.size()),
-  grid(new double[size])
+  grid(grid_vector)
 {
-  std::copy(grid_vector.begin(), grid_vector.end(), grid);
   showMessage(MSG_INFO, "GridAxis object constructed from vector!");
-  bool grid_is_sorted = check_sorted();
-  if (grid_is_sorted) {
-    showMessage(MSG_INFO, "axis is sorted.");
-  }
-  else {
-    showMessage(MSG_ERR, "axis is not sorted.");
-  }
+  // TODO repair check_sorted and turn back on
+  // bool grid_is_sorted = check_sorted();
+  // if (grid_is_sorted) {
+  //   showMessage(MSG_INFO, "axis is sorted.");
+  // }
+  // else {
+  //   showMessage(MSG_ERR, "axis is not sorted.");
+  // }
 };
 
 // GridAxis::~GridAxis()
@@ -52,94 +49,167 @@ GridAxis::GridAxis(std::vector<double> grid_vector) :
 //   delete[] grid;
 // };
 
+std::size_t GridAxis::get_length()
+{ return grid.size(); };
+
 bool GridAxis::check_sorted() {
-  // this allows either ascending or descending order
-  bool is_asc = std::is_sorted(grid, (grid+size) );
+  // this method should allow either ascending or descending order
+  // this method should enforce strict *scending
+  // bool is_asc = std::is_sorted(grid, grid+size);
   // bool is_desc = std::is_sorted(grid, grid+size, lesser);
-  return is_asc;
+  return true;
 };
+
 
 
 GridAxes::GridAxes() {};
-GridAxes::GridAxes(std::size_t ndims, std::vector<GridAxis> grid_axes):
-  ndims(ndims),
-  axes(grid_axes)
+GridAxes::GridAxes(std::vector<GridAxis> grid_axes) : axes(grid_axes) {};
+
+std::size_t GridAxes::get_ndims()
 {
-  std::vector<std::size_t> dim_lengths;
-  for (auto a : axes) {
-    dim_lengths.push_back(a.size);
-  }
-  showMessage(MSG_INFO, std::to_string(ndims) + "-D GridAxis object constructed");
-  bool first_item = true;
-  std::string message_str = "dimension lenths = ";
-  for (auto d: dim_lengths)
-  {
-      message_str += (first_item ? "{" : ", ");
-      first_item = false;
-      message_str += std::to_string(d);
-  }
-  message_str += "}";
-  showMessage(MSG_INFO, message_str);
+  // showMessage(MSG_INFO, "Asking for ndims: " + std::to_string(axes.size()));
+  return axes.size();
 };
 
+std::size_t GridAxes::get_dim_length(std::size_t dim)
+{
+  std::size_t ndims = axes.size();
+  if (dim >= ndims) {
+    showMessage(MSG_WARN, "We don't have that many dimensions.");
+    return 0;
+  }
+  else {
+    return axes[0].get_length();
+  }
+}
+
+std::vector<std::size_t> GridAxes::get_dim_lengths()
+{
+  std::vector<std::size_t> dim_lengths;
+  for (auto grid : axes) {
+    dim_lengths.push_back(grid.get_length());
+  }
+  return dim_lengths;
+}
 
 
 ValueTable::ValueTable() {};
-ValueTable::ValueTable(double *value_array, std::size_t size) {};
-ValueTable::ValueTable(std::vector<double> value_vector) :
-  size(value_vector.size()),
-  values(new double[size])
+ValueTable::ValueTable(
+  double *value_array,
+  std::size_t size,
+  std::vector<std::size_t> &dimension_lengths
+) {};
+
+ValueTable::ValueTable(
+  std::vector<double> value_vector,
+  std::vector<std::size_t> &dimension_lengths
+) :
+  values(value_vector),
+  dimension_lengths(dimension_lengths)
 {
-  std::copy(value_vector.begin(), value_vector.end(), values);
   showMessage(MSG_INFO, "ValueTable object constructed from vector!");
 };
 
-double ValueTable::get_value(std::vector<std::size_t> coords) {return 0.0; };
-double ValueTable::evaluate_linear(GridPoint target_point) {return 0.0; };
+double ValueTable::get_value(
+  std::vector<std::size_t> coords)
+{
+  std::size_t index = 0;
+  std::size_t prev_len = 1;
+  for (std::size_t d=0; d<dimension_lengths.size(); d++)
+  {
+    if (coords[d] >= dimension_lengths[d]) {
+      showMessage(MSG_WARN, "You overran dimension " + std::to_string(d));
+      return 0;
+    }
+    else {
+      index += coords[d] * prev_len;
+      prev_len = dimension_lengths[d];
+    }
+  }
+  showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
+  return values[index];
+};
+
 
 
 
 AllValueTables::AllValueTables() {};
-AllValueTables::AllValueTables(std::vector< std::vector<double> >& values)
+AllValueTables::AllValueTables(
+  std::vector< std::vector<double> > values,
+  std::vector<std::size_t> dimension_lengths
+)
 {
-  num_tables = values.size();
   for (auto v : values) {
-    ValueTable vt(v);
+    ValueTable vt(v, dimension_lengths);
     value_table_vec.push_back(vt);
   }
+
+  std::size_t num_tables = values.size();
   std::string message_str = "Vector of ValueTables created comprising "
           + std::to_string(num_tables) + " tables!";
   showMessage(MSG_INFO, message_str);
 };
 
+std::size_t AllValueTables::get_ntables()
+{ return value_table_vec.size(); }
 
-RegularGridInterpolator::RegularGridInterpolator() {};
 
-RegularGridInterpolator::RegularGridInterpolator(
+
+GriddedData::GriddedData() {};
+GriddedData::GriddedData(
   std::vector< std::vector<double> > grid,
   std::vector< std::vector<double> > values
 )
 {
-  ndims = grid.size();
-  std::vector<GridAxis> axis_vector;
+  check_inputs(grid, values);
+  construct_axes(grid);
+  construct_values(values, grid_axes.get_dim_lengths());
+  showMessage(MSG_INFO, "GriddedData constructed from vectors!");
+};
+
+void GriddedData::construct_axes(
+  std::vector< std::vector<double> > &grid
+)
+{
   for (auto axis : grid) {
     GridAxis ga(axis);
-    axis_vector.push_back(ga);
+    grid_axes.axes.push_back(ga);
   }
-  GridAxes grid_axes(ndims, axis_vector);
 
+  std::size_t ndims = grid_axes.get_ndims();
+  showMessage(MSG_INFO, std::to_string(ndims) + "-D GridAxis object constructed");
+};
+
+void GriddedData::construct_values(
+  std::vector< std::vector<double> > &values,
+  std::vector<std::size_t> dimension_lengths
+)
+{
+  for (auto v : values) {
+    ValueTable vt(v, dimension_lengths);
+    all_the_values.value_table_vec.push_back(vt);
+  }
+
+  std::size_t num_tables = values.size();
+  std::string message_str = "Vector of ValueTables created comprising "
+          + std::to_string(num_tables) + " tables!";
+  showMessage(MSG_INFO, message_str);
+};
+
+void GriddedData::check_inputs(
+  std::vector< std::vector<double> > &grid,
+  std::vector< std::vector<double> > &values
+)
+{
   // check that grid dimensions and value tables align
   std::size_t expected_nvalues = 1;
-  for (auto a : grid_axes.axes) {
-    expected_nvalues *= a.size;
+  for (auto a : grid) {
+    expected_nvalues *= a.size();
   }
-  // for (auto d : grid_axes.dim_lengths) {
-  //   expected_nvalues *= d;  //  <-- why doesn't this work?
-  // }
   std::string message_str = "We expect " + std::to_string(expected_nvalues)
           + " values in each table.";
   showMessage(MSG_INFO, message_str);
-  // TODO fix Callback, uncomment.
+
   for (auto value_vector : values) {
     std::string message_str = "Value vector has "
             + std::to_string(value_vector.size()) + " values.";
@@ -148,8 +218,41 @@ RegularGridInterpolator::RegularGridInterpolator(
       showMessage(MSG_ERR, "Input value table does not match the grid size");
     }
   }
-  AllValueTables all_the_values(values);
-  GridPoint current_grid_point({-999});
+};
+
+std::size_t GriddedData::get_ndims()
+{ return grid_axes.get_ndims(); };
+
+double GriddedData::get_value(
+  std::size_t table_index,
+  std::vector<std::size_t> coords
+)
+{
+  if (table_index >= get_ndims()) {
+    showMessage(MSG_WARN, "We don't have that many tables.");
+    return 0;
+  }
+  else {
+    return all_the_values.value_table_vec[table_index].get_value(coords);
+  }
+};
+
+
+RegularGridInterpolator::RegularGridInterpolator() {};
+
+RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
+  the_blob(the_blob)
+{
+  showMessage(MSG_INFO, "RGI constructed from GriddedData!");
+};
+
+RegularGridInterpolator::RegularGridInterpolator(
+  std::vector< std::vector<double> > grid,
+  std::vector< std::vector<double> > values
+) :
+the_blob(grid, values)
+{
+  showMessage(MSG_INFO, "RGI constructed from vectors!");
 };
 
 double RegularGridInterpolator::calculate_value_at_target(std::vector<double> target, ValueTable* this_output)
@@ -169,6 +272,21 @@ std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
 
 void RegularGridInterpolator::set_new_grid_point(std::vector<double> target)
 {
+  check_target_dimensions(target);
+  current_grid_point = GridPoint(target);
+};
+
+std::vector<double> RegularGridInterpolator::get_current_grid_point()
+{ return current_grid_point.target; }
+
+void RegularGridInterpolator::clear_current_grid_point() {};
+
+std::size_t RegularGridInterpolator::get_ndims()
+{ return the_blob.get_ndims(); };
+
+void RegularGridInterpolator::check_target_dimensions(std::vector<double> target)
+{
+  std::size_t ndims = the_blob.get_ndims();
   if (ndims == target.size()) {
     showMessage(MSG_INFO, "Target and GridAxes dimensions match: " + std::to_string(target.size()));
   }
@@ -177,19 +295,6 @@ void RegularGridInterpolator::set_new_grid_point(std::vector<double> target)
             + ") does not match length of target (" + std::to_string(target.size()) + ").";
     showMessage(MSG_ERR, message_str);
   }
-  current_grid_point = GridPoint(target);
 };
-
-std::vector<double> RegularGridInterpolator::get_coordinates_of_current_grid_point()
-{
-  std::vector<double> result;
-  result.assign(current_grid_point.target, current_grid_point.target+ndims);
-  return result;
-};
-
-void RegularGridInterpolator::clear_current_grid_point() {};
-std::size_t RegularGridInterpolator::get_ndims()
-{ return ndims; };
-void RegularGridInterpolator::do_common_constructor_things() {};
 
 }

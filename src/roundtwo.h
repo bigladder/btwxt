@@ -22,13 +22,12 @@ public:
 
 class GridPoint{
 public:
-  // Formerly known as PerformancePoint
   // target is an array of doubles specifying the point we are interpolating to.
   GridPoint();
   GridPoint(double* target);
-  GridPoint(std::vector<double> target_vector);
-  std::size_t size;
-  double* target;
+  GridPoint(std::vector<double> &target_vector);
+
+  std::vector<double> target;
   std::vector<WhereInTheGridIsThisPoint> floors_and_weights;
   bool is_inbounds;  // for deciding interpolation vs. extrapolation;
 };
@@ -42,13 +41,12 @@ public:
   GridAxis(std::vector<double> grid_vector);
   // ~GridAxis();
 
-  std::size_t size;
-  double* grid;
+  std::vector<double> grid;
   // bool is_regular;  <-- to add later
+
+  std::size_t get_length();
 private:
   bool check_sorted();
-  // only called as GridAxis.find_floor_and_weight from within GridAxes.
-  // std::pair<std::size_t, double> find_floor_and_weight(double target);
 };
 
 
@@ -56,43 +54,79 @@ class GridAxes{
 public:
   // all n input dimensions to specify the performance space
   GridAxes();
-  GridAxes(std::size_t ndims, std::vector<GridAxis>);
+  GridAxes(std::vector<GridAxis> grid_axes);
 
-  std::size_t ndims;
   std::vector<GridAxis> axes;
-  std::vector<std::size_t> dim_lengths;
 
-  // void find_floor_and_weight(GridPoint target_point);
-  // std::vector< std::pair<std::size_t, double> > find_floors_and_weights(double target[]);
+  std::size_t get_ndims();
+  std::size_t get_dim_length(std::size_t);
+  std::vector<std::size_t> get_dim_lengths();
 };
 
 
 class ValueTable{
 public:
-  // individual flat table for a single output variable (e.g., capacity)
+  // individual vector for a single output variable (e.g., capacity)
   ValueTable();
-  ValueTable(double *value_array, std::size_t size);
-  ValueTable(std::vector<double> value_vector);
+  ValueTable(
+    double *value_array,
+    std::size_t size,
+    std::vector<std::size_t> &dimension_lengths
+  );
+  ValueTable(
+    std::vector<double> value_vector,
+    std::vector<std::size_t> &dimension_lengths
+  );
 
-  std::size_t size;
-  std::vector<std::size_t> dimension_lengths;
-  double* values;
   double get_value(std::vector<std::size_t> coords);
-  double evaluate_linear(GridPoint target_point);
-  // collect_hypercube
+
+private:
+  std::vector<double> values;
+  std::vector<std::size_t> dimension_lengths;
 };
 
 
 class AllValueTables{
-  // pointers to a set of flat tables for the complete set of output variables
+  // vector of vectors for the complete set of output variables
 public:
   AllValueTables();
-  AllValueTables(std::vector< std::vector<double> >& values);
-  std::size_t num_tables;
-  // TODO: use unique_ptr<ValueTable> instead of ValueTable.
+  AllValueTables(
+    std::vector< std::vector<double> > values,
+    std::vector<std::size_t> dimension_lengths
+  );
+
   std::vector<ValueTable> value_table_vec;
-  // std::vector<std::unique_ptr<ValueTable> > value_table_ptrs;
+
+  std::size_t get_ntables();
 };
+
+
+class GriddedData{
+public:
+  GriddedData();
+  GriddedData(
+    std::vector< std::vector<double> > grid,
+    std::vector< std::vector<double> > values
+  );
+
+  std::size_t get_ndims();
+  double get_value(std::size_t table_index, std::vector<std::size_t> coords);
+
+private:
+  void construct_axes(std::vector< std::vector<double> > &grid);
+  void construct_values(
+    std::vector< std::vector<double> > &values,
+    std::vector<std::size_t> dimension_lengths
+  );
+  void check_inputs(
+    std::vector< std::vector<double> > &grid,
+    std::vector< std::vector<double> > &values
+  );
+
+  GridAxes grid_axes;
+  AllValueTables all_the_values;
+};
+
 
 
 // this will be the public-facing class.
@@ -100,6 +134,7 @@ class RegularGridInterpolator{
 public:
   // GridAxes, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
   RegularGridInterpolator();
+  RegularGridInterpolator(GriddedData &the_blob);
   RegularGridInterpolator(
     std::vector< std::vector<double> > grid,
     std::vector< std::vector<double> > values
@@ -137,17 +172,15 @@ public:
   }
 
   void set_new_grid_point(std::vector<double> target);
-  std::vector<double> get_coordinates_of_current_grid_point();
+  std::vector<double> get_current_grid_point();
   void clear_current_grid_point();
   std::size_t get_ndims();
 
 private:
-  std::size_t ndims;
-  GridAxes grid_axes;
-  AllValueTables all_the_values;
+  GriddedData the_blob;
   GridPoint current_grid_point;
 
-  void do_common_constructor_things();
+  void check_target_dimensions(std::vector<double> target);
 };
 
 }
