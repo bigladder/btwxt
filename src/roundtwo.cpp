@@ -296,24 +296,17 @@ bool free_check_sorted(std::vector<double> my_vec)
   bool is_desc = true;
   if (first==last) return true;
 
-  // test for strictly ascending
   std::vector<double>::iterator next = first;
-  while (++next!=last & is_asc) {
-    if (*next<=*first)
+  while (++next!=last) {
+    if (is_asc & (*next<=*first))
       is_asc = false;
-    ++first;
-  }
-  if (is_asc) return true;
-
-  // test for strictly ascending
-  first = my_vec.begin();
-  next = first;
-  while (++next!=last & is_desc) {
-    if (*next>=*first)
+    if (is_desc & (*next>=*first))
       is_desc = false;
+    if (!is_asc & !is_desc)
+      return false;
     ++first;
   }
-  return is_desc;
+  return true;
 };
 
 }
