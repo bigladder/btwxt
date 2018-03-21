@@ -185,15 +185,15 @@ the private `evaluate_linear` method is wrapped by the various public `calculate
 
 The linear interpolation algorithm included in Btwxt is an iterative hypercube interpolator. The steps:
 
-1. collect the 2^N^ ValuePoints that describe the N-Dimensional hypercube surrounding the target.
+1. Collect the 2<sup>N</sup> ValuePoints that describe the N-Dimensional hypercube surrounding the target.
 2. Set n=N.
-3. Pair ValuePoints to form the 2^(n-1)^ edges in that dimension
-4. Perform the 2^(n-1)^ simple linear interpolations for those pairs: `x = x~0~ * (1-weight) + x~1~ * weight` for x in (x~0~, x~1~).
-5. Considering the 2^(n-1)^ resulting ValuePoints a new hypercube of dimension N-1, decrement n and return to step 3.
+3. Pair ValuePoints to form the 2<sup>n-1</sup> edges in that dimension
+4. Perform the 2<sup>n-1</sup> simple linear interpolations for those pairs: x = x<sub>0</sub> &times; (1-weight) + x<sub>1</sub> &times; weight for x in (x<sub>0</sub>, x<sub>1</sub>).
+5. Considering the 2<sup>n-1</sup> resulting ValuePoints a new hypercube of dimension N-1, decrement n and return to step 3.
 6. Stop when n=0: the hypercube will be collapsed to a single ValuePoint.
 
 
-We propose to, in future work, do some caching and preprocessing when an input is static to--in effect--reduce the dimensionality of the starting hypercube.
+We propose to, in future work, do some caching and preprocessing when an input is static to---in effect---reduce the dimensionality of the starting hypercube.
 
 ## Performance Benchmarking
 
