@@ -7,7 +7,8 @@
 #include "gtest/gtest.h"
 
 // btwxt
-#include <roundtwo.h>
+#include <btwxt.h>
+#include <griddeddata.h>
 #include <error.h>
 
 

@@ -5,7 +5,7 @@
 #define BTWXT_ERROR_H_
 
 // BTWXT
-#include "roundtwo.h"
+#include "btwxt.h"
 
 namespace Btwxt {
 

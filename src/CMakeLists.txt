@@ -2,8 +2,10 @@
 
 
 set(library_sources
-  roundtwo.h
-  roundtwo.cpp
+  btwxt.h
+  btwxt.cpp
+  griddeddata.h
+  griddeddata.cpp
   error.h
   error.cpp
 )
