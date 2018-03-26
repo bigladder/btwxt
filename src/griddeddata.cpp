@@ -79,6 +79,7 @@ GriddedData::GriddedData(
 {
   check_inputs(grid, values);
   construct_axes(grid);
+  // TODO: I think we use the dim lengths inside check_inputs. might as well get them there, too.
   dimension_lengths = grid_axes.get_dim_lengths();
   value_tables = construct_values(values);
   showMessage(MSG_INFO, "GriddedData constructed from vectors!");
@@ -159,6 +160,10 @@ std::vector<double> GriddedData::get_values(std::vector<std::size_t> coords)
   return one_column;
 }
 
+std::vector<double> GriddedData::get_grid_vector(std::size_t grid_index)
+{
+  return grid_axes.axes[grid_index].grid;
+}
 
 
 // free functions

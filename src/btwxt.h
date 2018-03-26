@@ -20,8 +20,8 @@ namespace Btwxt{
 class WhereInTheGridIsThisPoint{
 public:
   WhereInTheGridIsThisPoint();
-  std::size_t floor;
-  double weight;
+  std::vector<std::size_t> floor;
+  std::vector<double> weights;
 };
 
 
@@ -33,8 +33,21 @@ public:
   GridPoint(std::vector<double> &target_vector);
 
   std::vector<double> target;
-  std::vector<WhereInTheGridIsThisPoint> floors_and_weights;
-  bool is_inbounds;  // for deciding interpolation vs. extrapolation;
+
+  void set_floor_and_weights(
+    std::vector<std::size_t> pf,
+    std::vector<double> w,
+    std::vector<bool> ib
+  );
+  std::vector<std::size_t> get_floor();
+  std::vector<double> get_weights();
+
+private:
+  // TODO activate WhereInTheGridIsThisPoint
+  // std::vector<WhereInTheGridIsThisPoint> floors_and_weights;
+  std::vector<std::size_t> point_floor;  // index of grid point <= target
+  std::vector<double> weights;
+  std::vector<bool> is_inbounds;  // for deciding interpolation vs. extrapolation;
 };
 
 
@@ -80,13 +93,26 @@ public:
   std::vector<double> get_current_grid_point();
   void clear_current_grid_point();
   std::size_t get_ndims();
+  std::vector<std::size_t> get_current_floor();
+  std::vector<double> get_current_weights();
 
 private:
   GriddedData the_blob;
   GridPoint current_grid_point;
 
   void check_target_dimensions(std::vector<double> target);
+  void find_floor_and_weights();
+  void find_floor(
+    std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds
+  );
+  void calculate_weights(
+    std::vector<std::size_t> &point_floor, std::vector<double> &weights);
 };
+
+
+// free functions
+std::size_t index_below_in_vector(double target, std::vector<double> &my_vec);
+double compute_fraction(double x, double edge[2]);
 
 }
 #endif // GRIDINTERP_H_

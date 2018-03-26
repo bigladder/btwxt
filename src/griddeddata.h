@@ -53,6 +53,7 @@ public:
   );
 
   std::size_t get_ndims();
+  std::vector<double> get_grid_vector(std::size_t grid_index);
   std::vector<double> get_values(std::vector<std::size_t> coords);
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 

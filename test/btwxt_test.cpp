@@ -50,7 +50,7 @@ protected:
       { {6, 3, 2, 8, 4, 2},
         {12, 6, 4, 16, 8, 4} };
 
-    target = {4, 5};
+    target = {12, 5};
     test_gridded_data = GriddedData(grid, values);
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
@@ -109,9 +109,28 @@ TEST_F(TwoDFixture, return_target) {
   test_rgi.set_new_grid_point(target);
 
   std::vector<double> returned_target = test_rgi.get_current_grid_point();
-  for (std::size_t i=0; i<ndims; i++) {
-    EXPECT_EQ(target[i], returned_target[i]);
-  }
+  ASSERT_THAT(returned_target, testing::ElementsAre(12, 5));
+
+  std::vector<std::size_t> point_floor = test_rgi.get_current_floor();
+  ASSERT_THAT(point_floor, testing::ElementsAre(1, 0));
+
+  std::vector<double> weights = test_rgi.get_current_weights();
+  ASSERT_THAT(weights, testing::ElementsAre(0.4, 0.5));
+};
+
+TEST_F(TwoDFixture, oobounds_target) {
+  std::size_t ndims = test_rgi.get_ndims();
+  std::vector<double> oobounds_target = {16, 3};
+  test_rgi.set_new_grid_point(oobounds_target);
+
+  std::vector<double> returned_target = test_rgi.get_current_grid_point();
+  ASSERT_THAT(returned_target, testing::ElementsAre(16, 3));
+
+  std::vector<std::size_t> point_floor = test_rgi.get_current_floor();
+  ASSERT_THAT(point_floor, testing::ElementsAre(1, 0));
+
+  std::vector<double> weights = test_rgi.get_current_weights();
+  ASSERT_THAT(weights, testing::ElementsAre(1.2, -0.5));
 };
 
 TEST_F(MismatchedFixture, ndims) {
@@ -141,6 +160,31 @@ TEST(CheckSorted, free_check_sorted) {
     EXPECT_EQ(is_sorted, pair.second);
   }
 };
+
+TEST(FloorFinder, index_below_in_vector) {
+  std::vector<double> grid_vector = {1,3,5,7,9};
+  double target = 5.3;
+  std::size_t expected_floor = 2;
+  std::size_t returned_floor = index_below_in_vector(target, grid_vector);
+  EXPECT_EQ(returned_floor, expected_floor);
+  double expected_weight = 0.15;
+  double edge[2] = {grid_vector[returned_floor], grid_vector[returned_floor+1]};
+  double returned_weight = compute_fraction(target, edge);
+  EXPECT_DOUBLE_EQ(returned_weight, expected_weight);
+
+  // if smaller than all numbers, return vector.size()
+  target = 0.3;
+  expected_floor = 5;
+  returned_floor = index_below_in_vector(target, grid_vector);
+  EXPECT_EQ(returned_floor, expected_floor);
+
+  // larger than all numbers returns last index
+  target = 9.3;
+  expected_floor = 4;
+  returned_floor = index_below_in_vector(target, grid_vector);
+  EXPECT_EQ(returned_floor, expected_floor);
+};
+
 
 void my_callback(
   const int messageType,
