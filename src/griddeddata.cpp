@@ -77,10 +77,8 @@ GriddedData::GriddedData(
   std::vector< std::vector<double> > values
 )
 {
-  check_inputs(grid, values);
+  dimension_lengths = check_inputs(grid, values);
   construct_axes(grid);
-  // TODO: I think we use the dim lengths inside check_inputs. might as well get them there, too.
-  dimension_lengths = grid_axes.get_dim_lengths();
   value_tables = construct_values(values);
   showMessage(MSG_INFO, "GriddedData constructed from vectors!");
 };
@@ -123,15 +121,17 @@ Eigen::ArrayXXd GriddedData::construct_values(
   return vtables;
 };
 
-void GriddedData::check_inputs(
+std::vector<std::size_t> GriddedData::check_inputs(
   std::vector< std::vector<double> > &grid,
   std::vector< std::vector<double> > &values
 )
 {
   // check that grid dimensions and value tables align
   std::size_t expected_nvalues = 1;
-  for (auto a : grid) {
-    expected_nvalues *= a.size();
+  std::vector<std::size_t> dimension_lengths;
+  for (auto grid_vector : grid) {
+    expected_nvalues *= grid_vector.size();
+    dimension_lengths.push_back(grid_vector.size());
   }
   std::string message_str = "We expect " + std::to_string(expected_nvalues)
           + " values in each table.";
@@ -145,6 +145,7 @@ void GriddedData::check_inputs(
       showMessage(MSG_ERR, "Input value table does not match the grid size");
     }
   }
+  return dimension_lengths;
 };
 
 std::size_t GriddedData::get_ndims()

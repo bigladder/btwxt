@@ -62,7 +62,7 @@ private:
   Eigen::ArrayXXd construct_values(
     std::vector< std::vector<double> > &values
   );
-  void check_inputs(
+  std::vector<std::size_t> check_inputs(
     std::vector< std::vector<double> > &grid,
     std::vector< std::vector<double> > &values
   );

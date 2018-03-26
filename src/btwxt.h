@@ -47,6 +47,9 @@ private:
   // std::vector<WhereInTheGridIsThisPoint> floors_and_weights;
   std::vector<std::size_t> point_floor;  // index of grid point <= target
   std::vector<double> weights;
+  // TODO upgrade is_inbounds to a family of const ints to allow both
+  //     1. outside grid but can extrapolate to, and
+  //     2. outside allowed extrapolation zone.
   std::vector<bool> is_inbounds;  // for deciding interpolation vs. extrapolation;
 };
 
