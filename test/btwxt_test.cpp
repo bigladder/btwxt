@@ -5,6 +5,8 @@
 // Standard
 #include<iostream>
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "Eigen/Dense"
 
 // btwxt
 #include <btwxt.h>
@@ -82,23 +84,24 @@ TEST_F(TwoDFixture, construct_from_gridded_data) {
   EXPECT_EQ(ndims, 2);
 };
 
-TEST_F(TwoDFixture, get_value) {
+TEST_F(TwoDFixture, get_values) {
   std::vector<std::size_t> coords = {0, 1};
-  double returned_value = test_gridded_data.get_value(0, coords);
-  EXPECT_EQ(returned_value, 8);
+  std::vector<double> returned_vec = test_gridded_data.get_values(coords);
+  ASSERT_THAT(returned_vec, testing::ElementsAre(8, 16));
 
   coords = {1, 0};
-  returned_value = test_gridded_data.get_value(1, coords);
-  EXPECT_EQ(returned_value, 6);
+  returned_vec = test_gridded_data.get_values(coords);
+  ASSERT_THAT(returned_vec, testing::ElementsAre(3, 6));
 
+  // TODO rebuild get_value() method
   // should return 0 and a warning that we don't have that many tables
-  returned_value = test_gridded_data.get_value(2, coords);
-  EXPECT_EQ(returned_value, 0);
+  // returned_value = test_gridded_data.get_value(2, coords);
+  // EXPECT_EQ(returned_value, 0);
 
   // should return 0 and a warning that we overran dimension 0
   coords = {7, 0};
-  returned_value = test_gridded_data.get_value(1, coords);
-  EXPECT_EQ(returned_value, 0);
+  returned_vec = test_gridded_data.get_values(coords);
+  ASSERT_THAT(returned_vec, testing::ElementsAre(0));
 };
 
 TEST_F(TwoDFixture, return_target) {

@@ -1,5 +1,6 @@
 # Main library
 
+include_directories("${PROJECT_SOURCE_DIR}/vendor/eigen3")
 
 set(library_sources
   btwxt.h

@@ -6,6 +6,7 @@
 
 // Standard
 #include<vector>
+#include "Eigen/Dense"
 
 // btwxt
 #include "griddeddata.h"
@@ -49,24 +50,18 @@ public:
     std::vector< std::vector<double> > grid,
     std::vector< std::vector<double> > values
   );
-  // RegularGridInterpolator(
-  //   std::vector< std::vector<double> > grid,
-  //   double values[], std::size_t size);
-  // RegularGridInterpolator(
-  //   std::vector< double[] > grid, std::vector<std::size_t> grid_dimensions,
-  //   double values[], std::size_t size);  // we may not want to allow this constructor. feels dangerous.
 
   // GridPoint gets instantiated inside calculate_value_at_target
-  double calculate_value_at_target(std::vector<double> target, ValueTable* this_output);
-  double operator()(std::vector<double> target, ValueTable* this_output)
+  double calculate_value_at_target(std::vector<double> target, std::size_t table_index);
+  double operator()(std::vector<double> target, std::size_t table_index)
   {
-    return calculate_value_at_target(target, this_output);
+    return calculate_value_at_target(target, table_index);
   }
 
-  double calculate_value_at_target(ValueTable* this_output);
-  double operator()(ValueTable* this_output)
+  double calculate_value_at_target(std::size_t table_index);
+  double operator()(std::size_t table_index)
   {
-    return calculate_value_at_target(this_output);
+    return calculate_value_at_target(table_index);
   }
 
   std::vector<double> calculate_all_values_at_target(std::vector<double> target);

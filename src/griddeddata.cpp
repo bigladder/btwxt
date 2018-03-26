@@ -69,66 +69,6 @@ std::vector<std::size_t> GridAxes::get_dim_lengths()
 }
 
 
-ValueTable::ValueTable() {};
-ValueTable::ValueTable(
-  double *value_array,
-  std::size_t size,
-  std::vector<std::size_t> &dimension_lengths
-) {};
-
-ValueTable::ValueTable(
-  std::vector<double> value_vector,
-  std::vector<std::size_t> &dimension_lengths
-) :
-  values(value_vector),
-  dimension_lengths(dimension_lengths)
-{
-  showMessage(MSG_INFO, "ValueTable object constructed from vector!");
-};
-
-double ValueTable::get_value(
-  std::vector<std::size_t> coords)
-{
-  std::size_t index = 0;
-  std::size_t prev_len = 1;
-  for (std::size_t d=0; d<dimension_lengths.size(); d++)
-  {
-    if (coords[d] >= dimension_lengths[d]) {
-      showMessage(MSG_WARN, "You overran dimension " + std::to_string(d));
-      return 0;
-    }
-    else {
-      index += coords[d] * prev_len;
-      prev_len = dimension_lengths[d];
-    }
-  }
-  showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
-  return values[index];
-};
-
-
-
-
-AllValueTables::AllValueTables() {};
-AllValueTables::AllValueTables(
-  std::vector< std::vector<double> > values,
-  std::vector<std::size_t> dimension_lengths
-)
-{
-  for (auto v : values) {
-    ValueTable vt(v, dimension_lengths);
-    value_table_vec.push_back(vt);
-  }
-
-  std::size_t num_tables = values.size();
-  std::string message_str = "Vector of ValueTables created comprising "
-          + std::to_string(num_tables) + " tables!";
-  showMessage(MSG_INFO, message_str);
-};
-
-std::size_t AllValueTables::get_ntables()
-{ return value_table_vec.size(); }
-
 
 
 GriddedData::GriddedData() {};
@@ -139,7 +79,8 @@ GriddedData::GriddedData(
 {
   check_inputs(grid, values);
   construct_axes(grid);
-  construct_values(values, grid_axes.get_dim_lengths());
+  dimension_lengths = grid_axes.get_dim_lengths();
+  value_tables = construct_values(values);
   showMessage(MSG_INFO, "GriddedData constructed from vectors!");
 };
 
@@ -152,24 +93,33 @@ void GriddedData::construct_axes(
     grid_axes.axes.push_back(ga);
   }
 
-  std::size_t ndims = grid_axes.get_ndims();
+  ndims = grid_axes.get_ndims();
   showMessage(MSG_INFO, std::to_string(ndims) + "-D GridAxis object constructed");
 };
 
-void GriddedData::construct_values(
-  std::vector< std::vector<double> > &values,
-  std::vector<std::size_t> dimension_lengths
+
+Eigen::ArrayXXd GriddedData::construct_values(
+  std::vector< std::vector<double> > &values
 )
 {
+  num_tables = values.size();
+  num_values = 1;
+  for (auto a : dimension_lengths) {
+    num_values *= a;
+  }
+  showMessage(MSG_INFO, "We expect " + std::to_string(num_values) + " values.");
+  Eigen::ArrayXXd vtables(num_tables, num_values);
+  showMessage(MSG_INFO, "Created blank Eigen Array with " + std::to_string(vtables.rows()) + " tables, each with " + std::to_string(vtables.cols())+ " values.");
+  std::size_t i = 0;
   for (auto v : values) {
-    ValueTable vt(v, dimension_lengths);
-    all_the_values.value_table_vec.push_back(vt);
+    Eigen::Map< Eigen::ArrayXd > temp_row(&v[0], num_values);
+    vtables.row(i) = temp_row;
+    i++;
   }
 
-  std::size_t num_tables = values.size();
-  std::string message_str = "Vector of ValueTables created comprising "
-          + std::to_string(num_tables) + " tables!";
-  showMessage(MSG_INFO, message_str);
+  std::cout << vtables << std::endl;
+  // TODO: I would prefer to be using the class value_tables over returning an eigen array
+  return vtables;
 };
 
 void GriddedData::check_inputs(
@@ -199,19 +149,16 @@ void GriddedData::check_inputs(
 std::size_t GriddedData::get_ndims()
 { return grid_axes.get_ndims(); };
 
-double GriddedData::get_value(
-  std::size_t table_index,
-  std::vector<std::size_t> coords
-)
+std::vector<double> GriddedData::get_values(std::vector<std::size_t> coords)
 {
-  if (table_index >= get_ndims()) {
-    showMessage(MSG_WARN, "We don't have that many tables.");
-    return 0;
-  }
-  else {
-    return all_the_values.value_table_vec[table_index].get_value(coords);
-  }
-};
+  std::size_t index = locate_coords(coords, dimension_lengths);
+  if (index == -1) {return {0};} ;
+  // return column of values as a vector
+  double* col_data = value_tables.col(index).data();
+  std::vector<double> one_column(col_data, col_data+num_tables);
+  return one_column;
+}
+
 
 
 // free functions
@@ -235,5 +182,36 @@ bool free_check_sorted(std::vector<double> my_vec)
   }
   return true;
 };
+
+
+std::size_t locate_coords(
+  std::vector<std::size_t> coords,
+  std::vector<std::size_t> dimension_lengths
+)
+{
+  std::size_t index = 0;
+  std::size_t prev_len = 1;
+  for (std::size_t d=0; d<dimension_lengths.size(); d++)
+  {
+    if (coords[d] >= dimension_lengths[d]) {
+      showMessage(MSG_WARN, "You overran dimension " + std::to_string(d));
+      return -1;
+    }
+    else {
+      index += coords[d] * prev_len;
+      prev_len = dimension_lengths[d];
+    }
+  }
+  showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
+  return index;
+}
+
+std::vector<double> eigen_to_vector(Eigen::ArrayXd change_this)
+{
+  std::size_t length = change_this.rows();
+  double* c_array = change_this.data();
+  std::vector<double> to_this(c_array, c_array+length);
+  return to_this;
+}
 
 }

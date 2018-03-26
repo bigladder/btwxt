@@ -46,11 +46,14 @@ the_blob(grid, values)
   showMessage(MSG_INFO, "RGI constructed from vectors!");
 };
 
-double RegularGridInterpolator::calculate_value_at_target(std::vector<double> target, ValueTable* this_output)
+double RegularGridInterpolator::calculate_value_at_target(
+  std::vector<double> target, std::size_t table_index)
 {return 0.0; };
-double RegularGridInterpolator::calculate_value_at_target(ValueTable* this_output)
+double RegularGridInterpolator::calculate_value_at_target(
+  std::size_t table_index)
 {return 0.0; };
-std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(std::vector<double> target)
+std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(
+  std::vector<double> target)
 {
   std::vector<double> result = {0.0};
   return result;

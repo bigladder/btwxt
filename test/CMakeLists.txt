@@ -1,11 +1,12 @@
 # Test Executable
 include_directories("../src"
-                    "${gtest_SOURCE_DIR}/include")
+                    "${gtest_SOURCE_DIR}/include"
+                    "${PROJECT_SOURCE_DIR}/vendor/eigen3")
 
 set(library_sources
   btwxt_test.cpp
 )
 
-link_libraries(btwxt gtest)
+link_libraries(btwxt gtest gmock)
 
 add_executable(test ${library_sources})

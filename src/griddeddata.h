@@ -5,6 +5,7 @@
 #define GRIDDEDDATA_H_
 
 #include<vector>
+#include "Eigen/Dense"
 
 // We will eventually split this out into two header files,
 //     the public API and the private members.
@@ -41,41 +42,6 @@ public:
 };
 
 
-class ValueTable{
-public:
-  // individual vector for a single output variable (e.g., capacity)
-  ValueTable();
-  ValueTable(
-    double *value_array,
-    std::size_t size,
-    std::vector<std::size_t> &dimension_lengths
-  );
-  ValueTable(
-    std::vector<double> value_vector,
-    std::vector<std::size_t> &dimension_lengths
-  );
-
-  double get_value(std::vector<std::size_t> coords);
-
-private:
-  std::vector<double> values;
-  std::vector<std::size_t> dimension_lengths;
-};
-
-
-class AllValueTables{
-  // vector of vectors for the complete set of output variables
-public:
-  AllValueTables();
-  AllValueTables(
-    std::vector< std::vector<double> > values,
-    std::vector<std::size_t> dimension_lengths
-  );
-
-  std::vector<ValueTable> value_table_vec;
-
-  std::size_t get_ntables();
-};
 
 
 class GriddedData{
@@ -87,13 +53,13 @@ public:
   );
 
   std::size_t get_ndims();
-  double get_value(std::size_t table_index, std::vector<std::size_t> coords);
+  std::vector<double> get_values(std::vector<std::size_t> coords);
+  // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
 private:
   void construct_axes(std::vector< std::vector<double> > &grid);
-  void construct_values(
-    std::vector< std::vector<double> > &values,
-    std::vector<std::size_t> dimension_lengths
+  Eigen::ArrayXXd construct_values(
+    std::vector< std::vector<double> > &values
   );
   void check_inputs(
     std::vector< std::vector<double> > &grid,
@@ -101,12 +67,22 @@ private:
   );
 
   GridAxes grid_axes;
-  AllValueTables all_the_values;
+  Eigen::ArrayXXd value_tables;
+  std::size_t ndims;
+  std::vector<std::size_t> dimension_lengths;
+  std::size_t num_tables;
+  std::size_t num_values;
 };
 
 
 // free functions
 bool free_check_sorted(std::vector<double>);
+std::size_t locate_coords(
+  std::vector<std::size_t> coords,
+  std::vector<std::size_t> dimension_lengths
+);
+std::vector<double> eigen_to_vector(Eigen::ArrayXd);
+
 
 }
 #endif // GRIDDEDDATA_H_
