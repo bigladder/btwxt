@@ -118,6 +118,14 @@ TEST_F(TwoDFixture, return_target) {
   ASSERT_THAT(weights, testing::ElementsAre(0.4, 0.5));
 };
 
+TEST_F(TwoDFixture, interpolate) {
+  std::size_t ndims = test_rgi.get_ndims();
+  test_rgi.set_new_grid_point(target);
+
+  std::vector<double> result = test_rgi.calculate_all_values_at_target();
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.9), testing::DoubleEq(5.8)));
+};
+
 TEST_F(TwoDFixture, oobounds_target) {
   std::size_t ndims = test_rgi.get_ndims();
   std::vector<double> oobounds_target = {16, 3};

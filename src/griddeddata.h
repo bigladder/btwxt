@@ -53,8 +53,10 @@ public:
   );
 
   std::size_t get_ndims();
+  std::size_t get_num_tables();
   std::vector<double> get_grid_vector(std::size_t grid_index);
   std::vector<double> get_values(std::vector<std::size_t> coords);
+  Eigen::ArrayXd get_column(std::vector<std::size_t> coords);
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
 private:

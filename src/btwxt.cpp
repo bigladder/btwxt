@@ -5,6 +5,7 @@
 // Standard
 #include<iostream>
 #include<vector>
+#include "Eigen/Dense"
 
 //btwxt
 #include "btwxt.h"
@@ -77,7 +78,11 @@ std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(
 };
 std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
 {
-  std::vector<double> result = {0.0};
+  std::vector<std::size_t> point_floor = get_current_floor();
+  Eigen::ArrayXXd hypercube = collect_hypercube(point_floor);
+  std::vector<double> weights = get_current_weights();
+  Eigen::ArrayXd eigen_result = evaluate_linear(hypercube, weights);
+  std::vector<double> result = eigen_to_vector(eigen_result);
   return result;
 };
 
@@ -159,6 +164,57 @@ void RegularGridInterpolator::calculate_weights(
 }
 
 
+Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube(
+  std::vector<std::size_t> point_floor)
+{
+  // collect all of the points in the interpolation hypercube
+  std::size_t ndims = get_ndims();
+  std::size_t num_vertices = pow(2, ndims);
+  Eigen::ArrayXXd hypercube(the_blob.get_num_tables(), num_vertices);
+
+  showMessage(MSG_INFO, "we use binary representations to collect hypercube");
+  std::vector< std::vector<std::size_t> > vertex_coords = make_binary_list(ndims);
+
+  showMessage(MSG_INFO, "collecting hypercube corners");
+  for (std::size_t i=0; i<num_vertices; i++) {
+    std::transform(vertex_coords[i].begin( ), vertex_coords[i].end( ),
+                   point_floor.begin( ), vertex_coords[i].begin( ),
+                   std::plus<std::size_t>());
+    hypercube.col(i) = the_blob.get_column(vertex_coords[i]);
+  }
+  std::cout << hypercube << std::endl;
+  return hypercube;
+}
+
+Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
+  Eigen::ArrayXXd hypercube, std::vector<double> weights)
+{
+  // collapse iteratively from n-dim hypercube to a line.
+  std::size_t ndims = get_ndims();
+  showMessage(MSG_INFO, "starting interpolation");
+  for (std::size_t d=ndims; d>0 ; d--) {
+      showMessage(MSG_INFO, "interpolating dim-" + std::to_string(d-1) + ", with frac = " + std::to_string(weights[d-1]));
+      hypercube = collapse_dimension(hypercube, weights[d-1]);
+  }
+  return hypercube;
+}
+
+Eigen::ArrayXXd RegularGridInterpolator::collapse_dimension(
+  Eigen::ArrayXXd hypercube, double frac)
+{
+  // interpolate along one axis of an n-dimensional hypercube.
+  // this flattens a square to a line, or a cube to a square, etc.
+  std::size_t half = hypercube.cols()/2;
+  Eigen::ArrayXXd output(hypercube.rows(), half);
+  for (std::size_t i=0; i<half; i++) {
+    output.col(i) = hypercube.col(2*i) * (1-frac) + hypercube.col(2*i+1) * frac;
+  }
+  std::cout << output << std::endl;
+  return output;
+}
+
+
+// free functions
 std::size_t index_below_in_vector(double target, std::vector<double> &my_vec)
   // returns the index of the largest value <= the target
   // if target is greater than all values, returns index of final value
@@ -174,6 +230,43 @@ std::size_t index_below_in_vector(double target, std::vector<double> &my_vec)
 double compute_fraction(double x, double edge[2]) {
   // how far along an edge is the target?
   return (x - edge[0]) / (edge[1] - edge[0]);
+}
+
+std::size_t pow(std::size_t base, std::size_t power) {
+  // raise base to a power (both must be size_t)
+  if (power == 0) {return 1;}
+  else {
+    std::size_t result = base;
+    for (std::size_t i=1; i<power; i++)
+    {
+        result = result*base;
+    }
+    return result;
+  }
+}
+
+std::vector< std::vector<std::size_t> > make_binary_list(std::size_t ndims) {
+  // produces a list of binary representations of numbers up to 2^ndims.
+  // e.g., if ndims=2, this function returns {{0,0}, {0,1}, {1,0}, {1,1}}
+  // these binary representations are used to collect all of the points in the interpolation hypercube
+  std::vector< std::vector<std::size_t> > binaries;
+  for (std::size_t n=0; n<pow(2, ndims); n++) {
+    std::size_t i;
+    std::size_t b;
+    std::vector<std::size_t> single;
+    for (i = 1 << (ndims-1); i > 0; i = i / 2) {
+      (n & i)? b=1: b=0;
+      single.push_back(b);
+    }
+    binaries.push_back(single);
+    if (ndims==2) {
+      std::cout << n << " = "<< binaries[n][0] << ", " << binaries[n][1] << std::endl;
+    }
+    else if (ndims==3) {
+      std::cout << n << " = "<< binaries[n][0] << ", " << binaries[n][1] << ", " << binaries[n][2] << std::endl;
+    }
+  }
+  return binaries;
 }
 
 }

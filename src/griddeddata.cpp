@@ -151,6 +151,9 @@ std::vector<std::size_t> GriddedData::check_inputs(
 std::size_t GriddedData::get_ndims()
 { return grid_axes.get_ndims(); };
 
+std::size_t GriddedData::get_num_tables()
+{ return num_tables; };
+
 std::vector<double> GriddedData::get_values(std::vector<std::size_t> coords)
 {
   std::size_t index = locate_coords(coords, dimension_lengths);
@@ -159,6 +162,14 @@ std::vector<double> GriddedData::get_values(std::vector<std::size_t> coords)
   double* col_data = value_tables.col(index).data();
   std::vector<double> one_column(col_data, col_data+num_tables);
   return one_column;
+}
+
+Eigen::ArrayXd GriddedData::get_column(std::vector<std::size_t> coords)
+{
+  std::size_t index = locate_coords(coords, dimension_lengths);
+  // TODO handle exception if invalid coordinates
+  // if (index == -1) { return {0}; } ;
+  return value_tables.col(index);
 }
 
 std::vector<double> GriddedData::get_grid_vector(std::size_t grid_index)
@@ -208,7 +219,7 @@ std::size_t locate_coords(
       prev_len = dimension_lengths[d];
     }
   }
-  showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
+  // showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
   return index;
 }
 

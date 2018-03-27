@@ -110,12 +110,17 @@ private:
   );
   void calculate_weights(
     std::vector<std::size_t> &point_floor, std::vector<double> &weights);
+  Eigen::ArrayXXd collect_hypercube(std::vector<std::size_t> point_floor);
+  Eigen::ArrayXXd evaluate_linear(Eigen::ArrayXXd hypercube, std::vector<double> weights);
+  Eigen::ArrayXXd collapse_dimension(Eigen::ArrayXXd hypercube, double frac);
 };
 
 
 // free functions
 std::size_t index_below_in_vector(double target, std::vector<double> &my_vec);
 double compute_fraction(double x, double edge[2]);
+std::size_t pow(std::size_t base, std::size_t power);
+std::vector< std::vector<std::size_t> > make_binary_list(std::size_t ndims);
 
 }
 #endif // GRIDINTERP_H_
