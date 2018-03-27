@@ -6,6 +6,7 @@ include_directories("../src"
 set(library_sources
   main_test.cpp
   btwxt_test.cpp
+  math_test.cpp
 )
 
 link_libraries(btwxt gtest gmock)

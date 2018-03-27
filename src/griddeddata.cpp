@@ -207,7 +207,7 @@ std::size_t locate_coords(
 )
 {
   std::size_t index = 0;
-  std::size_t prev_len = 1;
+  std::size_t panel_size = 1;
   for (std::size_t d=0; d<dimension_lengths.size(); d++)
   {
     if (coords[d] >= dimension_lengths[d]) {
@@ -215,8 +215,8 @@ std::size_t locate_coords(
       return -1;
     }
     else {
-      index += coords[d] * prev_len;
-      prev_len = dimension_lengths[d];
+      index += coords[d] * panel_size;
+      panel_size *= dimension_lengths[d];
     }
   }
   // showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
