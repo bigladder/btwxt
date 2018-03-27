@@ -4,6 +4,7 @@ include_directories("../src"
                     "${PROJECT_SOURCE_DIR}/vendor/eigen3")
 
 set(library_sources
+  main_test.cpp
   btwxt_test.cpp
 )
 
