@@ -15,10 +15,6 @@ namespace Btwxt {
 
 
 
-WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint() {};
-
-
-
 GridPoint::GridPoint() {};
 GridPoint::GridPoint(double* target) {};
 GridPoint::GridPoint(const std::vector<double> &target_vector) :
@@ -28,23 +24,58 @@ GridPoint::GridPoint(const std::vector<double> &target_vector) :
 };
 
 
-void GridPoint::set_floor_and_weights(
-  std::vector<std::size_t> pf,
-  std::vector<double> w,
-  std::vector<bool> ib
-)
+
+
+WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint() {};
+WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint(
+  GridPoint& current_grid_point, GriddedData& the_blob
+) :
+  ndims(the_blob.get_ndims()),
+  point_floor(ndims, 0),
+  weights(ndims, 0),
+  is_inbounds(ndims, false)
 {
-  point_floor = pf;
-  weights = w;
-  is_inbounds = ib;
-  showMessage(MSG_INFO, "GridPoint floor and weights set!");
+  find_floor(point_floor, is_inbounds, current_grid_point, the_blob);
+  calculate_weights(point_floor, weights, current_grid_point, the_blob);
 };
 
-std::vector<std::size_t> GridPoint::get_floor()
+std::vector<std::size_t> WhereInTheGridIsThisPoint::get_floor()
 { return point_floor; }
 
-std::vector<double> GridPoint::get_weights()
+std::vector<double> WhereInTheGridIsThisPoint::get_weights()
 { return weights; }
+
+void WhereInTheGridIsThisPoint::find_floor(
+  std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds,
+  GridPoint& current_grid_point, GriddedData& the_blob)
+{
+  for (std::size_t d=0; d<ndims; d+=1) {
+    std::vector<double> grid_vector = the_blob.get_grid_vector(d);
+    point_floor[d] = index_below_in_vector(current_grid_point.target[d], grid_vector);
+    if (point_floor[d] == grid_vector.size()) {
+      is_inbounds[d] = false;
+      point_floor[d] = 0;
+    } else if (point_floor[d] == grid_vector.size()-1) {
+      is_inbounds[d] = false;
+      point_floor[d] -= 1;
+    } else {
+      is_inbounds[d] = true;
+    }
+  }
+}
+
+void WhereInTheGridIsThisPoint::calculate_weights(
+  const std::vector<std::size_t> &point_floor, std::vector<double> &weights,
+  GridPoint& current_grid_point, GriddedData& the_blob)
+{
+  for (std::size_t d=0; d<ndims; d+=1) {
+    std::vector<double> grid_vector = the_blob.get_grid_vector(d);
+    double edge[] = {grid_vector[point_floor[d]], grid_vector[point_floor[d]+1]};
+    weights[d] = compute_fraction(current_grid_point.target[d], edge);
+  }
+}
+
+
 
 
 RegularGridInterpolator::RegularGridInterpolator() {};
@@ -78,10 +109,8 @@ std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(
 };
 std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
 {
-  std::vector<std::size_t> point_floor = get_current_floor();
-  Eigen::ArrayXXd hypercube = collect_hypercube(point_floor);
-  std::vector<double> weights = get_current_weights();
-  Eigen::ArrayXd eigen_result = evaluate_linear(hypercube, weights);
+  Eigen::ArrayXXd hypercube = collect_hypercube();
+  Eigen::ArrayXd eigen_result = evaluate_linear(hypercube);
   std::vector<double> result = eigen_to_vector(eigen_result);
   return result;
 };
@@ -91,7 +120,7 @@ void RegularGridInterpolator::set_new_grid_point(
 {
   RegularGridInterpolator::check_target_dimensions(target);
   current_grid_point = GridPoint(target);
-  RegularGridInterpolator::find_floor_and_weights();
+  the_locator = WhereInTheGridIsThisPoint(current_grid_point, the_blob);
 };
 
 std::vector<double> RegularGridInterpolator::get_current_grid_point()
@@ -117,61 +146,21 @@ void RegularGridInterpolator::check_target_dimensions(
 };
 
 std::vector<std::size_t> RegularGridInterpolator::get_current_floor()
-{ return current_grid_point.get_floor(); }
+{ return the_locator.get_floor(); }
 
 std::vector<double> RegularGridInterpolator::get_current_weights()
-{ return current_grid_point.get_weights(); }
+{ return the_locator.get_weights(); }
 
 
-void RegularGridInterpolator::find_floor_and_weights()
-{
-  std::size_t ndims = RegularGridInterpolator::get_ndims();
-  std::vector<std::size_t> point_floor(ndims);
-  std::vector<double> weights(ndims);
-  std::vector<bool> is_inbounds(ndims);
-
-  RegularGridInterpolator::find_floor(point_floor, is_inbounds);
-  RegularGridInterpolator::calculate_weights(point_floor, weights);
-  current_grid_point.set_floor_and_weights(point_floor, weights, is_inbounds);
-}
-
-void RegularGridInterpolator::find_floor(
-  std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds)
-{
-  std::size_t ndims = RegularGridInterpolator::get_ndims();
-  for (std::size_t d=0; d<ndims; d+=1) {
-    std::vector<double> grid_vector = the_blob.get_grid_vector(d);
-    point_floor[d] = index_below_in_vector(current_grid_point.target[d], grid_vector);
-    if (point_floor[d] == grid_vector.size()) {
-      is_inbounds[d] = false;
-      point_floor[d] = 0;
-    } else if (point_floor[d] == grid_vector.size()-1) {
-      is_inbounds[d] = false;
-      point_floor[d] -= 1;
-    } else {
-      is_inbounds[d] = true;
-    }
-  }
-}
-
-void RegularGridInterpolator::calculate_weights(
-  std::vector<std::size_t> &point_floor, std::vector<double> &weights)
-{
-  std::size_t ndims = RegularGridInterpolator::get_ndims();
-  for (std::size_t d=0; d<ndims; d+=1) {
-    std::vector<double> grid_vector = the_blob.get_grid_vector(d);
-    double edge[] = {grid_vector[point_floor[d]], grid_vector[point_floor[d]+1]};
-    weights[d] = compute_fraction(current_grid_point.target[d], edge);
-  }
-}
 
 
-Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube(
-  const std::vector<std::size_t>& point_floor)
+
+Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube()
 {
   // collect all of the points in the interpolation hypercube
   std::size_t ndims = get_ndims();
   std::size_t num_vertices = pow(2, ndims);
+  std::vector<std::size_t> point_floor = get_current_floor();
   Eigen::ArrayXXd hypercube(the_blob.get_num_tables(), num_vertices);
 
   showMessage(MSG_INFO, "we use binary representations to collect hypercube");
@@ -189,10 +178,12 @@ Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube(
 }
 
 Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
-  Eigen::ArrayXXd hypercube, const std::vector<double>& weights)
+  Eigen::ArrayXXd hypercube)
 {
   // collapse iteratively from n-dim hypercube to a line.
   std::size_t ndims = get_ndims();
+  std::vector<double> weights = get_current_weights();
+
   showMessage(MSG_INFO, "starting interpolation");
   for (std::size_t d=ndims; d>0 ; d--) {
       showMessage(MSG_INFO, "interpolating dim-" + std::to_string(d-1) + ", with frac = " + std::to_string(weights[d-1]));

@@ -17,14 +17,6 @@
 
 namespace Btwxt{
 
-class WhereInTheGridIsThisPoint{
-public:
-  WhereInTheGridIsThisPoint();
-  std::vector<std::size_t> floor;
-  std::vector<double> weights;
-};
-
-
 class GridPoint{
 public:
   // target is an array of doubles specifying the point we are interpolating to.
@@ -33,24 +25,33 @@ public:
   GridPoint(const std::vector<double> &target_vector);
 
   std::vector<double> target;
+};
 
-  void set_floor_and_weights(
-    std::vector<std::size_t> pf,
-    std::vector<double> w,
-    std::vector<bool> ib
-  );
+
+
+class WhereInTheGridIsThisPoint{
+public:
+  WhereInTheGridIsThisPoint();
+  WhereInTheGridIsThisPoint(GridPoint&, GriddedData&);
+
   std::vector<std::size_t> get_floor();
   std::vector<double> get_weights();
 
 private:
-  // TODO activate WhereInTheGridIsThisPoint
-  // std::vector<WhereInTheGridIsThisPoint> floors_and_weights;
+  std::size_t ndims;
   std::vector<std::size_t> point_floor;  // index of grid point <= target
   std::vector<double> weights;
   // TODO upgrade is_inbounds to a family of const ints to allow both
   //     1. outside grid but can extrapolate to, and
   //     2. outside allowed extrapolation zone.
   std::vector<bool> is_inbounds;  // for deciding interpolation vs. extrapolation;
+
+  void find_floor(
+    std::vector<std::size_t>& point_floor, std::vector<bool>& is_inbounds,
+    GridPoint&, GriddedData&);
+  void calculate_weights(
+    const std::vector<std::size_t>& point_floor, std::vector<double>& weights,
+    GridPoint&, GriddedData&);
 };
 
 
@@ -102,17 +103,11 @@ public:
 private:
   GriddedData the_blob;
   GridPoint current_grid_point;
+  WhereInTheGridIsThisPoint the_locator;
 
   void check_target_dimensions(const std::vector<double> &target);
-  void find_floor_and_weights();
-  void find_floor(
-    std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds
-  );
-  void calculate_weights(
-    std::vector<std::size_t> &point_floor, std::vector<double> &weights);
-  Eigen::ArrayXXd collect_hypercube(const std::vector<std::size_t>& point_floor);
-  Eigen::ArrayXXd evaluate_linear(
-    Eigen::ArrayXXd hypercube, const std::vector<double>& weights);
+  Eigen::ArrayXXd collect_hypercube();
+  Eigen::ArrayXXd evaluate_linear(Eigen::ArrayXXd hypercube);
   Eigen::ArrayXXd collapse_dimension(
     Eigen::ArrayXXd hypercube, const double& frac);
 };
