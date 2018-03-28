@@ -21,6 +21,7 @@ using namespace Btwxt;
 class OneDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
   std::vector<double> target;
 
   OneDFixture(){
@@ -28,7 +29,8 @@ protected:
     std::vector<std::vector<double> > values = { {6, 3} };
 
     target = {4};
-    test_rgi = RegularGridInterpolator(grid, values);
+    test_gridded_data = GriddedData(grid, values);
+    test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };
 
@@ -53,6 +55,7 @@ protected:
 class MismatchedFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
   std::vector<double> target;
 
   MismatchedFixture(){
@@ -62,7 +65,8 @@ protected:
         {1, 1, 1, 1, 1, 1, 1} };  // seven items
 
     target = {4, 5, 6};           // three dimensions
-    test_rgi = RegularGridInterpolator(grid, values);
+    test_gridded_data = GriddedData(grid, values);
+    test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };
 

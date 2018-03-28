@@ -18,37 +18,13 @@
 using namespace Btwxt;
 
 
-TEST_F(OneDFixture, construct_from_vectors) {
-  std::size_t ndims = test_rgi.get_ndims();
-  EXPECT_EQ(ndims, 1);
-};
-
 TEST_F(TwoDFixture, construct_from_gridded_data) {
-  std::size_t ndims = test_rgi.get_ndims();
+  RegularGridInterpolator rgi_from_grid(test_gridded_data);
+  std::size_t ndims = rgi_from_grid.get_ndims();
   EXPECT_EQ(ndims, 2);
 };
 
-TEST_F(TwoDFixture, get_values) {
-  std::vector<std::size_t> coords = {0, 1};
-  std::vector<double> returned_vec = test_gridded_data.get_values(coords);
-  ASSERT_THAT(returned_vec, testing::ElementsAre(8, 16));
-
-  coords = {1, 0};
-  returned_vec = test_gridded_data.get_values(coords);
-  ASSERT_THAT(returned_vec, testing::ElementsAre(3, 6));
-
-  // TODO rebuild get_value() method
-  // should return 0 and a warning that we don't have that many tables
-  // returned_value = test_gridded_data.get_value(2, coords);
-  // EXPECT_EQ(returned_value, 0);
-
-  // should return 0 and a warning that we overran dimension 0
-  coords = {7, 0};
-  returned_vec = test_gridded_data.get_values(coords);
-  ASSERT_THAT(returned_vec, testing::ElementsAre(0));
-};
-
-TEST_F(TwoDFixture, return_target) {
+TEST_F(TwoDFixture, target_basics) {
   std::size_t ndims = test_rgi.get_ndims();
   test_rgi.set_new_grid_point(target);
 
@@ -60,14 +36,6 @@ TEST_F(TwoDFixture, return_target) {
 
   std::vector<double> weights = test_rgi.get_current_weights();
   ASSERT_THAT(weights, testing::ElementsAre(0.4, 0.5));
-};
-
-TEST_F(TwoDFixture, interpolate) {
-  std::size_t ndims = test_rgi.get_ndims();
-  test_rgi.set_new_grid_point(target);
-
-  std::vector<double> result = test_rgi.calculate_all_values_at_target();
-  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.9), testing::DoubleEq(5.8)));
 };
 
 TEST_F(TwoDFixture, oobounds_target) {
@@ -85,9 +53,15 @@ TEST_F(TwoDFixture, oobounds_target) {
   ASSERT_THAT(weights, testing::ElementsAre(1.2, -0.5));
 };
 
-TEST_F(MismatchedFixture, ndims) {
+TEST_F(TwoDFixture, interpolate) {
   std::size_t ndims = test_rgi.get_ndims();
+  test_rgi.set_new_grid_point(target);
 
+  std::vector<double> result = test_rgi.calculate_all_values_at_target();
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.9), testing::DoubleEq(5.8)));
+};
+
+TEST_F(MismatchedFixture, set_target) {
   // TODO: capture error messages and test that they match expectations
   // we expect two errors that the value table inputs do not match the grid
   // we expect an error that the target dimensions do not match the grid
