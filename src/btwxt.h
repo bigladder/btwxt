@@ -106,6 +106,7 @@ private:
   WhereInTheGridIsThisPoint the_locator;
 
   void check_target_dimensions(const std::vector<double> &target);
+  std::vector<double> interpolation_wrapper();
   Eigen::ArrayXXd collect_hypercube();
   Eigen::ArrayXXd evaluate_linear(Eigen::ArrayXXd hypercube);
   Eigen::ArrayXXd collapse_dimension(

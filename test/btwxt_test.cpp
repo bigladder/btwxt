@@ -57,8 +57,20 @@ TEST_F(TwoDFixture, interpolate) {
   std::size_t ndims = test_rgi.get_ndims();
   test_rgi.set_new_grid_point(target);
 
+  // All values, current target
   std::vector<double> result = test_rgi.calculate_all_values_at_target();
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.9), testing::DoubleEq(5.8)));
+  // Single value, current target
+  double d_result = test_rgi.calculate_value_at_target(0);
+  EXPECT_DOUBLE_EQ(d_result, 2.9);
+
+  std::vector<double> another_target = {8.1, 4.2};
+  // All values, fresh target
+  result = test_rgi.calculate_all_values_at_target(another_target);
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3.689), testing::DoubleEq(7.378)));
+  // Single value, fresh target
+  d_result = test_rgi.calculate_value_at_target(another_target, 1);
+  EXPECT_DOUBLE_EQ(d_result, 7.378);
 };
 
 TEST_F(MismatchedFixture, set_target) {

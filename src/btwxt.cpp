@@ -97,21 +97,30 @@ the_blob(grid, values)
 
 double RegularGridInterpolator::calculate_value_at_target(
   std::vector<double> target, std::size_t table_index)
-{return 0.0; };
+  {
+    set_new_grid_point(target);
+    std::vector<double> result = interpolation_wrapper();
+    return result[table_index];
+  };
+
 double RegularGridInterpolator::calculate_value_at_target(
   std::size_t table_index)
-{return 0.0; };
+  {
+    std::vector<double> result = interpolation_wrapper();
+    return result[table_index];
+  };
+
 std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(
   std::vector<double> target)
 {
-  std::vector<double> result = {0.0};
+  set_new_grid_point(target);
+  std::vector<double> result = interpolation_wrapper();
   return result;
 };
+
 std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
 {
-  Eigen::ArrayXXd hypercube = collect_hypercube();
-  Eigen::ArrayXd eigen_result = evaluate_linear(hypercube);
-  std::vector<double> result = eigen_to_vector(eigen_result);
+  std::vector<double> result = interpolation_wrapper();
   return result;
 };
 
@@ -152,8 +161,12 @@ std::vector<double> RegularGridInterpolator::get_current_weights()
 { return the_locator.get_weights(); }
 
 
-
-
+std::vector<double> RegularGridInterpolator::interpolation_wrapper()
+{
+  Eigen::ArrayXXd hypercube = collect_hypercube();
+  Eigen::ArrayXd eigen_result = evaluate_linear(hypercube);
+  return eigen_to_vector(eigen_result);
+}
 
 Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube()
 {
