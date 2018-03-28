@@ -29,11 +29,6 @@ GridAxis::GridAxis(std::vector<double> grid_vector) :
   }
 };
 
-// GridAxis::~GridAxis()
-// {
-//   delete[] grid;
-// };
-
 std::size_t GridAxis::get_length()
 { return grid.size(); };
 
@@ -47,7 +42,7 @@ std::size_t GridSpace::get_ndims()
   return axes.size();
 };
 
-std::size_t GridSpace::get_dim_length(std::size_t dim)
+std::size_t GridSpace::get_dim_length(const std::size_t& dim)
 {
   std::size_t ndims = axes.size();
   if (dim >= ndims) {
@@ -77,14 +72,21 @@ GriddedData::GriddedData(
   std::vector< std::vector<double> > values
 )
 {
-  dimension_lengths = check_inputs(grid, values);
+  ndims = grid.size();
+  num_values = 1;
+  for (auto grid_vector : grid) {
+    num_values *= grid_vector.size();
+    dimension_lengths.push_back(grid_vector.size());
+  }
+  num_tables = values.size();
+
   construct_axes(grid);
   value_tables = construct_values(values);
   showMessage(MSG_INFO, "GriddedData constructed from vectors!");
 };
 
 void GriddedData::construct_axes(
-  std::vector< std::vector<double> > &grid
+  const std::vector< std::vector<double> >& grid
 )
 {
   for (auto axis : grid) {
@@ -92,26 +94,31 @@ void GriddedData::construct_axes(
     grid_axes.axes.push_back(ga);
   }
 
-  ndims = grid_axes.get_ndims();
   showMessage(MSG_INFO, std::to_string(ndims) + "-D GridAxis object constructed");
 };
 
 
 Eigen::ArrayXXd GriddedData::construct_values(
-  std::vector< std::vector<double> > &values
+  const std::vector< std::vector<double> >& values
 )
 {
-  num_tables = values.size();
-  num_values = 1;
-  for (auto a : dimension_lengths) {
-    num_values *= a;
-  }
-  showMessage(MSG_INFO, "We expect " + std::to_string(num_values) + " values.");
   Eigen::ArrayXXd vtables(num_tables, num_values);
+
   showMessage(MSG_INFO, "Created blank Eigen Array with " + std::to_string(vtables.rows()) + " tables, each with " + std::to_string(vtables.cols())+ " values.");
+  std::string message_str = "We expect " + std::to_string(num_values)
+          + " values in each table.";
+  showMessage(MSG_INFO, message_str);
+
   std::size_t i = 0;
-  for (auto v : values) {
-    Eigen::Map< Eigen::ArrayXd > temp_row(&v[0], num_values);
+  for (auto value_vector : values) {
+
+    if (value_vector.size() != num_values) {
+      std::string mismatch_str = "Input value table does not match the grid size: "
+          + std::to_string(value_vector.size()) + " != " + std::to_string(num_values);
+      showMessage(MSG_ERR, mismatch_str);
+    }
+
+    Eigen::Map< Eigen::ArrayXd > temp_row(&value_vector[0], num_values);
     vtables.row(i) = temp_row;
     i++;
   }
@@ -121,32 +128,6 @@ Eigen::ArrayXXd GriddedData::construct_values(
   return vtables;
 };
 
-std::vector<std::size_t> GriddedData::check_inputs(
-  std::vector< std::vector<double> > &grid,
-  std::vector< std::vector<double> > &values
-)
-{
-  // check that grid dimensions and value tables align
-  std::size_t expected_nvalues = 1;
-  std::vector<std::size_t> dimension_lengths;
-  for (auto grid_vector : grid) {
-    expected_nvalues *= grid_vector.size();
-    dimension_lengths.push_back(grid_vector.size());
-  }
-  std::string message_str = "We expect " + std::to_string(expected_nvalues)
-          + " values in each table.";
-  showMessage(MSG_INFO, message_str);
-
-  for (auto value_vector : values) {
-    std::string message_str = "Value vector has "
-            + std::to_string(value_vector.size()) + " values.";
-    showMessage(MSG_INFO, message_str);
-    if (value_vector.size() != expected_nvalues) {
-      showMessage(MSG_ERR, "Input value table does not match the grid size");
-    }
-  }
-  return dimension_lengths;
-};
 
 std::size_t GriddedData::get_ndims()
 { return grid_axes.get_ndims(); };
@@ -154,7 +135,8 @@ std::size_t GriddedData::get_ndims()
 std::size_t GriddedData::get_num_tables()
 { return num_tables; };
 
-std::vector<double> GriddedData::get_values(std::vector<std::size_t> coords)
+std::vector<double> GriddedData::get_values(
+  const std::vector<std::size_t>& coords)
 {
   std::size_t index = locate_coords(coords, dimension_lengths);
   if (index == -1) {return {0};} ;
@@ -164,7 +146,8 @@ std::vector<double> GriddedData::get_values(std::vector<std::size_t> coords)
   return one_column;
 }
 
-Eigen::ArrayXd GriddedData::get_column(std::vector<std::size_t> coords)
+Eigen::ArrayXd GriddedData::get_column(
+  const std::vector<std::size_t>& coords)
 {
   std::size_t index = locate_coords(coords, dimension_lengths);
   // TODO handle exception if invalid coordinates
@@ -172,13 +155,15 @@ Eigen::ArrayXd GriddedData::get_column(std::vector<std::size_t> coords)
   return value_tables.col(index);
 }
 
-std::vector<double> GriddedData::get_grid_vector(std::size_t grid_index)
+std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
 {
   return grid_axes.axes[grid_index].grid;
 }
 
 
 // free functions
+// TODO this function allows ascending or descending, which may be too generous.
+// reconsider at a later date.
 bool free_check_sorted(std::vector<double> my_vec)
 {
   std::vector<double>::iterator first = my_vec.begin();
@@ -202,8 +187,8 @@ bool free_check_sorted(std::vector<double> my_vec)
 
 
 std::size_t locate_coords(
-  std::vector<std::size_t> coords,
-  std::vector<std::size_t> dimension_lengths
+  const std::vector<std::size_t>& coords,
+  const std::vector<std::size_t>& dimension_lengths
 )
 {
   std::size_t index = 0;
@@ -223,7 +208,7 @@ std::size_t locate_coords(
   return index;
 }
 
-std::vector<double> eigen_to_vector(Eigen::ArrayXd change_this)
+std::vector<double> eigen_to_vector(Eigen::ArrayXd& change_this)
 {
   std::size_t length = change_this.rows();
   double* c_array = change_this.data();

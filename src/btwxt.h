@@ -30,7 +30,7 @@ public:
   // target is an array of doubles specifying the point we are interpolating to.
   GridPoint();
   GridPoint(double* target);
-  GridPoint(std::vector<double> &target_vector);
+  GridPoint(const std::vector<double> &target_vector);
 
   std::vector<double> target;
 
@@ -63,8 +63,8 @@ public:
   RegularGridInterpolator();
   RegularGridInterpolator(GriddedData &the_blob);
   RegularGridInterpolator(
-    std::vector< std::vector<double> > grid,
-    std::vector< std::vector<double> > values
+    const std::vector< std::vector<double> >& grid,
+    const std::vector< std::vector<double> >& values
   );
 
   // GridPoint gets instantiated inside calculate_value_at_target
@@ -92,7 +92,7 @@ public:
     return calculate_all_values_at_target();
   }
 
-  void set_new_grid_point(std::vector<double> target);
+  void set_new_grid_point(const std::vector<double>& target);
   std::vector<double> get_current_grid_point();
   void clear_current_grid_point();
   std::size_t get_ndims();
@@ -103,24 +103,27 @@ private:
   GriddedData the_blob;
   GridPoint current_grid_point;
 
-  void check_target_dimensions(std::vector<double> target);
+  void check_target_dimensions(const std::vector<double> &target);
   void find_floor_and_weights();
   void find_floor(
     std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds
   );
   void calculate_weights(
     std::vector<std::size_t> &point_floor, std::vector<double> &weights);
-  Eigen::ArrayXXd collect_hypercube(std::vector<std::size_t> point_floor);
-  Eigen::ArrayXXd evaluate_linear(Eigen::ArrayXXd hypercube, std::vector<double> weights);
-  Eigen::ArrayXXd collapse_dimension(Eigen::ArrayXXd hypercube, double frac);
+  Eigen::ArrayXXd collect_hypercube(const std::vector<std::size_t>& point_floor);
+  Eigen::ArrayXXd evaluate_linear(
+    Eigen::ArrayXXd hypercube, const std::vector<double>& weights);
+  Eigen::ArrayXXd collapse_dimension(
+    Eigen::ArrayXXd hypercube, const double& frac);
 };
 
 
 // free functions
 std::size_t index_below_in_vector(double target, std::vector<double> &my_vec);
 double compute_fraction(double x, double edge[2]);
-std::size_t pow(std::size_t base, std::size_t power);
-std::vector< std::vector<std::size_t> > make_binary_list(std::size_t ndims);
+std::size_t pow(const std::size_t& base, const std::size_t& power);
+std::vector< std::vector<std::size_t> > make_binary_list(
+  const std::size_t& ndims);
 
 }
 #endif // GRIDINTERP_H_

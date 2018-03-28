@@ -19,9 +19,8 @@ public:
   GridAxis();
   GridAxis(double *grid, std::size_t size);
   GridAxis(std::vector<double> grid_vector);
-  // ~GridAxis();
 
-  std::vector<double> grid;
+  const std::vector<double> grid;
   // bool is_regular;  <-- to add later
 
   std::size_t get_length();
@@ -37,7 +36,7 @@ public:
   std::vector<GridAxis> axes;
 
   std::size_t get_ndims();
-  std::size_t get_dim_length(std::size_t);
+  std::size_t get_dim_length(const std::size_t&);
   std::vector<std::size_t> get_dim_lengths();
 };
 
@@ -54,19 +53,15 @@ public:
 
   std::size_t get_ndims();
   std::size_t get_num_tables();
-  std::vector<double> get_grid_vector(std::size_t grid_index);
-  std::vector<double> get_values(std::vector<std::size_t> coords);
-  Eigen::ArrayXd get_column(std::vector<std::size_t> coords);
+  std::vector<double> get_grid_vector(const std::size_t& grid_index);
+  std::vector<double> get_values(const std::vector<std::size_t>& coords);
+  Eigen::ArrayXd get_column(const std::vector<std::size_t>& coords);
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
 private:
-  void construct_axes(std::vector< std::vector<double> > &grid);
+  void construct_axes(const std::vector< std::vector<double> >& grid);
   Eigen::ArrayXXd construct_values(
-    std::vector< std::vector<double> > &values
-  );
-  std::vector<std::size_t> check_inputs(
-    std::vector< std::vector<double> > &grid,
-    std::vector< std::vector<double> > &values
+    const std::vector< std::vector<double> >& values
   );
 
   GridSpace grid_axes;
@@ -81,10 +76,10 @@ private:
 // free functions
 bool free_check_sorted(std::vector<double>);
 std::size_t locate_coords(
-  std::vector<std::size_t> coords,
-  std::vector<std::size_t> dimension_lengths
+  const std::vector<std::size_t>& coords,
+  const std::vector<std::size_t>& dimension_lengths
 );
-std::vector<double> eigen_to_vector(Eigen::ArrayXd);
+std::vector<double> eigen_to_vector(Eigen::ArrayXd&);
 
 
 }

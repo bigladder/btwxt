@@ -21,7 +21,7 @@ WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint() {};
 
 GridPoint::GridPoint() {};
 GridPoint::GridPoint(double* target) {};
-GridPoint::GridPoint(std::vector<double> &target_vector) :
+GridPoint::GridPoint(const std::vector<double> &target_vector) :
   target(target_vector)
 {
   showMessage(MSG_INFO, "GridPoint object constructed from vector!");
@@ -56,8 +56,8 @@ RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
 };
 
 RegularGridInterpolator::RegularGridInterpolator(
-  std::vector< std::vector<double> > grid,
-  std::vector< std::vector<double> > values
+  const std::vector< std::vector<double> >& grid,
+  const std::vector< std::vector<double> >& values
 ) :
 the_blob(grid, values)
 {
@@ -86,7 +86,8 @@ std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
   return result;
 };
 
-void RegularGridInterpolator::set_new_grid_point(std::vector<double> target)
+void RegularGridInterpolator::set_new_grid_point(
+  const std::vector<double>& target)
 {
   RegularGridInterpolator::check_target_dimensions(target);
   current_grid_point = GridPoint(target);
@@ -101,7 +102,8 @@ void RegularGridInterpolator::clear_current_grid_point() {};
 std::size_t RegularGridInterpolator::get_ndims()
 { return the_blob.get_ndims(); };
 
-void RegularGridInterpolator::check_target_dimensions(std::vector<double> target)
+void RegularGridInterpolator::check_target_dimensions(
+  const std::vector<double>& target)
 {
   std::size_t ndims = the_blob.get_ndims();
   if (ndims == target.size()) {
@@ -165,7 +167,7 @@ void RegularGridInterpolator::calculate_weights(
 
 
 Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube(
-  std::vector<std::size_t> point_floor)
+  const std::vector<std::size_t>& point_floor)
 {
   // collect all of the points in the interpolation hypercube
   std::size_t ndims = get_ndims();
@@ -187,7 +189,7 @@ Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube(
 }
 
 Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
-  Eigen::ArrayXXd hypercube, std::vector<double> weights)
+  Eigen::ArrayXXd hypercube, const std::vector<double>& weights)
 {
   // collapse iteratively from n-dim hypercube to a line.
   std::size_t ndims = get_ndims();
@@ -200,7 +202,7 @@ Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
 }
 
 Eigen::ArrayXXd RegularGridInterpolator::collapse_dimension(
-  Eigen::ArrayXXd hypercube, double frac)
+  Eigen::ArrayXXd hypercube, const double &frac)
 {
   // interpolate along one axis of an n-dimensional hypercube.
   // this flattens a square to a line, or a cube to a square, etc.
@@ -232,7 +234,7 @@ double compute_fraction(double x, double edge[2]) {
   return (x - edge[0]) / (edge[1] - edge[0]);
 }
 
-std::size_t pow(std::size_t base, std::size_t power) {
+std::size_t pow(const std::size_t& base, const std::size_t& power) {
   // raise base to a power (both must be size_t)
   if (power == 0) {return 1;}
   else {
@@ -245,7 +247,9 @@ std::size_t pow(std::size_t base, std::size_t power) {
   }
 }
 
-std::vector< std::vector<std::size_t> > make_binary_list(std::size_t ndims) {
+std::vector< std::vector<std::size_t> > make_binary_list(
+  const std::size_t& ndims)
+{
   // produces a list of binary representations of numbers up to 2^ndims.
   // e.g., if ndims=2, this function returns {{0,0}, {0,1}, {1,0}, {1,1}}
   // these binary representations are used to collect all of the points in the interpolation hypercube
