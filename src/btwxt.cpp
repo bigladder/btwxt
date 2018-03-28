@@ -81,8 +81,11 @@ void WhereInTheGridIsThisPoint::calculate_weights(
 RegularGridInterpolator::RegularGridInterpolator() {};
 
 RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
-  the_blob(the_blob)
+  the_blob(the_blob),
+  current_grid_point(),  // instantiates an empty GridPoint
+  cgp_exists(false)
 {
+  // cgp_exists = false;
   showMessage(MSG_INFO, "RGI constructed from GriddedData!");
 };
 
@@ -90,8 +93,11 @@ RegularGridInterpolator::RegularGridInterpolator(
   const std::vector< std::vector<double> >& grid,
   const std::vector< std::vector<double> >& values
 ) :
-the_blob(grid, values)
+the_blob(grid, values),
+current_grid_point(),  // instantiates an empty GridPoint
+cgp_exists(false)
 {
+  // cgp_exists = false;
   showMessage(MSG_INFO, "RGI constructed from vectors!");
 };
 
@@ -106,8 +112,12 @@ double RegularGridInterpolator::calculate_value_at_target(
 double RegularGridInterpolator::calculate_value_at_target(
   std::size_t table_index)
   {
-    std::vector<double> result = interpolation_wrapper();
-    return result[table_index];
+    if (cgp_exists) {
+      std::vector<double> result = interpolation_wrapper();
+      return result[table_index];
+    }
+    showMessage(MSG_WARN, "No target has been defined!");
+    return 0;
   };
 
 std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(
@@ -120,8 +130,12 @@ std::vector<double> RegularGridInterpolator::calculate_all_values_at_target(
 
 std::vector<double> RegularGridInterpolator::calculate_all_values_at_target()
 {
-  std::vector<double> result = interpolation_wrapper();
-  return result;
+  if (cgp_exists) {
+    std::vector<double> result = interpolation_wrapper();
+    return result;
+  }
+  showMessage(MSG_WARN, "No target has been defined!");
+  return {0};
 };
 
 void RegularGridInterpolator::set_new_grid_point(
@@ -129,13 +143,25 @@ void RegularGridInterpolator::set_new_grid_point(
 {
   RegularGridInterpolator::check_target_dimensions(target);
   current_grid_point = GridPoint(target);
+  cgp_exists = true;
   the_locator = WhereInTheGridIsThisPoint(current_grid_point, the_blob);
 };
 
 std::vector<double> RegularGridInterpolator::get_current_grid_point()
-{ return current_grid_point.target; }
+{
+  if (cgp_exists) {
+    return current_grid_point.target;
+  }
+  showMessage(MSG_WARN, "No target has been defined!");
+  return {0};
+}
 
-void RegularGridInterpolator::clear_current_grid_point() {};
+void RegularGridInterpolator::clear_current_grid_point()
+{
+  current_grid_point = GridPoint();
+  cgp_exists = false;
+  the_locator = WhereInTheGridIsThisPoint();
+};
 
 std::size_t RegularGridInterpolator::get_ndims()
 { return the_blob.get_ndims(); };
@@ -155,10 +181,22 @@ void RegularGridInterpolator::check_target_dimensions(
 };
 
 std::vector<std::size_t> RegularGridInterpolator::get_current_floor()
-{ return the_locator.get_floor(); }
+{
+  if (cgp_exists) {
+    return the_locator.get_floor();
+  }
+  showMessage(MSG_WARN, "No target has been defined!");
+  return {0};
+}
 
 std::vector<double> RegularGridInterpolator::get_current_weights()
-{ return the_locator.get_weights(); }
+{
+  if (cgp_exists) {
+    return the_locator.get_weights();
+  }
+  showMessage(MSG_WARN, "No target has been defined!");
+  return {0};
+}
 
 
 std::vector<double> RegularGridInterpolator::interpolation_wrapper()

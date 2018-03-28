@@ -24,6 +24,30 @@ TEST_F(TwoDFixture, construct_from_gridded_data) {
   EXPECT_EQ(ndims, 2);
 };
 
+TEST_F(TwoDFixture, target_undefined) {
+  showMessage(MSG_INFO, "The test fixture does not instantiate a GridPoint.");
+  std::vector<double> returned_target = test_rgi.get_current_grid_point();
+  EXPECT_THAT(returned_target, testing::ElementsAre(0));
+  std::vector<std::size_t> bad_floor = test_rgi.get_current_floor();
+  EXPECT_THAT(bad_floor, testing::ElementsAre(0));
+  double bad_result = test_rgi.calculate_value_at_target(0);
+  EXPECT_EQ(bad_result, 0);
+
+  showMessage(MSG_INFO, "Define the target; make sure it works now.");
+  test_rgi.set_new_grid_point(target);
+  returned_target = test_rgi.get_current_grid_point();
+  EXPECT_THAT(returned_target, testing::ElementsAre(12, 5));
+
+  showMessage(MSG_INFO, "Clear the target; see that it reverts to warnings.");
+  test_rgi.clear_current_grid_point();
+  returned_target = test_rgi.get_current_grid_point();
+  EXPECT_THAT(returned_target, testing::ElementsAre(0));
+  bad_floor = test_rgi.get_current_floor();
+  EXPECT_THAT(bad_floor, testing::ElementsAre(0));
+  bad_result = test_rgi.calculate_value_at_target(0);
+  EXPECT_EQ(bad_result, 0);
+}
+
 TEST_F(TwoDFixture, target_basics) {
   std::size_t ndims = test_rgi.get_ndims();
   test_rgi.set_new_grid_point(target);

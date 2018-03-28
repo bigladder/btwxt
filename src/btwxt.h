@@ -102,6 +102,7 @@ public:
 
 private:
   GriddedData the_blob;
+  bool cgp_exists;
   GridPoint current_grid_point;
   WhereInTheGridIsThisPoint the_locator;
 
