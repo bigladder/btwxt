@@ -59,7 +59,7 @@ private:
 // this will be the public-facing class.
 class RegularGridInterpolator{
 public:
-  // GridAxes, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
+  // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
   RegularGridInterpolator();
   RegularGridInterpolator(GriddedData &the_blob);
   RegularGridInterpolator(

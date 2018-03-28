@@ -38,16 +38,16 @@ std::size_t GridAxis::get_length()
 { return grid.size(); };
 
 
-GridAxes::GridAxes() {};
-GridAxes::GridAxes(std::vector<GridAxis> grid_axes) : axes(grid_axes) {};
+GridSpace::GridSpace() {};
+GridSpace::GridSpace(std::vector<GridAxis> grid_axes) : axes(grid_axes) {};
 
-std::size_t GridAxes::get_ndims()
+std::size_t GridSpace::get_ndims()
 {
   // showMessage(MSG_INFO, "Asking for ndims: " + std::to_string(axes.size()));
   return axes.size();
 };
 
-std::size_t GridAxes::get_dim_length(std::size_t dim)
+std::size_t GridSpace::get_dim_length(std::size_t dim)
 {
   std::size_t ndims = axes.size();
   if (dim >= ndims) {
@@ -59,7 +59,7 @@ std::size_t GridAxes::get_dim_length(std::size_t dim)
   }
 }
 
-std::vector<std::size_t> GridAxes::get_dim_lengths()
+std::vector<std::size_t> GridSpace::get_dim_lengths()
 {
   std::vector<std::size_t> dim_lengths;
   for (auto grid : axes) {

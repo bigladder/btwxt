@@ -105,7 +105,7 @@ void RegularGridInterpolator::check_target_dimensions(std::vector<double> target
 {
   std::size_t ndims = the_blob.get_ndims();
   if (ndims == target.size()) {
-    showMessage(MSG_INFO, "Target and GridAxes dimensions match: " + std::to_string(target.size()));
+    showMessage(MSG_INFO, "Target and GridSpace dimensions match: " + std::to_string(target.size()));
   }
   else {
     std::string message_str = "number of dimensions (" + std::to_string(ndims)

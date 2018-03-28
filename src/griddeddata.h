@@ -28,11 +28,11 @@ public:
 };
 
 
-class GridAxes{
+class GridSpace{
 public:
   // all n input dimensions to specify the performance space
-  GridAxes();
-  GridAxes(std::vector<GridAxis> grid_axes);
+  GridSpace();
+  GridSpace(std::vector<GridAxis> grid_axes);
 
   std::vector<GridAxis> axes;
 
@@ -69,7 +69,7 @@ private:
     std::vector< std::vector<double> > &values
   );
 
-  GridAxes grid_axes;
+  GridSpace grid_axes;
   Eigen::ArrayXXd value_tables;
   std::size_t ndims;
   std::vector<std::size_t> dimension_lengths;

@@ -91,7 +91,7 @@ class GriddedData{
   );
 
   // attributes
-  GridAxes grid_axes;
+  GridSpace grid_axes;
   AllValueTables all_the_values;
 
   // methods
