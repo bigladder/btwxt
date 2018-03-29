@@ -8,6 +8,7 @@ set(library_sources
   btwxt_test.cpp
   griddeddata_test.cpp
   math_test.cpp
+  large_test.cpp
 )
 
 link_libraries(btwxt gtest gmock)

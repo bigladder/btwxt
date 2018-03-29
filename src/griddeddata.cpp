@@ -123,7 +123,7 @@ Eigen::ArrayXXd GriddedData::construct_values(
     i++;
   }
 
-  std::cout << vtables << std::endl;
+  // std::cout << vtables << std::endl;
   // TODO: I would prefer to be using the class value_tables over returning an eigen array
   return vtables;
 };
