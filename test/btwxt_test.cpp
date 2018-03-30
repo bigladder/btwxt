@@ -6,7 +6,6 @@
 #include<iostream>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Eigen/Dense"
 
 // btwxt
 #include <btwxt.h>
@@ -19,12 +18,15 @@ using namespace Btwxt;
 
 
 TEST_F(TwoDFixture, construct_from_gridded_data) {
+  Btwxt::LOG_LEVEL = 0;
   RegularGridInterpolator rgi_from_grid(test_gridded_data);
   std::size_t ndims = rgi_from_grid.get_ndims();
   EXPECT_EQ(ndims, 2);
+  Btwxt::LOG_LEVEL = 1;
 };
 
 TEST_F(TwoDFixture, target_undefined) {
+  Btwxt::LOG_LEVEL = 0;
   showMessage(MSG_INFO, "The test fixture does not instantiate a GridPoint.");
   std::vector<double> returned_target = test_rgi.get_current_grid_point();
   EXPECT_THAT(returned_target, testing::ElementsAre(0));
@@ -46,6 +48,7 @@ TEST_F(TwoDFixture, target_undefined) {
   EXPECT_THAT(bad_floor, testing::ElementsAre(0));
   bad_result = test_rgi.calculate_value_at_target(0);
   EXPECT_EQ(bad_result, 0);
+  Btwxt::LOG_LEVEL = 1;
 }
 
 TEST_F(TwoDFixture, target_basics) {
@@ -82,8 +85,10 @@ TEST_F(TwoDFixture, interpolate) {
   test_rgi.set_new_grid_point(target);
 
   // All values, current target
+  Btwxt::LOG_LEVEL = 0;
   std::vector<double> result = test_rgi.calculate_all_values_at_target();
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.9), testing::DoubleEq(5.8)));
+  Btwxt::LOG_LEVEL = 1;
   // Single value, current target
   double d_result = test_rgi.calculate_value_at_target(0);
   EXPECT_DOUBLE_EQ(d_result, 2.9);

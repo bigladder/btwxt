@@ -4,8 +4,6 @@
 
 // Standard
 #include<iostream>
-#include<vector>
-#include "Eigen/Dense"
 
 //btwxt
 #include "btwxt.h"
@@ -20,7 +18,7 @@ GridPoint::GridPoint(double* target) {};
 GridPoint::GridPoint(const std::vector<double> &target_vector) :
   target(target_vector)
 {
-  showMessage(MSG_INFO, "GridPoint object constructed from vector!");
+  showMessage(MSG_DEBUG, "GridPoint object constructed from vector!");
 };
 
 
@@ -86,7 +84,7 @@ RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
   cgp_exists(false)
 {
   // cgp_exists = false;
-  showMessage(MSG_INFO, "RGI constructed from GriddedData!");
+  showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
 };
 
 RegularGridInterpolator::RegularGridInterpolator(
@@ -98,7 +96,7 @@ current_grid_point(),  // instantiates an empty GridPoint
 cgp_exists(false)
 {
   // cgp_exists = false;
-  showMessage(MSG_INFO, "RGI constructed from vectors!");
+  showMessage(MSG_DEBUG, "RGI constructed from vectors!");
 };
 
 double RegularGridInterpolator::calculate_value_at_target(
@@ -171,12 +169,13 @@ void RegularGridInterpolator::check_target_dimensions(
 {
   std::size_t ndims = the_blob.get_ndims();
   if (ndims == target.size()) {
-    showMessage(MSG_INFO, "Target and GridSpace dimensions match: " + std::to_string(target.size()));
+    showMessage(MSG_DEBUG, stringify(
+      "Target and GridSpace dimensions match: ", target.size()));
   }
   else {
-    std::string message_str = "number of dimensions (" + std::to_string(ndims)
-            + ") does not match length of target (" + std::to_string(target.size()) + ").";
-    showMessage(MSG_ERR, message_str);
+    showMessage(MSG_ERR, stringify(
+      "number of dimensions (", ndims,
+      ") does not match length of target (", target.size(), ")."));
   }
 };
 
@@ -214,7 +213,7 @@ Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube()
   std::vector<std::size_t> point_floor = get_current_floor();
   Eigen::ArrayXXd hypercube(the_blob.get_num_tables(), num_vertices);
 
-  showMessage(MSG_INFO, "we use binary representations to collect hypercube");
+  showMessage(MSG_DEBUG, "we use binary representations to collect hypercube");
   std::vector< std::vector<std::size_t> > vertex_coords = make_binary_list(ndims);
 
   showMessage(MSG_INFO, "collecting hypercube corners");
@@ -224,7 +223,7 @@ Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube()
                    std::plus<std::size_t>());
     hypercube.col(i) = the_blob.get_column(vertex_coords[i]);
   }
-  std::cout << hypercube << std::endl;
+  showMessage(MSG_DEBUG, stringify("full hypercube\n", hypercube));
   return hypercube;
 }
 
@@ -237,7 +236,8 @@ Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
 
   showMessage(MSG_INFO, "starting interpolation");
   for (std::size_t d=ndims; d>0 ; d--) {
-      showMessage(MSG_INFO, "interpolating dim-" + std::to_string(d-1) + ", with frac = " + std::to_string(weights[d-1]));
+      showMessage(MSG_DEBUG, stringify(
+        "interpolating dim-", d-1, ", with frac = ", weights[d-1]));
       hypercube = collapse_dimension(hypercube, weights[d-1]);
   }
   return hypercube;
@@ -253,7 +253,7 @@ Eigen::ArrayXXd RegularGridInterpolator::collapse_dimension(
   for (std::size_t i=0; i<half; i++) {
     output.col(i) = hypercube.col(2*i) * (1-frac) + hypercube.col(2*i+1) * frac;
   }
-  std::cout << output << std::endl;
+  showMessage(MSG_DEBUG, stringify("reduced hypercube\n", output));
   return output;
 }
 
@@ -306,10 +306,10 @@ std::vector< std::vector<std::size_t> > make_binary_list(
     }
     binaries.push_back(single);
     if (ndims==2) {
-      std::cout << n << " = "<< binaries[n][0] << ", " << binaries[n][1] << std::endl;
+      showMessage(MSG_DEBUG, stringify(n, " = ", binaries[n][0], ", ", binaries[n][1]));
     }
     else if (ndims==3) {
-      std::cout << n << " = "<< binaries[n][0] << ", " << binaries[n][1] << ", " << binaries[n][2] << std::endl;
+      showMessage(MSG_DEBUG, stringify(n, " = ", binaries[n][0], ", ", binaries[n][1], ", ", binaries[n][2]));
     }
   }
   return binaries;

@@ -4,7 +4,6 @@
 
 // Standard
 #include<iostream>
-#include<vector>
 
 // btwxt
 #include "griddeddata.h"
@@ -18,11 +17,11 @@ GridAxis::GridAxis(double* grid, std::size_t size) {};
 GridAxis::GridAxis(std::vector<double> grid_vector) :
   grid(grid_vector)
 {
-  showMessage(MSG_INFO, "GridAxis object constructed from vector!");
+  showMessage(MSG_DEBUG, "GridAxis object constructed from vector!");
 
   bool grid_is_sorted = Btwxt::free_check_sorted(grid);
   if (grid_is_sorted) {
-    showMessage(MSG_INFO, "axis is sorted.");
+    showMessage(MSG_DEBUG, "axis is sorted.");
   }
   else {
     showMessage(MSG_ERR, "axis is not sorted.");
@@ -38,7 +37,6 @@ GridSpace::GridSpace(std::vector<GridAxis> grid_axes) : axes(grid_axes) {};
 
 std::size_t GridSpace::get_ndims()
 {
-  // showMessage(MSG_INFO, "Asking for ndims: " + std::to_string(axes.size()));
   return axes.size();
 };
 
@@ -82,7 +80,7 @@ GriddedData::GriddedData(
 
   construct_axes(grid);
   value_tables = construct_values(values);
-  showMessage(MSG_INFO, "GriddedData constructed from vectors!");
+  showMessage(MSG_DEBUG, "GriddedData constructed from vectors!");
 };
 
 void GriddedData::construct_axes(
@@ -94,7 +92,7 @@ void GriddedData::construct_axes(
     grid_axes.axes.push_back(ga);
   }
 
-  showMessage(MSG_INFO, std::to_string(ndims) + "-D GridAxis object constructed");
+  showMessage(MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
 };
 
 
@@ -103,27 +101,25 @@ Eigen::ArrayXXd GriddedData::construct_values(
 )
 {
   Eigen::ArrayXXd vtables(num_tables, num_values);
-
-  showMessage(MSG_INFO, "Created blank Eigen Array with " + std::to_string(vtables.rows()) + " tables, each with " + std::to_string(vtables.cols())+ " values.");
-  std::string message_str = "We expect " + std::to_string(num_values)
-          + " values in each table.";
-  showMessage(MSG_INFO, message_str);
-
+  // #ifdef TESTLOG
+  showMessage(MSG_DEBUG, stringify("Created blank Eigen Array with ",
+      vtables.rows(), " tables, each with ", vtables.cols(), " values."));
+  showMessage(MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
+  // #endif //TESTLOG
   std::size_t i = 0;
   for (auto value_vector : values) {
 
     if (value_vector.size() != num_values) {
-      std::string mismatch_str = "Input value table does not match the grid size: "
-          + std::to_string(value_vector.size()) + " != " + std::to_string(num_values);
-      showMessage(MSG_ERR, mismatch_str);
+      showMessage(MSG_ERR, stringify(
+        "Input value table does not match the grid size: ",
+        value_vector.size(), " != ", num_values));
     }
 
     Eigen::Map< Eigen::ArrayXd > temp_row(&value_vector[0], num_values);
     vtables.row(i) = temp_row;
     i++;
   }
-
-  // std::cout << vtables << std::endl;
+  showMessage(MSG_DEBUG, stringify("value tables: \n", vtables));
   // TODO: I would prefer to be using the class value_tables over returning an eigen array
   return vtables;
 };
@@ -196,7 +192,7 @@ std::size_t locate_coords(
   for (std::size_t d=0; d<dimension_lengths.size(); d++)
   {
     if (coords[d] >= dimension_lengths[d]) {
-      showMessage(MSG_WARN, "You overran dimension " + std::to_string(d));
+      showMessage(MSG_WARN, stringify("You overran dimension ", d));
       return -1;
     }
     else {
@@ -204,7 +200,7 @@ std::size_t locate_coords(
       panel_size *= dimension_lengths[d];
     }
   }
-  // showMessage(MSG_INFO, "The unrolled index is " + std::to_string(index));
+  showMessage(MSG_DEBUG, stringify("The unrolled index is ", index));
   return index;
 }
 

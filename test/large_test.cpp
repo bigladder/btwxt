@@ -7,7 +7,6 @@
 #include <chrono>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Eigen/Dense"
 
 // btwxt
 #include <btwxt.h>
@@ -101,25 +100,7 @@ TEST_F(LargeFixture, construct) {
 TEST_F(LargeFixture, calculate) {
   test_rgi.set_new_grid_point(target);
 
-  // Get starting timepoint
-  auto start = std::chrono::high_resolution_clock::now();
   std::vector<double> result = test_rgi.calculate_all_values_at_target();
-  // Get ending timepoint
-  auto stop = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  std::cout << "Time taken by interpolation: "
-           << duration.count() << " microseconds" << std::endl;
-
-   // Get starting timepoint
-   start = std::chrono::high_resolution_clock::now();
-   double r0 = fn0(target[0], target[1], target[2], target[3]);
-   double r1 = fn1(target[0], target[1], target[2], target[3]);
-   // Get ending timepoint
-   stop = std::chrono::high_resolution_clock::now();
-   auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-   std::cout << "Time taken by direct functions: "
-            << nano_duration.count() << " nanoseconds" << std::endl;
-
   // note: fn0(2.2, 3.3, 1.4, 4.1) evaluates to 0.003.
   EXPECT_NEAR(result[0], -0.0109, 0.0001);
   EXPECT_DOUBLE_EQ(result[1], 11);
@@ -134,8 +115,8 @@ TEST_F(LargeFixture, timer) {
   // Get ending timepoint
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  std::cout << "Time taken by interpolation: "
-           << duration.count() << " microseconds" << std::endl;
+  showMessage(MSG_INFO, stringify("Time taken by interpolation: ",
+           duration.count(), " microseconds"));
 
    // time running the functions straight
    start = std::chrono::high_resolution_clock::now();
@@ -144,11 +125,12 @@ TEST_F(LargeFixture, timer) {
    // Get ending timepoint
    stop = std::chrono::high_resolution_clock::now();
    auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-   std::cout << "Time taken by direct functions: "
-            << nano_duration.count() << " nanoseconds" << std::endl;
+   showMessage(MSG_INFO, stringify("Time taken by direct functions: ",
+            nano_duration.count(), " nanoseconds"));
 };
 
 TEST_F(LargeFixture, multi_timer) {
+  Btwxt::LOG_LEVEL = 2;
   std::vector< std::vector<double> > set_of_targets = {
     {0.1, 0.1, 0.1, 0.1}, {3.3, 2.2, 4.1, 1.4}, {2.1, 1.6, 1.6, 2.1},
     {3.7, 4.3, 0.8, 2.1}, {1.9, 3.4, 1.2, 1.1}, {3.3, 3.8, 1.6, 3.0},
@@ -163,6 +145,7 @@ TEST_F(LargeFixture, multi_timer) {
   // Get ending timepoint
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  std::cout << "Time taken by ten interpolations: "
-           << duration.count() << " microseconds" << std::endl;
+  Btwxt::LOG_LEVEL = 1;
+  showMessage(MSG_INFO, stringify("Time taken by ten interpolations: ",
+           duration.count(), " microseconds"));
 }

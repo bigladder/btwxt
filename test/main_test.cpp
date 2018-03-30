@@ -25,18 +25,26 @@ void my_callback(
   void* contextPtr
 )
 {
-  if (messageType == Btwxt::MSG_INFO) {
-    std::cout << "  NOTE: " << message << std::endl;
+  std::string full_message (message);
+  if (messageType == Btwxt::MSG_ERR) {
+    full_message.insert(0, "  ERROR: ");
   } else if (messageType == Btwxt::MSG_WARN) {
-    std::cout << "  WARNING: " << message << std::endl;
-  } else if (messageType == Btwxt::MSG_ERR) {
-    std::cout << "  ERROR: " << message << std::endl;
+    full_message.insert(0, "  WARNING: ");
+  } else if (messageType == Btwxt::MSG_INFO) {
+    full_message.insert(0, "  NOTE: ");
+  } else  /*if (messageType == Btwxt::MSG_DEBUG)*/ {
+    full_message.insert(0, "  DEBUG: ");
+  }
+
+  if (messageType >= Btwxt::LOG_LEVEL) {
+    std::cout << full_message << std::endl;
   }
 }
 
 
 int main(int argc, char **argv)
 {
+  Btwxt::LOG_LEVEL = 1;
   ::testing::InitGoogleTest(&argc, argv);
 
   int* my_context_ptr;

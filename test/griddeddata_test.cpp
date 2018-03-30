@@ -6,10 +6,8 @@
 #include<iostream>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Eigen/Dense"
 
 // btwxt
-#include <btwxt.h>
 #include <griddeddata.h>
 #include <error.h>
 #include "fixtures.hpp"
@@ -59,7 +57,7 @@ TEST_F(TwoDFixture, get_values) {
 TEST_F(TwoDFixture, get_column) {
   std::vector<std::size_t> coords = {0, 1};
   Eigen::ArrayXd returned_col = test_gridded_data.get_column(coords);
-  std::cout << returned_col << std::endl;
+  showMessage(MSG_INFO, stringify("returned column:\n", returned_col));
   std::vector<double> returned_vec = eigen_to_vector(returned_col);
   EXPECT_THAT(returned_vec, testing::ElementsAre(8, 16));
 }
