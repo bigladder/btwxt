@@ -130,22 +130,24 @@ TEST_F(LargeFixture, timer) {
 };
 
 TEST_F(LargeFixture, multi_timer) {
-  Btwxt::LOG_LEVEL = 2;
   std::vector< std::vector<double> > set_of_targets = {
     {0.1, 0.1, 0.1, 0.1}, {3.3, 2.2, 4.1, 1.4}, {2.1, 1.6, 1.6, 2.1},
     {3.7, 4.3, 0.8, 2.1}, {1.9, 3.4, 1.2, 1.1}, {3.3, 3.8, 1.6, 3.0},
     {0.3, 1.0, 2.4, 1.1}, {3.1, 1.9, 2.9, 3.3}, {4.2, 2.7, 1.3, 4.4},
     {2.1, 2.9, 1.8, 1.9}};
 
-  // Get starting timepoint
-  auto start = std::chrono::high_resolution_clock::now();
-  for (auto target : set_of_targets) {
-    std::vector<double> result = test_rgi(target);
+  for (std::size_t count = 0; count<10; count++) {
+    Btwxt::LOG_LEVEL = 2;
+    // Get starting timepoint
+    auto start = std::chrono::high_resolution_clock::now();
+    for (auto target : set_of_targets) {
+      std::vector<double> result = test_rgi(target);
+    }
+    // Get ending timepoint
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    Btwxt::LOG_LEVEL = 1;
+    showMessage(MSG_INFO, stringify("Time taken by ten interpolations: ",
+             duration.count(), " microseconds"));
   }
-  // Get ending timepoint
-  auto stop = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  Btwxt::LOG_LEVEL = 1;
-  showMessage(MSG_INFO, stringify("Time taken by ten interpolations: ",
-           duration.count(), " microseconds"));
 }

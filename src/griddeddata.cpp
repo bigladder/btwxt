@@ -200,7 +200,7 @@ std::size_t locate_coords(
       panel_size *= dimension_lengths[d];
     }
   }
-  showMessage(MSG_DEBUG, stringify("The unrolled index is ", index));
+  // showMessage(MSG_DEBUG, stringify("The unrolled index is ", index));
   return index;
 }
 

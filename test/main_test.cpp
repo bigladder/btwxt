@@ -25,22 +25,18 @@ void my_callback(
   void* contextPtr
 )
 {
-  std::string full_message (message);
-  if (messageType == Btwxt::MSG_ERR) {
-    full_message.insert(0, "  ERROR: ");
-  } else if (messageType == Btwxt::MSG_WARN) {
-    full_message.insert(0, "  WARNING: ");
-  } else if (messageType == Btwxt::MSG_INFO) {
-    full_message.insert(0, "  NOTE: ");
-  } else  /*if (messageType == Btwxt::MSG_DEBUG)*/ {
-    full_message.insert(0, "  DEBUG: ");
-  }
-
   if (messageType >= Btwxt::LOG_LEVEL) {
-    std::cout << full_message << std::endl;
+    std::string prefix ("  DEBUG: ");
+    if (messageType == Btwxt::MSG_ERR) {
+      prefix = "  ERROR: ";
+    } else if (messageType == Btwxt::MSG_WARN) {
+      prefix = "  WARNING: ";
+    } else if (messageType == Btwxt::MSG_INFO) {
+      prefix = "  NOTE: ";
+    }
+    std::cout << prefix << message << std::endl;
   }
 }
-
 
 int main(int argc, char **argv)
 {
