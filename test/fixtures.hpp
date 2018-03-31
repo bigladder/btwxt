@@ -48,6 +48,7 @@ protected:
 
     target = {12, 5};
     test_gridded_data = GriddedData(grid, values);
+    test_gridded_data.set_axis_extrap_method(0, LIN_EXTR);
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };

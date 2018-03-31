@@ -43,6 +43,9 @@ std::vector<std::size_t> WhereInTheGridIsThisPoint::get_floor()
 std::vector<double> WhereInTheGridIsThisPoint::get_weights()
 { return weights; }
 
+std::vector<bool> WhereInTheGridIsThisPoint::get_is_inbounds()
+{ return is_inbounds; }
+
 void WhereInTheGridIsThisPoint::find_floor(
   std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds,
   GridPoint& current_grid_point, GriddedData& the_blob)
@@ -233,12 +236,20 @@ Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
   // collapse iteratively from n-dim hypercube to a line.
   std::size_t ndims = get_ndims();
   std::vector<double> weights = get_current_weights();
+  std::vector<bool> ibv = the_locator.get_is_inbounds();
+  int extrapolation_method;
 
   showMessage(MSG_INFO, "starting interpolation");
   for (std::size_t d=ndims; d>0 ; d--) {
-      showMessage(MSG_DEBUG, stringify(
-        "interpolating dim-", d-1, ", with frac = ", weights[d-1]));
-      hypercube = collapse_dimension(hypercube, weights[d-1]);
+    showMessage(MSG_DEBUG, stringify(
+      "interpolating dim-", d-1, ", with frac = ", weights[d-1]));
+    extrapolation_method = the_blob.get_axis_extrap_method(d-1);
+    double use_weight = weights[d-1];
+    if (extrapolation_method == CON_EXTR & ibv[d-1] == false) {
+      if (weights[d-1] < 0) use_weight = 0;
+      else if (weights[d-1] > 1) use_weight = 1;
+    }
+    hypercube = collapse_dimension(hypercube, use_weight);
   }
   return hypercube;
 }

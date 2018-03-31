@@ -7,20 +7,24 @@
 #include<vector>
 #include "Eigen/Dense"
 
-// We will eventually split this out into two header files,
-//     the public API and the private members.
 
 
 namespace Btwxt{
+
+const int CON_EXTR = 0;  // constant extrapolation
+const int LIN_EXTR = 1;  // linear extrapolation
 
 class GridAxis{
   // A single input dimension of the performance space
 public:
   GridAxis();
-  GridAxis(double *grid, std::size_t size);
-  GridAxis(std::vector<double> grid_vector);
+  GridAxis(double *grid, std::size_t size, int extrapolation_method = CON_EXTR);
+  GridAxis(std::vector<double> grid_vector,
+    int extrapolation_method = CON_EXTR);
 
   const std::vector<double> grid;
+  int extrapolation_method;
+  // std::pair<double> extrapolation_bounds;  <-- to add later
   // bool is_regular;  <-- to add later
 
   std::size_t get_length();
@@ -56,7 +60,10 @@ public:
   std::vector<double> get_grid_vector(const std::size_t& grid_index);
   std::vector<double> get_values(const std::vector<std::size_t>& coords);
   Eigen::ArrayXd get_column(const std::vector<std::size_t>& coords);
+  int get_axis_extrap_method(const std::size_t& grid_index);
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
+
+  void set_axis_extrap_method(const std::size_t& grid_index, const int);
 
 private:
   void construct_axes(const std::vector< std::vector<double> >& grid);

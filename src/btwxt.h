@@ -36,6 +36,7 @@ public:
 
   std::vector<std::size_t> get_floor();
   std::vector<double> get_weights();
+  std::vector<bool> get_is_inbounds();
 
 private:
   std::size_t ndims;

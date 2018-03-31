@@ -82,10 +82,10 @@ TEST_F(TwoDFixture, oobounds_target) {
 
 TEST_F(TwoDFixture, interpolate) {
   std::size_t ndims = test_rgi.get_ndims();
+  Btwxt::LOG_LEVEL = 0;
   test_rgi.set_new_grid_point(target);
 
   // All values, current target
-  Btwxt::LOG_LEVEL = 0;
   std::vector<double> result = test_rgi.calculate_all_values_at_target();
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.9), testing::DoubleEq(5.8)));
   Btwxt::LOG_LEVEL = 1;
@@ -100,6 +100,23 @@ TEST_F(TwoDFixture, interpolate) {
   // Single value, fresh target
   d_result = test_rgi.calculate_value_at_target(another_target, 1);
   EXPECT_DOUBLE_EQ(d_result, 7.378);
+};
+
+TEST_F(TwoDFixture, extrapolate) {
+  // axis1 is designated constant extrapolation
+  std::vector<double> const_extr_target = {10, 3};
+  Btwxt::LOG_LEVEL = 0;
+  std::vector<double> result = test_rgi(const_extr_target);
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3), testing::DoubleEq(6)));
+  Btwxt::LOG_LEVEL = 1;
+
+  // axis0 is designated linear extrapolation
+  std::vector<double> lin_extr_target = {18, 5};
+  Btwxt::LOG_LEVEL = 0;
+  result = test_rgi(lin_extr_target);
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.1), testing::DoubleEq(2.2)));
+  Btwxt::LOG_LEVEL = 1;
+
 };
 
 TEST_F(MismatchedFixture, set_target) {

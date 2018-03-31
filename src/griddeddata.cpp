@@ -13,9 +13,10 @@ namespace Btwxt {
 
 
 GridAxis::GridAxis() {};
-GridAxis::GridAxis(double* grid, std::size_t size) {};
-GridAxis::GridAxis(std::vector<double> grid_vector) :
-  grid(grid_vector)
+GridAxis::GridAxis(double* grid, std::size_t size, int extrapolation_method) {};
+GridAxis::GridAxis(std::vector<double> grid_vector, int extrapolation_method) :
+  grid(grid_vector),
+  extrapolation_method(extrapolation_method)
 {
   showMessage(MSG_DEBUG, "GridAxis object constructed from vector!");
 
@@ -156,6 +157,14 @@ std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
   return grid_axes.axes[grid_index].grid;
 }
 
+int GriddedData::get_axis_extrap_method(const std::size_t& grid_index)
+{ return grid_axes.axes[grid_index].extrapolation_method; }
+
+void GriddedData::set_axis_extrap_method(
+  const std::size_t& grid_index, const int extrapolation_method)
+{
+  grid_axes.axes[grid_index].extrapolation_method = extrapolation_method;
+}
 
 // free functions
 // TODO this function allows ascending or descending, which may be too generous.
