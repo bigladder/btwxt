@@ -106,6 +106,7 @@ private:
   bool cgp_exists;
   GridPoint current_grid_point;
   WhereInTheGridIsThisPoint the_locator;
+  std::vector< std::vector<std::size_t> > origin_hypercube;
 
   void check_target_dimensions(const std::vector<double> &target);
   std::vector<double> interpolation_wrapper();

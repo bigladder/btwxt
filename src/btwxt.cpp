@@ -87,7 +87,7 @@ RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
   current_grid_point(),  // instantiates an empty GridPoint
   cgp_exists(false)
 {
-  // cgp_exists = false;
+  origin_hypercube = make_binary_list(get_ndims());
   showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
 };
 
@@ -99,7 +99,7 @@ the_blob(grid, values),
 current_grid_point(),  // instantiates an empty GridPoint
 cgp_exists(false)
 {
-  // cgp_exists = false;
+  origin_hypercube = make_binary_list(get_ndims());
   showMessage(MSG_DEBUG, "RGI constructed from vectors!");
 };
 
@@ -216,23 +216,20 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
   std::vector<std::size_t> point_floor = get_current_floor();
   std::vector<double> weights = consider_weights();
 
-  showMessage(MSG_DEBUG, "we use binary representations to collect hypercube");
-  std::vector< std::vector<std::size_t> > vertex_coords = make_binary_list(ndims);
-
   Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
 
   showMessage(MSG_INFO, "collecting hypercube corners");
+  std::vector<std::size_t> temp(ndims);
   for (std::size_t i=0; i<num_vertices; i++) {
-
-    double this_weight = linear_vertex_weighting(vertex_coords[i], weights);
+    double this_weight = linear_vertex_weighting(origin_hypercube[i], weights);
 
     // shift hypercube vertices to point_floor
-    std::transform(vertex_coords[i].begin( ), vertex_coords[i].end( ),
-                   point_floor.begin( ), vertex_coords[i].begin( ),
+    std::transform(origin_hypercube[i].begin( ), origin_hypercube[i].end( ),
+                   point_floor.begin( ), temp.begin( ),
                    std::plus<std::size_t>());
 
     // add this vertex*weight to the accumulating result
-    result += the_blob.get_column(vertex_coords[i]) * this_weight;
+    result += the_blob.get_column(temp) * this_weight;
   }
   showMessage(MSG_DEBUG, stringify("results\n", result));
   return eigen_to_vector(result);
