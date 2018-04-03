@@ -13,17 +13,23 @@ namespace Btwxt{
 
 const int CON_EXTR = 0;  // constant extrapolation
 const int LIN_EXTR = 1;  // linear extrapolation
+const int LIN_INTR = 1;  // linear interpolation
+const int CUB_INTR = 3;  // cubic spline interpolation (Catmull-Rom)
 
 class GridAxis{
   // A single input dimension of the performance space
 public:
   GridAxis();
-  GridAxis(double *grid, std::size_t size, int extrapolation_method = CON_EXTR);
+  GridAxis(double *grid, std::size_t size,
+    int extrapolation_method = CON_EXTR,
+    int interpolation_method = LIN_INTR);
   GridAxis(std::vector<double> grid_vector,
-    int extrapolation_method = CON_EXTR);
+    int extrapolation_method = CON_EXTR,
+    int interpolation_method = LIN_INTR);
 
   const std::vector<double> grid;
   int extrapolation_method;
+  int interpolation_method;
   // std::pair<double> extrapolation_bounds;  <-- to add later
   // bool is_regular;  <-- to add later
 

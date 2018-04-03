@@ -87,7 +87,10 @@ RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
   current_grid_point(),  // instantiates an empty GridPoint
   cgp_exists(false)
 {
-  origin_hypercube = make_binary_list(get_ndims());
+  std::size_t ndims{get_ndims()};
+  // TODO unwind hardcoding all interpolation methods to linear.
+  std::vector<int> interpolation_methods(ndims, LIN_INTR);
+  origin_hypercube = make_origin_hypercube(ndims, interpolation_methods);
   showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
 };
 
@@ -99,7 +102,10 @@ the_blob(grid, values),
 current_grid_point(),  // instantiates an empty GridPoint
 cgp_exists(false)
 {
-  origin_hypercube = make_binary_list(get_ndims());
+  std::size_t ndims{get_ndims()};
+  // TODO unwind hardcoding all interpolation methods to linear.
+  std::vector<int> interpolation_methods(ndims, LIN_INTR);
+  origin_hypercube = make_origin_hypercube(ndims, interpolation_methods);
   showMessage(MSG_DEBUG, "RGI constructed from vectors!");
 };
 
@@ -212,7 +218,7 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
 {
   // collect all of the points in the interpolation hypercube
   std::size_t ndims = get_ndims();
-  std::size_t num_vertices = pow(2, ndims);
+  std::size_t num_vertices = origin_hypercube.size();
   std::vector<std::size_t> point_floor = get_current_floor();
   std::vector<double> weights = consider_weights();
 
@@ -226,7 +232,7 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
     // shift hypercube vertices to point_floor
     std::transform(origin_hypercube[i].begin( ), origin_hypercube[i].end( ),
                    point_floor.begin( ), temp.begin( ),
-                   std::plus<std::size_t>());
+                   std::plus<int>());
 
     // add this vertex*weight to the accumulating result
     result += the_blob.get_column(temp) * this_weight;
@@ -252,7 +258,7 @@ std::vector<double> RegularGridInterpolator::consider_weights() {
 }
 
 double RegularGridInterpolator::linear_vertex_weighting(
-  const std::vector<std::size_t>& coords, const std::vector<double>& weights)
+  const std::vector<int>& coords, const std::vector<double>& weights)
 {
   std::size_t ndims = get_ndims();
   std::vector<double> temp(ndims, 0);
@@ -295,30 +301,37 @@ std::size_t pow(const std::size_t& base, const std::size_t& power) {
   }
 }
 
-std::vector< std::vector<std::size_t> > make_binary_list(
-  const std::size_t& ndims)
+std::vector< std::vector<int> > make_origin_hypercube(
+  const std::size_t& ndims, const std::vector<int>& fit_degrees)
 {
-  // produces a list of binary representations of numbers up to 2^ndims.
-  // e.g., if ndims=2, this function returns {{0,0}, {0,1}, {1,0}, {1,1}}
-  // these binary representations are used to collect all of the points in the interpolation hypercube
-  std::vector< std::vector<std::size_t> > binaries;
-  for (std::size_t n=0; n<pow(2, ndims); n++) {
-    std::size_t i;
-    std::size_t b;
-    std::vector<std::size_t> single;
-    for (i = 1 << (ndims-1); i > 0; i = i / 2) {
-      (n & i)? b=1: b=0;
-      single.push_back(b);
-    }
-    binaries.push_back(single);
-    if (ndims==2) {
-      showMessage(MSG_DEBUG, stringify(n, " = ", binaries[n][0], ", ", binaries[n][1]));
-    }
-    else if (ndims==3) {
-      showMessage(MSG_DEBUG, stringify(n, " = ", binaries[n][0], ", ", binaries[n][1], ", ", binaries[n][2]));
+  std::vector< std::vector<int> > options;
+  for (std::size_t dim=0; dim<ndims; dim++) {
+    if (fit_degrees[dim] == CUB_INTR) {
+      std::vector<int> temp = {-1, 0, 1, 2};
+      options.push_back(temp);
+    } else {
+      std::vector<int> temp = {0, 1};
+      options.push_back(temp);
     }
   }
-  return binaries;
+  return cart_product(options);
+}
+
+std::vector<std::vector<int>> cart_product (
+  const std::vector< std::vector<int> >& v)
+{
+  std::vector< std::vector<int> > combinations = {{}};
+  for (const auto& list : v) {
+    std::vector< std::vector<int> > r;
+    for (const auto& x : combinations) {
+      for (const auto item : list) {
+        r.push_back(x);
+        r.back().push_back(item);
+      }
+    }
+    combinations = std::move(r);
+  }
+  return combinations;
 }
 
 }

@@ -13,10 +13,13 @@ namespace Btwxt {
 
 
 GridAxis::GridAxis() {};
-GridAxis::GridAxis(double* grid, std::size_t size, int extrapolation_method) {};
-GridAxis::GridAxis(std::vector<double> grid_vector, int extrapolation_method) :
+GridAxis::GridAxis(double* grid, std::size_t size,
+  int extrapolation_method, int interpolation_method) {};
+GridAxis::GridAxis(std::vector<double> grid_vector,
+  int extrapolation_method, int interpolation_method) :
   grid(grid_vector),
-  extrapolation_method(extrapolation_method)
+  extrapolation_method(extrapolation_method),
+  interpolation_method(interpolation_method)
 {
   showMessage(MSG_DEBUG, "GridAxis object constructed from vector!");
 

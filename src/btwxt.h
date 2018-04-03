@@ -106,13 +106,13 @@ private:
   bool cgp_exists;
   GridPoint current_grid_point;
   WhereInTheGridIsThisPoint the_locator;
-  std::vector< std::vector<std::size_t> > origin_hypercube;
+  std::vector< std::vector<int> > origin_hypercube;
 
   void check_target_dimensions(const std::vector<double> &target);
   std::vector<double> interpolation_wrapper();
   std::vector<double> dot_calculator();
   std::vector<double> consider_weights();
-  double linear_vertex_weighting(const std::vector<std::size_t>& coords,
+  double linear_vertex_weighting(const std::vector<int>& coords,
     const std::vector<double>& weights);
 };
 
@@ -121,8 +121,9 @@ private:
 std::size_t index_below_in_vector(double target, std::vector<double> &my_vec);
 double compute_fraction(double x, double edge[2]);
 std::size_t pow(const std::size_t& base, const std::size_t& power);
-std::vector< std::vector<std::size_t> > make_binary_list(
-  const std::size_t& ndims);
-
+std::vector< std::vector<int> > make_origin_hypercube(
+  const std::size_t& ndims, const std::vector<int>& fit_degrees);
+std::vector< std::vector<int> > cart_product(
+  const std::vector< std::vector<int> >& v);
 }
 #endif // GRIDINTERP_H_
