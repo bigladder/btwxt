@@ -3,7 +3,8 @@
 
 
 // Standard
-#include<iostream>
+#include <iostream>
+#include <numeric>
 
 //btwxt
 #include "btwxt.h"
@@ -203,69 +204,66 @@ std::vector<double> RegularGridInterpolator::get_current_weights()
 
 std::vector<double> RegularGridInterpolator::interpolation_wrapper()
 {
-  Eigen::ArrayXXd hypercube = collect_hypercube();
-  Eigen::ArrayXd eigen_result = evaluate_linear(hypercube);
-  return eigen_to_vector(eigen_result);
+  std::vector<double> results = dot_calculator();
+  return results;
 }
 
-Eigen::ArrayXXd RegularGridInterpolator::collect_hypercube()
+std::vector<double> RegularGridInterpolator::dot_calculator()
 {
   // collect all of the points in the interpolation hypercube
   std::size_t ndims = get_ndims();
   std::size_t num_vertices = pow(2, ndims);
   std::vector<std::size_t> point_floor = get_current_floor();
-  Eigen::ArrayXXd hypercube(the_blob.get_num_tables(), num_vertices);
+  std::vector<double> weights = consider_weights();
 
   showMessage(MSG_DEBUG, "we use binary representations to collect hypercube");
   std::vector< std::vector<std::size_t> > vertex_coords = make_binary_list(ndims);
 
+  Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
+
   showMessage(MSG_INFO, "collecting hypercube corners");
   for (std::size_t i=0; i<num_vertices; i++) {
+
+    double this_weight = linear_vertex_weighting(vertex_coords[i], weights);
+
+    // shift hypercube vertices to point_floor
     std::transform(vertex_coords[i].begin( ), vertex_coords[i].end( ),
                    point_floor.begin( ), vertex_coords[i].begin( ),
                    std::plus<std::size_t>());
-    hypercube.col(i) = the_blob.get_column(vertex_coords[i]);
+
+    // add this vertex*weight to the accumulating result
+    result += the_blob.get_column(vertex_coords[i]) * this_weight;
   }
-  showMessage(MSG_DEBUG, stringify("full hypercube\n", hypercube));
-  return hypercube;
+  showMessage(MSG_DEBUG, stringify("results\n", result));
+  return eigen_to_vector(result);
 }
 
-Eigen::ArrayXXd RegularGridInterpolator::evaluate_linear(
-  Eigen::ArrayXXd hypercube)
-{
-  // collapse iteratively from n-dim hypercube to a line.
+std::vector<double> RegularGridInterpolator::consider_weights() {
+  // get modified weights for extrapolation
   std::size_t ndims = get_ndims();
   std::vector<double> weights = get_current_weights();
-  std::vector<bool> ibv = the_locator.get_is_inbounds();
   int extrapolation_method;
-
-  showMessage(MSG_INFO, "starting interpolation");
-  for (std::size_t d=ndims; d>0 ; d--) {
-    showMessage(MSG_DEBUG, stringify(
-      "interpolating dim-", d-1, ", with frac = ", weights[d-1]));
-    extrapolation_method = the_blob.get_axis_extrap_method(d-1);
-    double use_weight = weights[d-1];
-    if (extrapolation_method == CON_EXTR & ibv[d-1] == false) {
-      if (weights[d-1] < 0) use_weight = 0;
-      else if (weights[d-1] > 1) use_weight = 1;
+  std::vector<bool> ibv = the_locator.get_is_inbounds();
+  for (std::size_t d=0; d<ndims; d++) {
+    if (ibv[d] == false) {
+      if (the_blob.get_axis_extrap_method(d) == CON_EXTR) {
+        weights[d] = (weights[d] < 0? 0 : 1);
+      }
     }
-    hypercube = collapse_dimension(hypercube, use_weight);
   }
-  return hypercube;
+  return weights;
 }
 
-Eigen::ArrayXXd RegularGridInterpolator::collapse_dimension(
-  Eigen::ArrayXXd hypercube, const double &frac)
+double RegularGridInterpolator::linear_vertex_weighting(
+  const std::vector<std::size_t>& coords, const std::vector<double>& weights)
 {
-  // interpolate along one axis of an n-dimensional hypercube.
-  // this flattens a square to a line, or a cube to a square, etc.
-  std::size_t half = hypercube.cols()/2;
-  Eigen::ArrayXXd output(hypercube.rows(), half);
-  for (std::size_t i=0; i<half; i++) {
-    output.col(i) = hypercube.col(2*i) * (1-frac) + hypercube.col(2*i+1) * frac;
-  }
-  showMessage(MSG_DEBUG, stringify("reduced hypercube\n", output));
-  return output;
+  std::size_t ndims = get_ndims();
+  std::vector<double> temp(ndims, 0);
+  std::transform(coords.begin(), coords.end(), weights.begin(), temp.begin(),
+    [](std::size_t p, double w) { return (p==1) ? w : 1-w; });
+  double this_weight = std::accumulate(temp.begin(), temp.end(), 1.0,
+    std::multiplies<double>());
+  return this_weight;
 }
 
 

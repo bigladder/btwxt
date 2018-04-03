@@ -109,10 +109,10 @@ private:
 
   void check_target_dimensions(const std::vector<double> &target);
   std::vector<double> interpolation_wrapper();
-  Eigen::ArrayXXd collect_hypercube();
-  Eigen::ArrayXXd evaluate_linear(Eigen::ArrayXXd hypercube);
-  Eigen::ArrayXXd collapse_dimension(
-    Eigen::ArrayXXd hypercube, const double& frac);
+  std::vector<double> dot_calculator();
+  std::vector<double> consider_weights();
+  double linear_vertex_weighting(const std::vector<std::size_t>& coords,
+    const std::vector<double>& weights);
 };
 
 

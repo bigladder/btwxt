@@ -64,6 +64,9 @@ public:
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
   void set_axis_extrap_method(const std::size_t& grid_index, const int);
+  Eigen::ArrayXXd value_tables;
+  std::size_t num_values;
+  std::vector<std::size_t> dimension_lengths;
 
 private:
   void construct_axes(const std::vector< std::vector<double> >& grid);
@@ -72,11 +75,8 @@ private:
   );
 
   GridSpace grid_axes;
-  Eigen::ArrayXXd value_tables;
   std::size_t ndims;
-  std::vector<std::size_t> dimension_lengths;
   std::size_t num_tables;
-  std::size_t num_values;
 };
 
 
