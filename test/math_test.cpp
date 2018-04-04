@@ -3,8 +3,11 @@
 
 
 // Standard
-#include<iostream>
+#include <iostream>
+
+// vendor
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 // btwxt
 #include <btwxt.h>
@@ -87,4 +90,30 @@ TEST(Btwxt, pow) {
   std::size_t power = 4;
   std::size_t result = pow(base, power);
   EXPECT_EQ(result, 16);
+}
+
+TEST(Btwxt, make_origin_hypercube) {
+  std::size_t ndims = 3;
+  std::vector<int> fit_degrees = {LIN_INTR, CUB_INTR, LIN_INTR};
+  std::vector<std::vector<int>> result = make_origin_hypercube(
+    ndims, fit_degrees);
+  EXPECT_EQ(result.size(), 2*4*2);
+  EXPECT_THAT(result[0], testing::ElementsAre(0, -1, 0));
+  EXPECT_THAT(result[2], testing::ElementsAre(0, 0, 0));
+  EXPECT_THAT(result[12], testing::ElementsAre(1, 1, 0));
+  EXPECT_THAT(result[15], testing::ElementsAre(1, 2, 1));
+}
+
+TEST(Btwxt, cart_product) {
+  std::vector< std::vector<int> > v = {
+    {1, 2, 3},
+    {4, 5},
+    {6, 7, 8, 9}
+  };
+  std::vector<std::vector<int>> result = cart_product(v);
+  EXPECT_EQ(result.size(), 3*2*4);
+  EXPECT_THAT(result[0], testing::ElementsAre(1, 4, 6));
+  EXPECT_THAT(result[1], testing::ElementsAre(1, 4, 7));
+  EXPECT_THAT(result[10], testing::ElementsAre(2, 4, 8));
+  EXPECT_THAT(result[3*2*4-1], testing::ElementsAre(3, 5, 9));
 }
