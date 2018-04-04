@@ -71,4 +71,24 @@ protected:
   }
 };
 
+
+class CubicFixture : public testing::Test {
+protected:
+  RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
+  std::vector<double> target;
+
+  CubicFixture(){
+    std::vector<std::vector<double> > grid = { {6, 10, 15, 20}, {4, 6} };
+    std::vector<std::vector<double> > values =
+      { {8, 6, 3, 2, 10, 8, 4, 2},
+        {16, 12, 6, 4, 20, 16, 8, 4} };
+
+    target = {12, 4};
+    test_gridded_data = GriddedData(grid, values);
+    test_gridded_data.set_axis_interp_method(0, CUB_INTR);
+    test_rgi = RegularGridInterpolator(test_gridded_data);
+  }
+};
+
 #endif /* TEST_FIXTURE_HPP_ */

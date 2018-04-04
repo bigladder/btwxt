@@ -221,13 +221,15 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
   std::size_t num_vertices = origin_hypercube.size();
   std::vector<std::size_t> point_floor = get_current_floor();
   std::vector<double> weights = consider_weights();
+  std::vector<int> interp_methods = the_blob.get_interp_methods();
 
   Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
 
   showMessage(MSG_INFO, "collecting hypercube corners");
   std::vector<std::size_t> temp(ndims);
   for (std::size_t i=0; i<num_vertices; i++) {
-    double this_weight = linear_vertex_weighting(origin_hypercube[i], weights);
+    double this_weight = general_vertex_weighting(
+      origin_hypercube[i], weights, interp_methods);
 
     // shift hypercube vertices to point_floor
     std::transform(origin_hypercube[i].begin( ), origin_hypercube[i].end( ),
@@ -237,6 +239,18 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
     // add this vertex*weight to the accumulating result
     result += the_blob.get_column(temp) * this_weight;
   }
+
+  // for each cubic-interpolation axis, get the contributions from the slopes
+  for (std::size_t axis_index=0; axis_index<ndims; axis_index++) {
+    if (interp_methods[axis_index] == CUB_INTR) {
+      Eigen::ArrayXXd slopes = get_slopes(axis_index);
+      Eigen::ArrayXd slope_contribution = cubic_slope_weighting(
+        slopes, weights, axis_index);
+      showMessage(MSG_DEBUG, stringify("slope contribution, axis-", axis_index, "\n", slope_contribution));
+      result += slope_contribution;
+    }
+  }
+
   showMessage(MSG_DEBUG, stringify("results\n", result));
   return eigen_to_vector(result);
 }
@@ -267,6 +281,104 @@ double RegularGridInterpolator::linear_vertex_weighting(
   double this_weight = std::accumulate(temp.begin(), temp.end(), 1.0,
     std::multiplies<double>());
   return this_weight;
+}
+
+double RegularGridInterpolator::general_vertex_weighting(
+  const std::vector<int>& coords, const std::vector<double>& weights,
+  const std::vector<int>& interp_methods)
+{
+  double this_weight = 1.0;
+  for (std::size_t i=0; i<coords.size(); i++) {
+    double w = weights[i];
+    if (interp_methods[i] == CUB_INTR) {
+      // NOTE these calculations are only valid with uniform grid spacing
+      if (coords[i]==0) {
+        this_weight *= 2*w*w*w - 3*w*w + 1;
+      } else {
+        this_weight *= -2*w*w*w + 3*w*w;
+      }
+    } else {
+      this_weight *= (coords[i]==1) ? w : 1-w;
+    }
+  }
+  return this_weight;
+}
+
+Eigen::ArrayXd RegularGridInterpolator::cubic_slope_weighting(
+  const Eigen::ArrayXXd& slopes, const std::vector<double>& weights,
+  const std::size_t axis_index)
+{
+  Eigen::ArrayXd this_axis_slope_adder = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
+  Eigen::ArrayXd this_vertex( the_blob.get_num_tables() );
+  std::size_t num_vertices = origin_hypercube.size();
+  double w = weights[axis_index];
+  if (w==0 | w==1) { return this_axis_slope_adder; }
+
+  for (std::size_t i=0; i<num_vertices; i++) {
+    double other_axes_multiplier = 1.0;
+    for (std::size_t j=0; j<weights.size(); j++) {
+      if (j != axis_index) {
+        other_axes_multiplier *= (origin_hypercube[i][j] == 1? weights[j] : 1-weights[j]);
+      }
+    }
+    if (other_axes_multiplier != 0) {
+      if (origin_hypercube[i][axis_index] == 0) {
+        this_vertex = (w*w*w - 2*w*w + w) * slopes.col(i);
+      } else {
+        this_vertex = (w*w*w - w*w) * slopes.col(i);
+      }
+      showMessage(MSG_DEBUG, stringify("point ", i, ": ", other_axes_multiplier,
+        "\n", this_vertex));
+      this_axis_slope_adder += this_vertex * other_axes_multiplier;
+    }
+  }
+  return this_axis_slope_adder;
+}
+
+Eigen::ArrayXXd RegularGridInterpolator::get_slopes(const std::size_t& axis_index) {
+  std::vector<std::size_t> point_floor = get_current_floor();
+  std::size_t ndims = get_ndims();
+  std::size_t num_vertices = origin_hypercube.size();
+  Eigen::ArrayXXd slopes(the_blob.get_num_tables(), num_vertices);
+
+  for (std::size_t i=0; i<num_vertices; i++) {
+  }
+  std::vector<double> grid_vector = the_blob.get_grid_vector(axis_index);
+  std::vector<std::size_t> one(ndims, 0);
+  std::vector<std::size_t> zero(ndims, 0);
+  std::vector<int> temp(ndims);
+  std::vector<std::size_t> up(ndims), down(ndims);
+  double grid_up, grid_down;
+  one[axis_index] = 1;
+  for (std::size_t i=0; i<num_vertices; i++) {
+    // shift hypercube vertices to point_floor
+    std::transform(origin_hypercube[i].begin( ), origin_hypercube[i].end( ),
+                   point_floor.begin( ), temp.begin( ),
+                   std::plus<int>());
+
+    if (temp[axis_index] == 0) {
+      std::transform(temp.begin(), temp.end(), zero.begin(), down.begin(),
+                     std::minus<std::size_t>());
+      grid_down = grid_vector[temp[axis_index]];
+    } else {
+      std::transform(temp.begin(), temp.end(), one.begin(), down.begin(),
+                     std::minus<std::size_t>());
+      grid_down = grid_vector[temp[axis_index]-1];
+    }
+
+    if (temp[axis_index] == grid_vector.size()-1) {
+      std::transform(temp.begin(), temp.end(), zero.begin(), up.begin(),
+                     std::plus<std::size_t>());
+      grid_up = grid_vector[temp[axis_index]];
+    } else {
+      std::transform(temp.begin(), temp.end(), one.begin(), up.begin(),
+                    std::plus<std::size_t>());
+      grid_up = grid_vector[temp[axis_index]+1];
+    }
+    slopes.col(i) = (the_blob.get_column(up) - the_blob.get_column(down)) /
+            (grid_up - grid_down);
+  }
+  return slopes;
 }
 
 

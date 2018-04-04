@@ -100,6 +100,11 @@ public:
   std::size_t get_ndims();
   std::vector<std::size_t> get_current_floor();
   std::vector<double> get_current_weights();
+  // TODO move slope-related methods to private
+  Eigen::ArrayXXd get_slopes(const std::size_t& axis_index);
+  Eigen::ArrayXd cubic_slope_weighting(
+    const Eigen::ArrayXXd& slopes, const std::vector<double>& weights,
+    const std::size_t axis_index);
 
 private:
   GriddedData the_blob;
@@ -114,6 +119,8 @@ private:
   std::vector<double> consider_weights();
   double linear_vertex_weighting(const std::vector<int>& coords,
     const std::vector<double>& weights);
+  double general_vertex_weighting(const std::vector<int>& coords,
+    const std::vector<double>& weights, const std::vector<int>& interp_methods);
 };
 
 

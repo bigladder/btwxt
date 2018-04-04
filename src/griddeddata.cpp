@@ -72,7 +72,9 @@ GriddedData::GriddedData() {};
 GriddedData::GriddedData(
   std::vector< std::vector<double> > grid,
   std::vector< std::vector<double> > values
-)
+) :
+  // TODO move interp_methods down to GridAxis class
+  interp_methods(grid.size(), LIN_INTR)
 {
   ndims = grid.size();
   num_values = 1;
@@ -167,6 +169,15 @@ void GriddedData::set_axis_extrap_method(
   const std::size_t& grid_index, const int extrapolation_method)
 {
   grid_axes.axes[grid_index].extrapolation_method = extrapolation_method;
+}
+
+std::vector<int> GriddedData::get_interp_methods()
+{ return interp_methods; }
+
+void GriddedData::set_axis_interp_method(
+  const std::size_t& grid_index, const int interpolation_method)
+{
+  interp_methods[grid_index] = interpolation_method;
 }
 
 // free functions

@@ -67,9 +67,11 @@ public:
   std::vector<double> get_values(const std::vector<std::size_t>& coords);
   Eigen::ArrayXd get_column(const std::vector<std::size_t>& coords);
   int get_axis_extrap_method(const std::size_t& grid_index);
+  std::vector<int> get_interp_methods();
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
   void set_axis_extrap_method(const std::size_t& grid_index, const int);
+  void set_axis_interp_method(const std::size_t& grid_index, const int);
   Eigen::ArrayXXd value_tables;
   std::size_t num_values;
   std::vector<std::size_t> dimension_lengths;
@@ -83,6 +85,8 @@ private:
   GridSpace grid_axes;
   std::size_t ndims;
   std::size_t num_tables;
+  // TODO move interp_method down to GridAxis
+  std::vector<int> interp_methods;
 };
 
 
