@@ -118,6 +118,7 @@ TEST_F(CubicFixture, interpolate) {
   showMessage(MSG_INFO, stringify("Time to do cubic interpolation: ",
            duration.count(), " microseconds"));
   Btwxt::LOG_LEVEL = 1;
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.736), testing::DoubleEq(9.472)));
 }
 
 TEST_F(TwoDFixture, interpolate) {

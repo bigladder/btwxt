@@ -345,11 +345,14 @@ Eigen::ArrayXXd RegularGridInterpolator::get_slopes(const std::size_t& axis_inde
   }
   std::vector<double> grid_vector = the_blob.get_grid_vector(axis_index);
   std::vector<std::size_t> one(ndims, 0);
-  std::vector<std::size_t> zero(ndims, 0);
-  std::vector<int> temp(ndims);
+  one[axis_index] = 1;
+  std::vector<std::size_t> temp(ndims);
   std::vector<std::size_t> up(ndims), down(ndims);
   double grid_up, grid_down;
-  one[axis_index] = 1;
+
+  double central_spacing = grid_vector[point_floor[axis_index] + 1]
+                         - grid_vector[point_floor[axis_index]];
+
   for (std::size_t i=0; i<num_vertices; i++) {
     // shift hypercube vertices to point_floor
     std::transform(origin_hypercube[i].begin( ), origin_hypercube[i].end( ),
@@ -357,8 +360,7 @@ Eigen::ArrayXXd RegularGridInterpolator::get_slopes(const std::size_t& axis_inde
                    std::plus<int>());
 
     if (temp[axis_index] == 0) {
-      std::transform(temp.begin(), temp.end(), zero.begin(), down.begin(),
-                     std::minus<std::size_t>());
+      down = temp;
       grid_down = grid_vector[temp[axis_index]];
     } else {
       std::transform(temp.begin(), temp.end(), one.begin(), down.begin(),
@@ -367,8 +369,7 @@ Eigen::ArrayXXd RegularGridInterpolator::get_slopes(const std::size_t& axis_inde
     }
 
     if (temp[axis_index] == grid_vector.size()-1) {
-      std::transform(temp.begin(), temp.end(), zero.begin(), up.begin(),
-                     std::plus<std::size_t>());
+      up = temp;
       grid_up = grid_vector[temp[axis_index]];
     } else {
       std::transform(temp.begin(), temp.end(), one.begin(), up.begin(),
@@ -378,7 +379,7 @@ Eigen::ArrayXXd RegularGridInterpolator::get_slopes(const std::size_t& axis_inde
     slopes.col(i) = (the_blob.get_column(up) - the_blob.get_column(down)) /
             (grid_up - grid_down);
   }
-  return slopes;
+  return slopes * central_spacing;
 }
 
 
