@@ -37,6 +37,8 @@ public:
   std::vector<std::size_t> get_floor();
   std::vector<double> get_weights();
   std::vector<bool> get_is_inbounds();
+  std::vector< std::vector<double> > get_interp_coeffs();
+  std::vector< std::vector<double> > get_cubic_slope_coeffs();
 
 private:
   std::size_t ndims;
@@ -46,6 +48,8 @@ private:
   //     1. outside grid but can extrapolate to, and
   //     2. outside allowed extrapolation zone.
   std::vector<bool> is_inbounds;  // for deciding interpolation vs. extrapolation;
+  std::vector< std::vector<double> > interp_coeffs;
+  std::vector< std::vector<double> > cubic_slope_coeffs;
 
   void find_floor(
     std::vector<std::size_t>& point_floor, std::vector<bool>& is_inbounds,
@@ -53,6 +57,7 @@ private:
   void calculate_weights(
     const std::vector<std::size_t>& point_floor, std::vector<double>& weights,
     GridPoint&, GriddedData&);
+  void calculate_interp_coeffs(const std::vector<int>& interp_methods);
 };
 
 
@@ -105,6 +110,9 @@ public:
   Eigen::ArrayXd cubic_slope_weighting(
     const Eigen::ArrayXXd& slopes, const std::vector<double>& weights,
     const std::size_t axis_index);
+  std::vector< std::vector<double> > get_interp_coeffs();
+  std::vector< std::vector<double> > get_cubic_slope_coeffs();
+
 
 private:
   GriddedData the_blob;

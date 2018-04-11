@@ -108,7 +108,6 @@ TEST_F(CubicFixture, get_slopes) {
 
 TEST_F(CubicFixture, spacing_multiplier) {
   double result;
-
   result = test_gridded_data.get_axis_spacing_mult(0, 0, 0);
   EXPECT_DOUBLE_EQ(result, 1.0);
 
@@ -123,6 +122,25 @@ TEST_F(CubicFixture, spacing_multiplier) {
 
   result = test_gridded_data.get_axis_spacing_mult(1, 0, 0);
   EXPECT_DOUBLE_EQ(result, 0.0);
+}
+
+TEST_F(CubicFixture, calculate_interp_coeffs) {
+  test_rgi.set_new_grid_point(target);
+  std::vector< std::vector<double> > interp_coeffs =
+    test_rgi.get_interp_coeffs();
+  std::vector< std::vector<double> > cubic_slope_coeffs =
+    test_rgi.get_cubic_slope_coeffs();
+  double mu = 0.4;
+
+  EXPECT_DOUBLE_EQ(interp_coeffs[0][0], 2*mu*mu*mu - 3*mu*mu + 1);
+  EXPECT_DOUBLE_EQ(interp_coeffs[0][1], -2*mu*mu*mu + 3*mu*mu);
+  EXPECT_DOUBLE_EQ(interp_coeffs[1][0], 1);
+  EXPECT_DOUBLE_EQ(interp_coeffs[1][1], 0);
+
+  EXPECT_DOUBLE_EQ(cubic_slope_coeffs[0][0], mu*mu*mu - 2*mu*mu + mu);
+  EXPECT_DOUBLE_EQ(cubic_slope_coeffs[0][1], mu*mu*mu - mu*mu);
+  EXPECT_DOUBLE_EQ(cubic_slope_coeffs[1][0], 0);
+  EXPECT_DOUBLE_EQ(cubic_slope_coeffs[1][1], 0);
 }
 
 TEST_F(CubicFixture, interpolate) {

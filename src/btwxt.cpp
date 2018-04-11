@@ -32,10 +32,13 @@ WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint(
   ndims(the_blob.get_ndims()),
   point_floor(ndims, 0),
   weights(ndims, 0),
-  is_inbounds(ndims, false)
+  is_inbounds(ndims, false),
+  interp_coeffs(ndims, std::vector<double>(2, 0.0)),
+  cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0))
 {
   find_floor(point_floor, is_inbounds, current_grid_point, the_blob);
   calculate_weights(point_floor, weights, current_grid_point, the_blob);
+  calculate_interp_coeffs(the_blob.get_interp_methods());
 };
 
 std::vector<std::size_t> WhereInTheGridIsThisPoint::get_floor()
@@ -46,6 +49,12 @@ std::vector<double> WhereInTheGridIsThisPoint::get_weights()
 
 std::vector<bool> WhereInTheGridIsThisPoint::get_is_inbounds()
 { return is_inbounds; }
+
+std::vector< std::vector<double> > WhereInTheGridIsThisPoint::get_interp_coeffs()
+{ return interp_coeffs; }
+
+std::vector< std::vector<double> > WhereInTheGridIsThisPoint::get_cubic_slope_coeffs()
+{ return cubic_slope_coeffs; }
 
 void WhereInTheGridIsThisPoint::find_floor(
   std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds,
@@ -77,7 +86,21 @@ void WhereInTheGridIsThisPoint::calculate_weights(
   }
 }
 
-
+void WhereInTheGridIsThisPoint::calculate_interp_coeffs(
+  const std::vector<int>& interp_methods) {
+  for (std::size_t i=0; i<ndims; i++) {
+    double mu = weights[i];
+    if (interp_methods[i] == CUB_INTR) {
+      interp_coeffs[i][0] = 2*mu*mu*mu - 3*mu*mu + 1;
+      interp_coeffs[i][1] = -2*mu*mu*mu + 3*mu*mu;
+      cubic_slope_coeffs[i][0] = mu*mu*mu - 2*mu*mu + mu;
+      cubic_slope_coeffs[i][1] = mu*mu*mu - mu*mu;
+    } else {
+      interp_coeffs[i][0] = 1-mu;
+      interp_coeffs[i][1] = mu;
+    }
+  }
+}
 
 
 RegularGridInterpolator::RegularGridInterpolator() {};
@@ -205,6 +228,14 @@ std::vector<double> RegularGridInterpolator::get_current_weights()
   }
   showMessage(MSG_WARN, "No target has been defined!");
   return {0};
+}
+
+std::vector< std::vector<double> > RegularGridInterpolator::get_interp_coeffs() {
+  return the_locator.get_interp_coeffs();
+}
+
+std::vector< std::vector<double> > RegularGridInterpolator::get_cubic_slope_coeffs() {
+  return the_locator.get_cubic_slope_coeffs();
 }
 
 
