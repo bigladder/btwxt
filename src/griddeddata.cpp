@@ -21,6 +21,10 @@ GridAxis::GridAxis(std::vector<double> grid_vector,
   extrapolation_method(extrapolation_method),
   interpolation_method(interpolation_method)
 {
+  if (interpolation_method == CUB_INTR) {
+    spacing_multiplier = calc_spacing_multipliers();
+  }
+
   showMessage(MSG_DEBUG, "GridAxis object constructed from vector!");
 
   bool grid_is_sorted = Btwxt::free_check_sorted(grid);
@@ -32,8 +36,39 @@ GridAxis::GridAxis(std::vector<double> grid_vector,
   }
 };
 
-std::size_t GridAxis::get_length()
-{ return grid.size(); };
+std::size_t GridAxis::get_length() {
+  return grid.size();
+}
+
+void GridAxis::set_interp_method(const int im) {
+  interpolation_method = im;
+  if (im==CUB_INTR) {
+    spacing_multiplier = calc_spacing_multipliers();
+  }
+}
+
+double GridAxis::get_spacing_multiplier(const std::size_t& flavor,
+  const std::size_t& index)
+{
+  return spacing_multiplier[flavor][index];
+}
+
+std::vector< std::vector<double> > GridAxis::calc_spacing_multipliers() {
+  std::size_t grid_size = grid.size();
+  std::vector< std::vector<double> > v(2, std::vector<double>(grid_size-1, 1.0));
+
+  double center_spacing;
+  for (std::size_t i=0; i<grid.size()-1; i++) {
+    center_spacing = grid[i+1]-grid[i];
+    if (i!=0) {
+      v[0][i] = center_spacing/(grid[i+1]-grid[i-1]);
+    }
+    if (i+2!=grid_size) {
+      v[1][i] = center_spacing/(grid[i+2]-grid[i]);
+    }
+  }
+  return v;
+}
 
 
 GridSpace::GridSpace() {};
@@ -162,6 +197,15 @@ std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
   return grid_axes.axes[grid_index].grid;
 }
 
+double GriddedData::get_axis_spacing_mult(const std::size_t& grid_index,
+  const std::size_t& flavor, const std::size_t& index) {
+    if (interp_methods[grid_index] == CUB_INTR) {
+      return grid_axes.axes[grid_index].get_spacing_multiplier(flavor, index);
+    } else {
+      return 0.0;
+    }
+}
+
 int GriddedData::get_axis_extrap_method(const std::size_t& grid_index)
 { return grid_axes.axes[grid_index].extrapolation_method; }
 
@@ -178,6 +222,7 @@ void GriddedData::set_axis_interp_method(
   const std::size_t& grid_index, const int interpolation_method)
 {
   interp_methods[grid_index] = interpolation_method;
+  grid_axes.axes[grid_index].set_interp_method(interpolation_method);
 }
 
 // free functions

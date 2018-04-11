@@ -28,12 +28,18 @@ public:
     int interpolation_method = LIN_INTR);
 
   const std::vector<double> grid;
+  std::vector< std::vector<double> > spacing_multiplier;
   int extrapolation_method;
   int interpolation_method;
   // std::pair<double> extrapolation_bounds;  <-- to add later
   // bool is_regular;  <-- to add later
 
   std::size_t get_length();
+  void set_interp_method(const int interpolation_method);
+  double get_spacing_multiplier(const std::size_t& flavor, const std::size_t& index);
+
+private:
+  std::vector< std::vector<double> > calc_spacing_multipliers();
 };
 
 
@@ -66,6 +72,8 @@ public:
   std::vector<double> get_grid_vector(const std::size_t& grid_index);
   std::vector<double> get_values(const std::vector<std::size_t>& coords);
   Eigen::ArrayXd get_column(const std::vector<std::size_t>& coords);
+  double get_axis_spacing_mult(const std::size_t& grid_index,
+    const std::size_t& flavor, const std::size_t& index);
   int get_axis_extrap_method(const std::size_t& grid_index);
   std::vector<int> get_interp_methods();
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);

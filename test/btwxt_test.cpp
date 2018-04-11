@@ -106,6 +106,25 @@ TEST_F(CubicFixture, get_slopes) {
   Btwxt::LOG_LEVEL = 1;
 }
 
+TEST_F(CubicFixture, spacing_multiplier) {
+  double result;
+
+  result = test_gridded_data.get_axis_spacing_mult(0, 0, 0);
+  EXPECT_DOUBLE_EQ(result, 1.0);
+
+  result = test_gridded_data.get_axis_spacing_mult(0, 1, 0);
+  EXPECT_DOUBLE_EQ(result, (10-6)/(15.0-6.0));
+
+  result = test_gridded_data.get_axis_spacing_mult(0, 0, 1);
+  EXPECT_DOUBLE_EQ(result, (15-10)/(15.0-6.0));
+
+  result = test_gridded_data.get_axis_spacing_mult(0, 1, 2);
+  EXPECT_DOUBLE_EQ(result, 1.0);
+
+  result = test_gridded_data.get_axis_spacing_mult(1, 0, 0);
+  EXPECT_DOUBLE_EQ(result, 0.0);
+}
+
 TEST_F(CubicFixture, interpolate) {
   test_rgi.set_new_grid_point(target);
 
