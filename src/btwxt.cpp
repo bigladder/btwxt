@@ -38,8 +38,9 @@ WhereInTheGridIsThisPoint::WhereInTheGridIsThisPoint(
 {
   find_floor(point_floor, is_inbounds, current_grid_point, the_blob);
   calculate_weights(point_floor, weights, current_grid_point, the_blob);
-  calculate_interp_coeffs(the_blob.get_interp_methods(),
+  consolidate_methods(the_blob.get_interp_methods(),
     the_blob.get_extrap_methods());
+  calculate_interp_coeffs();
 };
 
 std::vector<std::size_t> WhereInTheGridIsThisPoint::get_floor()
@@ -50,6 +51,9 @@ std::vector<double> WhereInTheGridIsThisPoint::get_weights()
 
 std::vector<bool> WhereInTheGridIsThisPoint::get_is_inbounds()
 { return is_inbounds; }
+
+std::vector<int> WhereInTheGridIsThisPoint::get_methods()
+{ return methods; }
 
 std::vector< std::vector<double> > WhereInTheGridIsThisPoint::get_interp_coeffs()
 { return interp_coeffs; }
@@ -87,26 +91,32 @@ void WhereInTheGridIsThisPoint::calculate_weights(
   }
 }
 
-void WhereInTheGridIsThisPoint::calculate_interp_coeffs(
+void WhereInTheGridIsThisPoint::consolidate_methods(
   const std::vector<int>& interp_methods,
   const std::vector<int>& extrap_methods)
 {
+  methods = interp_methods;
+  for (std::size_t dim=0; dim<ndims; dim++) {
+    if (is_inbounds[dim] == false) {
+      methods[dim] = extrap_methods[dim];
+    }
+  }
+}
+
+void WhereInTheGridIsThisPoint::calculate_interp_coeffs()
+{
   for (std::size_t dim=0; dim<ndims; dim++) {
     double mu = weights[dim];
-    if (is_inbounds[dim] == true) {
-      if (interp_methods[dim] == CUB_INTR) {
-        interp_coeffs[dim][0] = 2*mu*mu*mu - 3*mu*mu + 1;
-        interp_coeffs[dim][1] = -2*mu*mu*mu + 3*mu*mu;
-        cubic_slope_coeffs[dim][0] = mu*mu*mu - 2*mu*mu + mu;
-        cubic_slope_coeffs[dim][1] = mu*mu*mu - mu*mu;
-      } else {
-        interp_coeffs[dim][0] = 1-mu;
-        interp_coeffs[dim][1] = mu;
-      }
-    } else {
-      if (extrap_methods[dim] == CON_EXTR) {
-        mu = mu < 0? 0 : 1;
-      }
+    if (methods[dim] == CUBIC) {
+      interp_coeffs[dim][0] = 2*mu*mu*mu - 3*mu*mu + 1;
+      interp_coeffs[dim][1] = -2*mu*mu*mu + 3*mu*mu;
+      cubic_slope_coeffs[dim][0] = mu*mu*mu - 2*mu*mu + mu;
+      cubic_slope_coeffs[dim][1] = mu*mu*mu - mu*mu;
+    } else if (methods[dim] == CONSTANT) {
+      mu = mu < 0? 0 : 1;
+      interp_coeffs[dim][0] = 1-mu;
+      interp_coeffs[dim][1] = mu;
+    } else {  // LINEAR
       interp_coeffs[dim][0] = 1-mu;
       interp_coeffs[dim][1] = mu;
     }
@@ -122,9 +132,7 @@ RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
   cgp_exists(false)
 {
   std::size_t ndims{get_ndims()};
-  // TODO unwind hardcoding all interpolation methods to linear.
-  std::vector<int> interpolation_methods(ndims, LIN_INTR);
-  origin_hypercube = make_origin_hypercube(ndims, interpolation_methods);
+  origin_hypercube = make_core_hypercube(ndims);
   showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
 };
 
@@ -137,9 +145,7 @@ current_grid_point(),  // instantiates an empty GridPoint
 cgp_exists(false)
 {
   std::size_t ndims{get_ndims()};
-  // TODO unwind hardcoding all interpolation methods to linear.
-  std::vector<int> interpolation_methods(ndims, LIN_INTR);
-  origin_hypercube = make_origin_hypercube(ndims, interpolation_methods);
+  origin_hypercube = make_core_hypercube(ndims);
   showMessage(MSG_DEBUG, "RGI constructed from vectors!");
 };
 
@@ -262,7 +268,7 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
   std::size_t ndims = get_ndims();
   std::size_t num_vertices = origin_hypercube.size();
   std::vector<std::size_t> point_floor = get_current_floor();
-  std::vector<int> interp_methods = the_blob.get_interp_methods();
+  std::vector<int> methods = the_locator.get_methods();
   std::vector< std::vector<double> > interp_coeffs = get_interp_coeffs();
 
   Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
@@ -286,15 +292,15 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
 
   // for each cubic-interp axis, get second-order contribution from the rectangle
   for (std::size_t dim=0; dim<ndims; dim++) {
-    // TODO only do this if is_inbounds
-    if (interp_methods[dim] == CUB_INTR) {
-      Eigen::ArrayXd slope_contribution = cubic_slope_weighting(dim);
-      showMessage(MSG_DEBUG, stringify("slope contribution, axis-", dim, "\n", slope_contribution));
-      result += slope_contribution;
+    if (methods[dim] == CUBIC) {
+      result += cubic_slope_weighting(dim);
     }
+  }
 
-  // TODO for each point in cubic_hypercube (needs to be constructed),
-  //   add third-order contribution.
+  // TODO for each point in full_hypercube, add third-order contribution.
+  if ( std::find(methods.begin(), methods.end(), CUBIC) != methods.end() ) {
+    std::vector< std::vector<int> > full_hypercube =
+        make_full_hypercube(ndims, the_locator.get_methods());
   }
 
   showMessage(MSG_DEBUG, stringify("results\n", result));
@@ -324,6 +330,8 @@ Eigen::ArrayXd RegularGridInterpolator::cubic_slope_weighting(const std::size_t 
       this_axis_slope_adder += this_vertex * other_axes_multiplier;
     }
   }
+  showMessage(MSG_DEBUG, stringify("slope contribution, axis-", this_dim,
+                                   "\n", this_axis_slope_adder));
   return this_axis_slope_adder;
 }
 
@@ -393,17 +401,21 @@ std::size_t pow(const std::size_t& base, const std::size_t& power) {
   }
 }
 
-std::vector< std::vector<int> > make_origin_hypercube(
+std::vector< std::vector<int> > make_core_hypercube(
+  const std::size_t& ndims)
+{
+  std::vector< std::vector<int> > options(ndims, {0,1});
+  return cart_product(options);
+}
+
+std::vector< std::vector<int> > make_full_hypercube(
   const std::size_t& ndims, const std::vector<int>& fit_degrees)
 {
-  std::vector< std::vector<int> > options;
+  std::vector< std::vector<int> > options(ndims, {0,1});
+
   for (std::size_t dim=0; dim<ndims; dim++) {
-    if (fit_degrees[dim] == CUB_INTR) {
-      std::vector<int> temp = {-1, 0, 1, 2};
-      options.push_back(temp);
-    } else {
-      std::vector<int> temp = {0, 1};
-      options.push_back(temp);
+    if (fit_degrees[dim] == CUBIC) {
+      options[dim] = {-1, 0, 1, 2};
     }
   }
   return cart_product(options);

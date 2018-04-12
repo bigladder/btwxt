@@ -37,6 +37,7 @@ public:
   std::vector<std::size_t> get_floor();
   std::vector<double> get_weights();
   std::vector<bool> get_is_inbounds();
+  std::vector<int> get_methods();
   std::vector< std::vector<double> > get_interp_coeffs();
   std::vector< std::vector<double> > get_cubic_slope_coeffs();
 
@@ -48,6 +49,7 @@ private:
   //     1. outside grid but can extrapolate to, and
   //     2. outside allowed extrapolation zone.
   std::vector<bool> is_inbounds;  // for deciding interpolation vs. extrapolation;
+  std::vector<int> methods;
   std::vector< std::vector<double> > interp_coeffs;
   std::vector< std::vector<double> > cubic_slope_coeffs;
 
@@ -57,8 +59,9 @@ private:
   void calculate_weights(
     const std::vector<std::size_t>& point_floor, std::vector<double>& weights,
     GridPoint&, GriddedData&);
-  void calculate_interp_coeffs(const std::vector<int>& interp_methods,
+  void consolidate_methods(const std::vector<int>& interp_methods,
     const std::vector<int>& extrap_methods);
+  void calculate_interp_coeffs();
 };
 
 
@@ -135,7 +138,8 @@ private:
 std::size_t index_below_in_vector(double target, std::vector<double> &my_vec);
 double compute_fraction(double x, double edge[2]);
 std::size_t pow(const std::size_t& base, const std::size_t& power);
-std::vector< std::vector<int> > make_origin_hypercube(
+std::vector< std::vector<int> > make_core_hypercube(const std::size_t& ndims);
+std::vector< std::vector<int> > make_full_hypercube(
   const std::size_t& ndims, const std::vector<int>& fit_degrees);
 std::vector< std::vector<int> > cart_product(
   const std::vector< std::vector<int> >& v);

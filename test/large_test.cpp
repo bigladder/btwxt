@@ -76,8 +76,11 @@ protected:
     }
     std::vector<std::vector<double> > values = {values0, values1};
 
+    // target = {2.5, 3.5, 1.4, 4.0};
     target = {2.2, 3.3, 1.4, 4.1};
     test_gridded_data = GriddedData(grid, values);
+    // test_gridded_data.set_axis_interp_method(1, CUBIC);
+    // test_gridded_data.set_axis_interp_method(2, CUBIC);
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };

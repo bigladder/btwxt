@@ -94,8 +94,8 @@ TEST(Btwxt, pow) {
 
 TEST(Btwxt, make_origin_hypercube) {
   std::size_t ndims = 3;
-  std::vector<int> fit_degrees = {LIN_INTR, CUB_INTR, LIN_INTR};
-  std::vector<std::vector<int>> result = make_origin_hypercube(
+  std::vector<int> fit_degrees = {LINEAR, CUBIC, LINEAR};
+  std::vector<std::vector<int>> result = make_full_hypercube(
     ndims, fit_degrees);
   EXPECT_EQ(result.size(), 2*4*2);
   EXPECT_THAT(result[0], testing::ElementsAre(0, -1, 0));

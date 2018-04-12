@@ -21,7 +21,7 @@ GridAxis::GridAxis(std::vector<double> grid_vector,
   extrapolation_method(extrapolation_method),
   interpolation_method(interpolation_method)
 {
-  if (interpolation_method == CUB_INTR) {
+  if (interpolation_method == CUBIC) {
     spacing_multiplier = calc_spacing_multipliers();
   }
 
@@ -42,7 +42,7 @@ std::size_t GridAxis::get_length() {
 
 void GridAxis::set_interp_method(const int im) {
   interpolation_method = im;
-  if (im==CUB_INTR) {
+  if (im==CUBIC) {
     spacing_multiplier = calc_spacing_multipliers();
   }
 }
@@ -109,7 +109,7 @@ GriddedData::GriddedData(
   std::vector< std::vector<double> > values
 ) :
   // TODO move interp_methods down to GridAxis class
-  interp_methods(grid.size(), LIN_INTR)
+  interp_methods(grid.size(), LINEAR)
 {
   ndims = grid.size();
   num_values = 1;
@@ -206,15 +206,12 @@ std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
 
 double GriddedData::get_axis_spacing_mult(const std::size_t& grid_index,
   const std::size_t& flavor, const std::size_t& index) {
-    if (interp_methods[grid_index] == CUB_INTR) {
+    if (interp_methods[grid_index] == CUBIC) {
       return grid_axes.axes[grid_index].get_spacing_multiplier(flavor, index);
     } else {
       return 0.0;
     }
 }
-
-int GriddedData::get_axis_extrap_method(const std::size_t& grid_index)
-{ return grid_axes.axes[grid_index].extrapolation_method; }
 
 void GriddedData::set_axis_extrap_method(
   const std::size_t& grid_index, const int extrapolation_method)

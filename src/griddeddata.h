@@ -11,21 +11,20 @@
 
 namespace Btwxt{
 
-const int CON_EXTR = 0;  // constant extrapolation
-const int LIN_EXTR = 1;  // linear extrapolation
-const int LIN_INTR = 1;  // linear interpolation
-const int CUB_INTR = 3;  // cubic spline interpolation (Catmull-Rom)
+const int CONSTANT = 0;  // constant extrapolation
+const int LINEAR = 1;    // linear interpolation/extrapolation
+const int CUBIC = 2;     // cubic spline interpolation (Catmull-Rom)
 
 class GridAxis{
   // A single input dimension of the performance space
 public:
   GridAxis();
   GridAxis(double *grid, std::size_t size,
-    int extrapolation_method = CON_EXTR,
-    int interpolation_method = LIN_INTR);
+    int extrapolation_method = CONSTANT,
+    int interpolation_method = LINEAR);
   GridAxis(std::vector<double> grid_vector,
-    int extrapolation_method = CON_EXTR,
-    int interpolation_method = LIN_INTR);
+    int extrapolation_method = CONSTANT,
+    int interpolation_method = LINEAR);
 
   const std::vector<double> grid;
   std::vector< std::vector<double> > spacing_multiplier;
@@ -76,7 +75,6 @@ public:
     std::vector<std::size_t> coords, const std::size_t& dim, const int& i);
   double get_axis_spacing_mult(const std::size_t& grid_index,
     const std::size_t& flavor, const std::size_t& index);
-  int get_axis_extrap_method(const std::size_t& grid_index);
   std::vector<int> get_interp_methods();
   std::vector<int> get_extrap_methods();
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
