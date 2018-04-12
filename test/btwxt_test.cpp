@@ -96,8 +96,7 @@ TEST_F(CubicFixture, get_slopes) {
            duration.count(), " microseconds"));
 
   start = std::chrono::high_resolution_clock::now();
-  Eigen::ArrayXd this_axis_slope_adder = test_rgi.cubic_slope_weighting(
-    slopes, weights, 0);
+  Eigen::ArrayXd this_axis_slope_adder = test_rgi.cubic_slope_weighting(0);
   stop = std::chrono::high_resolution_clock::now();
   duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
   showMessage(MSG_INFO, stringify("\n", this_axis_slope_adder));

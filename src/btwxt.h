@@ -57,7 +57,8 @@ private:
   void calculate_weights(
     const std::vector<std::size_t>& point_floor, std::vector<double>& weights,
     GridPoint&, GriddedData&);
-  void calculate_interp_coeffs(const std::vector<int>& interp_methods);
+  void calculate_interp_coeffs(const std::vector<int>& interp_methods,
+    const std::vector<int>& extrap_methods);
 };
 
 
@@ -106,10 +107,8 @@ public:
   std::vector<std::size_t> get_current_floor();
   std::vector<double> get_current_weights();
   // TODO move slope-related methods to private
-  Eigen::ArrayXXd get_slopes(const std::size_t& axis_index);
-  Eigen::ArrayXd cubic_slope_weighting(
-    const Eigen::ArrayXXd& slopes, const std::vector<double>& weights,
-    const std::size_t axis_index);
+  Eigen::ArrayXd cubic_slope_weighting(const std::size_t this_dim);
+  Eigen::ArrayXXd get_slopes(const std::size_t& this_dim);
   std::vector< std::vector<double> > get_interp_coeffs();
   std::vector< std::vector<double> > get_cubic_slope_coeffs();
 

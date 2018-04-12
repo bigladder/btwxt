@@ -192,6 +192,13 @@ Eigen::ArrayXd GriddedData::get_column(
   return value_tables.col(index);
 }
 
+Eigen::ArrayXd GriddedData::get_column_near(
+  std::vector<std::size_t> coords, const std::size_t& dim, const int& i)
+{
+  coords[dim] += i;
+  return get_column(coords);
+}
+
 std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
 {
   return grid_axes.axes[grid_index].grid;
@@ -213,6 +220,15 @@ void GriddedData::set_axis_extrap_method(
   const std::size_t& grid_index, const int extrapolation_method)
 {
   grid_axes.axes[grid_index].extrapolation_method = extrapolation_method;
+}
+
+std::vector<int> GriddedData::get_extrap_methods()
+{
+  std::vector<int> extrap_methods(ndims);
+  for (std::size_t dim=0; dim<ndims; dim++) {
+    extrap_methods[dim] = grid_axes.axes[dim].extrapolation_method;
+  }
+  return extrap_methods;
 }
 
 std::vector<int> GriddedData::get_interp_methods()

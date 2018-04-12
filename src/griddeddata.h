@@ -72,10 +72,13 @@ public:
   std::vector<double> get_grid_vector(const std::size_t& grid_index);
   std::vector<double> get_values(const std::vector<std::size_t>& coords);
   Eigen::ArrayXd get_column(const std::vector<std::size_t>& coords);
+  Eigen::ArrayXd get_column_near(
+    std::vector<std::size_t> coords, const std::size_t& dim, const int& i);
   double get_axis_spacing_mult(const std::size_t& grid_index,
     const std::size_t& flavor, const std::size_t& index);
   int get_axis_extrap_method(const std::size_t& grid_index);
   std::vector<int> get_interp_methods();
+  std::vector<int> get_extrap_methods();
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
   void set_axis_extrap_method(const std::size_t& grid_index, const int);
