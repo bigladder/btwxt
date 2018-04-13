@@ -131,6 +131,9 @@ private:
     const std::vector<double>& weights);
   double general_vertex_weighting(const std::vector<int>& coords,
     const std::vector<double>& weights, const std::vector<int>& interp_methods);
+  Eigen::ArrayXd third_order_contribution(
+    const std::vector<int>& vertex, const std::vector<std::size_t>& point_floor,
+    const std::vector<int>& methods);
 };
 
 

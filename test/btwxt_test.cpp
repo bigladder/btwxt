@@ -133,8 +133,8 @@ TEST_F(CubicFixture, calculate_interp_coeffs) {
 
   EXPECT_DOUBLE_EQ(interp_coeffs[0][0], 2*mu*mu*mu - 3*mu*mu + 1);
   EXPECT_DOUBLE_EQ(interp_coeffs[0][1], -2*mu*mu*mu + 3*mu*mu);
-  EXPECT_DOUBLE_EQ(interp_coeffs[1][0], 1);
-  EXPECT_DOUBLE_EQ(interp_coeffs[1][1], 0);
+  EXPECT_DOUBLE_EQ(interp_coeffs[1][0], 0.75);
+  EXPECT_DOUBLE_EQ(interp_coeffs[1][1], 0.25);
 
   EXPECT_DOUBLE_EQ(cubic_slope_coeffs[0][0], mu*mu*mu - 2*mu*mu + mu);
   EXPECT_DOUBLE_EQ(cubic_slope_coeffs[0][1], mu*mu*mu - mu*mu);
@@ -154,7 +154,7 @@ TEST_F(CubicFixture, interpolate) {
   showMessage(MSG_INFO, stringify("Time to do cubic interpolation: ",
            duration.count(), " microseconds"));
   Btwxt::LOG_LEVEL = 1;
-  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.736), testing::DoubleEq(9.472)));
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3.948), testing::DoubleEq(11.368)));
 }
 
 TEST_F(TwoDFixture, interpolate) {

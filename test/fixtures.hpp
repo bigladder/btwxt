@@ -79,12 +79,12 @@ protected:
   std::vector<double> target;
 
   CubicFixture(){
-    std::vector<std::vector<double> > grid = { {6, 10, 15, 20}, {4, 6} };
+    std::vector<std::vector<double> > grid = { {6, 10, 15, 20}, {2, 4, 6, 8} };
     std::vector<std::vector<double> > values =
-      { {8, 6, 3, 2, 10, 8, 4, 2},
-        {16, 12, 6, 4, 20, 16, 8, 4} };
+      { {4, 3, 1.5, 1,   5, 4, 2, 1,    8, 6, 3, 2,    10, 8, 4, 2},
+        {12, 10, 4, 4,   16, 12, 6, 4,  20, 16, 8, 4,  25, 20, 10, 5} };
 
-    target = {12, 4};
+    target = {12, 4.5};
     test_gridded_data = GriddedData(grid, values);
     test_gridded_data.set_axis_interp_method(0, CUBIC);
     // test_gridded_data.set_axis_interp_method(1, CUBIC);

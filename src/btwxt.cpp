@@ -301,6 +301,9 @@ std::vector<double> RegularGridInterpolator::dot_calculator()
   if ( std::find(methods.begin(), methods.end(), CUBIC) != methods.end() ) {
     std::vector< std::vector<int> > full_hypercube =
         make_full_hypercube(ndims, the_locator.get_methods());
+    for (auto vertex: full_hypercube) {
+      result += third_order_contribution(vertex, point_floor, methods);
+    }
   }
 
   showMessage(MSG_DEBUG, stringify("results\n", result));
@@ -367,6 +370,45 @@ Eigen::ArrayXXd RegularGridInterpolator::get_slopes(const std::size_t& this_dim)
         - the_blob.get_column_near(temp, this_dim, down)) * spacing_multiplier;
   }
   return slopes;
+}
+
+Eigen::ArrayXd RegularGridInterpolator::third_order_contribution(
+  const std::vector<int>& vertex, const std::vector<std::size_t>& point_floor,
+  const std::vector<int>& methods)
+{
+  std::size_t ndims = get_ndims();
+  std::vector<std::size_t> temp(ndims);
+  std::vector< std::vector<double> > cubic_slope_coeffs = get_cubic_slope_coeffs();
+  std::vector< std::vector<double> > interp_coeffs = get_interp_coeffs();
+  std::transform(vertex.begin( ), vertex.end( ),
+                 point_floor.begin( ), temp.begin( ),
+                 std::plus<int>());
+
+  for (std::size_t dim=0; dim<ndims; dim++) {
+    if (temp[dim] > the_blob.dimension_lengths[dim]) {
+      temp[dim] = 0;  // because temp is unsigned, a negative value will wrap around
+    } else if (temp[dim] == the_blob.dimension_lengths[dim]) {
+      temp[dim] -= 1;
+    }
+  }
+  Eigen::ArrayXd vertex_contribution = the_blob.get_column(temp);
+  showMessage(MSG_DEBUG, stringify("full_hypercube vertex:\n", vertex_contribution));
+  double spacing_multiplier;
+  std::size_t flavor;
+  for (std::size_t dim=0; dim<ndims; dim++) {
+    if (methods[dim] == CUBIC) {
+      if (vertex[dim]==-1 | vertex[dim]==1) {
+        flavor = 0;
+      } else {flavor = 1; }
+      spacing_multiplier = the_blob.get_axis_spacing_mult(dim,
+        flavor, point_floor[dim]);
+      vertex_contribution *= cubic_slope_coeffs[dim][flavor] * spacing_multiplier;
+    } else {
+      vertex_contribution *= interp_coeffs[dim][vertex[dim]];
+    }
+  }
+  showMessage(MSG_DEBUG, stringify("after multiplying:\n", vertex_contribution));
+  return vertex_contribution;
 }
 
 
