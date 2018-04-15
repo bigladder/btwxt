@@ -7,6 +7,10 @@ set(library_sources
   btwxt.cpp
   griddeddata.h
   griddeddata.cpp
+  gridpoint.h
+  gridpoint.cpp
+  hypercube.h
+  hypercube.cpp
   error.h
   error.cpp
 )

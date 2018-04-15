@@ -9,6 +9,7 @@ set(library_sources
   griddeddata_test.cpp
   math_test.cpp
   large_test.cpp
+  hypercube_test.cpp
 )
 
 link_libraries(btwxt gtest gmock)

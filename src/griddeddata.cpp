@@ -199,6 +199,16 @@ Eigen::ArrayXd GriddedData::get_column_near(
   return get_column(coords);
 }
 
+Eigen::ArrayXd GriddedData::get_column_near(
+  std::vector<std::size_t> coords, const std::vector<int>& translation)
+{
+  // coords.size() must equal translation.size()
+  std::transform(coords.begin( ), coords.end( ),
+                 translation.begin( ), coords.begin( ),
+                 std::plus<int>());
+  return get_column(coords);
+}
+
 std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
 {
   return grid_axes.axes[grid_index].grid;

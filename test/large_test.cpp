@@ -103,10 +103,12 @@ TEST_F(LargeFixture, construct) {
 TEST_F(LargeFixture, calculate) {
   test_rgi.set_new_grid_point(target);
 
+  Btwxt::LOG_LEVEL = 0;
   std::vector<double> result = test_rgi.calculate_all_values_at_target();
   // note: fn0(2.2, 3.3, 1.4, 4.1) evaluates to 0.003.
   EXPECT_NEAR(result[0], -0.0109, 0.0001);
   EXPECT_DOUBLE_EQ(result[1], 11);
+  Btwxt::LOG_LEVEL = 1;
 };
 
 TEST_F(LargeFixture, timer) {
