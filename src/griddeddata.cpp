@@ -180,24 +180,25 @@ Eigen::ArrayXd GriddedData::get_column_near(
   return get_column(coords);
 }
 
-std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
+std::vector<double> GriddedData::get_grid_vector(const std::size_t& dim
+)
 {
-  return grid_axes[grid_index].grid;
+  return grid_axes[dim].grid;
 }
 
-double GriddedData::get_axis_spacing_mult(const std::size_t& grid_index,
+double GriddedData::get_axis_spacing_mult(const std::size_t& dim,
   const std::size_t& flavor, const std::size_t& index) {
-    if (interp_methods[grid_index] == CUBIC) {
-      return grid_axes[grid_index].get_spacing_multiplier(flavor, index);
+    if (interp_methods[dim] == CUBIC) {
+      return grid_axes[dim].get_spacing_multiplier(flavor, index);
     } else {
       return 0.0;
     }
 }
 
 void GriddedData::set_axis_extrap_method(
-  const std::size_t& grid_index, const int extrapolation_method)
+  const std::size_t& dim, const int extrapolation_method)
 {
-  grid_axes[grid_index].extrapolation_method = extrapolation_method;
+  grid_axes[dim].extrapolation_method = extrapolation_method;
 }
 
 std::vector<int> GriddedData::get_extrap_methods()
@@ -213,10 +214,10 @@ std::vector<int> GriddedData::get_interp_methods()
 { return interp_methods; }
 
 void GriddedData::set_axis_interp_method(
-  const std::size_t& grid_index, const int interpolation_method)
+  const std::size_t& dim, const int interpolation_method)
 {
-  interp_methods[grid_index] = interpolation_method;
-  grid_axes[grid_index].set_interp_method(interpolation_method);
+  interp_methods[dim] = interpolation_method;
+  grid_axes[dim].set_interp_method(interpolation_method);
 }
 
 // free functions
@@ -251,15 +252,15 @@ std::size_t locate_coords(
 {
   std::size_t index = 0;
   std::size_t panel_size = 1;
-  for (std::size_t d=0; d<dimension_lengths.size(); d++)
+  for (std::size_t dim=0; dim<dimension_lengths.size(); dim++)
   {
-    if (coords[d] >= dimension_lengths[d]) {
-      showMessage(MSG_WARN, stringify("You overran dimension ", d));
+    if (coords[dim] >= dimension_lengths[dim]) {
+      showMessage(MSG_WARN, stringify("You overran dimension ", dim));
       return -1;
     }
     else {
-      index += coords[d] * panel_size;
-      panel_size *= dimension_lengths[d];
+      index += coords[dim] * panel_size;
+      panel_size *= dimension_lengths[dim];
     }
   }
   // showMessage(MSG_DEBUG, stringify("The unrolled index is ", index));

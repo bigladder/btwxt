@@ -63,17 +63,17 @@ void WhereInTheGridIsThisPoint::find_floor(
   std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds,
   GridPoint& current_grid_point, GriddedData& the_blob)
 {
-  for (std::size_t d=0; d<ndims; d+=1) {
-    std::vector<double> grid_vector = the_blob.get_grid_vector(d);
-    point_floor[d] = index_below_in_vector(current_grid_point.target[d], grid_vector);
-    if (point_floor[d] == grid_vector.size()) {
-      is_inbounds[d] = false;
-      point_floor[d] = 0;
-    } else if (point_floor[d] == grid_vector.size()-1) {
-      is_inbounds[d] = false;
-      point_floor[d] -= 1;
+  for (std::size_t dim=0; dim<ndims; dim+=1) {
+    std::vector<double> grid_vector = the_blob.get_grid_vector(dim);
+    point_floor[dim] = index_below_in_vector(current_grid_point.target[dim], grid_vector);
+    if (point_floor[dim] == grid_vector.size()) {
+      is_inbounds[dim] = false;
+      point_floor[dim] = 0;
+    } else if (point_floor[dim] == grid_vector.size()-1) {
+      is_inbounds[dim] = false;
+      point_floor[dim] -= 1;
     } else {
-      is_inbounds[d] = true;
+      is_inbounds[dim] = true;
     }
   }
 }
@@ -82,10 +82,10 @@ void WhereInTheGridIsThisPoint::calculate_weights(
   const std::vector<std::size_t> &point_floor, std::vector<double> &weights,
   GridPoint& current_grid_point, GriddedData& the_blob)
 {
-  for (std::size_t d=0; d<ndims; d+=1) {
-    std::vector<double> grid_vector = the_blob.get_grid_vector(d);
-    double edge[] = {grid_vector[point_floor[d]], grid_vector[point_floor[d]+1]};
-    weights[d] = compute_fraction(current_grid_point.target[d], edge);
+  for (std::size_t dim=0; dim<ndims; dim+=1) {
+    std::vector<double> grid_vector = the_blob.get_grid_vector(dim);
+    double edge[] = {grid_vector[point_floor[dim]], grid_vector[point_floor[dim]+1]};
+    weights[dim] = compute_fraction(current_grid_point.target[dim], edge);
   }
 }
 

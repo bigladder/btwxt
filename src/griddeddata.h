@@ -54,21 +54,22 @@ public:
 
   std::size_t get_ndims();
   std::size_t get_num_tables();
-  std::vector<double> get_grid_vector(const std::size_t& grid_index);
+  std::vector<std::size_t> get_dim_lengths();
+  std::vector<double> get_grid_vector(const std::size_t& dim);
   std::vector<double> get_values(const std::vector<std::size_t>& coords);
   Eigen::ArrayXd get_column(const std::vector<std::size_t>& coords);
   Eigen::ArrayXd get_column_near(
     std::vector<std::size_t> coords, const std::size_t& dim, const int& i);
   Eigen::ArrayXd get_column_near(
     std::vector<std::size_t> coords, const std::vector<int>& translation);
-  double get_axis_spacing_mult(const std::size_t& grid_index,
+  double get_axis_spacing_mult(const std::size_t& dim,
     const std::size_t& flavor, const std::size_t& index);
   std::vector<int> get_interp_methods();
   std::vector<int> get_extrap_methods();
   // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
-  void set_axis_extrap_method(const std::size_t& grid_index, const int);
-  void set_axis_interp_method(const std::size_t& grid_index, const int);
+  void set_axis_extrap_method(const std::size_t& dim, const int);
+  void set_axis_interp_method(const std::size_t& dim, const int);
   Eigen::ArrayXXd value_tables;
   std::size_t num_values;
   std::vector<std::size_t> dimension_lengths;
