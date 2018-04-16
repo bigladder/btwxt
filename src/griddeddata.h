@@ -42,20 +42,6 @@ private:
 };
 
 
-class GridSpace{
-public:
-  // all n input dimensions to specify the performance space
-  GridSpace();
-  GridSpace(std::vector<GridAxis> grid_axes);
-
-  std::vector<GridAxis> axes;
-
-  std::size_t get_ndims();
-  std::size_t get_dim_length(const std::size_t&);
-  std::vector<std::size_t> get_dim_lengths();
-};
-
-
 
 
 class GriddedData{
@@ -93,7 +79,7 @@ private:
     const std::vector< std::vector<double> >& values
   );
 
-  GridSpace grid_axes;
+  std::vector<GridAxis> grid_axes;
   std::size_t ndims;
   std::size_t num_tables;
   // TODO move interp_method down to GridAxis

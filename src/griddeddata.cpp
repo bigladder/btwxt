@@ -71,35 +71,6 @@ std::vector< std::vector<double> > GridAxis::calc_spacing_multipliers() {
 }
 
 
-GridSpace::GridSpace() {};
-GridSpace::GridSpace(std::vector<GridAxis> grid_axes) : axes(grid_axes) {};
-
-std::size_t GridSpace::get_ndims()
-{
-  return axes.size();
-};
-
-std::size_t GridSpace::get_dim_length(const std::size_t& dim)
-{
-  std::size_t ndims = axes.size();
-  if (dim >= ndims) {
-    showMessage(MSG_WARN, "We don't have that many dimensions.");
-    return 0;
-  }
-  else {
-    return axes[0].get_length();
-  }
-}
-
-std::vector<std::size_t> GridSpace::get_dim_lengths()
-{
-  std::vector<std::size_t> dim_lengths;
-  for (auto grid : axes) {
-    dim_lengths.push_back(grid.get_length());
-  }
-  return dim_lengths;
-}
-
 
 
 
@@ -130,7 +101,7 @@ void GriddedData::construct_axes(
 {
   for (auto axis : grid) {
     GridAxis ga(axis);
-    grid_axes.axes.push_back(ga);
+    grid_axes.push_back(ga);
   }
 
   showMessage(MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
@@ -167,7 +138,7 @@ Eigen::ArrayXXd GriddedData::construct_values(
 
 
 std::size_t GriddedData::get_ndims()
-{ return grid_axes.get_ndims(); };
+{ return grid_axes.size();; };
 
 std::size_t GriddedData::get_num_tables()
 { return num_tables; };
@@ -211,13 +182,13 @@ Eigen::ArrayXd GriddedData::get_column_near(
 
 std::vector<double> GriddedData::get_grid_vector(const std::size_t& grid_index)
 {
-  return grid_axes.axes[grid_index].grid;
+  return grid_axes[grid_index].grid;
 }
 
 double GriddedData::get_axis_spacing_mult(const std::size_t& grid_index,
   const std::size_t& flavor, const std::size_t& index) {
     if (interp_methods[grid_index] == CUBIC) {
-      return grid_axes.axes[grid_index].get_spacing_multiplier(flavor, index);
+      return grid_axes[grid_index].get_spacing_multiplier(flavor, index);
     } else {
       return 0.0;
     }
@@ -226,14 +197,14 @@ double GriddedData::get_axis_spacing_mult(const std::size_t& grid_index,
 void GriddedData::set_axis_extrap_method(
   const std::size_t& grid_index, const int extrapolation_method)
 {
-  grid_axes.axes[grid_index].extrapolation_method = extrapolation_method;
+  grid_axes[grid_index].extrapolation_method = extrapolation_method;
 }
 
 std::vector<int> GriddedData::get_extrap_methods()
 {
   std::vector<int> extrap_methods(ndims);
   for (std::size_t dim=0; dim<ndims; dim++) {
-    extrap_methods[dim] = grid_axes.axes[dim].extrapolation_method;
+    extrap_methods[dim] = grid_axes[dim].extrapolation_method;
   }
   return extrap_methods;
 }
@@ -245,7 +216,7 @@ void GriddedData::set_axis_interp_method(
   const std::size_t& grid_index, const int interpolation_method)
 {
   interp_methods[grid_index] = interpolation_method;
-  grid_axes.axes[grid_index].set_interp_method(interpolation_method);
+  grid_axes[grid_index].set_interp_method(interpolation_method);
 }
 
 // free functions
