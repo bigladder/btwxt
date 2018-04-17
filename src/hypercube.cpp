@@ -65,26 +65,19 @@ Eigen::ArrayXd CoreHypercube::compute_slopes_rectangle(
 
   std::vector<double> slopes = get_slopes(this_dim, the_blob);
   Eigen::ArrayXd this_axis_slope_adder = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
-  Eigen::ArrayXd this_vertex( the_blob.get_num_tables() );
+  Eigen::ArrayXd value_difference( the_blob.get_num_tables() );
 
-  std::vector<std::size_t> temp(ndims);
   double weight;
-  int up, down;
-  std::size_t i{0};
-  for (auto v: vertices) {
-    up = 1;
-    down = -1;
-    // shift hypercube vertices to point_floor
-    std::transform(v.begin( ), v.end( ),
-                   point_floor.begin( ), temp.begin( ),
+
+  std::vector<std::size_t> coords(ndims);
+  for (std::size_t i=0; i<num_vertices; i++) {
+    std::transform(point_floor.begin(), point_floor.end(),
+                   vertices[i].begin(), coords.begin(),
                    std::plus<int>());
-    if (temp[this_dim] == 0) { down = 0; }
-    else if (temp[this_dim] == the_blob.dimension_lengths[this_dim]-1) { up = 0; }
-    this_vertex = the_blob.get_column_near(temp, this_dim, up)
-                - the_blob.get_column_near(temp, this_dim, down);
-    weight = weigh_vertex_slope(v, this_dim);
-    this_axis_slope_adder += this_vertex * weight * slopes[i];
-    i++;
+    value_difference = the_blob.get_column_up(coords, this_dim)
+                     - the_blob.get_column_down(coords, this_dim);
+    weight = weigh_vertex_slope(vertices[i], this_dim);
+    this_axis_slope_adder += value_difference * weight * slopes[i];
   }
   showMessage(MSG_DEBUG, stringify("this_axis_slope_adder = \n", this_axis_slope_adder));
   return this_axis_slope_adder;

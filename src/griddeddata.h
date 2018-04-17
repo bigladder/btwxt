@@ -62,6 +62,10 @@ public:
     std::vector<std::size_t> coords, const std::size_t& dim, const int& i);
   Eigen::ArrayXd get_column_near(
     std::vector<std::size_t> coords, const std::vector<int>& translation);
+  Eigen::ArrayXd get_column_up(
+    const std::vector<std::size_t>& coords, const std::size_t& dim);
+  Eigen::ArrayXd get_column_down(
+    const std::vector<std::size_t>& coords, const std::size_t& dim);
   double get_axis_spacing_mult(const std::size_t& dim,
     const std::size_t& flavor, const std::size_t& index);
   std::vector<int> get_interp_methods();
