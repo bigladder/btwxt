@@ -62,6 +62,34 @@ TEST_F(TwoDFixture, get_column) {
     EXPECT_THAT(returned_vec, testing::ElementsAre(8, 16));
 }
 
+TEST_F(TwoDFixture, get_column_up) {
+    std::vector<std::size_t> coords = {0, 1};
+    Eigen::ArrayXd returned_col = test_gridded_data.get_column_up(coords, 0);
+    showMessage(MSG_INFO, stringify("returned column:\n", returned_col));
+    std::vector<double> returned_vec = eigen_to_vector(returned_col);
+    EXPECT_THAT(returned_vec, testing::ElementsAre(4, 8));
+
+    coords = {2, 1};
+    returned_col = test_gridded_data.get_column_up(coords, 0);
+    showMessage(MSG_INFO, stringify("returned column:\n", returned_col));
+    returned_vec = eigen_to_vector(returned_col);
+    EXPECT_THAT(returned_vec, testing::ElementsAre(2, 4));
+}
+
+TEST_F(TwoDFixture, get_column_down) {
+    std::vector<std::size_t> coords = {0, 1};
+    Eigen::ArrayXd returned_col = test_gridded_data.get_column_down(coords, 0);
+    showMessage(MSG_INFO, stringify("returned column:\n", returned_col));
+    std::vector<double> returned_vec = eigen_to_vector(returned_col);
+    EXPECT_THAT(returned_vec, testing::ElementsAre(8, 16));
+
+    coords = {2, 1};
+    returned_col = test_gridded_data.get_column_down(coords, 0);
+    showMessage(MSG_INFO, stringify("returned column:\n", returned_col));
+    returned_vec = eigen_to_vector(returned_col);
+    EXPECT_THAT(returned_vec, testing::ElementsAre(4, 8));
+}
+
 TEST_F(MismatchedFixture, ndims) {
     std::size_t ndims = test_gridded_data.get_ndims();
     // TODO: capture error messages and test that they match expectations
