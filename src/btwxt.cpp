@@ -151,7 +151,8 @@ namespace Btwxt {
         // for each point in full_hypercube, add third-order contribution.
         if (std::find(methods.begin(), methods.end(), CUBIC) != methods.end()) {
             FullHypercube full_hypercube(ndims, methods);
-            Eigen::ArrayXd third_order_total = full_hypercube.third_order_contributions(the_locator, the_blob);
+            full_hypercube.collect_things(the_locator);
+            Eigen::ArrayXd third_order_total = full_hypercube.third_order_contributions(the_blob);
             result += third_order_total;
         }
 

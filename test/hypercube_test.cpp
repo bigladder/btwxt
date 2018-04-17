@@ -103,3 +103,57 @@ TEST_F(CubicFixture, hypercube_weigh_vertex_slope) {
     expected_result *= mus[1];  // dim 1: Linear
     EXPECT_DOUBLE_EQ(weight, expected_result);
 }
+
+TEST_F(CubicFixture, full_hypercube_weigh_one_vertex) {
+    std::size_t ndims = 2;
+    GridPoint current_grid_point(target);
+    WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
+    std::vector<int> methods = the_locator.get_methods();
+    FullHypercube my_hypercube(ndims, methods);
+    my_hypercube.collect_things(the_locator);
+
+    std::vector<int> this_vertex = {0, 0};
+    double weight = my_hypercube.weigh_one_vertex(this_vertex, test_gridded_data);
+    std::vector<double> mus = the_locator.get_weights();
+    double mu = mus[0];
+    double expected_result = mu*mu*mu - mu*mu;  // dim 0: Cubic
+    expected_result *= 0.5;  // dim 0 spacing multiplier
+    expected_result *= 1 - mus[1];  // dim 1: Linear
+    EXPECT_DOUBLE_EQ(weight, expected_result);
+
+    this_vertex = {-1, 1};
+    weight = my_hypercube.weigh_one_vertex(this_vertex, test_gridded_data);
+    expected_result = mu*mu*mu - 2*mu*mu + mu;  // dim 0: Cubic
+    expected_result *= 5.0/9;  // dim 0 spacing multiplier
+    expected_result *= mus[1];  // dim 1: Linear
+    EXPECT_DOUBLE_EQ(weight, expected_result);
+}
+
+TEST_F(CubicFixture, full_hypercube_weigh_one_vertex_both_cubic) {
+    std::size_t ndims = 2;
+    GridPoint current_grid_point(target);
+    test_gridded_data.set_axis_interp_method(1, CUBIC);
+    WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
+    std::vector<int> methods = the_locator.get_methods();
+    FullHypercube my_hypercube(ndims, methods);
+    my_hypercube.collect_things(the_locator);
+
+    std::vector<int> this_vertex = {0, 0};
+    double weight = my_hypercube.weigh_one_vertex(this_vertex, test_gridded_data);
+    std::vector<double> mus = the_locator.get_weights();
+    double mu = mus[0];
+    double nu = mus[1];
+    double expected_result = mu*mu*mu - mu*mu;  // dim 0: Cubic
+    expected_result *= 5.0/10;  // dim 0 spacing multiplier
+    expected_result *= nu*nu*nu - nu*nu;  // dim 1: Cubic
+    expected_result *= 2.0/4;  // dim 1 spacing multiplier
+    EXPECT_DOUBLE_EQ(weight, expected_result);
+
+    this_vertex = {-1, 1};
+    weight = my_hypercube.weigh_one_vertex(this_vertex, test_gridded_data);
+    expected_result = mu*mu*mu - 2*mu*mu + mu;  // dim 0: Cubic
+    expected_result *= 5.0/9;  // dim 0 spacing multiplier
+    expected_result *= nu*nu*nu - 2*nu*nu + nu;  // dim 1: Cubic
+    expected_result *= 2.0/4;  // dim 1 spacing multiplier
+    EXPECT_DOUBLE_EQ(weight, expected_result);
+}

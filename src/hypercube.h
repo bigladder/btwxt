@@ -59,12 +59,12 @@ namespace Btwxt {
     public:
         FullHypercube(const std::size_t &ndims, const std::vector<int> &methods);
 
+        void collect_things(WhereInTheGridIsThisPoint &);
+
         std::size_t ndims;
         std::vector<std::vector<int> > vertices;
 
-        Eigen::ArrayXd third_order_contributions(
-                WhereInTheGridIsThisPoint &the_locator,
-                GriddedData &the_blob);
+        Eigen::ArrayXd third_order_contributions(GriddedData &the_blob);
 
         double weigh_one_vertex(
                 const std::vector<int> &v, GriddedData &the_blob);

@@ -110,12 +110,13 @@ namespace Btwxt {
             methods(methods),
             vertices(make_full_hypercube(ndims, methods)) {};
 
-    Eigen::ArrayXd FullHypercube::third_order_contributions(
-            WhereInTheGridIsThisPoint &the_locator,
-            GriddedData &the_blob) {
+    void FullHypercube::collect_things(WhereInTheGridIsThisPoint &the_locator) {
         point_floor = the_locator.get_floor();
-        cubic_slope_coeffs = the_locator.get_cubic_slope_coeffs();
         interp_coeffs = the_locator.get_interp_coeffs();
+        cubic_slope_coeffs = the_locator.get_cubic_slope_coeffs();
+    }
+
+    Eigen::ArrayXd FullHypercube::third_order_contributions(GriddedData &the_blob) {
 
         Eigen::ArrayXd third_order_total = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
         Eigen::ArrayXd values = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
