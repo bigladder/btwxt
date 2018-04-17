@@ -43,6 +43,7 @@ Eigen::ArrayXd CoreHypercube::compute_core(GriddedData& the_blob)
     showMessage(MSG_DEBUG, stringify("vertex_weight: ", weight));
     result += values * weight;
   }
+  showMessage(MSG_DEBUG, stringify("core contribution = \n", result));
   return result;
 }
 
@@ -149,7 +150,7 @@ Eigen::ArrayXd FullHypercube::third_order_contributions(
       }
     }
     values = the_blob.get_column(temp);
-    showMessage(MSG_DEBUG, stringify("full_hypercube vertex:\n", values));
+    // showMessage(MSG_DEBUG, stringify("full_hypercube vertex:\n", values));
     third_order_total += values * weigh_one_vertex(v, the_blob);
   }
   showMessage(MSG_DEBUG, stringify("third_order_total = \n", third_order_total));
@@ -173,7 +174,7 @@ double FullHypercube::weigh_one_vertex(
       weight *= interp_coeffs[dim][v[dim]];
     }
   }
-  showMessage(MSG_DEBUG, stringify("third order vertex weight:\n", weight));
+  // showMessage(MSG_DEBUG, stringify("third order vertex weight:\n", weight));
   return weight;
 }
 

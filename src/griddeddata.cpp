@@ -56,7 +56,8 @@ double GridAxis::get_spacing_multiplier(const std::size_t& flavor,
 std::vector< std::vector<double> > GridAxis::calc_spacing_multipliers() {
   std::size_t grid_size = grid.size();
   std::vector< std::vector<double> > v(2, std::vector<double>(grid_size-1, 1.0));
-
+  // "0" and "1" are the "flavors" of the calc_spacing_multipliers.
+  // If you are sitting at the "0" along an edge of they hypercube, you want the "0" flavof
   double center_spacing;
   for (std::size_t i=0; i<grid.size()-1; i++) {
     center_spacing = grid[i+1]-grid[i];
