@@ -63,7 +63,7 @@ Eigen::ArrayXd CoreHypercube::compute_slopes_rectangle(
 {
   std::size_t num_vertices = vertices.size();
 
-  Eigen::ArrayXXd slopes = get_slopes(this_dim, the_blob);
+  std::vector<double> slopes = get_slopes(this_dim, the_blob);
   Eigen::ArrayXd this_axis_slope_adder = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
   Eigen::ArrayXd this_vertex( the_blob.get_num_tables() );
 
@@ -83,7 +83,7 @@ Eigen::ArrayXd CoreHypercube::compute_slopes_rectangle(
     this_vertex = the_blob.get_column_near(temp, this_dim, up)
                 - the_blob.get_column_near(temp, this_dim, down);
     weight = weigh_vertex_slope(v, this_dim);
-    this_axis_slope_adder += this_vertex * weight * slopes.col(i);
+    this_axis_slope_adder += this_vertex * weight * slopes[i];
     i++;
   }
   showMessage(MSG_DEBUG, stringify("this_axis_slope_adder = \n", this_axis_slope_adder));
@@ -103,13 +103,13 @@ double CoreHypercube::weigh_vertex_slope(const std::vector<int>& v,
   return weight;
 }
 
-Eigen::ArrayXXd CoreHypercube::get_slopes(const std::size_t& this_dim,
+std::vector<double> CoreHypercube::get_slopes(const std::size_t& this_dim,
   GriddedData& the_blob)
 {
-  Eigen::ArrayXXd slopes(the_blob.get_num_tables(), vertices.size());
+  std::vector<double> slopes(vertices.size());
   std::size_t i{0};
   for (auto v: vertices) {
-    slopes.col(i) = the_blob.get_axis_spacing_mult(
+    slopes[i] = the_blob.get_axis_spacing_mult(
       this_dim, v[this_dim], point_floor[this_dim]);
     i++;
   }

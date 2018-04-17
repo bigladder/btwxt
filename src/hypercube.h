@@ -40,7 +40,7 @@ public:
     GriddedData& the_blob);
   double weigh_vertex_slope(const std::vector<int>& v,
     const std::size_t& this_dim);
-  Eigen::ArrayXXd get_slopes(
+  std::vector<double> get_slopes(
     const std::size_t& this_dim,
     GriddedData& the_blob);
 
