@@ -122,19 +122,7 @@ namespace Btwxt {
         Eigen::ArrayXd values = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
 
         for (auto v : vertices) {
-            std::vector<std::size_t> temp(ndims);
-            std::transform(v.begin(), v.end(),
-                           point_floor.begin(), temp.begin(),
-                           std::plus<int>());
-
-            for (std::size_t dim = 0; dim < ndims; dim++) {
-                if (temp[dim] > the_blob.dimension_lengths[dim]) {
-                    temp[dim] = 0;  // because temp is unsigned, a negative value will wrap around
-                } else if (temp[dim] == the_blob.dimension_lengths[dim]) {
-                    temp[dim] -= 1;
-                }
-            }
-            values = the_blob.get_column(temp);
+            values = the_blob.get_column_near_safe(point_floor, v);
             // showMessage(MSG_DEBUG, stringify("full_hypercube vertex:\n", values));
             third_order_total += values * weigh_one_vertex(v, the_blob);
         }

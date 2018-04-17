@@ -64,13 +64,17 @@ namespace Btwxt {
 
         std::vector<double> get_values(const std::vector<std::size_t> &coords);
 
-        Eigen::ArrayXd get_column(const std::vector<std::size_t> &coords);
+        template <typename T>
+        Eigen::ArrayXd get_column(const std::vector<T> &coords);
 
         Eigen::ArrayXd get_column_near(
                 std::vector<std::size_t> coords, const std::size_t &dim, const int &i);
 
         Eigen::ArrayXd get_column_near(
                 std::vector<std::size_t> coords, const std::vector<int> &translation);
+
+        Eigen::ArrayXd get_column_near_safe(
+                const std::vector<std::size_t>& coords, std::vector<int> translation);
 
         Eigen::ArrayXd get_column_up(
                 const std::vector<std::size_t> &coords, const std::size_t &dim);
@@ -112,8 +116,9 @@ namespace Btwxt {
 // free functions
     bool free_check_sorted(std::vector<double>);
 
+    template <typename T>
     std::size_t locate_coords(
-            const std::vector<std::size_t> &coords,
+            const std::vector<T> &coords,
             const std::vector<std::size_t> &dimension_lengths
     );
 

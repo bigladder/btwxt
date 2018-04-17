@@ -146,8 +146,9 @@ namespace Btwxt {
         return one_column;
     }
 
+    template <typename T>
     Eigen::ArrayXd GriddedData::get_column(
-            const std::vector<std::size_t> &coords) {
+            const std::vector<T> &coords) {
         std::size_t index = locate_coords(coords, dimension_lengths);
         // TODO handle exception if invalid coordinates
         // if (index == -1) { return {0}; } ;
@@ -167,6 +168,21 @@ namespace Btwxt {
                        translation.begin(), coords.begin(),
                        std::plus<int>());
         return get_column(coords);
+    }
+
+    Eigen::ArrayXd GriddedData::get_column_near_safe(
+            const std::vector<std::size_t>& coords, std::vector<int> translation) {
+        std::transform(coords.begin(), coords.end(),
+                       translation.begin(), translation.begin(),
+                       std::plus<int>());
+        for (std::size_t dim = 0; dim < coords.size(); dim++) {
+            if (translation[dim] < 0) {
+                translation[dim] = 0;
+            } else if (translation[dim] == dimension_lengths[dim]) {
+                translation[dim] -= 1;
+            }
+        }
+        return get_column(translation);
     }
 
     Eigen::ArrayXd GriddedData::get_column_up(
@@ -243,11 +259,13 @@ namespace Btwxt {
         return true;
     };
 
-
+    template <typename T>
     std::size_t locate_coords(
-            const std::vector<std::size_t> &coords,
+            const std::vector<T> &coords,
             const std::vector<std::size_t> &dimension_lengths
     ) {
+        // TODO consider consolidating the get_column_near_safe() functionality into here
+        // or removing the dimension check from here.
         std::size_t index = 0;
         std::size_t panel_size = 1;
         for (std::size_t dim = 0; dim < dimension_lengths.size(); dim++) {
