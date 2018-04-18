@@ -87,7 +87,7 @@ namespace Btwxt {
                 weight *= interp_coeffs[other_dim][v[other_dim]];
             }
         }
-        showMessage(MSG_DEBUG, stringify("vertex slope weight, axis-", this_dim, weight));
+        showMessage(MSG_DEBUG, stringify("vertex slope weight, axis-", this_dim, ": ", weight));
         return weight;
     }
 
@@ -134,19 +134,23 @@ namespace Btwxt {
             const std::vector<int> &v, GriddedData &the_blob) {
         double weight = 1.0;
         std::size_t flavor;
+        int sign;
         for (std::size_t dim = 0; dim < ndims; dim++) {
             if (methods[dim] == CUBIC) {
-                if (v[dim] == -1 | v[dim] == 1) {
-                    flavor = 0;
-                } else { flavor = 1; }
+                switch(v[dim]) {
+                    case -1: sign = -1; flavor = 0; break;
+                    case 0: sign = -1; flavor = 1; break;
+                    case 1: sign = 1; flavor = 0; break;
+                    case 2: sign = 1; flavor = 1; break;
+                }
                 double spacing_multiplier = the_blob.get_axis_spacing_mult(dim,
                                                                            flavor, point_floor[dim]);
-                weight *= cubic_slope_coeffs[dim][flavor] * spacing_multiplier;
+                weight *= sign * cubic_slope_coeffs[dim][flavor] * spacing_multiplier;
             } else {
                 weight *= interp_coeffs[dim][v[dim]];
             }
         }
-        // showMessage(MSG_DEBUG, stringify("third order vertex weight:\n", weight));
+//        showMessage(MSG_DEBUG, stringify("third order vertex weight: ", weight));
         return weight;
     }
 

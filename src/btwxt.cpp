@@ -148,8 +148,9 @@ namespace Btwxt {
             }
         }
 
+        // only if there are multiple cubic dimensions,
         // for each point in full_hypercube, add third-order contribution.
-        if (std::find(methods.begin(), methods.end(), CUBIC) != methods.end()) {
+        if (std::count(methods.begin(), methods.end(), CUBIC) >= 2) {
             FullHypercube full_hypercube(ndims, methods);
             full_hypercube.collect_things(the_locator);
             Eigen::ArrayXd third_order_total = full_hypercube.third_order_contributions(the_blob);

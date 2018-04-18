@@ -154,7 +154,7 @@ TEST_F(CubicFixture, interpolate) {
     showMessage(MSG_INFO, stringify("Time to do cubic interpolation: ",
                                     duration.count(), " microseconds"));
     Btwxt::LOG_LEVEL = 1;
-    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3.948), testing::DoubleEq(11.368)));
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3.584), testing::DoubleEq(10.304)));
 }
 
 TEST_F(TwoDFixture, interpolate) {
@@ -202,3 +202,25 @@ TEST_F(MismatchedFixture, set_target) {
     // we expect an error that the target dimensions do not match the grid
     test_rgi.set_new_grid_point(target);
 };
+
+TEST_F(OneDFixture, cubic_interpolate) {
+    Btwxt::LOG_LEVEL = 0;
+    test_gridded_data.set_axis_interp_method(0, CUBIC);
+    test_rgi = RegularGridInterpolator(test_gridded_data);
+    double result = test_rgi.calculate_all_values_at_target(target)[0];
+    Btwxt::LOG_LEVEL = 1;
+    EXPECT_NEAR(result, 4.804398, 0.0001);
+}
+
+TEST_F(TwoDFixture, cubic_interpolate) {
+    Btwxt::LOG_LEVEL = 0;
+    test_gridded_data.set_axis_interp_method(0, CUBIC);
+    test_gridded_data.set_axis_interp_method(1, CUBIC);
+    test_rgi = RegularGridInterpolator(test_gridded_data);
+    test_rgi.set_new_grid_point(target);
+
+    // All values, current target
+    std::vector<double> result = test_rgi.calculate_all_values_at_target();
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2.876), testing::DoubleEq(5.752)));
+    Btwxt::LOG_LEVEL = 1;
+}

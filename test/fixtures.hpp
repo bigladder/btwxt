@@ -25,10 +25,10 @@ protected:
     std::vector<double> target;
 
     OneDFixture() {
-        std::vector<std::vector<double> > grid = {{0, 10}};
-        std::vector<std::vector<double> > values = {{6, 3}};
+        std::vector<std::vector<double> > grid = {{0, 2, 5, 10}};
+        std::vector<std::vector<double> > values = {{6, 5, 4, 3}};
 
-        target = {4};
+        target = {2.5};
         test_gridded_data = GriddedData(grid, values);
         test_rgi = RegularGridInterpolator(test_gridded_data);
     }
