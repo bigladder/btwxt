@@ -132,7 +132,6 @@ namespace Btwxt {
 
 
     std::vector<double> RegularGridInterpolator::interpolation_wrapper() {
-        // collect all of the points in the interpolation hypercube
         std::size_t ndims = get_ndims();
         std::vector<int> methods = the_locator.get_methods();
 

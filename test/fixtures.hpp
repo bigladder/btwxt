@@ -90,7 +90,7 @@ protected:
         target = {12, 4.5};
         test_gridded_data = GriddedData(grid, values);
         test_gridded_data.set_axis_interp_method(0, CUBIC);
-        // test_gridded_data.set_axis_interp_method(1, CUBIC);
+//        test_gridded_data.set_axis_interp_method(1, CUBIC);
         test_rgi = RegularGridInterpolator(test_gridded_data);
     }
 };

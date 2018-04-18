@@ -38,7 +38,7 @@ namespace Btwxt {
         for (auto v: vertices) {
             values = the_blob.get_column_near(point_floor, v);
             double weight = weigh_one_vertex(v);
-            showMessage(MSG_DEBUG, stringify("vertex_weight: ", weight));
+//            showMessage(MSG_DEBUG, stringify("vertex_weight: ", weight));
             result += values * weight;
         }
         showMessage(MSG_DEBUG, stringify("core contribution = \n", result));
@@ -87,7 +87,7 @@ namespace Btwxt {
                 weight *= interp_coeffs[other_dim][v[other_dim]];
             }
         }
-        showMessage(MSG_DEBUG, stringify("vertex slope weight, axis-", this_dim, ": ", weight));
+//        showMessage(MSG_DEBUG, stringify("vertex slope weight, axis-", this_dim, ": ", weight));
         return weight;
     }
 
