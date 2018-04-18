@@ -108,7 +108,10 @@ namespace Btwxt {
                                  const std::vector<int> &methods) :
             ndims(ndims),
             methods(methods),
-            vertices(make_full_hypercube(ndims, methods)) {};
+            vertices(make_full_hypercube(ndims, methods))
+    {
+        sivor = { {-1,0},{-1,1},{1,0},{1,1} };
+    };
 
     void FullHypercube::collect_things(WhereInTheGridIsThisPoint &the_locator) {
         point_floor = the_locator.get_floor();
@@ -133,16 +136,10 @@ namespace Btwxt {
     double FullHypercube::weigh_one_vertex(
             const std::vector<int> &v, GriddedData &the_blob) {
         double weight = 1.0;
-        std::size_t flavor;
-        int sign;
+        int sign, flavor;
         for (std::size_t dim = 0; dim < ndims; dim++) {
             if (methods[dim] == CUBIC) {
-                switch(v[dim]) {
-                    case -1: sign = -1; flavor = 0; break;
-                    case 0: sign = -1; flavor = 1; break;
-                    case 1: sign = 1; flavor = 0; break;
-                    case 2: sign = 1; flavor = 1; break;
-                }
+                std::tie(sign, flavor) = sivor[v[dim]+1];
                 double spacing_multiplier = the_blob.get_axis_spacing_mult(dim,
                                                                            flavor, point_floor[dim]);
                 weight *= sign * cubic_slope_coeffs[dim][flavor] * spacing_multiplier;

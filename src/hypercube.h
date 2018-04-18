@@ -73,6 +73,7 @@ namespace Btwxt {
         std::vector<int> methods;
         std::vector<std::vector<double> > cubic_slope_coeffs;
         std::vector<std::vector<double> > interp_coeffs;
+        std::vector< std::pair<int, int> > sivor;  // {sign, flavor}
     };
 
 
