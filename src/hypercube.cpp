@@ -3,16 +3,14 @@
 
 
 // Standard
-#include<iostream>
+#include <iostream>
+#include <numeric>
 
 // btwxt
-// #include "griddeddata.h"
 #include "hypercube.h"
 #include "error.h"
 
 namespace Btwxt {
-
-// Hypercube::Hypercube(const std::size_t& ndims) {};
 
     CoreHypercube::CoreHypercube() {};
 
@@ -54,55 +52,7 @@ namespace Btwxt {
     }
 
 
-    Eigen::ArrayXd CoreHypercube::compute_slopes_rectangle(
-            const std::size_t &this_dim,
-            GriddedData &the_blob) {
-        std::size_t num_vertices = vertices.size();
-
-        std::vector<double> slopes = get_slopes(this_dim, the_blob);
-        Eigen::ArrayXd this_axis_slope_adder = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
-        Eigen::ArrayXd value_difference(the_blob.get_num_tables());
-
-        double weight;
-
-        std::vector<std::size_t> coords(ndims);
-        for (std::size_t i = 0; i < num_vertices; i++) {
-            std::transform(point_floor.begin(), point_floor.end(),
-                           vertices[i].begin(), coords.begin(),
-                           std::plus<int>());
-            value_difference = the_blob.get_column_up(coords, this_dim)
-                               - the_blob.get_column_down(coords, this_dim);
-            weight = weigh_vertex_slope(vertices[i], this_dim);
-            this_axis_slope_adder += value_difference * weight * slopes[i];
-        }
-        showMessage(MSG_DEBUG, stringify("this_axis_slope_adder = \n", this_axis_slope_adder));
-        return this_axis_slope_adder;
-    }
-
-    double CoreHypercube::weigh_vertex_slope(const std::vector<int> &v,
-                                             const std::size_t &this_dim) {
-        double weight{cubic_slope_coeffs[this_dim][v[this_dim]]};
-        for (std::size_t other_dim = 0; other_dim < ndims; other_dim++) {
-            if (other_dim != this_dim) {
-                weight *= interp_coeffs[other_dim][v[other_dim]];
-            }
-        }
-//        showMessage(MSG_DEBUG, stringify("vertex slope weight, axis-", this_dim, ": ", weight));
-        return weight;
-    }
-
-    std::vector<double> CoreHypercube::get_slopes(const std::size_t &this_dim,
-                                                  GriddedData &the_blob) {
-        std::vector<double> slopes(vertices.size());
-        std::size_t i{0};
-        for (auto v: vertices) {
-            slopes[i] = the_blob.get_axis_spacing_mult(
-                    this_dim, v[this_dim], point_floor[this_dim]);
-            i++;
-        }
-        return slopes;
-    }
-
+    FullHypercube::FullHypercube() = default;;
 
     FullHypercube::FullHypercube(const std::size_t &ndims,
                                  const std::vector<int> &methods) :
@@ -119,36 +69,50 @@ namespace Btwxt {
         cubic_slope_coeffs = the_locator.get_cubic_slope_coeffs();
     }
 
-    Eigen::ArrayXd FullHypercube::third_order_contributions(GriddedData &the_blob) {
+    Eigen::ArrayXd FullHypercube::all_the_calculations(GriddedData &the_blob) {
 
-        Eigen::ArrayXd third_order_total = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
+        Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
         Eigen::ArrayXd values = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
+        double weight;
 
-        for (auto v : vertices) {
+        std::vector< std::vector<double> > spacing_mults = get_spacing_mults(the_blob);
+        for (const auto& v: vertices) {
+            weight = weigh_one_vertex(v, spacing_mults);
             values = the_blob.get_column_near_safe(point_floor, v);
-            // showMessage(MSG_DEBUG, stringify("full_hypercube vertex:\n", values));
-            third_order_total += values * weigh_one_vertex(v, the_blob);
+//            showMessage(MSG_INFO, stringify("vertex total = \n", values*weight));
+            result += values * weight;
         }
-        showMessage(MSG_DEBUG, stringify("third_order_total = \n", third_order_total));
-        return third_order_total;
+//        showMessage(MSG_INFO, stringify("complete answer = \n", result));
+        return result;
     }
 
-    double FullHypercube::weigh_one_vertex(
-            const std::vector<int> &v, GriddedData &the_blob) {
-        double weight = 1.0;
+    std::vector< std::vector<double> > FullHypercube::get_spacing_mults(GriddedData &the_blob) {
+        std::vector< std::vector<double> > spacing_mults(ndims, std::vector<double>(2, 0));
+        for (std::size_t dim=0; dim<ndims; dim++) {
+            spacing_mults[dim][0] = the_blob.get_axis_spacing_mult(dim, 0, point_floor[dim]);
+            spacing_mults[dim][1] = the_blob.get_axis_spacing_mult(dim, 1, point_floor[dim]);
+        }
+        return spacing_mults;
+    }
+
+    double FullHypercube::weigh_one_vertex(const std::vector<int> &v,
+                const std::vector< std::vector<double> >& spacing_mults) {
+        std::vector< std::vector<double> > collection(ndims);
         int sign, flavor;
         for (std::size_t dim = 0; dim < ndims; dim++) {
             if (methods[dim] == CUBIC) {
-                std::tie(sign, flavor) = sivor[v[dim]+1];
-                double spacing_multiplier = the_blob.get_axis_spacing_mult(dim,
-                                                                           flavor, point_floor[dim]);
-                weight *= sign * cubic_slope_coeffs[dim][flavor] * spacing_multiplier;
-            } else {
-                weight *= interp_coeffs[dim][v[dim]];
+                std::tie(sign, flavor) = sivor[v[dim] + 1];
+                if (v[dim] == 0 | v[dim] == 1) {
+                    collection[dim].push_back(interp_coeffs[dim][v[dim]]);
+                }
+                collection[dim].push_back(cubic_slope_coeffs[dim][flavor]
+                                          * spacing_mults[dim][flavor] * sign);
+            } else {  // LINEAR or CONSTANT
+                collection[dim].push_back(interp_coeffs[dim][v[dim]]);
             }
         }
-//        showMessage(MSG_DEBUG, stringify("third order vertex weight: ", weight));
-        return weight;
+        std::vector<double> multiplied = cart_product_m(collection);
+        return std::accumulate(multiplied.begin(), multiplied.end(), 0.0);
     }
 
 
@@ -171,11 +135,11 @@ namespace Btwxt {
         return cart_product(options);
     }
 
-    std::vector<std::vector<int>> cart_product(
-            const std::vector<std::vector<int> > &v) {
-        std::vector<std::vector<int> > combinations = {{}};
+    template <typename T>
+    std::vector<std::vector<T>> cart_product(const std::vector<std::vector<T> > &v) {
+        std::vector<std::vector<T> > combinations = {{}};
         for (const auto &list : v) {
-            std::vector<std::vector<int> > r;
+            std::vector<std::vector<T> > r;
             for (const auto &x : combinations) {
                 for (const auto item : list) {
                     r.push_back(x);
@@ -185,6 +149,21 @@ namespace Btwxt {
             combinations = std::move(r);
         }
         return combinations;
+    }
+
+    std::vector<double> cart_product_m(const std::vector< std::vector<double> >& v ) {
+        int N = 1;
+        for (const auto &list : v) { N *= list.size(); }
+
+        std::vector<double> products(N, 1);
+        for(int n=0 ; n<N ; ++n ) {
+            div_t q { n, 0 };
+            for( int i=v.size()-1 ; 0<=i ; --i ) {
+                q = div( q.quot, v[i].size() );
+                products[n] *= v[i][q.rem];
+            }
+        }
+        return products;
     }
 
 }

@@ -20,7 +20,7 @@ namespace Btwxt {
             current_grid_point(),  // instantiates an empty GridPoint
             cgp_exists(false) {
         std::size_t ndims{get_ndims()};
-        core_hypercube = CoreHypercube(ndims);
+        hypercube = FullHypercube(ndims, the_blob.get_interp_methods());
         showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
     };
 
@@ -32,7 +32,7 @@ namespace Btwxt {
             current_grid_point(),  // instantiates an empty GridPoint
             cgp_exists(false) {
         std::size_t ndims{get_ndims()};
-        core_hypercube = CoreHypercube(ndims);
+        hypercube = FullHypercube(ndims, the_blob.get_interp_methods());
         showMessage(MSG_DEBUG, "RGI constructed from vectors!");
     };
 
@@ -130,36 +130,23 @@ namespace Btwxt {
         return the_locator.get_cubic_slope_coeffs();
     }
 
-
     std::vector<double> RegularGridInterpolator::interpolation_wrapper() {
         std::size_t ndims = get_ndims();
         std::vector<int> methods = the_locator.get_methods();
+        std::vector<int> base_methods = the_blob.get_interp_methods();
+        Eigen::ArrayXd result;
 
-        core_hypercube.collect_things(the_locator);
-        Eigen::ArrayXd result = core_hypercube.compute_core(the_blob);
-
-        // for each cubic-interp axis, get second-order contribution from the rectangle
-        Eigen::ArrayXd dim_slope_weight = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
-        for (std::size_t dim = 0; dim < ndims; dim++) {
-            if (methods[dim] == CUBIC) {
-                dim_slope_weight = core_hypercube.compute_slopes_rectangle(dim, the_blob);
-                result += dim_slope_weight;
-            }
+        if (std::equal(methods.begin(), methods.end(), base_methods.begin())) {
+            hypercube.collect_things(the_locator);
+            result = hypercube.all_the_calculations(the_blob);
+        } else {
+            FullHypercube new_hypercube(ndims, methods);
+            new_hypercube.collect_things(the_locator);
+            result = new_hypercube.all_the_calculations(the_blob);
         }
-
-        // only if there are multiple cubic dimensions,
-        // for each point in full_hypercube, add third-order contribution.
-        if (std::count(methods.begin(), methods.end(), CUBIC) >= 2) {
-            FullHypercube full_hypercube(ndims, methods);
-            full_hypercube.collect_things(the_locator);
-            Eigen::ArrayXd third_order_total = full_hypercube.third_order_contributions(the_blob);
-            result += third_order_total;
-        }
-
         showMessage(MSG_DEBUG, stringify("results\n", result));
         return eigen_to_vector(result);
     }
-
 
 // free functions
     std::size_t index_below_in_vector(double target, std::vector<double> &my_vec)

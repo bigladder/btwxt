@@ -76,7 +76,7 @@ namespace Btwxt {
         bool cgp_exists;
         GridPoint current_grid_point;
         WhereInTheGridIsThisPoint the_locator;
-        CoreHypercube core_hypercube;
+        FullHypercube hypercube;
 
         void check_target_dimensions(const std::vector<double> &target);
 

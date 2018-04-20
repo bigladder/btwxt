@@ -81,30 +81,6 @@ TEST_F(TwoDFixture, oobounds_target) {
     ASSERT_THAT(weights, testing::ElementsAre(1.2, -0.5));
 };
 
-// TEST_F(CubicFixture, get_slopes) {
-//   std::size_t ndims = test_rgi.get_ndims();
-//   test_rgi.set_new_grid_point(target);
-//   std::vector<double> weights = test_rgi.get_current_weights();
-//
-//   Btwxt::LOG_LEVEL = 0;
-//   auto start = std::chrono::high_resolution_clock::now();
-//   Eigen::ArrayXXd slopes = test_rgi.get_slopes(0);
-//   auto stop = std::chrono::high_resolution_clock::now();
-//   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-//   showMessage(MSG_INFO, stringify("\n", slopes));
-//   showMessage(MSG_INFO, stringify("Time to construct slopes: ",
-//            duration.count(), " microseconds"));
-//
-//   start = std::chrono::high_resolution_clock::now();
-//   Eigen::ArrayXd this_axis_slope_adder = test_rgi.cubic_slope_weighting(0);
-//   stop = std::chrono::high_resolution_clock::now();
-//   duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-//   showMessage(MSG_INFO, stringify("\n", this_axis_slope_adder));
-//   showMessage(MSG_INFO, stringify("Time to compute slope contributions: ",
-//            duration.count(), " microseconds"));
-//   Btwxt::LOG_LEVEL = 1;
-// }
-
 TEST_F(CubicFixture, spacing_multiplier) {
     double result;
     result = test_gridded_data.get_axis_spacing_mult(0, 0, 0);
