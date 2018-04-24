@@ -54,11 +54,20 @@ namespace Btwxt {
                 std::vector<std::vector<double> > values
         );
 
+        GriddedData(
+                std::vector<GridAxis> grid_axes,
+                std::vector<std::vector<double> > values
+                );
+
+        GriddedData(
+                std::vector<GridAxis> grid_axes
+        );
+
         std::size_t get_ndims();
 
         std::size_t get_num_tables();
 
-        std::vector<std::size_t> get_dim_lengths();
+        void add_value_table(std::vector<double>& value_vector);
 
         std::vector<double> get_grid_vector(const std::size_t &dim);
 
@@ -101,10 +110,12 @@ namespace Btwxt {
     private:
         void construct_axes(const std::vector<std::vector<double> > &grid);
 
+        Eigen::ArrayXXd construct_values(std::vector<double> &value_vector);
         Eigen::ArrayXXd construct_values(
                 const std::vector<std::vector<double> > &values
         );
-
+        Eigen::Map<Eigen::ArrayXd> fill_value_row(std::vector<double> &value_vector,
+                const std::size_t& num_values);
         std::vector<GridAxis> grid_axes;
         std::size_t ndims;
         std::size_t num_tables;

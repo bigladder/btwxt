@@ -38,15 +38,14 @@ class TwoDFixture : public testing::Test {
 protected:
     RegularGridInterpolator test_rgi;
     GriddedData test_gridded_data;
+    std::vector< std::vector<double> > values;
     std::vector<double> target;
 
     TwoDFixture() {
         std::vector<std::vector<double> > grid = {{0, 10, 15},
                                                   {4, 6}};
-        std::vector<std::vector<double> > values =
-                {{6,  3, 2, 8,  4, 2},
+        values = {{6,  3, 2, 8,  4, 2},
                  {12, 6, 4, 16, 8, 4}};
-
         target = {12, 5};
         test_gridded_data = GriddedData(grid, values);
         test_gridded_data.set_axis_extrap_method(0, LINEAR);

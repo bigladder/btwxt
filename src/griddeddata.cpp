@@ -92,6 +92,39 @@ namespace Btwxt {
         showMessage(MSG_DEBUG, "GriddedData constructed from vectors!");
     };
 
+    GriddedData::GriddedData(
+            std::vector<GridAxis> grid_axes,
+            std::vector<std::vector<double> > values
+    ) :
+            ndims(grid_axes.size()),
+            grid_axes(grid_axes)
+    {
+        num_values = 1;
+        for (auto grid_vector : grid_axes) {
+            num_values *= grid_vector.get_length();
+            dimension_lengths.push_back(grid_vector.get_length());
+        }
+        num_tables = values.size();
+
+        value_tables = construct_values(values);
+        showMessage(MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
+    };
+
+    GriddedData::GriddedData(
+            std::vector<GridAxis> grid_axes
+    ) :
+            ndims(grid_axes.size()),
+            grid_axes(grid_axes)
+    {
+        num_values = 1;
+        for (auto grid_vector : grid_axes) {
+            num_values *= grid_vector.get_length();
+            dimension_lengths.push_back(grid_vector.get_length());
+        }
+        num_tables = 0;
+        showMessage(MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
+    };
+
     void GriddedData::construct_axes(
             const std::vector<std::vector<double> > &grid
     ) {
@@ -103,34 +136,57 @@ namespace Btwxt {
         showMessage(MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
     };
 
+    void GriddedData::add_value_table(std::vector<double> &value_vector) {
+        if (num_tables >= 1) {
+            value_tables.conservativeResize(value_tables.rows()+1, Eigen::NoChange);
+            value_tables.row(num_tables) = fill_value_row(value_vector, num_values);
+            num_tables ++;
+        } else {
+            value_tables = construct_values(value_vector);
+            num_tables = 1;
+        }
+    }
+
+    Eigen::ArrayXXd GriddedData::construct_values(
+            std::vector<double> &value_vector
+    ) {
+        Eigen::ArrayXXd vtables(1, num_values);
+        showMessage(MSG_DEBUG, stringify("Created blank Eigen Array with 1 table, each with ", vtables.cols(), " values."));
+        showMessage(MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
+
+        vtables.row(0) = fill_value_row(value_vector, num_values);
+        showMessage(MSG_DEBUG, stringify("value tables: \n", vtables));
+        return vtables;
+    };
 
     Eigen::ArrayXXd GriddedData::construct_values(
             const std::vector<std::vector<double> > &values
     ) {
         Eigen::ArrayXXd vtables(num_tables, num_values);
-        // #ifdef TESTLOG
         showMessage(MSG_DEBUG, stringify("Created blank Eigen Array with ",
                                          vtables.rows(), " tables, each with ", vtables.cols(), " values."));
         showMessage(MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
-        // #endif //TESTLOG
         std::size_t i = 0;
         for (auto value_vector : values) {
-
-            if (value_vector.size() != num_values) {
-                showMessage(MSG_ERR, stringify(
-                        "Input value table does not match the grid size: ",
-                        value_vector.size(), " != ", num_values));
-            }
-
-            Eigen::Map<Eigen::ArrayXd> temp_row(&value_vector[0], num_values);
-            vtables.row(i) = temp_row;
+            vtables.row(i) = fill_value_row(value_vector, num_values);
             i++;
         }
         showMessage(MSG_DEBUG, stringify("value tables: \n", vtables));
-        // TODO: I would prefer to be using the class value_tables over returning an eigen array
         return vtables;
     };
 
+    Eigen::Map<Eigen::ArrayXd> GriddedData::fill_value_row(
+            std::vector<double> &value_vector,
+            const std::size_t& num_values)
+    {
+        if (value_vector.size() != num_values) {
+            showMessage(MSG_ERR, stringify(
+                    "Input value table does not match the grid size: ",
+                    value_vector.size(), " != ", num_values));
+        }
+        Eigen::Map<Eigen::ArrayXd> value_row(&value_vector[0], num_values);
+        return value_row;
+    };
 
     std::size_t GriddedData::get_ndims() { return grid_axes.size();; };
 

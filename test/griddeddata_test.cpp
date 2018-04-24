@@ -29,6 +29,25 @@ TEST_F(TwoDFixture, construct_from_vectors) {
     EXPECT_EQ(num_tables, 2);
 };
 
+TEST_F(TwoDFixture, construct_from_axes) {
+    GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}));
+    GridAxis ax1 = GridAxis(std::vector<double>({4, 6}));
+    std::vector< GridAxis > test_axes = {ax0, ax1};
+    test_gridded_data = GriddedData(test_axes);
+    EXPECT_EQ(test_gridded_data.get_ndims(), 2);
+    EXPECT_EQ(test_gridded_data.get_num_tables(), 0);
+    EXPECT_THAT(test_gridded_data.dimension_lengths, testing::ElementsAre(3, 2));
+
+    test_gridded_data.add_value_table(values[0]);
+    EXPECT_EQ(test_gridded_data.get_num_tables(), 1);
+    EXPECT_THAT(test_gridded_data.get_values({1, 1}), testing::ElementsAre(4));
+
+    test_gridded_data = GriddedData(test_axes, values);
+    EXPECT_EQ(test_gridded_data.get_ndims(), 2);
+    EXPECT_EQ(test_gridded_data.get_num_tables(), 2);
+    EXPECT_THAT(test_gridded_data.get_values({1, 1}), testing::ElementsAre(4, 8));
+};
+
 TEST_F(TwoDFixture, get_grid_vector) {
     std::vector<double> returned_vec = test_gridded_data.get_grid_vector(1);
     EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
