@@ -5,6 +5,7 @@ include_directories("../src"
 
 set(library_sources
   main_test.cpp
+  fixtures.hpp
   btwxt_test.cpp
   griddeddata_test.cpp
   math_test.cpp
@@ -14,4 +15,4 @@ set(library_sources
 
 link_libraries(btwxt gtest gmock)
 
-add_executable(test ${library_sources})
+add_executable(btwxt_test ${library_sources})

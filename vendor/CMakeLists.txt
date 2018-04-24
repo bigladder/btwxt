@@ -21,3 +21,13 @@ download_project(PROJ                googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+
+
+download_project(PROJ               eigen3
+                 GIT_REPOSITORY     https://github.com/eigenteam/eigen-git-mirror.git
+                 GIT_TAG            master
+                 DOWNLOAD_DIR       "${CMAKE_CURRENT_BINARY_DIR}/eigen3-dl"
+                 SOURCE_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/eigen3"
+                 BINARY_DIR         "${CMAKE_CURRENT_BINARY_DIR}/eigen3"
+                 ${UPDATE_DISCONNECTED_IF_AVAILABLE}
+)
