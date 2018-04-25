@@ -4,7 +4,9 @@
 #ifndef GRIDDEDDATA_H_
 #define GRIDDEDDATA_H_
 
-#include<vector>
+#include <vector>
+#include <cfloat>
+
 #include "Eigen/Dense"
 
 
@@ -25,12 +27,16 @@ namespace Btwxt {
 
         GridAxis(std::vector<double> grid_vector,
                  int extrapolation_method = CONSTANT,
-                 int interpolation_method = LINEAR);
+                 int interpolation_method = LINEAR,
+                 std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX}
+        );
 
         const std::vector<double> grid;
         std::vector<std::vector<double> > spacing_multiplier;
         int extrapolation_method;
         int interpolation_method;
+        std::pair<double, double> extrapolation_limits;
+
         // std::pair<double> extrapolation_bounds;  <-- to add later
         // bool is_regular;  <-- to add later
 
@@ -70,6 +76,8 @@ namespace Btwxt {
         void add_value_table(std::vector<double>& value_vector);
 
         std::vector<double> get_grid_vector(const std::size_t &dim);
+
+        std::pair<double, double> get_extrap_limits(const std::size_t &dim);
 
         std::vector<double> get_values(const std::vector<std::size_t> &coords);
 

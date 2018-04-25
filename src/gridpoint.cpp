@@ -30,11 +30,11 @@ namespace Btwxt {
             ndims(the_blob.get_ndims()),
             point_floor(ndims, 0),
             weights(ndims, 0),
-            is_inbounds(ndims, false),
+            is_inbounds(ndims),
             interp_coeffs(ndims, std::vector<double>(2, 0.0)),
             cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)) {
-        find_floor(point_floor, is_inbounds, current_grid_point, the_blob);
-        calculate_weights(point_floor, weights, current_grid_point, the_blob);
+        find_floor(current_grid_point, the_blob);
+        calculate_weights(current_grid_point, the_blob);
         consolidate_methods(the_blob.get_interp_methods(),
                             the_blob.get_extrap_methods());
         calculate_interp_coeffs();
@@ -44,7 +44,7 @@ namespace Btwxt {
 
     std::vector<double> WhereInTheGridIsThisPoint::get_weights() { return weights; }
 
-    std::vector<bool> WhereInTheGridIsThisPoint::get_is_inbounds() { return is_inbounds; }
+    std::vector<int> WhereInTheGridIsThisPoint::get_is_inbounds() { return is_inbounds; }
 
     std::vector<int> WhereInTheGridIsThisPoint::get_methods() { return methods; }
 
@@ -53,25 +53,16 @@ namespace Btwxt {
     std::vector<std::vector<double> > WhereInTheGridIsThisPoint::get_cubic_slope_coeffs() { return cubic_slope_coeffs; }
 
     void WhereInTheGridIsThisPoint::find_floor(
-            std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds,
             GridPoint &current_grid_point, GriddedData &the_blob) {
         for (std::size_t dim = 0; dim < ndims; dim += 1) {
+            double value {current_grid_point.target[dim]};
+            std::pair<double, double> extrap_limits = the_blob.get_extrap_limits(dim);
             std::vector<double> grid_vector = the_blob.get_grid_vector(dim);
-            point_floor[dim] = index_below_in_vector(current_grid_point.target[dim], grid_vector);
-            if (point_floor[dim] == grid_vector.size()) {
-                is_inbounds[dim] = false;
-                point_floor[dim] = 0;
-            } else if (point_floor[dim] == grid_vector.size() - 1) {
-                is_inbounds[dim] = false;
-                point_floor[dim] -= 1;
-            } else {
-                is_inbounds[dim] = true;
-            }
+            locate_in_dim(value, is_inbounds[dim], point_floor[dim], grid_vector, extrap_limits);
         }
     }
 
     void WhereInTheGridIsThisPoint::calculate_weights(
-            const std::vector<std::size_t> &point_floor, std::vector<double> &weights,
             GridPoint &current_grid_point, GriddedData &the_blob) {
         for (std::size_t dim = 0; dim < ndims; dim += 1) {
             std::vector<double> grid_vector = the_blob.get_grid_vector(dim);
@@ -82,11 +73,18 @@ namespace Btwxt {
 
     void WhereInTheGridIsThisPoint::consolidate_methods(
             const std::vector<int> &interp_methods,
-            const std::vector<int> &extrap_methods) {
+            const std::vector<int> &extrap_methods)
+    // If out of bounds, extrapolate according to prescription
+    // If outside of extrapolation limits, send a warning and perform constant extrapolation.
+    {
         methods = interp_methods;
         for (std::size_t dim = 0; dim < ndims; dim++) {
-            if (is_inbounds[dim] == false) {
+            if (is_inbounds[dim] == OUTBOUNDS) {
                 methods[dim] = extrap_methods[dim];
+            } else if (is_inbounds[dim] == OUTLAW) {
+                showMessage(MSG_WARN, stringify("The target is outside the extrapolation limits in dimension ", dim,
+                                                ". Will perform constant extrapolation"));
+                methods[dim] = CONSTANT;
             }
         }
     }
@@ -108,6 +106,48 @@ namespace Btwxt {
                 interp_coeffs[dim][1] = mu;
             }
         }
+    }
+
+
+
+    // free functions
+    void locate_in_dim(const double& target, int& dim_in, std::size_t& dim_floor,
+                       std::vector<double> grid_vector, std::pair<double, double> &extrap_limits)
+    {
+        std::size_t l = grid_vector.size();
+        if (target < extrap_limits.first) {
+            dim_in = OUTLAW;
+            dim_floor = 0;
+        } else if (target > extrap_limits.second) {
+            dim_in = OUTLAW;
+            dim_floor = l-2;  // l-2 because that's the left side of the (l-2, l-1) edge.
+        } else if (target < grid_vector[0]) {
+            dim_in = OUTBOUNDS;
+            dim_floor = 0;
+        } else if (target > grid_vector.back()) {
+            dim_in = OUTBOUNDS;
+            dim_floor = l-2;  // l-2 because that's the left side of the (l-2, l-1) edge.
+        } else {
+            dim_in = INBOUNDS;
+            dim_floor = index_below_in_vector(target, grid_vector);
+        }
+    }
+
+    std::size_t index_below_in_vector(const double& target, std::vector<double> &my_vec)
+    // returns the index of the largest value <= the target
+    {
+        std::vector<double>::iterator upper;
+        upper = std::upper_bound(my_vec.begin(), my_vec.end(), target);
+        if ((upper - my_vec.begin()) == 0) {
+            showMessage(MSG_ERR, "index_below_in_vector should only be called once you are sure you are inbounds");
+            return 0;
+        }
+        return upper - my_vec.begin() - 1;
+    }
+
+    double compute_fraction(double x, double edge[2]) {
+        // how far along an edge is the target?
+        return (x - edge[0]) / (edge[1] - edge[0]);
     }
 
 }

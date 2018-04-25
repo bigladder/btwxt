@@ -53,8 +53,49 @@ TEST(GriddedData, locate_coords) {
     EXPECT_EQ(index, 87);
 }
 
+TEST(GridPoint, locate_in_dim) {
+    std::vector<double> grid_vector = {1, 3, 5, 7, 9};
+    std::pair<double, double> extrap_limits{0, 11};
+    double target = 5.3;
+    int is_inbounds;
+    std::size_t dim_floor;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, INBOUNDS);
+    EXPECT_EQ(dim_floor, 2);
 
-TEST(Btwxt, index_below_in_vector) {
+    target = 0.3;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(dim_floor, 0);
+
+    target = 10.3;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(dim_floor, 3);
+
+    target = -0.3;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, OUTLAW);
+    EXPECT_EQ(dim_floor, 0);
+
+    target = 11.3;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, OUTLAW);
+    EXPECT_EQ(dim_floor, 3);
+
+    extrap_limits = {-DBL_MAX, DBL_MAX};
+    target = -0.3;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(dim_floor, 0);
+
+    target = 11.3;
+    locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
+    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(dim_floor, 3);
+}
+
+TEST(GridPoint, index_below_in_vector) {
     std::vector<double> grid_vector = {1, 3, 5, 7, 9};
     double target = 5.3;
     std::size_t expected_floor = 2;
@@ -64,21 +105,9 @@ TEST(Btwxt, index_below_in_vector) {
     double edge[2] = {grid_vector[returned_floor], grid_vector[returned_floor + 1]};
     double returned_weight = compute_fraction(target, edge);
     EXPECT_DOUBLE_EQ(returned_weight, expected_weight);
-
-    // if smaller than all numbers, return vector.size()
-    target = 0.3;
-    expected_floor = 5;
-    returned_floor = index_below_in_vector(target, grid_vector);
-    EXPECT_EQ(returned_floor, expected_floor);
-
-    // larger than all numbers returns last index
-    target = 9.3;
-    expected_floor = 4;
-    returned_floor = index_below_in_vector(target, grid_vector);
-    EXPECT_EQ(returned_floor, expected_floor);
 }
 
-TEST(Btwxt, compute_fraction) {
+TEST(GridPoint, compute_fraction) {
     double x = 4.3;
     double edge[2] = {4, 6};
     double weight = compute_fraction(x, edge);
@@ -92,7 +121,7 @@ TEST(Btwxt, pow) {
     EXPECT_EQ(result, 16);
 }
 
-TEST(Btwxt, make_origin_hypercube) {
+TEST(Hypercube, make_origin_hypercube) {
     std::size_t ndims = 3;
     std::vector<int> fit_degrees = {LINEAR, CUBIC, LINEAR};
     std::vector<std::vector<int>> result = make_full_hypercube(
@@ -104,7 +133,7 @@ TEST(Btwxt, make_origin_hypercube) {
     EXPECT_THAT(result[15], testing::ElementsAre(1, 2, 1));
 }
 
-TEST(Btwxt, cart_product) {
+TEST(Hypercube, cart_product) {
     std::vector<std::vector<int> > v = {
             {1, 2, 3},
             {4, 5},

@@ -43,7 +43,5 @@ int main(int argc, char **argv) {
     int *my_context_ptr;
     setMessageCallback(my_callback, my_context_ptr);
 
-    showMessage(MSG_INFO, "Hello World");
-
     return RUN_ALL_TESTS();
 };

@@ -149,24 +149,6 @@ namespace Btwxt {
     }
 
 // free functions
-    std::size_t index_below_in_vector(double target, std::vector<double> &my_vec)
-    // returns the index of the largest value <= the target
-    // if target is greater than all values, returns index of final value
-    // if target is less than all values, returns index of final value +1
-    {
-        std::vector<double>::iterator upper;
-        upper = std::upper_bound(my_vec.begin(), my_vec.end(), target);
-        if ((upper - my_vec.begin()) == 0) {
-            return my_vec.size();
-        }
-        return upper - my_vec.begin() - 1;
-    }
-
-    double compute_fraction(double x, double edge[2]) {
-        // how far along an edge is the target?
-        return (x - edge[0]) / (edge[1] - edge[0]);
-    }
-
     std::size_t pow(const std::size_t &base, const std::size_t &power) {
         // raise base to a power (both must be size_t)
         if (power == 0) { return 1; }

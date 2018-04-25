@@ -85,10 +85,6 @@ namespace Btwxt {
 
 
 // free functions
-    std::size_t index_below_in_vector(double target, std::vector<double> &my_vec);
-
-    double compute_fraction(double x, double edge[2]);
-
     std::size_t pow(const std::size_t &base, const std::size_t &power);
 }
 #endif // GRIDINTERP_H_

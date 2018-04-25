@@ -13,6 +13,10 @@
 
 namespace Btwxt {
 
+    const int INBOUNDS = 2;
+    const int OUTBOUNDS = 1;
+    const int OUTLAW = 0;
+
     class GridPoint {
     public:
         // target is an array of doubles specifying the point we are interpolating to.
@@ -36,7 +40,7 @@ namespace Btwxt {
 
         std::vector<double> get_weights();
 
-        std::vector<bool> get_is_inbounds();
+        std::vector<int> get_is_inbounds();
 
         std::vector<int> get_methods();
 
@@ -51,18 +55,14 @@ namespace Btwxt {
         // TODO upgrade is_inbounds to a family of const ints to allow both
         //     1. outside grid but can extrapolate to, and
         //     2. outside allowed extrapolation zone.
-        std::vector<bool> is_inbounds;  // for deciding interpolation vs. extrapolation;
+        std::vector<int> is_inbounds;  // for deciding interpolation vs. extrapolation;
         std::vector<int> methods;
         std::vector<std::vector<double> > interp_coeffs;
         std::vector<std::vector<double> > cubic_slope_coeffs;
 
-        void find_floor(
-                std::vector<std::size_t> &point_floor, std::vector<bool> &is_inbounds,
-                GridPoint &, GriddedData &);
+        void find_floor(GridPoint &, GriddedData &);
 
-        void calculate_weights(
-                const std::vector<std::size_t> &point_floor, std::vector<double> &weights,
-                GridPoint &, GriddedData &);
+        void calculate_weights(GridPoint &, GriddedData &);
 
         void consolidate_methods(const std::vector<int> &interp_methods,
                                  const std::vector<int> &extrap_methods);
@@ -70,5 +70,14 @@ namespace Btwxt {
         void calculate_interp_coeffs();
     };
 
+
+    // free functions
+    void locate_in_dim(const double &target, int &dim_in, std::size_t &dim_floor,
+                       std::vector<double> grid_vector, std::pair<double, double> &extrap_limits);
+
+    std::size_t index_below_in_vector(const double &target, std::vector<double> &my_vec);
+
+    double compute_fraction(double x, double edge[2]);
 }
+
 #endif // GRIDPOINT_H_

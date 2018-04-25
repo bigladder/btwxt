@@ -18,10 +18,13 @@ namespace Btwxt {
                        int extrapolation_method, int interpolation_method) {};
 
     GridAxis::GridAxis(std::vector<double> grid_vector,
-                       int extrapolation_method, int interpolation_method) :
+                       int extrapolation_method, int interpolation_method,
+                       std::pair<double, double> extrapolation_limits) :
             grid(grid_vector),
             extrapolation_method(extrapolation_method),
-            interpolation_method(interpolation_method) {
+            interpolation_method(interpolation_method),
+            extrapolation_limits(extrapolation_limits)
+    {
         if (interpolation_method == CUBIC) {
             spacing_multiplier = calc_spacing_multipliers();
         }
@@ -257,9 +260,14 @@ namespace Btwxt {
         return get_column_near(coords, dim, -1);
     }
 
-    std::vector<double> GriddedData::get_grid_vector(const std::size_t &dim
-    ) {
+    std::vector<double> GriddedData::get_grid_vector(const std::size_t &dim)
+    {
         return grid_axes[dim].grid;
+    }
+
+    std::pair<double, double> GriddedData::get_extrap_limits(const std::size_t &dim)
+    {
+        return grid_axes[dim].extrapolation_limits;
     }
 
     double GriddedData::get_axis_spacing_mult(const std::size_t &dim,
