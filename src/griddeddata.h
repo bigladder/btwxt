@@ -43,11 +43,15 @@ namespace Btwxt {
         std::size_t get_length();
 
         void set_interp_method(const int interpolation_method);
+        void set_extrap_method(const int extrapolation_method);
+        void set_extrap_limits(const std::pair<double, double> extrap_limits);
 
         double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
 
     private:
         std::vector<std::vector<double> > calc_spacing_multipliers();
+        void check_grid_sorted();
+        void check_extrap_limits();
     };
 
 
@@ -108,6 +112,9 @@ namespace Btwxt {
         // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
         void set_axis_extrap_method(const std::size_t &dim, const int);
+
+        void set_axis_extrap_limits(const std::size_t &dim,
+                                    const std::pair<double, double> &extrap_limits);
 
         void set_axis_interp_method(const std::size_t &dim, const int);
 

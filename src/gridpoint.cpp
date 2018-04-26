@@ -83,7 +83,7 @@ namespace Btwxt {
                 methods[dim] = extrap_methods[dim];
             } else if (is_inbounds[dim] == OUTLAW) {
                 showMessage(MSG_WARN, stringify("The target is outside the extrapolation limits in dimension ", dim,
-                                                ". Will perform constant extrapolation"));
+                                                ". Will perform constant extrapolation."));
                 methods[dim] = CONSTANT;
             }
         }

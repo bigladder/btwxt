@@ -3,6 +3,7 @@
 
 // Standard
 #include <iostream>
+#include <stdexcept>
 
 // Btwxt
 #include "error.h"
@@ -21,7 +22,8 @@ namespace Btwxt {
             (*btwxtCallbackFunction)(messageType, message, messageCallbackContextPtr);
         } else if (messageType == Btwxt::MSG_ERR) {
             std::cout << "  ERROR: " << message << std::endl;
-            exit(EXIT_FAILURE);
+            throw std::invalid_argument(stringify("  ERROR: ", message));
+//            exit(EXIT_FAILURE);
         } else {
             if (messageType >= Btwxt::LOG_LEVEL) {
                 std::string prefix("  DEBUG: ");

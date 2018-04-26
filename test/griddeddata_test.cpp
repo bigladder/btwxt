@@ -109,12 +109,13 @@ TEST_F(TwoDFixture, get_column_down) {
     EXPECT_THAT(returned_vec, testing::ElementsAre(4, 8));
 }
 
-TEST_F(MismatchedFixture, ndims) {
-    std::size_t ndims = test_gridded_data.get_ndims();
-    // TODO: capture error messages and test that they match expectations
-    // we expect two errors that the value table inputs do not match the grid
-    // we expect an error that the target dimensions do not match the grid
-};
+TEST(GridAxis, sorting) {
+    std::vector<double> grid_vector = {0, 5, 7, 17, 15};
+    EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector);,
+                 std::invalid_argument);
+    grid_vector = {0, 5, 7, 10, 15};
+    EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector););
+}
 
 TEST_F(CubicFixture, get_spacing_multipliers) {
     // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:

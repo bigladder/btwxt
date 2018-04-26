@@ -23,16 +23,19 @@ void my_callback(
         const std::string message,
         void *contextPtr
 ) {
-    if (messageType >= Btwxt::LOG_LEVEL) {
-        std::string prefix("  DEBUG: ");
-        if (messageType == Btwxt::MSG_ERR) {
-            prefix = "  ERROR: ";
-        } else if (messageType == Btwxt::MSG_WARN) {
-            prefix = "  WARNING: ";
-        } else if (messageType == Btwxt::MSG_INFO) {
-            prefix = "  NOTE: ";
+    if (messageType == Btwxt::MSG_ERR) {
+        std::cout << "  ERROR: " << message << std::endl;
+        throw std::invalid_argument(stringify("  ERROR: ", message));
+    } else {
+        if (messageType >= Btwxt::LOG_LEVEL) {
+            std::string prefix("  DEBUG: ");
+            if (messageType == Btwxt::MSG_WARN) {
+                prefix = "  WARNING: ";
+            } else if (messageType == Btwxt::MSG_INFO) {
+                prefix = "  NOTE: ";
+            }
+            std::cout << prefix << message << std::endl;
         }
-        std::cout << prefix << message << std::endl;
     }
 }
 

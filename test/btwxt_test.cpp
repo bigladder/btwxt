@@ -67,7 +67,6 @@ TEST_F(TwoDFixture, target_basics) {
 };
 
 TEST_F(TwoDFixture, oobounds_target) {
-    std::size_t ndims = test_rgi.get_ndims();
     std::vector<double> oobounds_target = {16, 3};
     test_rgi.set_new_grid_point(oobounds_target);
 
@@ -79,6 +78,19 @@ TEST_F(TwoDFixture, oobounds_target) {
 
     std::vector<double> weights = test_rgi.get_current_weights();
     ASSERT_THAT(weights, testing::ElementsAre(1.2, -0.5));
+};
+
+TEST_F(TwoDFixture, outlaw_target) {
+    std::pair<double, double> extrap_limits{-2, 17};
+    test_gridded_data.set_axis_extrap_limits(0, extrap_limits);
+    RegularGridInterpolator this_rgi(test_gridded_data);
+    std::vector<double> outlaw_target = {18, 3};
+    testing::internal::CaptureStdout();
+    this_rgi.set_new_grid_point(outlaw_target);
+    std::string ExpectedOut = "  WARNING: The target is outside the extrapolation limits"
+                              " in dimension 0. Will perform constant extrapolation.\n";
+    std::string ActualOut = testing::internal::GetCapturedStdout();
+    EXPECT_STREQ(ExpectedOut.c_str(), ActualOut.c_str());
 };
 
 TEST_F(CubicFixture, spacing_multiplier) {
@@ -172,11 +184,23 @@ TEST_F(TwoDFixture, extrapolate) {
 
 };
 
-TEST_F(MismatchedFixture, set_target) {
+TEST_F(TwoDFixture, invalid_inputs) {
     // TODO: capture error messages and test that they match expectations
     // we expect two errors that the value table inputs do not match the grid
     // we expect an error that the target dimensions do not match the grid
-    test_rgi.set_new_grid_point(target);
+    std::vector<double> short_values = {6, 3, 2, 8, 4};
+    EXPECT_THROW(test_gridded_data.add_value_table(short_values);,
+                 std::invalid_argument);
+    std::vector<double> long_values =  {1, 1, 1, 1, 1, 1, 1};
+    EXPECT_THROW(test_gridded_data.add_value_table(long_values);,
+                 std::invalid_argument);
+
+    std::vector<double> short_target = {1};
+    EXPECT_THROW(test_rgi.set_new_grid_point(short_target);,
+                 std::invalid_argument);
+    std::vector<double> long_target = {1, 2, 3};
+    EXPECT_THROW(test_rgi.set_new_grid_point(long_target);,
+                 std::invalid_argument);
 };
 
 TEST_F(OneDFixture, cubic_interpolate) {

@@ -53,26 +53,6 @@ protected:
     }
 };
 
-class MismatchedFixture : public testing::Test {
-protected:
-    RegularGridInterpolator test_rgi;
-    GriddedData test_gridded_data;
-    std::vector<double> target;
-
-    MismatchedFixture() {
-        std::vector<std::vector<double> > grid = {{0, 17, 15},
-                                                  {4, 6}};   // not sorted
-        std::vector<std::vector<double> > values =
-                {{6, 3, 2, 8, 4},          // five items
-                 {1, 1, 1, 1, 1, 1, 1}};  // seven items
-
-        target = {4, 5, 6};           // three dimensions
-        test_gridded_data = GriddedData(grid, values);
-        test_rgi = RegularGridInterpolator(test_gridded_data);
-    }
-};
-
-
 class CubicFixture : public testing::Test {
 protected:
     RegularGridInterpolator test_rgi;
