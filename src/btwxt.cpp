@@ -20,7 +20,7 @@ namespace Btwxt {
             current_grid_point(),  // instantiates an empty GridPoint
             cgp_exists(false) {
         std::size_t ndims{get_ndims()};
-        hypercube = FullHypercube(ndims, the_blob.get_interp_methods());
+        hypercube = Hypercube(ndims, the_blob.get_interp_methods());
         showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
     };
 
@@ -32,7 +32,7 @@ namespace Btwxt {
             current_grid_point(),  // instantiates an empty GridPoint
             cgp_exists(false) {
         std::size_t ndims{get_ndims()};
-        hypercube = FullHypercube(ndims, the_blob.get_interp_methods());
+        hypercube = Hypercube(ndims, the_blob.get_interp_methods());
         showMessage(MSG_DEBUG, "RGI constructed from vectors!");
     };
 
@@ -140,7 +140,7 @@ namespace Btwxt {
             hypercube.collect_things(the_locator);
             result = hypercube.all_the_calculations(the_blob);
         } else {
-            FullHypercube new_hypercube(ndims, methods);
+            Hypercube new_hypercube(ndims, methods);
             new_hypercube.collect_things(the_locator);
             result = new_hypercube.all_the_calculations(the_blob);
         }

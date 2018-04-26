@@ -18,28 +18,18 @@
 
 using namespace Btwxt;
 
-TEST(CoreHypercube, constructor) {
-    std::size_t ndims = 3;
-    CoreHypercube my_hypercube(ndims);
-    EXPECT_EQ(my_hypercube.vertices.size(), 8);
-}
 
-TEST(FullHypercube, constructor) {
+TEST(Hypercube, constructor) {
     std::size_t ndims = 3;
-    std::vector<int> fit_degrees{LINEAR, CUBIC, LINEAR};
-    FullHypercube my_hypercube(ndims, fit_degrees);
+    std::vector<int> methods{LINEAR, CUBIC, LINEAR};
+    Hypercube my_hypercube(ndims, methods);
     EXPECT_EQ(my_hypercube.vertices.size(), 16);
-}
-
-TEST(FreeFunctions, cart_product_m) {
-    std::vector< std::vector<double> > v = { {2.0, 3.0}, {5.0, 7.0} };
-    std::vector<double> result = cart_product_m(v);
-    EXPECT_THAT(result, testing::ElementsAre(10.0, 14.0, 15.0, 21.0));
 }
 
 TEST_F(CubicFixture, hypercube_collect_things) {
     std::size_t ndims = 2;
-    CoreHypercube my_hypercube(ndims);
+    std::vector<int> methods{CUBIC, LINEAR};
+    Hypercube my_hypercube(ndims, methods);
     GridPoint current_grid_point(target);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
 
@@ -53,13 +43,13 @@ TEST_F(CubicFixture, hypercube_collect_things) {
 }
 
 
-TEST_F(CubicFixture, full_hypercube_weigh_one_vertex) {
+TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
     std::size_t ndims = 2;
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(1, CUBIC);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
     std::vector<int> methods = the_locator.get_methods();
-    FullHypercube my_hypercube(ndims, methods);
+    Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
     std::vector< std::vector<double> > spacing_mults = my_hypercube.get_spacing_mults(test_gridded_data);
 
@@ -105,13 +95,13 @@ TEST_F(CubicFixture, full_hypercube_weigh_one_vertex) {
     EXPECT_DOUBLE_EQ(weight, expected_result);
 }
 
-TEST_F(CubicFixture, full_hypercube_calculations) {
+TEST_F(CubicFixture, hypercube_calculations) {
     std::size_t ndims = 2;
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(1, CUBIC);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
     std::vector<int> methods = the_locator.get_methods();
-    FullHypercube my_hypercube(ndims, methods);
+    Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
 
     Eigen::ArrayXd result = my_hypercube.all_the_calculations(test_gridded_data);
@@ -119,13 +109,13 @@ TEST_F(CubicFixture, full_hypercube_calculations) {
     EXPECT_NEAR(result[1], 10.2091, 0.0001);
 }
 
-TEST_F(OneDFixture, full_hypercube_calculations) {
+TEST_F(OneDFixture, hypercube_calculations) {
     std::size_t ndims = 1;
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(0, CUBIC);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
     std::vector<int> methods = the_locator.get_methods();
-    FullHypercube my_hypercube(ndims, methods);
+    Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
 
     Eigen::ArrayXd result = my_hypercube.all_the_calculations(test_gridded_data);

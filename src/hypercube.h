@@ -12,35 +12,13 @@
 #include "gridpoint.h"
 
 namespace Btwxt {
+    
 
-
-    // TODO: delete CoreHypercube. I don't think we need it anymore.
-    class CoreHypercube {
+    class Hypercube {
     public:
-        CoreHypercube();
+        Hypercube();
 
-        CoreHypercube(const std::size_t &ndims);
-
-        std::size_t ndims;
-        std::vector<std::vector<int> > vertices;
-
-        void collect_things(WhereInTheGridIsThisPoint &);
-
-        Eigen::ArrayXd compute_core(GriddedData &);
-
-        double weigh_one_vertex(const std::vector<int> &v);
-
-        std::vector<std::size_t> point_floor;
-        std::vector<int> methods;
-        std::vector<std::vector<double> > interp_coeffs;
-        std::vector<std::vector<double> > cubic_slope_coeffs;
-    };
-
-    class FullHypercube {
-    public:
-        FullHypercube();
-
-        FullHypercube(const std::size_t &ndims, const std::vector<int> &methods);
+        Hypercube(const std::size_t &ndims, const std::vector<int> &methods);
 
         void collect_things(WhereInTheGridIsThisPoint &);
 
@@ -63,10 +41,9 @@ namespace Btwxt {
 
 
 // free functions
-    std::vector<std::vector<int> > make_core_hypercube(const std::size_t &ndims);
-
-    std::vector<std::vector<int> > make_full_hypercube(
-            const std::size_t &ndims, const std::vector<int> &fit_degrees);
+    std::vector<std::vector<int> > make_hypercube(const std::size_t &ndims);
+    std::vector<std::vector<int> > make_hypercube(
+            const std::size_t &ndims, const std::vector<int> &methods);
 
     template <typename T>
     std::vector<std::vector<T> > cart_product(const std::vector<std::vector<T> > &v);

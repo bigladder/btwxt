@@ -12,64 +12,25 @@
 
 namespace Btwxt {
 
-    CoreHypercube::CoreHypercube() {};
 
-    CoreHypercube::CoreHypercube(const std::size_t &ndims) :
-            ndims(ndims) {
-        vertices = make_core_hypercube(ndims);
-    };
+    Hypercube::Hypercube() = default;;
 
-    void CoreHypercube::collect_things(WhereInTheGridIsThisPoint &the_locator) {
-        point_floor = the_locator.get_floor();
-        methods = the_locator.get_methods();
-        interp_coeffs = the_locator.get_interp_coeffs();
-        if (std::find(methods.begin(), methods.end(), CUBIC) != methods.end()) {
-            cubic_slope_coeffs = the_locator.get_cubic_slope_coeffs();
-        }
-    }
-
-    Eigen::ArrayXd CoreHypercube::compute_core(GriddedData &the_blob) {
-        showMessage(MSG_INFO, "computing core hypercube.");
-
-        Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
-        Eigen::ArrayXd values = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
-        for (auto v: vertices) {
-            values = the_blob.get_column_near(point_floor, v);
-            double weight = weigh_one_vertex(v);
-//            showMessage(MSG_DEBUG, stringify("vertex_weight: ", weight));
-            result += values * weight;
-        }
-        showMessage(MSG_DEBUG, stringify("core contribution = \n", result));
-        return result;
-    }
-
-    double CoreHypercube::weigh_one_vertex(const std::vector<int> &v) {
-        double this_weight = 1.0;
-        for (std::size_t dim = 0; dim < ndims; dim++) {
-            this_weight *= interp_coeffs[dim][v[dim]];
-        }
-        return this_weight;
-    }
-
-
-    FullHypercube::FullHypercube() = default;;
-
-    FullHypercube::FullHypercube(const std::size_t &ndims,
-                                 const std::vector<int> &methods) :
+    Hypercube::Hypercube(const std::size_t &ndims,
+                         const std::vector<int> &methods) :
             ndims(ndims),
             methods(methods),
-            vertices(make_full_hypercube(ndims, methods))
+            vertices(make_hypercube(ndims, methods))
     {
         sivor = { {-1,0},{-1,1},{1,0},{1,1} };
     };
 
-    void FullHypercube::collect_things(WhereInTheGridIsThisPoint &the_locator) {
+    void Hypercube::collect_things(WhereInTheGridIsThisPoint &the_locator) {
         point_floor = the_locator.get_floor();
         interp_coeffs = the_locator.get_interp_coeffs();
         cubic_slope_coeffs = the_locator.get_cubic_slope_coeffs();
     }
 
-    Eigen::ArrayXd FullHypercube::all_the_calculations(GriddedData &the_blob) {
+    Eigen::ArrayXd Hypercube::all_the_calculations(GriddedData &the_blob) {
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
         Eigen::ArrayXd values = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
@@ -86,7 +47,7 @@ namespace Btwxt {
         return result;
     }
 
-    std::vector< std::vector<double> > FullHypercube::get_spacing_mults(GriddedData &the_blob) {
+    std::vector< std::vector<double> > Hypercube::get_spacing_mults(GriddedData &the_blob) {
         std::vector< std::vector<double> > spacing_mults(ndims, std::vector<double>(2, 0));
         for (std::size_t dim=0; dim<ndims; dim++) {
             spacing_mults[dim][0] = the_blob.get_axis_spacing_mult(dim, 0, point_floor[dim]);
@@ -95,7 +56,7 @@ namespace Btwxt {
         return spacing_mults;
     }
 
-    double FullHypercube::weigh_one_vertex(const std::vector<int> &v,
+    double Hypercube::weigh_one_vertex(const std::vector<int> &v,
                 const std::vector< std::vector<double> >& spacing_mults) {
         std::vector< std::vector<double> > collection(ndims);
         int sign, flavor;
@@ -117,18 +78,18 @@ namespace Btwxt {
 
 
 // free functions
-    std::vector<std::vector<int> > make_core_hypercube(
+    std::vector<std::vector<int> > make_hypercube(
             const std::size_t &ndims) {
         std::vector<std::vector<int> > options(ndims, {0, 1});
         return cart_product(options);
     }
 
-    std::vector<std::vector<int> > make_full_hypercube(
-            const std::size_t &ndims, const std::vector<int> &fit_degrees) {
+    std::vector<std::vector<int> > make_hypercube(
+            const std::size_t &ndims, const std::vector<int> &methods) {
         std::vector<std::vector<int> > options(ndims, {0, 1});
 
         for (std::size_t dim = 0; dim < ndims; dim++) {
-            if (fit_degrees[dim] == CUBIC) {
+            if (methods[dim] == CUBIC) {
                 options[dim] = {-1, 0, 1, 2};
             }
         }

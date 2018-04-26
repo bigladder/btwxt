@@ -123,14 +123,22 @@ TEST(Btwxt, pow) {
 
 TEST(Hypercube, make_origin_hypercube) {
     std::size_t ndims = 3;
-    std::vector<int> fit_degrees = {LINEAR, CUBIC, LINEAR};
-    std::vector<std::vector<int>> result = make_full_hypercube(
-            ndims, fit_degrees);
+    std::vector<int> methods = {LINEAR, CUBIC, LINEAR};
+    std::vector<std::vector<int>> result = make_hypercube(
+            ndims, methods);
     EXPECT_EQ(result.size(), 2 * 4 * 2);
     EXPECT_THAT(result[0], testing::ElementsAre(0, -1, 0));
     EXPECT_THAT(result[2], testing::ElementsAre(0, 0, 0));
     EXPECT_THAT(result[12], testing::ElementsAre(1, 1, 0));
     EXPECT_THAT(result[15], testing::ElementsAre(1, 2, 1));
+}
+
+TEST(Hypercube, make_linear_hypercube) {
+    std::vector<std::vector<int>> result = make_hypercube(3);
+    EXPECT_EQ(result.size(), 8);
+    EXPECT_THAT(result[0], testing::ElementsAre(0, 0, 0));
+    EXPECT_THAT(result[2], testing::ElementsAre(0, 1, 0));
+    EXPECT_THAT(result[5], testing::ElementsAre(1, 0, 1));
 }
 
 TEST(Hypercube, cart_product) {
@@ -145,4 +153,10 @@ TEST(Hypercube, cart_product) {
     EXPECT_THAT(result[1], testing::ElementsAre(1, 4, 7));
     EXPECT_THAT(result[10], testing::ElementsAre(2, 4, 8));
     EXPECT_THAT(result[3 * 2 * 4 - 1], testing::ElementsAre(3, 5, 9));
+}
+
+TEST(FreeFunctions, cart_product_m) {
+    std::vector< std::vector<double> > v = { {2.0, 3.0}, {5.0, 7.0} };
+    std::vector<double> result = cart_product_m(v);
+    EXPECT_THAT(result, testing::ElementsAre(10.0, 14.0, 15.0, 21.0));
 }
