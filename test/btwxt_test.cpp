@@ -27,29 +27,37 @@ TEST_F(TwoDFixture, construct_from_gridded_data) {
 };
 
 TEST_F(TwoDFixture, target_undefined) {
-    Btwxt::LOG_LEVEL = 0;
-    showMessage(MSG_INFO, "The test fixture does not instantiate a GridPoint.");
-    std::vector<double> returned_target = test_rgi.get_current_grid_point();
+    std::vector<double> returned_target;
+    std::vector<std::size_t> bad_floor;
+    double bad_result;
+    std::string ExpectedOut = "  WARNING: No target has been defined!\n";
+
+    // The test fixture does not instantiate a GridPoint.
+    EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, ExpectedOut);
     EXPECT_THAT(returned_target, testing::ElementsAre(0));
-    std::vector<std::size_t> bad_floor = test_rgi.get_current_floor();
+
+    EXPECT_STDOUT(bad_floor = test_rgi.get_current_floor();, ExpectedOut);
     EXPECT_THAT(bad_floor, testing::ElementsAre(0));
-    double bad_result = test_rgi.calculate_value_at_target(0);
+
+    EXPECT_STDOUT(bad_result = test_rgi.calculate_value_at_target(0);, ExpectedOut);
     EXPECT_EQ(bad_result, 0);
 
-    showMessage(MSG_INFO, "Define the target; make sure it works now.");
+    // Define the target; make sure it works now.
     test_rgi.set_new_grid_point(target);
-    returned_target = test_rgi.get_current_grid_point();
+    std::string EmptyOut = "";
+    EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, EmptyOut);
     EXPECT_THAT(returned_target, testing::ElementsAre(12, 5));
 
-    showMessage(MSG_INFO, "Clear the target; see that it reverts to warnings.");
+    // Clear the target; see that it reverts to warnings.
     test_rgi.clear_current_grid_point();
-    returned_target = test_rgi.get_current_grid_point();
+    EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, ExpectedOut);
     EXPECT_THAT(returned_target, testing::ElementsAre(0));
-    bad_floor = test_rgi.get_current_floor();
+
+    EXPECT_STDOUT(bad_floor = test_rgi.get_current_floor();, ExpectedOut);
     EXPECT_THAT(bad_floor, testing::ElementsAre(0));
-    bad_result = test_rgi.calculate_value_at_target(0);
+
+    EXPECT_STDOUT(bad_result = test_rgi.calculate_value_at_target(0);, ExpectedOut);
     EXPECT_EQ(bad_result, 0);
-    Btwxt::LOG_LEVEL = 1;
 }
 
 TEST_F(TwoDFixture, target_basics) {
@@ -85,12 +93,9 @@ TEST_F(TwoDFixture, outlaw_target) {
     test_gridded_data.set_axis_extrap_limits(0, extrap_limits);
     RegularGridInterpolator this_rgi(test_gridded_data);
     std::vector<double> outlaw_target = {18, 3};
-    testing::internal::CaptureStdout();
-    this_rgi.set_new_grid_point(outlaw_target);
     std::string ExpectedOut = "  WARNING: The target is outside the extrapolation limits"
                               " in dimension 0. Will perform constant extrapolation.\n";
-    std::string ActualOut = testing::internal::GetCapturedStdout();
-    EXPECT_STREQ(ExpectedOut.c_str(), ActualOut.c_str());
+    EXPECT_STDOUT(this_rgi.set_new_grid_point(outlaw_target);, ExpectedOut);
 };
 
 TEST_F(CubicFixture, spacing_multiplier) {

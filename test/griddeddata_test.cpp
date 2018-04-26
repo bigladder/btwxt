@@ -62,14 +62,9 @@ TEST_F(TwoDFixture, get_values) {
     returned_vec = test_gridded_data.get_values(coords);
     EXPECT_THAT(returned_vec, testing::ElementsAre(3, 6));
 
-    // TODO rebuild get_value() method
-    // should return 0 and a warning that we don't have that many tables
-    // returned_value = test_gridded_data.get_value(2, coords);
-    // EXPECT_EQ(returned_value, 0);
-
-    // should return 0 and a warning that we overran dimension 0
     coords = {7, 0};
-    returned_vec = test_gridded_data.get_values(coords);
+    std::string ExpectedOut = "  WARNING: You overran dimension 0\n";
+    EXPECT_STDOUT(returned_vec = test_gridded_data.get_values(coords);, ExpectedOut);
     EXPECT_THAT(returned_vec, testing::ElementsAre(0));
 };
 

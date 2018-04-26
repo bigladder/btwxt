@@ -14,6 +14,15 @@
 #include <griddeddata.h>
 #include <error.h>
 
+#define EXPECT_STDOUT(action, ExpectedOut) {  \
+    std::stringstream buffer;     \
+    std::streambuf *sbuf = std::cout.rdbuf();   \
+    std::cout.rdbuf(buffer.rdbuf());   \
+    action   \
+    std::string capture = buffer.str();   \
+    std::cout.rdbuf(sbuf);   \
+    EXPECT_STREQ(ExpectedOut.c_str(), buffer.str().c_str());   \
+}
 
 using namespace Btwxt;
 
