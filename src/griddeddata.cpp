@@ -332,22 +332,15 @@ namespace Btwxt {
     }
 
 // free functions
-// TODO this function allows ascending or descending, which may be too generous.
-// reconsider at a later date.
     bool free_check_sorted(std::vector<double> my_vec) {
-        std::vector<double>::iterator first = my_vec.begin();
-        std::vector<double>::iterator last = my_vec.end();
-        bool is_asc = true;
-        bool is_desc = true;
+        // ensures that the grid vector is strictly ascending
+        auto first = my_vec.begin();
+        auto last = my_vec.end();
         if (first == last) return true;
 
-        std::vector<double>::iterator next = first;
+        auto next = first;
         while (++next != last) {
-            if (is_asc & (*next <= *first))
-                is_asc = false;
-            if (is_desc & (*next >= *first))
-                is_desc = false;
-            if (!is_asc & !is_desc)
+            if (*next <= *first)
                 return false;
             ++first;
         }

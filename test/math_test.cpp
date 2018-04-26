@@ -26,10 +26,8 @@ TEST(GriddedData, free_check_sorted) {
             {
                     {{1, 3,  5, 7,  9}, true},
                     {{1, 3,  5, 17, 9}, false},
-                    {{9, 7,  5, 3,  1}, true},
-                    {{9, 17, 5, 3,  1}, false},
+                    {{9, 7,  5, 3,  1}, false},
                     {{1, 3,  3, 7,  9}, false},
-                    {{9, 7,  5, 5,  1}, false},
                     {{9},               true}
             };
     bool is_sorted;
