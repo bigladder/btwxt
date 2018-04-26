@@ -97,12 +97,6 @@ namespace Btwxt {
         Eigen::ArrayXd get_column_near_safe(
                 const std::vector<std::size_t>& coords, std::vector<int> translation);
 
-        Eigen::ArrayXd get_column_up(
-                const std::vector<std::size_t> &coords, const std::size_t &dim);
-
-        Eigen::ArrayXd get_column_down(
-                const std::vector<std::size_t> &coords, const std::size_t &dim);
-
         double get_axis_spacing_mult(const std::size_t &dim,
                                      const std::size_t &flavor, const std::size_t &index);
 

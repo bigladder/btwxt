@@ -220,22 +220,15 @@ namespace Btwxt {
 
     std::size_t GriddedData::get_num_tables() { return num_tables; };
 
-    std::vector<double> GriddedData::get_values(
-            const std::vector<std::size_t> &coords) {
-        std::size_t index = locate_coords(coords, dimension_lengths);
-        if (index == -1) { return {0}; };
-        // return column of values as a vector
-        double *col_data = value_tables.col(index).data();
-        std::vector<double> one_column(col_data, col_data + num_tables);
-        return one_column;
+    std::vector<double> GriddedData::get_values(const std::vector<std::size_t> &coords) {
+        Eigen::ArrayXd val_col = get_column(coords);
+        return eigen_to_vector(val_col);
     }
 
     template <typename T>
     Eigen::ArrayXd GriddedData::get_column(
             const std::vector<T> &coords) {
         std::size_t index = locate_coords(coords, dimension_lengths);
-        // TODO handle exception if invalid coordinates
-        // if (index == -1) { return {0}; } ;
         return value_tables.col(index);
     }
 
@@ -262,27 +255,11 @@ namespace Btwxt {
         for (std::size_t dim = 0; dim < coords.size(); dim++) {
             if (translation[dim] < 0) {
                 translation[dim] = 0;
-            } else if (translation[dim] == dimension_lengths[dim]) {
-                translation[dim] -= 1;
+            } else if (translation[dim] >= dimension_lengths[dim]) {
+                translation[dim] = dimension_lengths[dim]-1;
             }
         }
         return get_column(translation);
-    }
-
-    Eigen::ArrayXd GriddedData::get_column_up(
-            const std::vector<std::size_t> &coords, const std::size_t &dim) {
-        if (coords[dim] == dimension_lengths[dim] - 1) {
-            return get_column(coords);
-        }
-        return get_column_near(coords, dim, 1);
-    }
-
-    Eigen::ArrayXd GriddedData::get_column_down(
-            const std::vector<std::size_t> &coords, const std::size_t &dim) {
-        if (coords[dim] == 0) {
-            return get_column(coords);
-        }
-        return get_column_near(coords, dim, -1);
     }
 
     std::vector<double> GriddedData::get_grid_vector(const std::size_t &dim)
@@ -352,14 +329,13 @@ namespace Btwxt {
             const std::vector<T> &coords,
             const std::vector<std::size_t> &dimension_lengths
     ) {
-        // TODO consider consolidating the get_column_near_safe() functionality into here
-        // or removing the dimension check from here.
         std::size_t index = 0;
         std::size_t panel_size = 1;
         for (std::size_t dim = 0; dim < dimension_lengths.size(); dim++) {
             if (coords[dim] >= dimension_lengths[dim]) {
-                showMessage(MSG_WARN, stringify("You overran dimension ", dim));
-                return -1;
+                showMessage(MSG_ERR, stringify("Overran dimension ", dim));
+            } else if (coords[dim] < 0) {
+                showMessage(MSG_ERR, stringify("Negative coordinate in dimension ", dim));
             } else {
                 index += coords[dim] * panel_size;
                 panel_size *= dimension_lengths[dim];
