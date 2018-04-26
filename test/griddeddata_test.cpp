@@ -138,3 +138,18 @@ TEST(GridAxis, calc_spacing_multipliers) {
     EXPECT_THAT(values[0], testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
     EXPECT_THAT(values[1], testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));
 }
+
+TEST(GridAxis, bad_limits) {
+    GridAxis my_grid_axis({0, 5, 7, 11, 12, 15});
+    std::pair<double, double> extrap_limits{4, 17};
+    std::string ExpectedOut = "  WARNING: The lower extrapolation limit is within the grid. "
+                              "Setting to smallest value.\n";
+    EXPECT_STDOUT(my_grid_axis.set_extrap_limits(extrap_limits);, ExpectedOut);
+    EXPECT_EQ(my_grid_axis.extrapolation_limits.first, 0);
+
+    extrap_limits = {-2, 12};
+    ExpectedOut = "  WARNING: The upper extrapolation limit is within the grid. "
+                  "Setting to largest value.\n";
+    EXPECT_STDOUT(my_grid_axis.set_extrap_limits(extrap_limits);, ExpectedOut);
+    EXPECT_EQ(my_grid_axis.extrapolation_limits.second, 15);
+};

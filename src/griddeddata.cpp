@@ -87,11 +87,14 @@ namespace Btwxt {
 
     void GridAxis::check_extrap_limits() {
         if (extrapolation_limits.first > grid[0]) {
-            showMessage(MSG_WARN,
-                        "The lower extrapolation bound is within the grid.");
-        } else if (extrapolation_limits.second < grid.back()) {
-            showMessage(MSG_WARN,
-                        "The upper extrapolation bound is within the grid.");
+            showMessage(MSG_WARN, "The lower extrapolation limit is within the grid. "
+                                  "Setting to smallest value.");
+            extrapolation_limits.first = grid[0];
+        }
+        if (extrapolation_limits.second < grid.back()) {
+            showMessage(MSG_WARN, "The upper extrapolation limit is within the grid. "
+                                  "Setting to largest value.");
+            extrapolation_limits.second = grid.back();
         }
     }
 
