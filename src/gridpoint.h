@@ -13,9 +13,9 @@
 
 namespace Btwxt {
 
-    const int INBOUNDS = 2;
-    const int OUTBOUNDS = 1;
-    const int OUTLAW = 0;
+    enum class Bounds {
+        OUTLAW, OUTBOUNDS, INBOUNDS
+    };
 
     class GridPoint {
     public:
@@ -40,7 +40,7 @@ namespace Btwxt {
 
         std::vector<double> get_weights();
 
-        std::vector<int> get_is_inbounds();
+        std::vector<Bounds> get_is_inbounds();
 
         std::vector<method> get_methods();
 
@@ -55,7 +55,7 @@ namespace Btwxt {
         // TODO upgrade is_inbounds to a family of const ints to allow both
         //     1. outside grid but can extrapolate to, and
         //     2. outside allowed extrapolation zone.
-        std::vector<int> is_inbounds;  // for deciding interpolation vs. extrapolation;
+        std::vector<Bounds> is_inbounds;  // for deciding interpolation vs. extrapolation;
         std::vector<method> methods;
         std::vector<std::vector<double> > interp_coeffs;
         std::vector<std::vector<double> > cubic_slope_coeffs;
@@ -72,7 +72,7 @@ namespace Btwxt {
 
 
     // free functions
-    void locate_in_dim(const double &target, int &dim_in, std::size_t &dim_floor,
+    void locate_in_dim(const double &target, Bounds &dim_in, std::size_t &dim_floor,
                        std::vector<double> grid_vector, std::pair<double, double> &extrap_limits);
 
     std::size_t index_below_in_vector(const double &target, std::vector<double> &my_vec);

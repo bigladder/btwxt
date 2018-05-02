@@ -44,7 +44,7 @@ namespace Btwxt {
 
     std::vector<double> WhereInTheGridIsThisPoint::get_weights() { return weights; }
 
-    std::vector<int> WhereInTheGridIsThisPoint::get_is_inbounds() { return is_inbounds; }
+    std::vector<Bounds> WhereInTheGridIsThisPoint::get_is_inbounds() { return is_inbounds; }
 
     std::vector<method> WhereInTheGridIsThisPoint::get_methods() { return methods; }
 
@@ -79,9 +79,9 @@ namespace Btwxt {
     {
         methods = interp_methods;
         for (std::size_t dim = 0; dim < ndims; dim++) {
-            if (is_inbounds[dim] == OUTBOUNDS) {
+            if (is_inbounds[dim] == Bounds::OUTBOUNDS) {
                 methods[dim] = extrap_methods[dim];
-            } else if (is_inbounds[dim] == OUTLAW) {
+            } else if (is_inbounds[dim] == Bounds::OUTLAW) {
                 showMessage(MSG_WARN, stringify("The target is outside the extrapolation limits in dimension ", dim,
                                                 ". Will perform constant extrapolation."));
                 methods[dim] = CONSTANT;
@@ -111,24 +111,24 @@ namespace Btwxt {
 
 
     // free functions
-    void locate_in_dim(const double& target, int& dim_in, std::size_t& dim_floor,
+    void locate_in_dim(const double& target, Bounds& dim_in, std::size_t& dim_floor,
                        std::vector<double> grid_vector, std::pair<double, double> &extrap_limits)
     {
         std::size_t l = grid_vector.size();
         if (target < extrap_limits.first) {
-            dim_in = OUTLAW;
+            dim_in = Bounds::OUTLAW;
             dim_floor = 0;
         } else if (target > extrap_limits.second) {
-            dim_in = OUTLAW;
+            dim_in = Bounds::OUTLAW;
             dim_floor = l-2;  // l-2 because that's the left side of the (l-2, l-1) edge.
         } else if (target < grid_vector[0]) {
-            dim_in = OUTBOUNDS;
+            dim_in = Bounds::OUTBOUNDS;
             dim_floor = 0;
         } else if (target > grid_vector.back()) {
-            dim_in = OUTBOUNDS;
+            dim_in = Bounds::OUTBOUNDS;
             dim_floor = l-2;  // l-2 because that's the left side of the (l-2, l-1) edge.
         } else {
-            dim_in = INBOUNDS;
+            dim_in = Bounds::INBOUNDS;
             dim_floor = index_below_in_vector(target, grid_vector);
         }
     }

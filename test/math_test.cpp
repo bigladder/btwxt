@@ -55,41 +55,41 @@ TEST(GridPoint, locate_in_dim) {
     std::vector<double> grid_vector = {1, 3, 5, 7, 9};
     std::pair<double, double> extrap_limits{0, 11};
     double target = 5.3;
-    int is_inbounds;
+    Bounds is_inbounds;
     std::size_t dim_floor;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, INBOUNDS);
+    EXPECT_EQ(is_inbounds, Bounds::INBOUNDS);
     EXPECT_EQ(dim_floor, 2);
 
     target = 0.3;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(is_inbounds, Bounds::OUTBOUNDS);
     EXPECT_EQ(dim_floor, 0);
 
     target = 10.3;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(is_inbounds, Bounds::OUTBOUNDS);
     EXPECT_EQ(dim_floor, 3);
 
     target = -0.3;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, OUTLAW);
+    EXPECT_EQ(is_inbounds, Bounds::OUTLAW);
     EXPECT_EQ(dim_floor, 0);
 
     target = 11.3;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, OUTLAW);
+    EXPECT_EQ(is_inbounds, Bounds::OUTLAW);
     EXPECT_EQ(dim_floor, 3);
 
     extrap_limits = {-DBL_MAX, DBL_MAX};
     target = -0.3;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(is_inbounds, Bounds::OUTBOUNDS);
     EXPECT_EQ(dim_floor, 0);
 
     target = 11.3;
     locate_in_dim(target, is_inbounds, dim_floor, grid_vector, extrap_limits);
-    EXPECT_EQ(is_inbounds, OUTBOUNDS);
+    EXPECT_EQ(is_inbounds, Bounds::OUTBOUNDS);
     EXPECT_EQ(dim_floor, 3);
 }
 
