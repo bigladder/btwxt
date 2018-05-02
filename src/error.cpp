@@ -15,20 +15,20 @@ namespace Btwxt {
     int LOG_LEVEL = 2;
 
     void showMessage(
-            const int messageType,
+            const MsgLevel messageType,
             const std::string message
     ) {
         if (btwxtCallbackFunction != nullptr) {
             (*btwxtCallbackFunction)(messageType, message, messageCallbackContextPtr);
-        } else if (messageType == Btwxt::MSG_ERR) {
+        } else if (messageType == MsgLevel::MSG_ERR) {
             std::cout << "  ERROR: " << message << std::endl;
             throw std::invalid_argument(stringify("  ERROR: ", message));
         } else {
-            if (messageType >= Btwxt::LOG_LEVEL) {
+            if (static_cast<int>(messageType) >= Btwxt::LOG_LEVEL) {
                 std::string prefix("  DEBUG: ");
-                if (messageType == Btwxt::MSG_WARN) {
+                if (messageType == MsgLevel::MSG_WARN) {
                     prefix = "  WARNING: ";
-                } else if (messageType == Btwxt::MSG_INFO) {
+                } else if (messageType == MsgLevel::MSG_INFO) {
                     prefix = "  NOTE: ";
                 }
                 std::cout << prefix << message << std::endl;

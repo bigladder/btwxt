@@ -21,7 +21,7 @@ namespace Btwxt {
             cgp_exists(false) {
         std::size_t ndims{get_ndims()};
         hypercube = Hypercube(ndims, the_blob.get_interp_methods());
-        showMessage(MSG_DEBUG, "RGI constructed from GriddedData!");
+        showMessage(MsgLevel::MSG_DEBUG, "RGI constructed from GriddedData!");
     };
 
     RegularGridInterpolator::RegularGridInterpolator(
@@ -33,7 +33,7 @@ namespace Btwxt {
             cgp_exists(false) {
         std::size_t ndims{get_ndims()};
         hypercube = Hypercube(ndims, the_blob.get_interp_methods());
-        showMessage(MSG_DEBUG, "RGI constructed from vectors!");
+        showMessage(MsgLevel::MSG_DEBUG, "RGI constructed from vectors!");
     };
 
     double RegularGridInterpolator::calculate_value_at_target(
@@ -49,7 +49,7 @@ namespace Btwxt {
             std::vector<double> result = interpolation_wrapper();
             return result[table_index];
         }
-        showMessage(MSG_WARN, "No target has been defined!");
+        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
         return 0;
     };
 
@@ -65,7 +65,7 @@ namespace Btwxt {
             std::vector<double> result = interpolation_wrapper();
             return result;
         }
-        showMessage(MSG_WARN, "No target has been defined!");
+        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
         return {0};
     };
 
@@ -81,7 +81,7 @@ namespace Btwxt {
         if (cgp_exists) {
             return current_grid_point.target;
         }
-        showMessage(MSG_WARN, "No target has been defined!");
+        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
         return {0};
     }
 
@@ -97,10 +97,10 @@ namespace Btwxt {
             const std::vector<double> &target) {
         std::size_t ndims = the_blob.get_ndims();
         if (ndims == target.size()) {
-            showMessage(MSG_DEBUG, stringify(
+            showMessage(MsgLevel::MSG_DEBUG, stringify(
                     "Target and GridSpace dimensions match: ", target.size()));
         } else {
-            showMessage(MSG_ERR, stringify(
+            showMessage(MsgLevel::MSG_ERR, stringify(
                     "number of dimensions (", ndims,
                     ") does not match length of target (", target.size(), ")."));
         }
@@ -110,7 +110,7 @@ namespace Btwxt {
         if (cgp_exists) {
             return the_locator.get_floor();
         }
-        showMessage(MSG_WARN, "No target has been defined!");
+        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
         return {0};
     }
 
@@ -118,7 +118,7 @@ namespace Btwxt {
         if (cgp_exists) {
             return the_locator.get_weights();
         }
-        showMessage(MSG_WARN, "No target has been defined!");
+        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
         return {0};
     }
 
@@ -144,7 +144,7 @@ namespace Btwxt {
             new_hypercube.collect_things(the_locator);
             result = new_hypercube.all_the_calculations(the_blob);
         }
-        showMessage(MSG_DEBUG, stringify("results\n", result));
+        showMessage(MsgLevel::MSG_DEBUG, stringify("results\n", result));
         return eigen_to_vector(result);
     }
 

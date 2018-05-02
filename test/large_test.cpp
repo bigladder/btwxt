@@ -179,7 +179,7 @@ TEST_F(LargeFixture, timer) {
     // Get ending timepoint
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    showMessage(MSG_INFO, stringify("Time taken by interpolation: ",
+    showMessage(MsgLevel::MSG_INFO, stringify("Time taken by interpolation: ",
                                     duration.count(), " microseconds"));
 
     // time running the functions straight
@@ -189,7 +189,7 @@ TEST_F(LargeFixture, timer) {
     // Get ending timepoint
     stop = std::chrono::high_resolution_clock::now();
     auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    showMessage(MSG_INFO, stringify("Time taken by direct functions: ",
+    showMessage(MsgLevel::MSG_INFO, stringify("Time taken by direct functions: ",
                                     nano_duration.count(), " nanoseconds"));
 };
 
@@ -217,7 +217,7 @@ TEST_F(LargeFixture, multi_timer) {
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         Btwxt::LOG_LEVEL = 1;
-        showMessage(MSG_INFO, stringify("Time taken by ten interpolations: ",
+        showMessage(MsgLevel::MSG_INFO, stringify("Time taken by ten interpolations: ",
                                         duration.count(), " microseconds"));
     }
 }

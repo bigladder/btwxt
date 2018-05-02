@@ -31,7 +31,7 @@ namespace Btwxt {
             spacing_multiplier = calc_spacing_multipliers();
         }
 
-        showMessage(MSG_DEBUG, "GridAxis object constructed from vector!");
+        showMessage(MsgLevel::MSG_DEBUG, "GridAxis object constructed from vector!");
     };
 
     std::size_t GridAxis::get_length() {
@@ -81,18 +81,18 @@ namespace Btwxt {
     void GridAxis::check_grid_sorted() {
         bool grid_is_sorted = Btwxt::free_check_sorted(grid);
         if (! grid_is_sorted) {
-            showMessage(MSG_ERR, "axis is not sorted.");
+            showMessage(MsgLevel::MSG_ERR, "axis is not sorted.");
         }
     }
 
     void GridAxis::check_extrap_limits() {
         if (extrapolation_limits.first > grid[0]) {
-            showMessage(MSG_WARN, "The lower extrapolation limit is within the grid. "
+            showMessage(MsgLevel::MSG_WARN, "The lower extrapolation limit is within the grid. "
                                   "Setting to smallest value.");
             extrapolation_limits.first = grid[0];
         }
         if (extrapolation_limits.second < grid.back()) {
-            showMessage(MSG_WARN, "The upper extrapolation limit is within the grid. "
+            showMessage(MsgLevel::MSG_WARN, "The upper extrapolation limit is within the grid. "
                                   "Setting to largest value.");
             extrapolation_limits.second = grid.back();
         }
@@ -115,7 +115,7 @@ namespace Btwxt {
 
         construct_axes(grid);
         value_tables = construct_values(values);
-        showMessage(MSG_DEBUG, "GriddedData constructed from vectors!");
+        showMessage(MsgLevel::MSG_DEBUG, "GriddedData constructed from vectors!");
     };
 
     GriddedData::GriddedData(
@@ -133,7 +133,7 @@ namespace Btwxt {
         num_tables = values.size();
 
         value_tables = construct_values(values);
-        showMessage(MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
+        showMessage(MsgLevel::MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
     };
 
     GriddedData::GriddedData(
@@ -148,7 +148,7 @@ namespace Btwxt {
             dimension_lengths.push_back(grid_vector.get_length());
         }
         num_tables = 0;
-        showMessage(MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
+        showMessage(MsgLevel::MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
     };
 
     void GriddedData::construct_axes(
@@ -159,7 +159,7 @@ namespace Btwxt {
             grid_axes.push_back(ga);
         }
 
-        showMessage(MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
+        showMessage(MsgLevel::MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
     };
 
     void GriddedData::add_value_table(std::vector<double> &value_vector) {
@@ -177,11 +177,11 @@ namespace Btwxt {
             std::vector<double> &value_vector
     ) {
         Eigen::ArrayXXd vtables(1, num_values);
-        showMessage(MSG_DEBUG, stringify("Created blank Eigen Array with 1 table, each with ", vtables.cols(), " values."));
-        showMessage(MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
+        showMessage(MsgLevel::MSG_DEBUG, stringify("Created blank Eigen Array with 1 table, each with ", vtables.cols(), " values."));
+        showMessage(MsgLevel::MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
 
         vtables.row(0) = fill_value_row(value_vector, num_values);
-        showMessage(MSG_DEBUG, stringify("value tables: \n", vtables));
+        showMessage(MsgLevel::MSG_DEBUG, stringify("value tables: \n", vtables));
         return vtables;
     };
 
@@ -189,15 +189,15 @@ namespace Btwxt {
             const std::vector<std::vector<double> > &values
     ) {
         Eigen::ArrayXXd vtables(num_tables, num_values);
-        showMessage(MSG_DEBUG, stringify("Created blank Eigen Array with ",
+        showMessage(MsgLevel::MSG_DEBUG, stringify("Created blank Eigen Array with ",
                                          vtables.rows(), " tables, each with ", vtables.cols(), " values."));
-        showMessage(MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
+        showMessage(MsgLevel::MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
         std::size_t i = 0;
         for (auto value_vector : values) {
             vtables.row(i) = fill_value_row(value_vector, num_values);
             i++;
         }
-        showMessage(MSG_DEBUG, stringify("value tables: \n", vtables));
+        showMessage(MsgLevel::MSG_DEBUG, stringify("value tables: \n", vtables));
         return vtables;
     };
 
@@ -206,7 +206,7 @@ namespace Btwxt {
             const std::size_t& num_values)
     {
         if (value_vector.size() != num_values) {
-            showMessage(MSG_ERR, stringify(
+            showMessage(MsgLevel::MSG_ERR, stringify(
                     "Input value table does not match the grid size: ",
                     value_vector.size(), " != ", num_values));
         }
@@ -337,9 +337,9 @@ namespace Btwxt {
         std::size_t panel_size = 1;
         for (std::size_t dim = 0; dim < dimension_lengths.size(); dim++) {
             if (coords[dim] >= dimension_lengths[dim]) {
-                showMessage(MSG_ERR, stringify("Overran dimension ", dim));
+                showMessage(MsgLevel::MSG_ERR, stringify("Overran dimension ", dim));
             } else if (coords[dim] < 0) {
-                showMessage(MSG_ERR, stringify("Negative coordinate in dimension ", dim));
+                showMessage(MsgLevel::MSG_ERR, stringify("Negative coordinate in dimension ", dim));
             } else {
                 index += coords[dim] * panel_size;
                 panel_size *= dimension_lengths[dim];

@@ -18,7 +18,7 @@ namespace Btwxt {
 
     GridPoint::GridPoint(const std::vector<double> &target_vector) :
             target(target_vector) {
-        showMessage(MSG_DEBUG, "GridPoint object constructed from vector!");
+        showMessage(MsgLevel::MSG_DEBUG, "GridPoint object constructed from vector!");
     };
 
 
@@ -82,7 +82,7 @@ namespace Btwxt {
             if (is_inbounds[dim] == Bounds::OUTBOUNDS) {
                 methods[dim] = extrap_methods[dim];
             } else if (is_inbounds[dim] == Bounds::OUTLAW) {
-                showMessage(MSG_WARN, stringify("The target is outside the extrapolation limits in dimension ", dim,
+                showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation limits in dimension ", dim,
                                                 ". Will perform constant extrapolation."));
                 methods[dim] = Method::CONSTANT;
             }
@@ -139,7 +139,7 @@ namespace Btwxt {
         std::vector<double>::iterator upper;
         upper = std::upper_bound(my_vec.begin(), my_vec.end(), target);
         if ((upper - my_vec.begin()) == 0) {
-            showMessage(MSG_ERR, "index_below_in_vector should only be called once you are sure you are inbounds");
+            showMessage(MsgLevel::MSG_ERR, "index_below_in_vector should only be called once you are sure you are inbounds");
             return 0;
         }
         return upper - my_vec.begin() - 1;
