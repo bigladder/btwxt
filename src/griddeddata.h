@@ -12,7 +12,7 @@
 
 namespace Btwxt {
 
-    enum method {
+    enum class Method {
         CONSTANT, LINEAR, CUBIC
     };
 
@@ -22,19 +22,19 @@ namespace Btwxt {
         GridAxis();
 
         GridAxis(double *grid, std::size_t size,
-                 int extrapolation_method = CONSTANT,
-                 int interpolation_method = LINEAR);
+                 Method extrapolation_method = Method::CONSTANT,
+                 Method interpolation_method = Method::LINEAR);
 
         GridAxis(std::vector<double> grid_vector,
-                 method extrapolation_method = CONSTANT,
-                 method interpolation_method = LINEAR,
+                 Method extrapolation_method = Method::CONSTANT,
+                 Method interpolation_method = Method::LINEAR,
                  std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX}
         );
 
         const std::vector<double> grid;
         std::vector<std::vector<double> > spacing_multiplier;
-        method extrapolation_method;
-        method interpolation_method;
+        Method extrapolation_method;
+        Method interpolation_method;
         std::pair<double, double> extrapolation_limits;
 
         // std::pair<double> extrapolation_bounds;  <-- to add later
@@ -42,8 +42,8 @@ namespace Btwxt {
 
         std::size_t get_length();
 
-        void set_interp_method(const method interpolation_method);
-        void set_extrap_method(const method extrapolation_method);
+        void set_interp_method(const Method interpolation_method);
+        void set_extrap_method(const Method extrapolation_method);
         void set_extrap_limits(const std::pair<double, double> extrap_limits);
 
         double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
@@ -100,17 +100,17 @@ namespace Btwxt {
         double get_axis_spacing_mult(const std::size_t &dim,
                                      const std::size_t &flavor, const std::size_t &index);
 
-        std::vector<method> get_interp_methods();
+        std::vector<Method> get_interp_methods();
 
-        std::vector<method> get_extrap_methods();
+        std::vector<Method> get_extrap_methods();
         // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
-        void set_axis_extrap_method(const std::size_t &dim, const method);
+        void set_axis_extrap_method(const std::size_t &dim, const Method);
 
         void set_axis_extrap_limits(const std::size_t &dim,
                                     const std::pair<double, double> &extrap_limits);
 
-        void set_axis_interp_method(const std::size_t &dim, const method);
+        void set_axis_interp_method(const std::size_t &dim, const Method);
 
         Eigen::ArrayXXd value_tables;
         std::size_t num_values;
@@ -129,7 +129,7 @@ namespace Btwxt {
         std::size_t ndims;
         std::size_t num_tables;
         // TODO move interp_method down to GridAxis
-        std::vector<method> interp_methods;
+        std::vector<Method> interp_methods;
     };
 
 

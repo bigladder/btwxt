@@ -16,7 +16,7 @@ namespace Btwxt {
     Hypercube::Hypercube() = default;;
 
     Hypercube::Hypercube(const std::size_t &ndims,
-                         const std::vector<method> &methods) :
+                         const std::vector<Method> &methods) :
             ndims(ndims),
             methods(methods),
             vertices(make_hypercube(ndims, methods))
@@ -61,7 +61,7 @@ namespace Btwxt {
         std::vector< std::vector<double> > collection(ndims);
         int sign, flavor;
         for (std::size_t dim = 0; dim < ndims; dim++) {
-            if (methods[dim] == CUBIC) {
+            if (methods[dim] == Method::CUBIC) {
                 std::tie(sign, flavor) = sivor[v[dim] + 1];
                 if (v[dim] == 0 | v[dim] == 1) {
                     collection[dim].push_back(interp_coeffs[dim][v[dim]]);
@@ -85,11 +85,11 @@ namespace Btwxt {
     }
 
     std::vector<std::vector<int> > make_hypercube(
-            const std::size_t &ndims, const std::vector<method> &methods) {
+            const std::size_t &ndims, const std::vector<Method> &methods) {
         std::vector<std::vector<int> > options(ndims, {0, 1});
 
         for (std::size_t dim = 0; dim < ndims; dim++) {
-            if (methods[dim] == CUBIC) {
+            if (methods[dim] == Method::CUBIC) {
                 options[dim] = {-1, 0, 1, 2};
             }
         }

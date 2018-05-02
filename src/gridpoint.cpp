@@ -46,7 +46,7 @@ namespace Btwxt {
 
     std::vector<Bounds> WhereInTheGridIsThisPoint::get_is_inbounds() { return is_inbounds; }
 
-    std::vector<method> WhereInTheGridIsThisPoint::get_methods() { return methods; }
+    std::vector<Method> WhereInTheGridIsThisPoint::get_methods() { return methods; }
 
     std::vector<std::vector<double> > WhereInTheGridIsThisPoint::get_interp_coeffs() { return interp_coeffs; }
 
@@ -72,8 +72,8 @@ namespace Btwxt {
     }
 
     void WhereInTheGridIsThisPoint::consolidate_methods(
-            const std::vector<method> &interp_methods,
-            const std::vector<method> &extrap_methods)
+            const std::vector<Method> &interp_methods,
+            const std::vector<Method> &extrap_methods)
     // If out of bounds, extrapolate according to prescription
     // If outside of extrapolation limits, send a warning and perform constant extrapolation.
     {
@@ -84,7 +84,7 @@ namespace Btwxt {
             } else if (is_inbounds[dim] == Bounds::OUTLAW) {
                 showMessage(MSG_WARN, stringify("The target is outside the extrapolation limits in dimension ", dim,
                                                 ". Will perform constant extrapolation."));
-                methods[dim] = CONSTANT;
+                methods[dim] = Method::CONSTANT;
             }
         }
     }
@@ -92,12 +92,12 @@ namespace Btwxt {
     void WhereInTheGridIsThisPoint::calculate_interp_coeffs() {
         for (std::size_t dim = 0; dim < ndims; dim++) {
             double mu = weights[dim];
-            if (methods[dim] == CUBIC) {
+            if (methods[dim] == Method::CUBIC) {
                 interp_coeffs[dim][0] = 2 * mu * mu * mu - 3 * mu * mu + 1;
                 interp_coeffs[dim][1] = -2 * mu * mu * mu + 3 * mu * mu;
                 cubic_slope_coeffs[dim][0] = mu * mu * mu - 2 * mu * mu + mu;
                 cubic_slope_coeffs[dim][1] = mu * mu * mu - mu * mu;
-            } else if (methods[dim] == CONSTANT) {
+            } else if (methods[dim] == Method::CONSTANT) {
                 mu = mu < 0 ? 0 : 1;
                 interp_coeffs[dim][0] = 1 - mu;
                 interp_coeffs[dim][1] = mu;

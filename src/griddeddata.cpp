@@ -15,10 +15,10 @@ namespace Btwxt {
     GridAxis::GridAxis() {};
 
     GridAxis::GridAxis(double *grid, std::size_t size,
-                       int extrapolation_method, int interpolation_method) {};
+                       Method extrapolation_method, Method interpolation_method) {};
 
     GridAxis::GridAxis(std::vector<double> grid_vector,
-                       method extrapolation_method, method interpolation_method,
+                       Method extrapolation_method, Method interpolation_method,
                        std::pair<double, double> extrapolation_limits) :
             grid(grid_vector),
             extrapolation_method(extrapolation_method),
@@ -27,7 +27,7 @@ namespace Btwxt {
     {
         check_grid_sorted();
         check_extrap_limits();
-        if (interpolation_method == CUBIC) {
+        if (interpolation_method == Method::CUBIC) {
             spacing_multiplier = calc_spacing_multipliers();
         }
 
@@ -38,14 +38,14 @@ namespace Btwxt {
         return grid.size();
     }
 
-    void GridAxis::set_interp_method(const method im) {
+    void GridAxis::set_interp_method(const Method im) {
         interpolation_method = im;
-        if (im == CUBIC) {
+        if (im == Method::CUBIC) {
             spacing_multiplier = calc_spacing_multipliers();
         }
     }
 
-    void GridAxis::set_extrap_method(const method em) {
+    void GridAxis::set_extrap_method(const Method em) {
         extrapolation_method = em;
     }
 
@@ -106,7 +106,7 @@ namespace Btwxt {
             std::vector<std::vector<double> > values
     ) :
     // TODO move interp_methods down to GridAxis class
-    interp_methods(grid.size(), LINEAR) {
+    interp_methods(grid.size(), Method::LINEAR) {
         ndims = grid.size();
         num_values = 1;
         for (auto grid_vector : grid) {
@@ -274,7 +274,7 @@ namespace Btwxt {
 
     double GriddedData::get_axis_spacing_mult(const std::size_t &dim,
                                               const std::size_t &flavor, const std::size_t &index) {
-        if (interp_methods[dim] == CUBIC) {
+        if (interp_methods[dim] == Method::CUBIC) {
             return grid_axes[dim].get_spacing_multiplier(flavor, index);
         } else {
             return 0.0;
@@ -282,12 +282,12 @@ namespace Btwxt {
     }
 
     void GriddedData::set_axis_extrap_method(
-            const std::size_t &dim, const method extrapolation_method) {
+            const std::size_t &dim, const Method extrapolation_method) {
         grid_axes[dim].extrapolation_method = extrapolation_method;
     }
 
-    std::vector<method> GriddedData::get_extrap_methods() {
-        std::vector<method> extrap_methods(ndims);
+    std::vector<Method> GriddedData::get_extrap_methods() {
+        std::vector<Method> extrap_methods(ndims);
         for (std::size_t dim = 0; dim < ndims; dim++) {
             extrap_methods[dim] = grid_axes[dim].extrapolation_method;
         }
@@ -300,10 +300,10 @@ namespace Btwxt {
         grid_axes[dim].set_extrap_limits(extrap_limits);
     }
 
-    std::vector<method> GriddedData::get_interp_methods() { return interp_methods; }
+    std::vector<Method> GriddedData::get_interp_methods() { return interp_methods; }
 
     void GriddedData::set_axis_interp_method(
-            const std::size_t &dim, const method interpolation_method) {
+            const std::size_t &dim, const Method interpolation_method) {
         interp_methods[dim] = interpolation_method;
         grid_axes[dim].set_interp_method(interpolation_method);
     }

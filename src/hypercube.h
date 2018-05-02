@@ -18,7 +18,7 @@ namespace Btwxt {
     public:
         Hypercube();
 
-        Hypercube(const std::size_t &ndims, const std::vector<method> &methods);
+        Hypercube(const std::size_t &ndims, const std::vector<Method> &methods);
 
         void collect_things(WhereInTheGridIsThisPoint &);
 
@@ -33,7 +33,7 @@ namespace Btwxt {
                 const std::vector< std::vector<double> >& spacing_mults);
 
         std::vector<std::size_t> point_floor;
-        std::vector<method> methods;
+        std::vector<Method> methods;
         std::vector<std::vector<double> > cubic_slope_coeffs;
         std::vector<std::vector<double> > interp_coeffs;
         std::vector< std::pair<int, int> > sivor;  // {sign, flavor}
@@ -43,7 +43,7 @@ namespace Btwxt {
 // free functions
     std::vector<std::vector<int> > make_hypercube(const std::size_t &ndims);
     std::vector<std::vector<int> > make_hypercube(
-            const std::size_t &ndims, const std::vector<method> &methods);
+            const std::size_t &ndims, const std::vector<Method> &methods);
 
     template <typename T>
     std::vector<std::vector<T> > cart_product(const std::vector<std::vector<T> > &v);

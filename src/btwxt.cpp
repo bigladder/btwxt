@@ -132,8 +132,8 @@ namespace Btwxt {
 
     std::vector<double> RegularGridInterpolator::interpolation_wrapper() {
         std::size_t ndims = get_ndims();
-        std::vector<method> methods = the_locator.get_methods();
-        std::vector<method> base_methods = the_blob.get_interp_methods();
+        std::vector<Method> methods = the_locator.get_methods();
+        std::vector<Method> base_methods = the_blob.get_interp_methods();
         Eigen::ArrayXd result;
 
         if (std::equal(methods.begin(), methods.end(), base_methods.begin())) {

@@ -130,8 +130,8 @@ TEST_F(CubicFixture, get_spacing_multipliers) {
 
 TEST(GridAxis, calc_spacing_multipliers) {
     std::vector<double> grid_vector{6, 10, 15, 20, 22};
-    method extrapolation_method{CONSTANT};
-    method interpolation_method{CUBIC};
+    auto extrapolation_method{Method::CONSTANT};
+    auto interpolation_method{Method::CUBIC};
 
     GridAxis test_gridaxis(grid_vector, extrapolation_method, interpolation_method);
     std::vector<std::vector<double> > values = test_gridaxis.spacing_multiplier;

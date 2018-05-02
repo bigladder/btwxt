@@ -210,7 +210,7 @@ TEST_F(TwoDFixture, invalid_inputs) {
 
 TEST_F(OneDFixture, cubic_interpolate) {
     Btwxt::LOG_LEVEL = 0;
-    test_gridded_data.set_axis_interp_method(0, CUBIC);
+    test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
     test_rgi = RegularGridInterpolator(test_gridded_data);
     double result = test_rgi.calculate_all_values_at_target(target)[0];
     Btwxt::LOG_LEVEL = 1;
@@ -219,8 +219,8 @@ TEST_F(OneDFixture, cubic_interpolate) {
 
 TEST_F(TwoDFixture, cubic_interpolate) {
     Btwxt::LOG_LEVEL = 0;
-    test_gridded_data.set_axis_interp_method(0, CUBIC);
-    test_gridded_data.set_axis_interp_method(1, CUBIC);
+    test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
+    test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
     test_rgi = RegularGridInterpolator(test_gridded_data);
     test_rgi.set_new_grid_point(target);
 

@@ -42,7 +42,7 @@ namespace Btwxt {
 
         std::vector<Bounds> get_is_inbounds();
 
-        std::vector<method> get_methods();
+        std::vector<Method> get_methods();
 
         std::vector<std::vector<double> > get_interp_coeffs();
 
@@ -56,7 +56,7 @@ namespace Btwxt {
         //     1. outside grid but can extrapolate to, and
         //     2. outside allowed extrapolation zone.
         std::vector<Bounds> is_inbounds;  // for deciding interpolation vs. extrapolation;
-        std::vector<method> methods;
+        std::vector<Method> methods;
         std::vector<std::vector<double> > interp_coeffs;
         std::vector<std::vector<double> > cubic_slope_coeffs;
 
@@ -64,8 +64,8 @@ namespace Btwxt {
 
         void calculate_weights(GridPoint &, GriddedData &);
 
-        void consolidate_methods(const std::vector<method> &interp_methods,
-                                 const std::vector<method> &extrap_methods);
+        void consolidate_methods(const std::vector<Method> &interp_methods,
+                                 const std::vector<Method> &extrap_methods);
 
         void calculate_interp_coeffs();
     };
