@@ -27,8 +27,8 @@ namespace Btwxt {
     extern void *messageCallbackContextPtr;
 
     void showMessage(
-            const int messageType,
-            const std::string message
+            int messageType,
+            std::string message
     );
 
     void setMessageCallback(

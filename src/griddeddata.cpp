@@ -12,7 +12,7 @@
 namespace Btwxt {
 
 
-    GridAxis::GridAxis() {};
+    GridAxis::GridAxis() = default;;
 
     GridAxis::GridAxis(double *grid, std::size_t size,
                        Method extrapolation_method, Method interpolation_method) {};
@@ -20,10 +20,10 @@ namespace Btwxt {
     GridAxis::GridAxis(std::vector<double> grid_vector,
                        Method extrapolation_method, Method interpolation_method,
                        std::pair<double, double> extrapolation_limits) :
-            grid(grid_vector),
+            grid(std::move(grid_vector)),
             extrapolation_method(extrapolation_method),
             interpolation_method(interpolation_method),
-            extrapolation_limits(extrapolation_limits)
+            extrapolation_limits(std::move(extrapolation_limits))
     {
         check_grid_sorted();
         check_extrap_limits();
@@ -80,7 +80,7 @@ namespace Btwxt {
 
     void GridAxis::check_grid_sorted() {
         bool grid_is_sorted = Btwxt::free_check_sorted(grid);
-        if (grid_is_sorted == false) {
+        if (! grid_is_sorted) {
             showMessage(MSG_ERR, "axis is not sorted.");
         }
     }
@@ -99,7 +99,7 @@ namespace Btwxt {
     }
 
 
-    GriddedData::GriddedData() {};
+    GriddedData::GriddedData() = default;;
 
     GriddedData::GriddedData(
             std::vector<std::vector<double> > grid,
@@ -107,7 +107,7 @@ namespace Btwxt {
     {
         ndims = grid.size();
         num_values = 1;
-        for (auto grid_vector : grid) {
+        for (const auto& grid_vector : grid) {
             num_values *= grid_vector.size();
             dimension_lengths.push_back(grid_vector.size());
         }
@@ -154,7 +154,7 @@ namespace Btwxt {
     void GriddedData::construct_axes(
             const std::vector<std::vector<double> > &grid
     ) {
-        for (auto axis : grid) {
+        for (const auto& axis : grid) {
             GridAxis ga(axis);
             grid_axes.push_back(ga);
         }

@@ -25,7 +25,7 @@ namespace Btwxt {
                  Method extrapolation_method = Method::CONSTANT,
                  Method interpolation_method = Method::LINEAR);
 
-        GridAxis(std::vector<double> grid_vector,
+        explicit GridAxis(std::vector<double> grid_vector,
                  Method extrapolation_method = Method::CONSTANT,
                  Method interpolation_method = Method::LINEAR,
                  std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX}
@@ -42,9 +42,9 @@ namespace Btwxt {
 
         std::size_t get_length();
 
-        void set_interp_method(const Method interpolation_method);
-        void set_extrap_method(const Method extrapolation_method);
-        void set_extrap_limits(const std::pair<double, double> extrap_limits);
+        void set_interp_method(Method interpolation_method);
+        void set_extrap_method(Method extrapolation_method);
+        void set_extrap_limits(std::pair<double, double> extrap_limits);
 
         double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
 
@@ -69,7 +69,7 @@ namespace Btwxt {
                 std::vector<std::vector<double> > values
                 );
 
-        GriddedData(
+        explicit GriddedData(
                 std::vector<GridAxis> grid_axes
         );
 
@@ -105,12 +105,12 @@ namespace Btwxt {
         std::vector<Method> get_extrap_methods();
         // double get_value(std::size_t table_index, std::vector<std::size_t> coords);
 
-        void set_axis_extrap_method(const std::size_t &dim, const Method);
+        void set_axis_extrap_method(const std::size_t &dim, Method);
 
         void set_axis_extrap_limits(const std::size_t &dim,
                                     const std::pair<double, double> &extrap_limits);
 
-        void set_axis_interp_method(const std::size_t &dim, const Method);
+        void set_axis_interp_method(const std::size_t &dim, Method);
 
         Eigen::ArrayXXd value_tables;
         std::size_t num_values;

@@ -23,7 +23,7 @@ namespace Btwxt {
         // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
         RegularGridInterpolator();
 
-        RegularGridInterpolator(GriddedData &the_blob);
+        explicit RegularGridInterpolator(GriddedData &the_blob);
 
         RegularGridInterpolator(
                 const std::vector<std::vector<double> > &grid,
@@ -34,7 +34,7 @@ namespace Btwxt {
         double calculate_value_at_target(std::vector<double> target, std::size_t table_index);
 
         double operator()(std::vector<double> target, std::size_t table_index) {
-            return calculate_value_at_target(target, table_index);
+            return calculate_value_at_target(std::move(target), table_index);
         }
 
         double calculate_value_at_target(std::size_t table_index);
@@ -46,7 +46,7 @@ namespace Btwxt {
         std::vector<double> calculate_all_values_at_target(std::vector<double> target);
 
         std::vector<double> operator()(std::vector<double> target) {
-            return calculate_all_values_at_target(target);
+            return calculate_all_values_at_target(std::move(target));
         }
 
         std::vector<double> calculate_all_values_at_target();

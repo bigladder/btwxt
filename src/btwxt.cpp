@@ -13,7 +13,7 @@
 namespace Btwxt {
 
 
-    RegularGridInterpolator::RegularGridInterpolator() {};
+    RegularGridInterpolator::RegularGridInterpolator() = default;;
 
     RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
             the_blob(the_blob),

@@ -18,12 +18,11 @@ namespace Btwxt {
             const int messageType,
             const std::string message
     ) {
-        if (btwxtCallbackFunction != NULL) {
+        if (btwxtCallbackFunction != nullptr) {
             (*btwxtCallbackFunction)(messageType, message, messageCallbackContextPtr);
         } else if (messageType == Btwxt::MSG_ERR) {
             std::cout << "  ERROR: " << message << std::endl;
             throw std::invalid_argument(stringify("  ERROR: ", message));
-//            exit(EXIT_FAILURE);
         } else {
             if (messageType >= Btwxt::LOG_LEVEL) {
                 std::string prefix("  DEBUG: ");

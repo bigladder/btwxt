@@ -24,7 +24,7 @@ namespace Btwxt {
 
         GridPoint(double *target);
 
-        GridPoint(const std::vector<double> &target_vector);
+        explicit GridPoint(const std::vector<double> &target_vector);
 
         std::vector<double> target;
     };
@@ -52,9 +52,6 @@ namespace Btwxt {
         std::size_t ndims;
         std::vector<std::size_t> point_floor;  // index of grid point <= target
         std::vector<double> weights;
-        // TODO upgrade is_inbounds to a family of const ints to allow both
-        //     1. outside grid but can extrapolate to, and
-        //     2. outside allowed extrapolation zone.
         std::vector<Bounds> is_inbounds;  // for deciding interpolation vs. extrapolation;
         std::vector<Method> methods;
         std::vector<std::vector<double> > interp_coeffs;
