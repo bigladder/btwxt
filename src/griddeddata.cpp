@@ -18,7 +18,7 @@ namespace Btwxt {
                        int extrapolation_method, int interpolation_method) {};
 
     GridAxis::GridAxis(std::vector<double> grid_vector,
-                       int extrapolation_method, int interpolation_method,
+                       method extrapolation_method, method interpolation_method,
                        std::pair<double, double> extrapolation_limits) :
             grid(grid_vector),
             extrapolation_method(extrapolation_method),
@@ -38,14 +38,14 @@ namespace Btwxt {
         return grid.size();
     }
 
-    void GridAxis::set_interp_method(const int im) {
+    void GridAxis::set_interp_method(const method im) {
         interpolation_method = im;
         if (im == CUBIC) {
             spacing_multiplier = calc_spacing_multipliers();
         }
     }
 
-    void GridAxis::set_extrap_method(const int em) {
+    void GridAxis::set_extrap_method(const method em) {
         extrapolation_method = em;
     }
 
@@ -106,7 +106,7 @@ namespace Btwxt {
             std::vector<std::vector<double> > values
     ) :
     // TODO move interp_methods down to GridAxis class
-            interp_methods(grid.size(), LINEAR) {
+    interp_methods(grid.size(), LINEAR) {
         ndims = grid.size();
         num_values = 1;
         for (auto grid_vector : grid) {
@@ -282,12 +282,12 @@ namespace Btwxt {
     }
 
     void GriddedData::set_axis_extrap_method(
-            const std::size_t &dim, const int extrapolation_method) {
+            const std::size_t &dim, const method extrapolation_method) {
         grid_axes[dim].extrapolation_method = extrapolation_method;
     }
 
-    std::vector<int> GriddedData::get_extrap_methods() {
-        std::vector<int> extrap_methods(ndims);
+    std::vector<method> GriddedData::get_extrap_methods() {
+        std::vector<method> extrap_methods(ndims);
         for (std::size_t dim = 0; dim < ndims; dim++) {
             extrap_methods[dim] = grid_axes[dim].extrapolation_method;
         }
@@ -300,10 +300,10 @@ namespace Btwxt {
         grid_axes[dim].set_extrap_limits(extrap_limits);
     }
 
-    std::vector<int> GriddedData::get_interp_methods() { return interp_methods; }
+    std::vector<method> GriddedData::get_interp_methods() { return interp_methods; }
 
     void GriddedData::set_axis_interp_method(
-            const std::size_t &dim, const int interpolation_method) {
+            const std::size_t &dim, const method interpolation_method) {
         interp_methods[dim] = interpolation_method;
         grid_axes[dim].set_interp_method(interpolation_method);
     }

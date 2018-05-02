@@ -16,7 +16,7 @@ namespace Btwxt {
     Hypercube::Hypercube() = default;;
 
     Hypercube::Hypercube(const std::size_t &ndims,
-                         const std::vector<int> &methods) :
+                         const std::vector<method> &methods) :
             ndims(ndims),
             methods(methods),
             vertices(make_hypercube(ndims, methods))
@@ -85,7 +85,7 @@ namespace Btwxt {
     }
 
     std::vector<std::vector<int> > make_hypercube(
-            const std::size_t &ndims, const std::vector<int> &methods) {
+            const std::size_t &ndims, const std::vector<method> &methods) {
         std::vector<std::vector<int> > options(ndims, {0, 1});
 
         for (std::size_t dim = 0; dim < ndims; dim++) {

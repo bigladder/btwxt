@@ -46,7 +46,7 @@ namespace Btwxt {
 
     std::vector<int> WhereInTheGridIsThisPoint::get_is_inbounds() { return is_inbounds; }
 
-    std::vector<int> WhereInTheGridIsThisPoint::get_methods() { return methods; }
+    std::vector<method> WhereInTheGridIsThisPoint::get_methods() { return methods; }
 
     std::vector<std::vector<double> > WhereInTheGridIsThisPoint::get_interp_coeffs() { return interp_coeffs; }
 
@@ -72,8 +72,8 @@ namespace Btwxt {
     }
 
     void WhereInTheGridIsThisPoint::consolidate_methods(
-            const std::vector<int> &interp_methods,
-            const std::vector<int> &extrap_methods)
+            const std::vector<method> &interp_methods,
+            const std::vector<method> &extrap_methods)
     // If out of bounds, extrapolate according to prescription
     // If outside of extrapolation limits, send a warning and perform constant extrapolation.
     {

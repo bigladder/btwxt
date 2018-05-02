@@ -21,14 +21,14 @@ using namespace Btwxt;
 
 TEST(Hypercube, constructor) {
     std::size_t ndims = 3;
-    std::vector<int> methods{LINEAR, CUBIC, LINEAR};
+    std::vector<method> methods{LINEAR, CUBIC, LINEAR};
     Hypercube my_hypercube(ndims, methods);
     EXPECT_EQ(my_hypercube.vertices.size(), 16);
 }
 
 TEST_F(CubicFixture, hypercube_collect_things) {
     std::size_t ndims = 2;
-    std::vector<int> methods{CUBIC, LINEAR};
+    std::vector<method> methods{CUBIC, LINEAR};
     Hypercube my_hypercube(ndims, methods);
     GridPoint current_grid_point(target);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
@@ -48,7 +48,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(1, CUBIC);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
-    std::vector<int> methods = the_locator.get_methods();
+    std::vector<method> methods = the_locator.get_methods();
     Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
     std::vector< std::vector<double> > spacing_mults = my_hypercube.get_spacing_mults(test_gridded_data);
@@ -100,7 +100,7 @@ TEST_F(CubicFixture, hypercube_calculations) {
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(1, CUBIC);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
-    std::vector<int> methods = the_locator.get_methods();
+    std::vector<method> methods = the_locator.get_methods();
     Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
 
@@ -114,7 +114,7 @@ TEST_F(OneDFixture, hypercube_calculations) {
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(0, CUBIC);
     WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
-    std::vector<int> methods = the_locator.get_methods();
+    std::vector<method> methods = the_locator.get_methods();
     Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
 

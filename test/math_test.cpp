@@ -121,7 +121,7 @@ TEST(Btwxt, pow) {
 
 TEST(Hypercube, make_origin_hypercube) {
     std::size_t ndims = 3;
-    std::vector<int> methods = {LINEAR, CUBIC, LINEAR};
+    std::vector<method> methods = {LINEAR, CUBIC, LINEAR};
     std::vector<std::vector<int>> result = make_hypercube(
             ndims, methods);
     EXPECT_EQ(result.size(), 2 * 4 * 2);
