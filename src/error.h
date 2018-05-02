@@ -11,10 +11,9 @@
 
 namespace Btwxt {
 
-    const int MSG_DEBUG = 0;
-    const int MSG_INFO = 1;
-    const int MSG_WARN = 2;
-    const int MSG_ERR = 3;
+    enum msg_level {
+        MSG_DEBUG, MSG_INFO, MSG_WARN, MSG_ERR
+    };
     extern int LOG_LEVEL;
 
     typedef void(*BtwxtCallbackFunction)(
