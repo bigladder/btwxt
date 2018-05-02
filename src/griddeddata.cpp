@@ -103,10 +103,8 @@ namespace Btwxt {
 
     GriddedData::GriddedData(
             std::vector<std::vector<double> > grid,
-            std::vector<std::vector<double> > values
-    ) :
-    // TODO move interp_methods down to GridAxis class
-    interp_methods(grid.size(), Method::LINEAR) {
+            std::vector<std::vector<double> > values)
+    {
         ndims = grid.size();
         num_values = 1;
         for (auto grid_vector : grid) {
@@ -274,7 +272,7 @@ namespace Btwxt {
 
     double GriddedData::get_axis_spacing_mult(const std::size_t &dim,
                                               const std::size_t &flavor, const std::size_t &index) {
-        if (interp_methods[dim] == Method::CUBIC) {
+        if (grid_axes[dim].interpolation_method == Method::CUBIC) {
             return grid_axes[dim].get_spacing_multiplier(flavor, index);
         } else {
             return 0.0;
@@ -300,11 +298,17 @@ namespace Btwxt {
         grid_axes[dim].set_extrap_limits(extrap_limits);
     }
 
-    std::vector<Method> GriddedData::get_interp_methods() { return interp_methods; }
+    std::vector<Method> GriddedData::get_interp_methods()
+    {
+        std::vector<Method> interp_methods(ndims);
+        for (std::size_t dim = 0; dim < ndims; dim++) {
+            interp_methods[dim] = grid_axes[dim].interpolation_method;
+        }
+        return interp_methods;
+    }
 
     void GriddedData::set_axis_interp_method(
             const std::size_t &dim, const Method interpolation_method) {
-        interp_methods[dim] = interpolation_method;
         grid_axes[dim].set_interp_method(interpolation_method);
     }
 

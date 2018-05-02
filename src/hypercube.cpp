@@ -50,8 +50,10 @@ namespace Btwxt {
     std::vector< std::vector<double> > Hypercube::get_spacing_mults(GriddedData &the_blob) {
         std::vector< std::vector<double> > spacing_mults(ndims, std::vector<double>(2, 0));
         for (std::size_t dim=0; dim<ndims; dim++) {
-            spacing_mults[dim][0] = the_blob.get_axis_spacing_mult(dim, 0, point_floor[dim]);
-            spacing_mults[dim][1] = the_blob.get_axis_spacing_mult(dim, 1, point_floor[dim]);
+            if (methods[dim] == Method::CUBIC) {
+                spacing_mults[dim][0] = the_blob.get_axis_spacing_mult(dim, 0, point_floor[dim]);
+                spacing_mults[dim][1] = the_blob.get_axis_spacing_mult(dim, 1, point_floor[dim]);
+            }
         }
         return spacing_mults;
     }

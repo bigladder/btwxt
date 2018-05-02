@@ -128,8 +128,6 @@ namespace Btwxt {
         std::vector<GridAxis> grid_axes;
         std::size_t ndims;
         std::size_t num_tables;
-        // TODO move interp_method down to GridAxis
-        std::vector<Method> interp_methods;
     };
 
 
