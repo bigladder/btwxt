@@ -106,30 +106,6 @@ namespace Btwxt {
         }
     };
 
-    std::vector<std::size_t> RegularGridInterpolator::get_current_floor() {
-        if (cgp_exists) {
-            return the_locator.get_floor();
-        }
-        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
-        return {0};
-    }
-
-    std::vector<double> RegularGridInterpolator::get_current_weights() {
-        if (cgp_exists) {
-            return the_locator.get_weights();
-        }
-        showMessage(MsgLevel::MSG_WARN, "No target has been defined!");
-        return {0};
-    }
-
-    std::vector<std::vector<double> > RegularGridInterpolator::get_interp_coeffs() {
-        return the_locator.get_interp_coeffs();
-    }
-
-    std::vector<std::vector<double> > RegularGridInterpolator::get_cubic_slope_coeffs() {
-        return the_locator.get_cubic_slope_coeffs();
-    }
-
     std::vector<double> RegularGridInterpolator::interpolation_wrapper() {
         std::size_t ndims = get_ndims();
         std::vector<Method> methods = the_locator.get_methods();

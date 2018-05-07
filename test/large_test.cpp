@@ -90,13 +90,6 @@ TEST_F(LargeFixture, construct) {
 
     std::vector<double> returned_target = test_rgi.get_current_grid_point();
     EXPECT_THAT(returned_target, testing::ElementsAre(2.2, 3.3, 1.4, 4.1));
-
-    std::vector<std::size_t> point_floor = test_rgi.get_current_floor();
-    EXPECT_THAT(point_floor, testing::ElementsAre(4, 6, 2, 8));
-
-    std::vector<double> weights = test_rgi.get_current_weights();
-    EXPECT_NEAR(weights[0], 0.4, 0.0001);
-    EXPECT_NEAR(weights[3], 0.2, 0.0001);
 };
 
 TEST_F(LargeFixture, calculate) {

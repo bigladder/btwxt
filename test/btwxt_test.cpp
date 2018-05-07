@@ -34,10 +34,8 @@ TEST_F(TwoDFixture, target_undefined) {
 
     // The test fixture does not instantiate a GridPoint.
     EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, ExpectedOut);
-    EXPECT_THAT(returned_target, testing::ElementsAre(0));
-
-    EXPECT_STDOUT(bad_floor = test_rgi.get_current_floor();, ExpectedOut);
-    EXPECT_THAT(bad_floor, testing::ElementsAre(0));
+    std::vector<double> expected_result{0};
+    EXPECT_EQ(returned_target, expected_result);
 
     EXPECT_STDOUT(bad_result = test_rgi.calculate_value_at_target(0);, ExpectedOut);
     EXPECT_EQ(bad_result, 0);
@@ -46,57 +44,18 @@ TEST_F(TwoDFixture, target_undefined) {
     test_rgi.set_new_grid_point(target);
     std::string EmptyOut = "";
     EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, EmptyOut);
-    EXPECT_THAT(returned_target, testing::ElementsAre(12, 5));
+    expected_result = {12, 5};
+    EXPECT_EQ(returned_target, expected_result);
 
     // Clear the target; see that it reverts to warnings.
     test_rgi.clear_current_grid_point();
     EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, ExpectedOut);
-    EXPECT_THAT(returned_target, testing::ElementsAre(0));
-
-    EXPECT_STDOUT(bad_floor = test_rgi.get_current_floor();, ExpectedOut);
-    EXPECT_THAT(bad_floor, testing::ElementsAre(0));
+    expected_result = {0};
+    EXPECT_EQ(returned_target, expected_result);
 
     EXPECT_STDOUT(bad_result = test_rgi.calculate_value_at_target(0);, ExpectedOut);
     EXPECT_EQ(bad_result, 0);
 }
-
-TEST_F(TwoDFixture, target_basics) {
-    std::size_t ndims = test_rgi.get_ndims();
-    test_rgi.set_new_grid_point(target);
-
-    std::vector<double> returned_target = test_rgi.get_current_grid_point();
-    ASSERT_THAT(returned_target, testing::ElementsAre(12, 5));
-
-    std::vector<std::size_t> point_floor = test_rgi.get_current_floor();
-    ASSERT_THAT(point_floor, testing::ElementsAre(1, 0));
-
-    std::vector<double> weights = test_rgi.get_current_weights();
-    ASSERT_THAT(weights, testing::ElementsAre(0.4, 0.5));
-};
-
-TEST_F(TwoDFixture, oobounds_target) {
-    std::vector<double> oobounds_target = {16, 3};
-    test_rgi.set_new_grid_point(oobounds_target);
-
-    std::vector<double> returned_target = test_rgi.get_current_grid_point();
-    ASSERT_THAT(returned_target, testing::ElementsAre(16, 3));
-
-    std::vector<std::size_t> point_floor = test_rgi.get_current_floor();
-    ASSERT_THAT(point_floor, testing::ElementsAre(1, 0));
-
-    std::vector<double> weights = test_rgi.get_current_weights();
-    ASSERT_THAT(weights, testing::ElementsAre(1.2, -0.5));
-};
-
-TEST_F(TwoDFixture, outlaw_target) {
-    std::pair<double, double> extrap_limits{-2, 17};
-    test_gridded_data.set_axis_extrap_limits(0, extrap_limits);
-    RegularGridInterpolator this_rgi(test_gridded_data);
-    std::vector<double> outlaw_target = {18, 3};
-    std::string ExpectedOut = "  WARNING: The target is outside the extrapolation limits"
-                              " in dimension 0. Will perform constant extrapolation.\n";
-    EXPECT_STDOUT(this_rgi.set_new_grid_point(outlaw_target);, ExpectedOut);
-};
 
 TEST_F(CubicFixture, spacing_multiplier) {
     double result;
@@ -114,25 +73,6 @@ TEST_F(CubicFixture, spacing_multiplier) {
 
     result = test_gridded_data.get_axis_spacing_mult(1, 0, 0);
     EXPECT_DOUBLE_EQ(result, 0.0);
-}
-
-TEST_F(CubicFixture, calculate_interp_coeffs) {
-    test_rgi.set_new_grid_point(target);
-    std::vector<std::vector<double> > interp_coeffs =
-            test_rgi.get_interp_coeffs();
-    std::vector<std::vector<double> > cubic_slope_coeffs =
-            test_rgi.get_cubic_slope_coeffs();
-    double mu = 0.4;
-
-    EXPECT_DOUBLE_EQ(interp_coeffs[0][0], 2 * mu * mu * mu - 3 * mu * mu + 1);
-    EXPECT_DOUBLE_EQ(interp_coeffs[0][1], -2 * mu * mu * mu + 3 * mu * mu);
-    EXPECT_DOUBLE_EQ(interp_coeffs[1][0], 0.75);
-    EXPECT_DOUBLE_EQ(interp_coeffs[1][1], 0.25);
-
-    EXPECT_DOUBLE_EQ(cubic_slope_coeffs[0][0], mu * mu * mu - 2 * mu * mu + mu);
-    EXPECT_DOUBLE_EQ(cubic_slope_coeffs[0][1], mu * mu * mu - mu * mu);
-    EXPECT_DOUBLE_EQ(cubic_slope_coeffs[1][0], 0);
-    EXPECT_DOUBLE_EQ(cubic_slope_coeffs[1][1], 0);
 }
 
 TEST_F(CubicFixture, interpolate) {

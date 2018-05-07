@@ -8,6 +8,7 @@ set(library_sources
   fixtures.hpp
   btwxt_test.cpp
   griddeddata_test.cpp
+  gridpoint_test.cpp
   math_test.cpp
   large_test.cpp
   hypercube_test.cpp

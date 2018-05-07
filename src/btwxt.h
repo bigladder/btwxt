@@ -63,14 +63,6 @@ namespace Btwxt {
 
         std::size_t get_ndims();
 
-        std::vector<std::size_t> get_current_floor();
-
-        std::vector<double> get_current_weights();
-
-        std::vector<std::vector<double> > get_interp_coeffs();
-
-        std::vector<std::vector<double> > get_cubic_slope_coeffs();
-
     private:
         GriddedData the_blob;
         bool cgp_exists;
