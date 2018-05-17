@@ -1,6 +1,6 @@
 ## General-purpose, N-dimensional interpolation library...
 
-Btwxt is an open source [license type] c++ library to perform numerical interpolation on a gridded data set. The general architecture is that it creates a RegularGridInterpolator object from a) a collection of grid axes and b) a collection of values that fit that axis system. That RegularGridInterpolator object can then be queried repeatedly for values that fall inside its grid.
+Btwxt is a free and open source c++ library to perform numerical interpolation on a gridded data set. The general architecture is that it creates a RegularGridInterpolator object from a) a collection of grid axes and b) a collection of values that fit that axis system. That RegularGridInterpolator object can then be queried repeatedly for values that fall inside its grid.
 
 Btwxt supports linear and cubic spline (Catmull-Rom) interpolation methods, and those methods can be specified independently for each axis. The API also allows specification of preferred extrapolation methods (constant or linear)--again independently for each axis--and extrapolation limits.
 
