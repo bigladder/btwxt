@@ -10,7 +10,6 @@
 // btwxt
 #include "griddeddata.h"
 
-
 namespace Btwxt {
 
     enum class Bounds {

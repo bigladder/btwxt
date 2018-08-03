@@ -44,7 +44,6 @@ protected:
     LargeFixture() {
         std::size_t ndims = 4;
         std::vector<std::vector<double> > grid(ndims);
-        std::size_t num_tables = 2;
 
         std::size_t axis_len = 10;  // could easily change to vector of lengths
         std::size_t num_values = 1;
@@ -85,7 +84,6 @@ protected:
 };
 
 TEST_F(LargeFixture, construct) {
-    std::size_t ndims = test_rgi.get_ndims();
     test_rgi.set_new_grid_point(target);
 
     std::vector<double> returned_target = test_rgi.get_current_grid_point();
@@ -177,8 +175,8 @@ TEST_F(LargeFixture, timer) {
 
     // time running the functions straight
     start = std::chrono::high_resolution_clock::now();
-    double r0 = fn0(target[0], target[1], target[2], target[3]);
-    double r1 = fn1(target[0], target[1], target[2], target[3]);
+    //double r0 = fn0(target[0], target[1], target[2], target[3]);
+    //double r1 = fn1(target[0], target[1], target[2], target[3]);
     // Get ending timepoint
     stop = std::chrono::high_resolution_clock::now();
     auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);

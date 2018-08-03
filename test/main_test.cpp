@@ -21,7 +21,7 @@ void my_callback(MsgLevel messageType,
 void my_callback(
         const MsgLevel messageType,
         const std::string message,
-        void *contextPtr
+        void *//contextPtr
 ) {
     if (messageType == MsgLevel::MSG_ERR) {
         std::cout << "  ERROR: " << message << std::endl;
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     Btwxt::LOG_LEVEL = 1;
     ::testing::InitGoogleTest(&argc, argv);
 
-    int *my_context_ptr;
+    int *my_context_ptr = nullptr;
     setMessageCallback(my_callback, my_context_ptr);
 
     return RUN_ALL_TESTS();

@@ -22,7 +22,7 @@ TEST_F(TwoDFixture, construct_from_gridded_data) {
     Btwxt::LOG_LEVEL = 0;
     RegularGridInterpolator rgi_from_grid(test_gridded_data);
     std::size_t ndims = rgi_from_grid.get_ndims();
-    EXPECT_EQ(ndims, 2);
+    EXPECT_EQ(ndims, 2u);
     Btwxt::LOG_LEVEL = 1;
 };
 
@@ -91,7 +91,6 @@ TEST_F(CubicFixture, interpolate) {
 }
 
 TEST_F(TwoDFixture, interpolate) {
-    std::size_t ndims = test_rgi.get_ndims();
     Btwxt::LOG_LEVEL = 0;
     test_rgi.set_new_grid_point(target);
 

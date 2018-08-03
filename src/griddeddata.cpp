@@ -251,7 +251,7 @@ namespace Btwxt {
         for (std::size_t dim = 0; dim < coords.size(); dim++) {
             if (translation[dim] < 0) {
                 translation[dim] = 0;
-            } else if (translation[dim] >= dimension_lengths[dim]) {
+            } else if (translation[dim] >= (int)dimension_lengths[dim]) {
                 translation[dim] = dimension_lengths[dim]-1;
             }
         }
@@ -334,7 +334,7 @@ namespace Btwxt {
         std::size_t index = 0;
         std::size_t panel_size = 1;
         for (std::size_t dim = 0; dim < dimension_lengths.size(); dim++) {
-            if (coords[dim] >= dimension_lengths[dim]) {
+            if (coords[dim] >= (T)dimension_lengths[dim]) {
                 showMessage(MsgLevel::MSG_ERR, stringify("Overran dimension ", dim));
             } else if (coords[dim] < 0) {
                 showMessage(MsgLevel::MSG_ERR, stringify("Negative coordinate in dimension ", dim));

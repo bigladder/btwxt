@@ -23,7 +23,7 @@ TEST(Hypercube, constructor) {
     std::size_t ndims = 3;
     std::vector<Method> methods{Method::LINEAR, Method::CUBIC, Method::LINEAR};
     Hypercube my_hypercube(ndims, methods);
-    EXPECT_EQ(my_hypercube.vertices.size(), 16);
+    EXPECT_EQ(my_hypercube.vertices.size(), 16u);
 }
 
 TEST_F(CubicFixture, hypercube_collect_things) {
@@ -58,7 +58,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
     double my = mus[1];
     double c0x = 2*mx*mx*mx - 3*mx*mx + 1;
     double c0y = 2*my*my*my - 3*my*my + 1;
-    double c1x = -2*mx*mx*mx + 3*mx*mx;
+    //double c1x = -2*mx*mx*mx + 3*mx*mx;
     double c1y = -2*my*my*my + 3*my*my;
     double d0x = mx*mx*mx - 2*mx*mx + mx;
     double d0y = my*my*my - 2*my*my + my;
