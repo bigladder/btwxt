@@ -30,6 +30,11 @@ namespace Btwxt {
                 const std::vector<std::vector<double> > &values
         );
 
+        // Add value table to GriddedData
+        std::size_t add_value_table(std::vector<double>& value_vector) {
+            return the_blob.add_value_table(value_vector);
+        }
+
         // GridPoint gets instantiated inside calculate_value_at_target
         double calculate_value_at_target(std::vector<double> target, std::size_t table_index);
 

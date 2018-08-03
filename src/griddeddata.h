@@ -21,10 +21,6 @@ namespace Btwxt {
     public:
         GridAxis();
 
-        GridAxis(double *grid, std::size_t size,
-                 Method extrapolation_method = Method::CONSTANT,
-                 Method interpolation_method = Method::LINEAR);
-
         explicit GridAxis(std::vector<double> grid_vector,
                  Method extrapolation_method = Method::CONSTANT,
                  Method interpolation_method = Method::LINEAR,
@@ -77,7 +73,7 @@ namespace Btwxt {
 
         std::size_t get_num_tables();
 
-        void add_value_table(std::vector<double>& value_vector);
+        std::size_t add_value_table(std::vector<double>& value_vector);
 
         std::vector<double> get_grid_vector(const std::size_t &dim);
 

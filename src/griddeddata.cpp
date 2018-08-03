@@ -14,9 +14,6 @@ namespace Btwxt {
 
     GridAxis::GridAxis() = default;;
 
-    GridAxis::GridAxis(double *grid, std::size_t size,
-                       Method extrapolation_method, Method interpolation_method) {};
-
     GridAxis::GridAxis(std::vector<double> grid_vector,
                        Method extrapolation_method, Method interpolation_method,
                        std::pair<double, double> extrapolation_limits) :
@@ -162,7 +159,7 @@ namespace Btwxt {
         showMessage(MsgLevel::MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
     };
 
-    void GriddedData::add_value_table(std::vector<double> &value_vector) {
+    std::size_t GriddedData::add_value_table(std::vector<double> &value_vector) {
         if (num_tables >= 1) {
             value_tables.conservativeResize(value_tables.rows()+1, Eigen::NoChange);
             value_tables.row(num_tables) = fill_value_row(value_vector, num_values);
@@ -171,6 +168,7 @@ namespace Btwxt {
             value_tables = construct_values(value_vector);
             num_tables = 1;
         }
+        return num_tables - 1;
     }
 
     Eigen::ArrayXXd GriddedData::construct_values(

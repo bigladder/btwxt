@@ -22,8 +22,6 @@ namespace Btwxt {
         // target is an array of doubles specifying the point we are interpolating to.
         GridPoint();
 
-        GridPoint(double *target);
-
         explicit GridPoint(const std::vector<double> &target_vector);
 
         std::vector<double> target;

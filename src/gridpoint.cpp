@@ -14,8 +14,6 @@ namespace Btwxt {
 
     GridPoint::GridPoint() {};
 
-    GridPoint::GridPoint(double *target) {};
-
     GridPoint::GridPoint(const std::vector<double> &target_vector) :
             target(target_vector) {
         showMessage(MsgLevel::MSG_DEBUG, "GridPoint object constructed from vector!");
