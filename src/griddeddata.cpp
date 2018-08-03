@@ -122,8 +122,8 @@ namespace Btwxt {
             std::vector<GridAxis> grid_axes,
             std::vector<std::vector<double> > values
     ) :
-            ndims(grid_axes.size()),
-            grid_axes(grid_axes)
+            grid_axes(grid_axes),
+            ndims(grid_axes.size())
     {
         num_values = 1;
         for (auto grid_vector : grid_axes) {
@@ -139,8 +139,8 @@ namespace Btwxt {
     GriddedData::GriddedData(
             std::vector<GridAxis> grid_axes
     ) :
-            ndims(grid_axes.size()),
-            grid_axes(grid_axes)
+            grid_axes(grid_axes),
+            ndims(grid_axes.size())
     {
         num_values = 1;
         for (auto grid_vector : grid_axes) {

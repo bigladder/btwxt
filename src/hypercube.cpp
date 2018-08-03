@@ -18,8 +18,8 @@ namespace Btwxt {
     Hypercube::Hypercube(const std::size_t &ndims,
                          const std::vector<Method> &methods) :
             ndims(ndims),
-            methods(methods),
-            vertices(make_hypercube(ndims, methods))
+            vertices(make_hypercube(ndims, methods)),
+            methods(methods)
     {
         sivor = { {-1,0},{-1,1},{1,0},{1,1} };
     };

@@ -17,8 +17,9 @@ namespace Btwxt {
 
     RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
             the_blob(the_blob),
-            current_grid_point(),  // instantiates an empty GridPoint
-            cgp_exists(false) {
+            cgp_exists(false),
+            current_grid_point()  // instantiates an empty GridPoint
+    {
         std::size_t ndims{get_ndims()};
         hypercube = Hypercube(ndims, the_blob.get_interp_methods());
         showMessage(MsgLevel::MSG_DEBUG, "RGI constructed from GriddedData!");
@@ -29,8 +30,9 @@ namespace Btwxt {
             const std::vector<std::vector<double> > &values
     ) :
             the_blob(grid, values),
-            current_grid_point(),  // instantiates an empty GridPoint
-            cgp_exists(false) {
+            cgp_exists(false),
+            current_grid_point()  // instantiates an empty GridPoint
+    {
         std::size_t ndims{get_ndims()};
         hypercube = Hypercube(ndims, the_blob.get_interp_methods());
         showMessage(MsgLevel::MSG_DEBUG, "RGI constructed from vectors!");
