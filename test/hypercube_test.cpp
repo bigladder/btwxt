@@ -31,7 +31,7 @@ TEST_F(CubicFixture, hypercube_collect_things) {
     std::vector<Method> methods{Method::CUBIC, Method::LINEAR};
     Hypercube my_hypercube(ndims, methods);
     GridPoint current_grid_point(target);
-    WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
+    PointLocator the_locator(current_grid_point, test_gridded_data);
 
     my_hypercube.collect_things(the_locator);
 
@@ -47,7 +47,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
     std::size_t ndims = 2;
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-    WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
+    PointLocator the_locator(current_grid_point, test_gridded_data);
     std::vector<Method> methods = the_locator.get_methods();
     Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
@@ -70,7 +70,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
     double s0y = 2.0/4;
 
     std::vector<int> this_vertex = {0, 0};
-    double weight = my_hypercube.weigh_one_vertex(this_vertex, spacing_mults);
+    double weight = my_hypercube.get_vertex_weight(this_vertex, spacing_mults);
     double expected_result = c0x*c0y;
     expected_result += -1*c0x*d1y*s1y;
     expected_result += -1*d1x*s1x*c0y;
@@ -78,19 +78,19 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
     this_vertex = {-1, 1};
-    weight = my_hypercube.weigh_one_vertex(this_vertex, spacing_mults);
+    weight = my_hypercube.get_vertex_weight(this_vertex, spacing_mults);
     expected_result = -1*d0x*s0x*c1y;
     expected_result += -1*d0x*s0x*d0y*s0y;
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
     this_vertex = {2, 0};
-    weight = my_hypercube.weigh_one_vertex(this_vertex, spacing_mults);
+    weight = my_hypercube.get_vertex_weight(this_vertex, spacing_mults);
     expected_result = d1x*s1x*c0y;
     expected_result += -1*d1x*s1x*d1y*s1y;
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
     this_vertex = {2, 2};
-    weight = my_hypercube.weigh_one_vertex(this_vertex, spacing_mults);
+    weight = my_hypercube.get_vertex_weight(this_vertex, spacing_mults);
     expected_result = d1x*s1x*d1y*s1y;
     EXPECT_DOUBLE_EQ(weight, expected_result);
 }
@@ -99,7 +99,7 @@ TEST_F(CubicFixture, hypercube_calculations) {
     std::size_t ndims = 2;
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-    WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
+    PointLocator the_locator(current_grid_point, test_gridded_data);
     std::vector<Method> methods = the_locator.get_methods();
     Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);
@@ -113,7 +113,7 @@ TEST_F(OneDFixture, hypercube_calculations) {
     std::size_t ndims = 1;
     GridPoint current_grid_point(target);
     test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-    WhereInTheGridIsThisPoint the_locator(current_grid_point, test_gridded_data);
+    PointLocator the_locator(current_grid_point, test_gridded_data);
     std::vector<Method> methods = the_locator.get_methods();
     Hypercube my_hypercube(ndims, methods);
     my_hypercube.collect_things(the_locator);

@@ -146,8 +146,8 @@ TEST(Hypercube, cart_product) {
     EXPECT_THAT(result[3 * 2 * 4 - 1], testing::ElementsAre(3, 5, 9));
 }
 
-TEST(FreeFunctions, cart_product_m) {
+TEST(FreeFunctions, sum_weighting_terms) {
     std::vector< std::vector<double> > v = { {2.0, 3.0}, {5.0, 7.0} };
-    std::vector<double> result = cart_product_m(v);
-    EXPECT_THAT(result, testing::ElementsAre(10.0, 14.0, 15.0, 21.0));
+    double result = sum_weighting_terms(v);
+    EXPECT_DOUBLE_EQ(result, 10.0 + 14.0 + 15.0 + 21.0);
 }

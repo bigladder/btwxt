@@ -25,7 +25,7 @@ TEST(GridPoint, constructor) {
 
 TEST_F(TwoDFixture, locator_basics) {
     GridPoint test_target(target);
-    WhereInTheGridIsThisPoint test_locator(test_target, test_gridded_data);
+    PointLocator test_locator(test_target, test_gridded_data);
 
     std::vector<std::size_t> point_floor = test_locator.get_floor();
     std::vector<std::size_t> expected_floor{1, 0};
@@ -39,7 +39,7 @@ TEST_F(TwoDFixture, locator_basics) {
 TEST_F(TwoDFixture, locator_oobounds) {
     std::vector<double> oobounds_vector = {16, 3};
     GridPoint oobounds_target(oobounds_vector);
-    WhereInTheGridIsThisPoint test_locator(oobounds_target, test_gridded_data);
+    PointLocator test_locator(oobounds_target, test_gridded_data);
 
     std::vector<std::size_t> point_floor = test_locator.get_floor();
     std::vector<std::size_t> expected_floor{1, 0};
@@ -50,6 +50,7 @@ TEST_F(TwoDFixture, locator_oobounds) {
     EXPECT_EQ(weights, expected_weights);
 };
 
+/*
 TEST_F(TwoDFixture, locator_outlaw) {
     std::pair<double, double> extrap_limits{-2, 17};
     test_gridded_data.set_axis_extrap_limits(0, extrap_limits);
@@ -57,13 +58,14 @@ TEST_F(TwoDFixture, locator_outlaw) {
     GridPoint outlaw_target(outlaw_vector);
     std::string ExpectedOut = "  WARNING: The target is outside the extrapolation limits"
                               " in dimension 0. Will perform constant extrapolation.\n";
-    EXPECT_STDOUT(WhereInTheGridIsThisPoint test_locator(outlaw_target, test_gridded_data);,
+    EXPECT_STDOUT(PointLocator test_locator(outlaw_target, test_gridded_data);,
                   ExpectedOut);
 };
+*/
 
 TEST_F(TwoDFixture, locator_consolidate_methods) {
     GridPoint test_target(target);
-    WhereInTheGridIsThisPoint test_locator(test_target, test_gridded_data);
+    PointLocator test_locator(test_target, test_gridded_data);
 
     std::vector<Method> methods = test_locator.get_methods();
     std::vector<Method> expected_methods{Method::LINEAR, Method::LINEAR};
@@ -71,7 +73,7 @@ TEST_F(TwoDFixture, locator_consolidate_methods) {
 
     std::vector<double> oobounds_vector = {12,3};
     GridPoint oobounds_target(oobounds_vector);
-    test_locator = WhereInTheGridIsThisPoint(oobounds_target, test_gridded_data);
+    test_locator = PointLocator(oobounds_target, test_gridded_data);
     methods = test_locator.get_methods();
     expected_methods = {Method::LINEAR, Method::CONSTANT};
     EXPECT_EQ(methods, expected_methods);
@@ -79,7 +81,7 @@ TEST_F(TwoDFixture, locator_consolidate_methods) {
 
 TEST_F(TwoDFixture, locator_interp_coeffs) {
     GridPoint test_target(target);
-    WhereInTheGridIsThisPoint test_locator(test_target, test_gridded_data);
+    PointLocator test_locator(test_target, test_gridded_data);
 
     std::vector<std::vector<double> > interp_coeffs = test_locator.get_interp_coeffs();
     std::vector<std::vector<double> > cubic_slope_coeffs = test_locator.get_cubic_slope_coeffs();
@@ -94,7 +96,7 @@ TEST_F(TwoDFixture, locator_interp_coeffs) {
 
 TEST_F(CubicFixture, locator_interp_coeffs) {
     GridPoint current_grid_point(target);
-    WhereInTheGridIsThisPoint test_locator(current_grid_point, test_gridded_data);
+    PointLocator test_locator(current_grid_point, test_gridded_data);
 
     std::vector<std::vector<double> > interp_coeffs = test_locator.get_interp_coeffs();
     std::vector<std::vector<double> > cubic_slope_coeffs = test_locator.get_cubic_slope_coeffs();
