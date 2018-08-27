@@ -11,27 +11,9 @@
 
 namespace Btwxt {
 
-    enum class MsgLevel { MSG_DEBUG, MSG_INFO, MSG_WARN, MSG_ERR };
-    extern int LOG_LEVEL;
-
-    typedef void(*BtwxtCallbackFunction)(
-            const MsgLevel messageType,
-            const std::string message,
-            void *contextPtr
-    );
-
-
-    extern BtwxtCallbackFunction btwxtCallbackFunction;
-    extern void *messageCallbackContextPtr;
-
     void showMessage(
             MsgLevel messageType,
             std::string message
-    );
-
-    void setMessageCallback(
-            BtwxtCallbackFunction callbackFunction,
-            void *contextPtr
     );
 
     struct expand_type {
