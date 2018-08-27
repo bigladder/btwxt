@@ -31,16 +31,16 @@ namespace Btwxt {
         cubic_slope_coeffs = the_locator.get_cubic_slope_coeffs();
     }
 
-    Eigen::ArrayXd Hypercube::all_the_calculations(GriddedData &the_blob) {
+    Eigen::ArrayXd Hypercube::all_the_calculations(GriddedData &grid_data) {
 
-        Eigen::ArrayXd result = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
-        Eigen::ArrayXd values = Eigen::ArrayXd::Zero(the_blob.get_num_tables());
+        Eigen::ArrayXd result = Eigen::ArrayXd::Zero(grid_data.get_num_tables());
+        Eigen::ArrayXd values = Eigen::ArrayXd::Zero(grid_data.get_num_tables());
         double weight;
 
-        std::vector< std::vector<double> > spacing_mults = get_spacing_mults(the_blob);
+        std::vector< std::vector<double> > spacing_mults = get_spacing_mults(grid_data);
         for (const auto& v: vertices) {
             weight = get_vertex_weight(v, spacing_mults);
-            values = the_blob.get_column_near_safe(point_floor, v);
+            values = grid_data.get_column_near_safe(point_floor, v);
 //            showMessage(MSG_INFO, stringify("vertex total = \n", values*weight));
             result += values * weight;
         }
@@ -48,12 +48,12 @@ namespace Btwxt {
         return result;
     }
 
-    std::vector< std::vector<double> > Hypercube::get_spacing_mults(GriddedData &the_blob) {
+    std::vector< std::vector<double> > Hypercube::get_spacing_mults(GriddedData &grid_data) {
         std::vector< std::vector<double> > spacing_mults(ndims, std::vector<double>(2, 0));
         for (std::size_t dim=0; dim<ndims; dim++) {
             if (methods[dim] == Method::CUBIC) {
-                spacing_mults[dim][0] = the_blob.get_axis_spacing_mult(dim, 0, point_floor[dim]);
-                spacing_mults[dim][1] = the_blob.get_axis_spacing_mult(dim, 1, point_floor[dim]);
+                spacing_mults[dim][0] = grid_data.get_axis_spacing_mult(dim, 0, point_floor[dim]);
+                spacing_mults[dim][1] = grid_data.get_axis_spacing_mult(dim, 1, point_floor[dim]);
             }
         }
         return spacing_mults;

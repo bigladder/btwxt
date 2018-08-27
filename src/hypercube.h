@@ -25,9 +25,9 @@ namespace Btwxt {
         std::size_t ndims;
         std::vector<std::vector<int> > vertices;
 
-        Eigen::ArrayXd all_the_calculations(GriddedData &the_blob);
+        Eigen::ArrayXd all_the_calculations(GriddedData &grid_data);
 
-        std::vector< std::vector<double> > get_spacing_mults(GriddedData &the_blob);
+        std::vector< std::vector<double> > get_spacing_mults(GriddedData &grid_data);
 
         double get_vertex_weight(const std::vector<int> &v,
                 const std::vector< std::vector<double> >& spacing_mults);

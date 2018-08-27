@@ -15,13 +15,13 @@ namespace Btwxt {
 
     RegularGridInterpolator::RegularGridInterpolator() = default;
 
-    RegularGridInterpolator::RegularGridInterpolator(GriddedData &the_blob) :
-            grid_data(the_blob),
+    RegularGridInterpolator::RegularGridInterpolator(GriddedData &grid_data) :
+            grid_data(grid_data),
             cgp_exists(false),
-            current_grid_point()  // instantiates an empty GridPoint
+            current_grid_point(get_ndims())  // instantiates an empty GridPoint
     {
         std::size_t ndims{get_ndims()};
-        hypercube = Hypercube(ndims, the_blob.get_interp_methods());
+        hypercube = Hypercube(ndims, grid_data.get_interp_methods());
         showMessage(MsgLevel::MSG_DEBUG, "RGI constructed from GriddedData!");
     }
 

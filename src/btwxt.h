@@ -23,7 +23,7 @@ namespace Btwxt {
         // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
         RegularGridInterpolator();
 
-        explicit RegularGridInterpolator(GriddedData &the_blob);
+        explicit RegularGridInterpolator(GriddedData &grid_data);
 
         RegularGridInterpolator(
                 const std::vector<std::vector<double> > &grid,
