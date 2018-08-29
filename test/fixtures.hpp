@@ -39,6 +39,7 @@ protected:
 
         target = {2.5};
         test_gridded_data = GriddedData(grid, values);
+        test_gridded_data.set_hypercube();
         test_rgi = RegularGridInterpolator(test_gridded_data);
     }
 };
@@ -63,9 +64,11 @@ protected:
         target = {12, 5};
         test_gridded_data = GriddedData(grid, values);
         test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
+        test_gridded_data.set_hypercube();
         test_rgi = RegularGridInterpolator(test_gridded_data);
     }
 };
+
 
 class CubicFixture : public testing::Test {
 protected:
@@ -92,8 +95,41 @@ protected:
         test_gridded_data = GriddedData(grid, values);
         test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
 //        test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
+        test_gridded_data.set_hypercube();
         test_rgi = RegularGridInterpolator(test_gridded_data);
     }
 };
+
+class ThreeDFixture : public testing::Test {
+protected:
+  RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
+  std::vector< std::vector<double> > values;
+  std::vector<double> target;
+
+  ThreeDFixture() {
+    std::vector<std::vector<double> > grid = {{-15, 0.2, 105 },
+                                              {0, 10, 15},
+                                              {4, 6}};
+    //  4   6
+    values = {{6,  3,  // 0
+               2,  8,  // 10
+               4,  2,  // 15
+               3,  6,
+               13, 2,
+               0, 15,
+               3,  6,
+               13, 2,
+               0, 15}};
+    target = {26.9, 12, 5};
+    test_gridded_data = GriddedData(grid, values);
+    test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
+    test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
+    test_gridded_data.set_axis_interp_method(2, Method::LINEAR);
+    test_gridded_data.set_hypercube();
+    test_rgi = RegularGridInterpolator(test_gridded_data);
+  }
+};
+
 
 #endif /* TEST_FIXTURE_HPP_ */

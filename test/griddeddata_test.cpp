@@ -69,39 +69,27 @@ TEST_F(TwoDFixture, get_values) {
 };
 
 TEST_F(TwoDFixture, get_column) {
-    std::vector<int> coords = {0, 1};
-    Eigen::ArrayXd returned_col = test_gridded_data.get_column(coords);
-    std::vector<double> returned_vec = eigen_to_vector(returned_col);
+    std::vector<std::size_t> coords = {0, 1};
+    std::vector<double> returned_vec = test_gridded_data.get_column(coords);
     EXPECT_THAT(returned_vec, testing::ElementsAre(3, 6));
-
-    coords = {0, -1};
-    EXPECT_THROW(returned_col = test_gridded_data.get_column(coords);,
-                 std::invalid_argument);
-    coords = {0, 4};
-    EXPECT_THROW(returned_col = test_gridded_data.get_column(coords);,
-                 std::invalid_argument);
 }
 
 TEST_F(TwoDFixture, get_column_near_safe) {
     std::vector<std::size_t> coords{0, 1};
-    std::vector<int> translation{1, 0};  // {1, 1} stays as is
-    Eigen::ArrayXd returned_col = test_gridded_data.get_column_near_safe(coords, translation);
+    std::vector<short> translation{1, 0};  // {1, 1} stays as is
     std::vector<double> expected_vec = test_gridded_data.get_values({1, 1});
-    EXPECT_EQ(eigen_to_vector(returned_col), expected_vec);
+    EXPECT_EQ(test_gridded_data.get_column_near_safe(coords, translation), expected_vec);
 
     translation = {1, 1};  // {1, 2} -> {1, 1}
-    returned_col = test_gridded_data.get_column_near_safe(coords, translation);
-    EXPECT_EQ(eigen_to_vector(returned_col), expected_vec);
+    EXPECT_EQ(test_gridded_data.get_column_near_safe(coords, translation), expected_vec);
 
     translation = {-1, 0};  // {-1, 1} -> {0, 1}
-    returned_col = test_gridded_data.get_column_near_safe(coords, translation);
     expected_vec = test_gridded_data.get_values({0, 1});
-    EXPECT_EQ(eigen_to_vector(returned_col), expected_vec);
+    EXPECT_EQ(test_gridded_data.get_column_near_safe(coords, translation), expected_vec);
 
     translation = {3, -2};  // {3, -1} -> {2, 0}
-    returned_col = test_gridded_data.get_column_near_safe(coords, translation);
     expected_vec = test_gridded_data.get_values({2, 0});
-    EXPECT_EQ(eigen_to_vector(returned_col), expected_vec);
+    EXPECT_EQ(test_gridded_data.get_column_near_safe(coords, translation), expected_vec);
 }
 
 TEST(GridAxis, sorting) {

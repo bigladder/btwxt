@@ -111,8 +111,7 @@ namespace Btwxt {
         num_tables = values.size();
 
         construct_axes(grid);
-        value_tables = construct_values(values);
-        showMessage(MsgLevel::MSG_DEBUG, "GriddedData constructed from vectors!");
+        value_tables = values;
     }
 
     GriddedData::GriddedData(
@@ -129,8 +128,7 @@ namespace Btwxt {
         }
         num_tables = values.size();
 
-        value_tables = construct_values(values);
-        showMessage(MsgLevel::MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
+        value_tables = values;
     }
 
     GriddedData::GriddedData(
@@ -145,7 +143,6 @@ namespace Btwxt {
             dimension_lengths.push_back(grid_vector.get_length());
         }
         num_tables = 0;
-        showMessage(MsgLevel::MSG_DEBUG, "GriddedData constructed from GridAxis vector!");
     }
 
     void GriddedData::construct_axes(
@@ -155,110 +152,68 @@ namespace Btwxt {
             GridAxis ga(axis);
             grid_axes.push_back(ga);
         }
-
-        showMessage(MsgLevel::MSG_DEBUG, stringify(ndims, "-D GridAxis object constructed"));
     }
 
     std::size_t GriddedData::add_value_table(std::vector<double> &value_vector) {
-        if (num_tables >= 1) {
-            value_tables.conservativeResize(value_tables.rows()+1, Eigen::NoChange);
-            value_tables.row(num_tables) = fill_value_row(value_vector, num_values);
-            num_tables ++;
-        } else {
-            value_tables = construct_values(value_vector);
-            num_tables = 1;
-        }
-        return num_tables - 1;
-    }
-
-    Eigen::ArrayXXd GriddedData::construct_values(
-            std::vector<double> &value_vector
-    ) {
-        Eigen::ArrayXXd vtables(1, num_values);
-        showMessage(MsgLevel::MSG_DEBUG, stringify("Created blank Eigen Array with 1 table, each with ", vtables.cols(), " values."));
-        showMessage(MsgLevel::MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
-
-        vtables.row(0) = fill_value_row(value_vector, num_values);
-        showMessage(MsgLevel::MSG_DEBUG, stringify("value tables: \n", vtables));
-        return vtables;
-    }
-
-    Eigen::ArrayXXd GriddedData::construct_values(
-            const std::vector<std::vector<double> > &values
-    ) {
-        Eigen::ArrayXXd vtables(num_tables, num_values);
-        showMessage(MsgLevel::MSG_DEBUG, stringify("Created blank Eigen Array with ",
-                                         vtables.rows(), " tables, each with ", vtables.cols(), " values."));
-        showMessage(MsgLevel::MSG_DEBUG, stringify("We expect ", num_values, " values in each table."));
-        std::size_t i = 0;
-        for (auto value_vector : values) {
-            vtables.row(i) = fill_value_row(value_vector, num_values);
-            i++;
-        }
-        showMessage(MsgLevel::MSG_DEBUG, stringify("value tables: \n", vtables));
-        return vtables;
-    }
-
-    Eigen::Map<Eigen::ArrayXd> GriddedData::fill_value_row(
-            std::vector<double> &value_vector,
-            const std::size_t& num_values)
-    {
         if (value_vector.size() != num_values) {
             showMessage(MsgLevel::MSG_ERR, stringify(
-                    "Input value table does not match the grid size: ",
-                    value_vector.size(), " != ", num_values));
+                "Input value table does not match the grid size: ",
+                value_vector.size(), " != ", num_values));
         }
-        Eigen::Map<Eigen::ArrayXd> value_row(&value_vector[0], num_values);
-        return value_row;
+        value_tables.push_back(value_vector);
+        num_tables ++;
+        return num_tables - 1;
     }
 
     std::size_t GriddedData::get_ndims() { return grid_axes.size(); }
 
     std::size_t GriddedData::get_num_tables() { return num_tables; }
 
+    std::size_t GriddedData::locate_coords(const std::vector<std::size_t> &coords) {
+        std::size_t index = 0;
+        std::size_t panel_size = 1;
+        std::size_t ndims = dimension_lengths.size();
+        for (std::size_t dim = ndims - 1; /* dim >= 0 */ dim < ndims; --dim) {
+            if (coords[dim] >= dimension_lengths[dim]) {
+                showMessage(MsgLevel::MSG_ERR, stringify("Overran dimension ", dim));
+            }
+            index += coords[dim] * panel_size;
+            panel_size *= dimension_lengths[dim];
+        }
+        return index;
+    }
+
+    std::vector<double> GriddedData::get_column(const std::vector<std::size_t> &coords) {
+        std::size_t index = locate_coords(coords);
+        std::vector<double> result(num_tables);
+        for (std::size_t i=0; i < num_tables; ++i) {
+            result[i] = value_tables[i][index];
+        }
+        return result;
+    }
+
     std::vector<double> GriddedData::get_values(const std::vector<std::size_t> &coords) {
-        Eigen::ArrayXd val_col = get_column(coords);
-        return eigen_to_vector(val_col);
+        return  get_column(coords);
     }
 
-    template <typename T>
-    Eigen::ArrayXd GriddedData::get_column(
-            const std::vector<T> &coords) {
-        std::size_t index = locate_coords(coords, dimension_lengths);
-        return value_tables.col(index);
-    }
-
-    Eigen::ArrayXd GriddedData::get_column_near(
-            std::vector<std::size_t> coords, const std::size_t &dim, const int &i) {
-        coords[dim] += i;
-        return get_column(coords);
-    }
-
-    Eigen::ArrayXd GriddedData::get_column_near(
-            std::vector<std::size_t> coords, const std::vector<int> &translation) {
-        // coords.size() must equal translation.size()
-        std::transform(coords.begin(), coords.end(),
-                       translation.begin(), coords.begin(),
-                       std::plus<int>());
-        return get_column(coords);
-    }
-
-    Eigen::ArrayXd GriddedData::get_column_near_safe(
-            const std::vector<std::size_t>& coords, std::vector<int> translation) {
-        std::transform(coords.begin(), coords.end(),
-                       translation.begin(), translation.begin(),
-                       std::plus<int>());
+    std::vector<double> GriddedData::get_column_near_safe(
+            const std::vector<std::size_t>& coords, const std::vector<short>& translation) {
+        std::vector<std::size_t> result(translation.size());
         for (std::size_t dim = 0; dim < coords.size(); dim++) {
-            if (translation[dim] < 0) {
-                translation[dim] = 0;
-            } else if (translation[dim] >= (int)dimension_lengths[dim]) {
-                translation[dim] = dimension_lengths[dim]-1;
+            int res = coords[dim] + translation[dim];
+            if (res < 0) {
+                result[dim] = 0;
+            } else if (res >= (int)dimension_lengths[dim]) {
+                result[dim] = dimension_lengths[dim]-1;
+            } else {
+                result[dim] = res;
             }
         }
-        return get_column(translation);
+        return get_column(result);
     }
 
-    const std::vector<double> &GriddedData::get_grid_vector(const std::size_t &dim)
+
+const std::vector<double> &GriddedData::get_grid_vector(const std::size_t &dim)
     {
         return grid_axes[dim].grid;
     }
@@ -310,6 +265,35 @@ namespace Btwxt {
         grid_axes[dim].set_interp_method(interpolation_method);
     }
 
+    void GriddedData::set_hypercube() {
+        set_hypercube(get_interp_methods());
+    }
+
+    void GriddedData::set_hypercube(std::vector<Method> methods) {
+        if (methods.size() != ndims) {
+            showMessage(MsgLevel::MSG_ERR, stringify("Error setting hypercube. Methods vector does not have the correct number of dimensions."));
+        }
+
+        std::vector<std::vector<int> > options(ndims, {0, 1});
+
+        for (std::size_t dim = 0; dim < ndims; dim++) {
+            if (methods[dim] == Method::CUBIC) {
+                options[dim] = {-1, 0, 1, 2};
+            }
+        }
+        hypercube = {{}};
+        for (const auto &list : options) {
+            std::vector<std::vector<short> > r;
+            for (const auto &x : hypercube) {
+                for (const auto item : list) {
+                    r.push_back(x);
+                    r.back().push_back(item);
+                }
+            }
+            hypercube = std::move(r);
+        }
+    }
+
 // free functions
     bool free_check_sorted(std::vector<double> my_vec) {
         // ensures that the grid vector is strictly ascending
@@ -324,35 +308,6 @@ namespace Btwxt {
             ++first;
         }
         return true;
-    }
-
-    template <typename T>
-    std::size_t locate_coords(
-            const std::vector<T> &coords,
-            const std::vector<std::size_t> &dimension_lengths
-    ) {
-        std::size_t index = 0;
-        std::size_t panel_size = 1;
-        std::size_t ndims = dimension_lengths.size();
-        for (std::size_t dim = ndims - 1; /* dim >= 0 */ dim < ndims; --dim) {
-            if (coords[dim] >= (T)dimension_lengths[dim]) {
-                showMessage(MsgLevel::MSG_ERR, stringify("Overran dimension ", dim));
-            } else if (coords[dim] < 0) {
-                showMessage(MsgLevel::MSG_ERR, stringify("Negative coordinate in dimension ", dim));
-            } else {
-                index += coords[dim] * panel_size;
-                panel_size *= dimension_lengths[dim];
-            }
-        }
-        // showMessage(MSG_DEBUG, stringify("The unrolled index is ", index));
-        return index;
-    }
-
-    std::vector<double> eigen_to_vector(Eigen::ArrayXd &change_this) {
-        std::size_t length = change_this.rows();
-        double *c_array = change_this.data();
-        std::vector<double> to_this(c_array, c_array + length);
-        return to_this;
     }
 
 }

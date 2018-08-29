@@ -7,16 +7,13 @@
 #include <vector>
 #include <cfloat>
 
-#include "Eigen/Dense"
-
-
 namespace Btwxt {
 
     enum class Method {
-        CONSTANT, LINEAR, CUBIC
+        CONSTANT, LINEAR, CUBIC, UNDEF
     };
 
-    class GridAxis {
+class GridAxis {
         // A single input dimension of the performance space
     public:
         GridAxis();
@@ -27,7 +24,7 @@ namespace Btwxt {
                  std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX}
         );
 
-        const std::vector<double> grid;
+        std::vector<double> grid;
         std::vector<std::vector<double> > spacing_multiplier;
         Method extrapolation_method;
         Method interpolation_method;
@@ -48,6 +45,7 @@ namespace Btwxt {
         std::vector<std::vector<double> > calc_spacing_multipliers();
         void check_grid_sorted();
         void check_extrap_limits();
+
     };
 
 
@@ -81,17 +79,12 @@ namespace Btwxt {
 
         std::vector<double> get_values(const std::vector<std::size_t> &coords);
 
-        template <typename T>
-        Eigen::ArrayXd get_column(const std::vector<T> &coords);
+        std::size_t locate_coords(const std::vector<std::size_t> &coords);
 
-        Eigen::ArrayXd get_column_near(
-                std::vector<std::size_t> coords, const std::size_t &dim, const int &i);
+        std::vector<double> get_column(const std::vector<std::size_t> &coords);
 
-        Eigen::ArrayXd get_column_near(
-                std::vector<std::size_t> coords, const std::vector<int> &translation);
-
-        Eigen::ArrayXd get_column_near_safe(
-                const std::vector<std::size_t>& coords, std::vector<int> translation);
+        std::vector<double> get_column_near_safe(
+                    const std::vector<std::size_t>& coords, const std::vector<short>& translation);
 
         double get_axis_spacing_mult(const std::size_t &dim,
                                      const std::size_t &flavor, const std::size_t &index);
@@ -108,35 +101,43 @@ namespace Btwxt {
 
         void set_axis_interp_method(const std::size_t &dim, Method);
 
-        Eigen::ArrayXXd value_tables;
+        void set_hypercube();
+        void set_hypercube(std::vector<Method> methods);
+
+        std::vector<std::vector<double> > value_tables;
         std::size_t num_values;
         std::vector<std::size_t> dimension_lengths;
+        std::vector<std::vector<short> > hypercube;
+        std::size_t num_tables;
+        std::vector<GridAxis> grid_axes;
+        std::size_t ndims;
+
 
     private:
         void construct_axes(const std::vector<std::vector<double> > &grid);
 
-        Eigen::ArrayXXd construct_values(std::vector<double> &value_vector);
-        Eigen::ArrayXXd construct_values(
-                const std::vector<std::vector<double> > &values
-        );
-        Eigen::Map<Eigen::ArrayXd> fill_value_row(std::vector<double> &value_vector,
-                const std::size_t& num_values);
-        std::vector<GridAxis> grid_axes;
-        std::size_t ndims;
-        std::size_t num_tables;
+
     };
 
 
-// free functions
+    // free functions
     bool free_check_sorted(std::vector<double>);
 
     template <typename T>
-    std::size_t locate_coords(
-            const std::vector<T> &coords,
-            const std::vector<std::size_t> &dimension_lengths
-    );
-
-    std::vector<double> eigen_to_vector(Eigen::ArrayXd &);
+    std::vector<std::vector<T>> cart_product(const std::vector<std::vector<T> > &v) {
+        std::vector<std::vector<T> > combinations = {{}};
+        for (const auto &list : v) {
+            std::vector<std::vector<T> > r;
+            for (const auto &x : combinations) {
+                for (const auto item : list) {
+                    r.push_back(x);
+                    r.back().push_back(item);
+                }
+            }
+            combinations = std::move(r);
+        }
+        return combinations;
+    };
 
 
 }

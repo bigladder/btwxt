@@ -30,30 +30,30 @@ TEST_F(TwoDFixture, target_undefined) {
     std::vector<double> returned_target;
     std::vector<std::size_t> bad_floor;
     double bad_result;
-    std::string ExpectedOut = "  WARNING: No target has been defined!\n";
+    std::string ExpectedOut = "  WARNING: The current target was request, but no target has been set.\n";
 
     // The test fixture does not instantiate a GridPoint.
-    EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, ExpectedOut);
-    std::vector<double> expected_result{0};
+    EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, ExpectedOut);
+    std::vector<double> expected_result = {0, 0};
     EXPECT_EQ(returned_target, expected_result);
 
-    EXPECT_STDOUT(bad_result = test_rgi.calculate_value_at_target(0);, ExpectedOut);
+    EXPECT_STDOUT(bad_result = test_rgi.get_value_at_target(0);, ExpectedOut);
     EXPECT_EQ(bad_result, 0);
 
     // Define the target; make sure it works now.
-    test_rgi.set_new_grid_point(target);
+    test_rgi.set_new_target(target);
     std::string EmptyOut = "";
-    EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, EmptyOut);
+    EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, EmptyOut);
     expected_result = {12, 5};
     EXPECT_EQ(returned_target, expected_result);
 
     // Clear the target; see that it reverts to warnings.
-    test_rgi.clear_current_grid_point();
-    EXPECT_STDOUT(returned_target = test_rgi.get_current_grid_point();, ExpectedOut);
-    expected_result = {0};
+    test_rgi.clear_current_target();
+    EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, ExpectedOut);
+    expected_result = {0, 0};
     EXPECT_EQ(returned_target, expected_result);
 
-    EXPECT_STDOUT(bad_result = test_rgi.calculate_value_at_target(0);, ExpectedOut);
+    EXPECT_STDOUT(bad_result = test_rgi.get_value_at_target(0);, ExpectedOut);
     EXPECT_EQ(bad_result, 0);
 }
 
@@ -76,11 +76,11 @@ TEST_F(CubicFixture, spacing_multiplier) {
 }
 
 TEST_F(CubicFixture, interpolate) {
-    test_rgi.set_new_grid_point(target);
+    test_rgi.set_new_target(target);
 
     Btwxt::LOG_LEVEL = 0;
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<double> result = test_rgi.calculate_all_values_at_target();
+    std::vector<double> result = test_rgi.get_values_at_target();
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     showMessage(MsgLevel::MSG_INFO, stringify("cubic interpolation: [", result[0], ", ", result[1], "]"));
@@ -92,22 +92,22 @@ TEST_F(CubicFixture, interpolate) {
 
 TEST_F(TwoDFixture, interpolate) {
     Btwxt::LOG_LEVEL = 0;
-    test_rgi.set_new_grid_point(target);
+    test_rgi.set_new_target(target);
 
     // All values, current target
-    std::vector<double> result = test_rgi.calculate_all_values_at_target();
+    std::vector<double> result = test_rgi.get_values_at_target();
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.2), testing::DoubleEq(8.4)));
     Btwxt::LOG_LEVEL = 1;
     // Single value, current target
-    double d_result = test_rgi.calculate_value_at_target(0);
+    double d_result = test_rgi.get_value_at_target(0);
     EXPECT_DOUBLE_EQ(d_result, 4.2);
 
     std::vector<double> another_target = {8.1, 4.2};
     // All values, fresh target
-    result = test_rgi.calculate_all_values_at_target(another_target);
+    result = test_rgi.get_values_at_target(another_target);
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3.189), testing::DoubleEq(6.378)));
     // Single value, fresh target
-    d_result = test_rgi.calculate_value_at_target(another_target, 1);
+    d_result = test_rgi.get_value_at_target(another_target, 1);
     EXPECT_DOUBLE_EQ(d_result, 6.378);
 };
 
@@ -129,7 +129,6 @@ TEST_F(TwoDFixture, extrapolate) {
 };
 
 TEST_F(TwoDFixture, invalid_inputs) {
-    // TODO: capture error messages and test that they match expectations
     // we expect two errors that the value table inputs do not match the grid
     // we expect an error that the target dimensions do not match the grid
     std::vector<double> short_values = {6, 3, 2, 8, 4};
@@ -140,18 +139,19 @@ TEST_F(TwoDFixture, invalid_inputs) {
                  std::invalid_argument);
 
     std::vector<double> short_target = {1};
-    EXPECT_THROW(test_rgi.set_new_grid_point(short_target);,
+    EXPECT_THROW(test_rgi.set_new_target(short_target);,
                  std::invalid_argument);
     std::vector<double> long_target = {1, 2, 3};
-    EXPECT_THROW(test_rgi.set_new_grid_point(long_target);,
+    EXPECT_THROW(test_rgi.set_new_target(long_target);,
                  std::invalid_argument);
 };
 
 TEST_F(OneDFixture, cubic_interpolate) {
     Btwxt::LOG_LEVEL = 0;
     test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
+    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
-    double result = test_rgi.calculate_all_values_at_target(target)[0];
+    double result = test_rgi.get_values_at_target(target)[0];
     Btwxt::LOG_LEVEL = 1;
     EXPECT_NEAR(result, 4.804398, 0.0001);
 }
@@ -160,11 +160,12 @@ TEST_F(TwoDFixture, cubic_interpolate) {
     Btwxt::LOG_LEVEL = 0;
     test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
     test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
+    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
-    test_rgi.set_new_grid_point(target);
+    test_rgi.set_new_target(target);
 
     // All values, current target
-    std::vector<double> result = test_rgi.calculate_all_values_at_target();
+    std::vector<double> result = test_rgi.get_values_at_target();
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.416), testing::DoubleEq(8.832)));
     Btwxt::LOG_LEVEL = 1;
 }
