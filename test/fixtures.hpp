@@ -35,7 +35,6 @@ protected:
 
     target = {2.5};
     test_gridded_data = GriddedData(grid, values);
-    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };
@@ -57,7 +56,6 @@ protected:
     target = {12, 5};
     test_gridded_data = GriddedData(grid, values);
     test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
-    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };
@@ -86,7 +84,6 @@ protected:
     test_gridded_data = GriddedData(grid, values);
     test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
     //        test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };
@@ -110,7 +107,6 @@ protected:
     test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
     test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
     test_gridded_data.set_axis_interp_method(2, Method::LINEAR);
-    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };

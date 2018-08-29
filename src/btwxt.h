@@ -85,13 +85,17 @@ public:
 
   std::size_t get_ndims();
 
+  void set_axis_interp_method(std::size_t dim, Method method) {
+    grid_data.set_axis_interp_method(dim, method);
+  }
+
+  std::vector<std::vector<short>>& get_hypercube();
+
   std::pair<double, double> get_axis_limits(int dim);
 
 private:
   GriddedData grid_data;
   GridPoint grid_point;
-
-  std::vector<double> interpolation_wrapper();
 };
 
 } // namespace Btwxt

@@ -16,23 +16,26 @@
 
 using namespace Btwxt;
 
-TEST_F(ThreeDFixture, hypercube) { EXPECT_EQ(test_gridded_data.hypercube.size(), 16u); }
+TEST_F(ThreeDFixture, hypercube) {
+  auto hypercube = test_rgi.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 16u); }
 
 TEST_F(ThreeDFixture, test_hypercube) {
-  EXPECT_EQ(test_gridded_data.hypercube.size(), 2u * 4u * 2u);
-  EXPECT_THAT(test_gridded_data.hypercube[0], testing::ElementsAre(0, -1, 0));
-  EXPECT_THAT(test_gridded_data.hypercube[2], testing::ElementsAre(0, 0, 0));
-  EXPECT_THAT(test_gridded_data.hypercube[12], testing::ElementsAre(1, 1, 0));
-  EXPECT_THAT(test_gridded_data.hypercube[15], testing::ElementsAre(1, 2, 1));
+  auto hypercube = test_rgi.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 2u * 4u * 2u);
+  EXPECT_THAT(hypercube[0], testing::ElementsAre(0, -1, 0));
+  EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 0, 0));
+  EXPECT_THAT(hypercube[12], testing::ElementsAre(1, 1, 0));
+  EXPECT_THAT(hypercube[15], testing::ElementsAre(1, 2, 1));
 }
 
 TEST_F(ThreeDFixture, make_linear_hypercube) {
-  test_gridded_data.set_axis_interp_method(1, Method::LINEAR);
-  test_gridded_data.set_hypercube();
-  EXPECT_EQ(test_gridded_data.hypercube.size(), 8u);
-  EXPECT_THAT(test_gridded_data.hypercube[0], testing::ElementsAre(0, 0, 0));
-  EXPECT_THAT(test_gridded_data.hypercube[2], testing::ElementsAre(0, 1, 0));
-  EXPECT_THAT(test_gridded_data.hypercube[5], testing::ElementsAre(1, 0, 1));
+  test_rgi.set_axis_interp_method(1, Method::LINEAR);
+  auto hypercube = test_rgi.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 8u);
+  EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));
+  EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 1, 0));
+  EXPECT_THAT(hypercube[5], testing::ElementsAre(1, 0, 1));
 }
 
 TEST(Hypercube, cart_product) {
@@ -49,7 +52,6 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
   GridPoint grid_point(test_gridded_data, target);
   std::vector<Method> methods = grid_point.get_methods();
-  test_gridded_data.set_hypercube();
   std::vector<std::vector<double>> spacing_mults = grid_point.get_spacing_mults(test_gridded_data);
 
   std::vector<double> mus = grid_point.get_weights();
@@ -107,7 +109,6 @@ TEST_F(OneDFixture, hypercube_calculations) {
   test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
   GridPoint grid_point(test_gridded_data, target);
   std::vector<Method> methods = grid_point.get_methods();
-  test_gridded_data.set_hypercube();
 
   std::vector<double> result = grid_point.get_results();
   EXPECT_NEAR(result[0], 4.804398, 0.00001);

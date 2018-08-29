@@ -73,7 +73,6 @@ protected:
     //        test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
     //        test_gridded_data.set_axis_interp_method(2, Method::CUBIC);
     //        test_gridded_data.set_axis_interp_method(3, Method::CUBIC);
-    test_gridded_data.set_hypercube();
     test_rgi = RegularGridInterpolator(test_gridded_data);
   }
 };
@@ -109,7 +108,6 @@ TEST_F(LargeFixture, verify_linear) {
   test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
   EXPECT_THAT(test_gridded_data.get_interp_methods(),
               testing::ElementsAre(Method::CUBIC, Method::LINEAR, Method::LINEAR, Method::LINEAR));
-  test_gridded_data.set_hypercube();
   test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
@@ -118,7 +116,6 @@ TEST_F(LargeFixture, verify_linear) {
   test_gridded_data.set_axis_interp_method(3, Method::CUBIC);
   EXPECT_THAT(test_gridded_data.get_interp_methods(),
               testing::ElementsAre(Method::CUBIC, Method::LINEAR, Method::LINEAR, Method::CUBIC));
-  test_gridded_data.set_hypercube();
   test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
@@ -127,7 +124,6 @@ TEST_F(LargeFixture, verify_linear) {
   test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
   EXPECT_THAT(test_gridded_data.get_interp_methods(),
               testing::ElementsAre(Method::LINEAR, Method::LINEAR, Method::LINEAR, Method::CUBIC));
-  test_gridded_data.set_hypercube();
   test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
@@ -136,7 +132,6 @@ TEST_F(LargeFixture, verify_linear) {
   test_gridded_data.set_axis_interp_method(2, Method::CUBIC);
   EXPECT_THAT(test_gridded_data.get_interp_methods(),
               testing::ElementsAre(Method::LINEAR, Method::LINEAR, Method::CUBIC, Method::CUBIC));
-  test_gridded_data.set_hypercube();
   test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
@@ -145,7 +140,6 @@ TEST_F(LargeFixture, verify_linear) {
   test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
   EXPECT_THAT(test_gridded_data.get_interp_methods(),
               testing::ElementsAre(Method::CUBIC, Method::LINEAR, Method::CUBIC, Method::CUBIC));
-  test_gridded_data.set_hypercube();
   test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
@@ -154,7 +148,6 @@ TEST_F(LargeFixture, verify_linear) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
   EXPECT_THAT(test_gridded_data.get_interp_methods(),
               testing::ElementsAre(Method::CUBIC, Method::CUBIC, Method::CUBIC, Method::CUBIC));
-  test_gridded_data.set_hypercube();
   test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();

@@ -104,12 +104,48 @@ void GridPoint::calculate_weights() {
   }
 }
 
+void GridPoint::set_hypercube() { set_hypercube(grid_data->get_interp_methods()); }
+
+void GridPoint::set_hypercube(std::vector<Method> methods) {
+  if (methods.size() != ndims) {
+    showMessage(MsgLevel::MSG_ERR, stringify("Error setting hypercube. Methods vector does not "
+                                             "have the correct number of dimensions."));
+  }
+  std::vector<std::vector<int>> options(ndims, {0, 1});
+
+  for (std::size_t dim = 0; dim < ndims; dim++) {
+    if (methods[dim] == Method::CUBIC) {
+      options[dim] = {-1, 0, 1, 2};
+    }
+  }
+  hypercube = {{}};
+  for (const auto &list : options) {
+    std::vector<std::vector<short>> r;
+    for (const auto &x : hypercube) {
+      for (const auto item : list) {
+        r.push_back(x);
+        r.back().push_back(item);
+      }
+    }
+    hypercube = std::move(r);
+  }
+}
+
+std::vector<std::vector<short>> &GridPoint::get_hypercube() {
+  consolidate_methods();
+  return hypercube;
+}
+
 void GridPoint::consolidate_methods()
 // If out of bounds, extrapolate according to prescription
 // If outside of extrapolation limits, send a warning and perform constant extrapolation.
 {
   std::vector<Method> previous_methods = methods;
   methods = grid_data->get_interp_methods();
+  if (!target_is_set) {
+    set_hypercube(methods);
+    return;
+  }
   auto extrap_methods = grid_data->get_extrap_methods();
   for (std::size_t dim = 0; dim < ndims; dim++) {
     if (is_inbounds[dim] == Bounds::OUTBOUNDS) {
@@ -122,7 +158,7 @@ void GridPoint::consolidate_methods()
     }
   }
   if (!std::equal(previous_methods.begin(), previous_methods.end(), methods.begin())) {
-    grid_data->set_hypercube(methods);
+    set_hypercube(methods);
   }
 }
 
@@ -162,7 +198,7 @@ std::vector<double> GridPoint::get_results() {
   }
   double weight;
   std::vector<std::vector<double>> spacing_mults = get_spacing_mults(*grid_data);
-  for (const auto &v : grid_data->hypercube) {
+  for (const auto &v : hypercube) {
     weight = get_vertex_weight(v, spacing_mults);
     std::vector<double> values = grid_data->get_column_near_safe(point_floor, v);
     for (std::size_t i = 0; i < grid_data->num_tables; ++i) {

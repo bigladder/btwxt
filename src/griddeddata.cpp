@@ -234,34 +234,6 @@ void GriddedData::set_axis_interp_method(const std::size_t &dim,
   grid_axes[dim].set_interp_method(interpolation_method);
 }
 
-void GriddedData::set_hypercube() { set_hypercube(get_interp_methods()); }
-
-void GriddedData::set_hypercube(std::vector<Method> methods) {
-  if (methods.size() != ndims) {
-    showMessage(MsgLevel::MSG_ERR, stringify("Error setting hypercube. Methods vector does not "
-                                             "have the correct number of dimensions."));
-  }
-
-  std::vector<std::vector<int>> options(ndims, {0, 1});
-
-  for (std::size_t dim = 0; dim < ndims; dim++) {
-    if (methods[dim] == Method::CUBIC) {
-      options[dim] = {-1, 0, 1, 2};
-    }
-  }
-  hypercube = {{}};
-  for (const auto &list : options) {
-    std::vector<std::vector<short>> r;
-    for (const auto &x : hypercube) {
-      for (const auto item : list) {
-        r.push_back(x);
-        r.back().push_back(item);
-      }
-    }
-    hypercube = std::move(r);
-  }
-}
-
 // free functions
 bool free_check_sorted(std::vector<double> my_vec) {
   // ensures that the grid vector is strictly ascending

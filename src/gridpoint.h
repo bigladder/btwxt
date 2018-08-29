@@ -58,6 +58,8 @@ private:
   std::vector<double> weights;
   std::vector<Bounds> is_inbounds; // for deciding interpolation vs. extrapolation;
   std::vector<Method> methods;
+  std::vector<std::vector<short>> hypercube;
+
   std::vector<std::vector<double>> interp_coeffs;
   std::vector<std::vector<double>> cubic_slope_coeffs;
   std::vector<std::vector<double>> terms;
@@ -74,6 +76,14 @@ private:
   double sum_weighting_terms();
 
   void set_dim_floor(std::size_t dim);
+
+  void set_hypercube();
+
+  void set_hypercube(std::vector<Method> methods);
+
+  std::vector<std::vector<short>>& get_hypercube();
+
+
 };
 
 // free functions

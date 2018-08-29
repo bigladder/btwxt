@@ -27,22 +27,22 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &
 double RegularGridInterpolator::get_value_at_target(std::vector<double> target,
                                                     std::size_t table_index) {
   set_new_target(target);
-  std::vector<double> result = interpolation_wrapper();
+  std::vector<double> result = grid_point.get_results();
   return result[table_index];
 }
 
 double RegularGridInterpolator::get_value_at_target(std::size_t table_index) {
-  std::vector<double> result = interpolation_wrapper();
+  std::vector<double> result = grid_point.get_results();
   return result[table_index];
 }
 
 std::vector<double> RegularGridInterpolator::get_values_at_target(std::vector<double> target) {
   set_new_target(target);
-  return interpolation_wrapper();
+  return grid_point.get_results();
 }
 
 std::vector<double> RegularGridInterpolator::get_values_at_target() {
-  return interpolation_wrapper();
+  return grid_point.get_results();
 }
 
 void RegularGridInterpolator::set_new_target(const std::vector<double> &target) {
@@ -57,11 +57,12 @@ void RegularGridInterpolator::clear_current_target() { grid_point = GridPoint(gr
 
 std::size_t RegularGridInterpolator::get_ndims() { return grid_data.get_ndims(); }
 
+std::vector<std::vector<short>> &RegularGridInterpolator::get_hypercube() {
+  return grid_point.get_hypercube();
+}
+
 std::pair<double, double> RegularGridInterpolator::get_axis_limits(int dim) {
   return grid_data.get_extrap_limits(dim);
 }
 
-std::vector<double> RegularGridInterpolator::interpolation_wrapper() {
-  return grid_point.get_results();
-}
 } // namespace Btwxt

@@ -87,13 +87,9 @@ public:
 
   void set_axis_interp_method(const std::size_t &dim, Method);
 
-  void set_hypercube();
-  void set_hypercube(std::vector<Method> methods);
-
   std::vector<std::vector<double>> value_tables;
   std::size_t num_values;
   std::vector<std::size_t> dimension_lengths;
-  std::vector<std::vector<short>> hypercube;
   std::size_t num_tables;
   std::vector<GridAxis> grid_axes;
   std::size_t ndims;
