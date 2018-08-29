@@ -142,19 +142,17 @@ void GridPoint::consolidate_methods()
 {
   std::vector<Method> previous_methods = methods;
   methods = grid_data->get_interp_methods();
-  if (!target_is_set) {
-    set_hypercube(methods);
-    return;
-  }
-  auto extrap_methods = grid_data->get_extrap_methods();
-  for (std::size_t dim = 0; dim < ndims; dim++) {
-    if (is_inbounds[dim] == Bounds::OUTBOUNDS) {
-      methods[dim] = extrap_methods[dim];
-    } else if (is_inbounds[dim] == Bounds::OUTLAW) {
-      // showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation limits
-      // in dimension ", dim,
-      //                                ". Will perform constant extrapolation."));
-      methods[dim] = Method::CONSTANT;
+  if (target_is_set) {
+    auto extrap_methods = grid_data->get_extrap_methods();
+    for (std::size_t dim = 0; dim < ndims; dim++) {
+      if (is_inbounds[dim]==Bounds::OUTBOUNDS) {
+        methods[dim] = extrap_methods[dim];
+      } else if (is_inbounds[dim]==Bounds::OUTLAW) {
+        // showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation limits
+        // in dimension ", dim,
+        //                                ". Will perform constant extrapolation."));
+        methods[dim] = Method::CONSTANT;
+      }
     }
   }
   if (!std::equal(previous_methods.begin(), previous_methods.end(), methods.begin())) {
