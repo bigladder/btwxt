@@ -16,6 +16,6 @@ add_subdirectory(vendor)
 
 
 if (BUILD_BTWXT_TESTING)
-  include(ctest)
+  #include(ctest)
   add_subdirectory(test)
 endif()
