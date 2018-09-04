@@ -60,7 +60,6 @@ private:
 
   std::vector<std::vector<double>> interp_coeffs;
   std::vector<std::vector<double>> cubic_slope_coeffs;
-  std::vector<std::vector<double>> spacing_mults;
   std::vector<std::vector<double>> terms;
   std::vector<double> temp_values;
   std::vector<double> results;

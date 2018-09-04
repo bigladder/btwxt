@@ -26,7 +26,6 @@ GridPoint::GridPoint(GriddedData &grid_data_in)
       methods(ndims, Method::UNDEF),
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
-      spacing_mults(ndims, std::vector<double>(2, 0.0)),
       terms(ndims, std::vector<double>(2, 0.0)),
       temp_values(grid_data->num_tables),
       results(grid_data->num_tables) {}
@@ -40,7 +39,6 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
       methods(ndims, Method::UNDEF),
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
-      spacing_mults(ndims, std::vector<double>(2, 0.0)),
       terms(ndims, std::vector<double>(2, 0.0)),
       temp_values(grid_data->num_tables),
       results(grid_data->num_tables) {
@@ -131,7 +129,9 @@ void GridPoint::set_hypercube(std::vector<Method> methods) {
   std::vector<std::vector<int>> options(ndims, {0, 1});
 
   for (std::size_t dim = 0; dim < ndims; dim++) {
-    if (methods[dim] == Method::CUBIC) {
+    if (target_is_set && weights[dim] == 0.0) {
+      options[dim] = {0};
+    } else if (methods[dim] == Method::CUBIC) {
       options[dim] = {-1, 0, 1, 2};
     }
   }
@@ -183,18 +183,14 @@ void GridPoint::calculate_interp_coeffs() {
     if (methods[dim] == Method::CUBIC) {
       interp_coeffs[dim][0] = 2 * mu * mu * mu - 3 * mu * mu + 1;
       interp_coeffs[dim][1] = -2 * mu * mu * mu + 3 * mu * mu;
-      cubic_slope_coeffs[dim][0] = mu * mu * mu - 2 * mu * mu + mu;
-      cubic_slope_coeffs[dim][1] = mu * mu * mu - mu * mu;
-      spacing_mults[dim][0] = grid_data->get_axis_spacing_mult(dim, 0, point_floor[dim]);
-      spacing_mults[dim][1] = grid_data->get_axis_spacing_mult(dim, 1, point_floor[dim]);
+      cubic_slope_coeffs[dim][0] = (mu * mu * mu - 2 * mu * mu + mu)*grid_data->get_axis_spacing_mult(dim, 0, point_floor[dim]);
+      cubic_slope_coeffs[dim][1] = (mu * mu * mu - mu * mu)*grid_data->get_axis_spacing_mult(dim, 1, point_floor[dim]);
     } else {
       if (methods[dim] == Method::CONSTANT) {
         mu = mu < 0 ? 0 : 1;
       }
       interp_coeffs[dim][0] = 1 - mu;
       interp_coeffs[dim][1] = mu;
-      spacing_mults[dim][0] = 0.0;
-      spacing_mults[dim][1] = 0.0;
     }
   }
 }
