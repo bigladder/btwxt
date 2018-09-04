@@ -27,8 +27,13 @@ GridPoint::GridPoint(GriddedData &grid_data_in)
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       terms(ndims, std::vector<double>(2, 0.0)),
+      num_term_combinations(1),
       temp_values(grid_data->num_tables),
-      results(grid_data->num_tables) {}
+      results(grid_data->num_tables) {
+  for (std::size_t dim = 0; dim < ndims; ++dim) {
+    num_term_combinations *= 2;
+  }
+}
 
 GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
     : grid_data(&grid_data_in),
@@ -40,8 +45,12 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       terms(ndims, std::vector<double>(2, 0.0)),
+      num_term_combinations(1),
       temp_values(grid_data->num_tables),
       results(grid_data->num_tables) {
+  for (std::size_t dim = 0; dim < ndims; ++dim) {
+    num_term_combinations *= 2;
+  }
   set_target(v);
 }
 
@@ -232,29 +241,30 @@ double GridPoint::get_vertex_weight(const std::vector<short> &v) {
       } else {
         terms[dim][0] = 0.0;
       }
-      terms[dim][1] = cubic_slope_coeffs[dim][flavor] * spacing_mults[dim][flavor] * sign;
+      terms[dim][1] = cubic_slope_coeffs[dim][flavor] * sign;
     } else { // LINEAR or CONSTANT
       terms[dim][0] = interp_coeffs[dim][v[dim]];
       terms[dim][1] = 0.0;
+    }
+    if (terms[dim][0] == 0.0 && terms[dim][1] == 0.0) { // Return zero if both terms are zero for any dimension
+      return 0.0;
     }
   }
   return sum_weighting_terms();
 }
 
 double GridPoint::sum_weighting_terms() {
-  std::size_t nT = terms.size();
-  std::size_t N = 1;
-  for (std::size_t dim = 0; dim < nT; ++dim) {
-    N *= 2;
-  } // Two options per dimension (normal or slope terms)
-
   // Add all combinations of coefficient term products
   double weight_sum = 0.0;
   double product;
-  for (std::size_t n = 0; n < N; ++n) {
+  for (std::size_t n = 0; n < num_term_combinations; ++n) {
     product = 1.0;
-    for (std::size_t dim = 0; dim < nT; ++dim) {
-      product *= terms[dim][bool(n & 1 << dim)];
+    for (std::size_t dim = 0; dim < ndims; ++dim) {
+      std::size_t num = bool(n & 1 << dim); // Use bit shifting to determine combinations of term numbers
+      product *= terms[dim][num];
+      if (product == 0.0) {
+        break; // no need to continue
+      }
     }
     weight_sum += product;
   }

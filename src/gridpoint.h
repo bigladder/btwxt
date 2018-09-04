@@ -61,6 +61,7 @@ private:
   std::vector<std::vector<double>> interp_coeffs;
   std::vector<std::vector<double>> cubic_slope_coeffs;
   std::vector<std::vector<double>> terms;
+  std::size_t num_term_combinations;
   std::vector<double> temp_values;
   std::vector<double> results;
   static std::vector<std::pair<int, int>> sivor; // {sign, flavor}, flavor corresponds to the floor
