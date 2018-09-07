@@ -32,6 +32,7 @@ GridPoint::GridPoint(GriddedData &grid_data_in)
 GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
+      target_is_set(false),
       point_floor(ndims, 0),
       weights(ndims, 0),
       is_inbounds(ndims),
@@ -48,6 +49,11 @@ void GridPoint::set_target(const std::vector<double> &v) {
   if (v.size() != ndims) {
     showMessage(MsgLevel::MSG_ERR,
                 stringify("Target and Gridded Data do not have the same dimensions."));
+  }
+  if (target_is_set) {
+    if (std::equal(v.begin(), v.end(), target.begin())) {
+      return;
+    }
   }
   target = v;
   target_is_set = true;
