@@ -55,6 +55,7 @@ void GridPoint::set_target(const std::vector<double> &v) {
   calculate_weights();
   consolidate_methods();
   calculate_interp_coeffs();
+  set_results();
 }
 
 std::vector<double> GridPoint::get_current_target() {
@@ -236,25 +237,26 @@ void GridPoint::set_hypercube_values() {
   hypercube_cache[{floor_index,hypercube_size_hash}] = hypercube_values;
 }
 
-std::vector<double> GridPoint::get_results() {
+void GridPoint::set_results() {
   set_hypercube_values();
-  if (grid_data->num_tables == 0u) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("There are no value tables in the gridded data. No results returned."));
-    return results;
-  }
   std::fill(results.begin(), results.end(), 0.0);
-  if (!target_is_set) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("Results were requested, but no target has been set."));
-    return results;
-  }
   for (std::size_t i = 0; i < hypercube.size(); ++i) {
     hypercube_weights[i] = get_vertex_weight(hypercube[i]);
     const auto &values = hypercube_values[i];
     for (std::size_t j = 0; j < grid_data->num_tables; ++j) {
       results[j] += values[j] * hypercube_weights[i];
     }
+  }
+}
+
+std::vector<double> GridPoint::get_results() {
+  if (grid_data->num_tables == 0u) {
+    showMessage(MsgLevel::MSG_WARN,
+                stringify("There are no value tables in the gridded data. No results returned."));
+  }
+  if (!target_is_set) {
+    showMessage(MsgLevel::MSG_WARN,
+                stringify("Results were requested, but no target has been set."));
   }
   return results;
 }
@@ -265,6 +267,30 @@ double GridPoint::get_vertex_weight(const std::vector<short> &v) {
     weight *= weighting_factors[dim][v[dim] + 1];
   }
   return weight;
+}
+
+void GridPoint::normalize_grid_values_at_target() {
+  if (!target_is_set) {
+    showMessage(MsgLevel::MSG_WARN,
+                stringify("Cannot normalize grid values. No target has been set."));
+    return;
+  }
+  for (std::size_t table_index = 0; table_index < grid_data->num_tables; ++table_index) {
+    grid_data->normalize_value_table(table_index,results[table_index]);
+  }
+  hypercube_cache.clear();
+  set_results();
+}
+
+void GridPoint::normalize_grid_values_at_target(std::size_t table_num) {
+  if (!target_is_set) {
+    showMessage(MsgLevel::MSG_WARN,
+                stringify("Cannot normalize grid values. No target has been set."));
+    return;
+  }
+  grid_data->normalize_value_table(table_num,results[table_num]);
+  hypercube_cache.clear();
+  set_results();
 }
 
 } // namespace Btwxt
