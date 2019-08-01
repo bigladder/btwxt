@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/bigladder/btwxt.svg?branch=develop)](https://travis-ci.org/bigladder/btwxt)
-[![codecov](https://codecov.io/gh/bigladder/btwxt/branch/develop/graph/badge.svg)](https://codecov.io/gh/bigladder/btwxt)
+[![Build Status](https://travis-ci.org/bigladder/btwxt.svg?branch=master)](https://travis-ci.org/bigladder/btwxt)
+[![codecov](https://codecov.io/gh/bigladder/btwxt/branch/master/graph/badge.svg)](https://codecov.io/gh/bigladder/btwxt)
 
 # Btwxt
 
