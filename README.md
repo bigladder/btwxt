@@ -1,3 +1,8 @@
+[![Build Status](https://travis-ci.org/bigladder/btwxt.svg?branch=develop)](https://travis-ci.org/bigladder/btwxt)
+[![codecov](https://codecov.io/gh/bigladder/btwxt/branch/develop/graph/badge.svg)](https://codecov.io/gh/bigladder/btwxt)
+
+# Btwxt
+
 ## General-purpose, N-dimensional interpolation library...
 
 Btwxt is a free and open source c++ library to perform numerical interpolation on a gridded data set. The general architecture is that it creates a RegularGridInterpolator object from a) a collection of grid axes and b) a collection of values that fit that axis system. That RegularGridInterpolator object can then be queried repeatedly for values that fall inside its grid.
