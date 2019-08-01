@@ -18,8 +18,6 @@ Btwxt accepts:
 *   attributes of each of the input vectors describing preferred interpolation and extrapolation methods, and
 *   an array of (or collection of arrays of) values that map onto the grid defined by the input vectors.
 
-While this interpolation library is designed to work for equipment performance curves in EnergyPlus, it should work efficiently in any situation requiring fast linear or cubic interpolation on a regular grid.
-
 ## How to Use
 
 ### How to install/include
@@ -91,4 +89,3 @@ std::vector<double> result = my_interpolator(new_target);
 ## Dependencies
 Btwxt uses
 *  [Googletest](https://github.com/google/googletest), both gtest and gmock for unittests.
-The library uses CMake DownloadProject to incorporate Googletest into the build.
