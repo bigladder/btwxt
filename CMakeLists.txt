@@ -1,23 +1,22 @@
-# this is where there will be build instructions
-# https://github.com/cse/btwxt
 cmake_minimum_required(VERSION 3.10)
 
 project(btwxt)
 
 option( BUILD_BTWXT_TESTING "Build Btwxt testing targets" OFF )
-option( BTWXT_GET_EIGEN "Download Eigen (if not already included in top project)" ON )
 
+find_package(Git QUIET)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
-
-set (CMAKE_MODULE_PATH "${btwxt_SOURCE_DIR}/cmake")
-
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  if (UNIX)
+    add_definitions("-fPIC")
+  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
+endif()
 
 add_subdirectory(src)
 add_subdirectory(vendor)
 
 
 if (BUILD_BTWXT_TESTING)
-  include(ctest)
   add_subdirectory(test)
 endif()
