@@ -11,11 +11,20 @@ namespace Btwxt {
 
 enum class Method { CONSTANT, LINEAR, CUBIC, UNDEF };
 
+/// @class GridAxis griddeddata.h
+/// @brief A single input dimension of the performance space
+
 class GridAxis {
-  // A single input dimension of the performance space
 public:
   GridAxis();
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Construct a parameter axis
+  /// @param	grid_vector Known values of a single-dimensional non-uniform parameter axis
+  /// @param	extrapolation_method TBD
+  /// @param	interpolation_method TBD
+  /// @param	extrapolation_limits TBD
+  // ----------------------------------------------------------------------------------------------
   GridAxis(std::vector<double> grid_vector, Method extrapolation_method = Method::CONSTANT,
                     Method interpolation_method = Method::LINEAR,
                     std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
@@ -42,31 +51,76 @@ private:
   void check_extrap_limits();
 };
 
+/// @class GriddedData griddeddata.h
+/// @brief Container for the data defining the performance space
+
 class GriddedData {
 public:
   GriddedData();
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Construct a multidimensional data space spanned by axis vectors; initialized
+  ///			with @a values
+  /// @param	grid Each internal vector in @c grid initializes a GridAxis instance
+  /// @param	values Each internal vector in @c values has length equal to the product of all  
+  ///                  dimension sizes. @c values is therefore a list of value tables
+  // ----------------------------------------------------------------------------------------------
   GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Construct a multidimensional data space spanned by GridAxis vectors; initialized
+  ///			with @a values
+  /// @param	grid_axes Vector of all GridAxis objects that define the parameter space
+  /// @param	values Each internal vector in @c values has length equal to the product of all
+  ///                  dimension sizes. @c values is therefore a list of value tables
+  // ----------------------------------------------------------------------------------------------
   GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Construct a multidimensional data space spanned by GridAxis vectors; uninitialized
+  /// @param	grid_axes Vector of all GridAxis objects that define the parameter space
+  // ----------------------------------------------------------------------------------------------
   explicit GriddedData(std::vector<GridAxis> grid_axes);
 
   std::size_t get_ndims();
 
   std::size_t get_num_tables();
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Add a table of data from which interpolated results will be calculated.
+  /// @param	value_vector Vector of length equal to the product of GridAxis dimension sizes.
+  /// @return	Index in @value_tables of the table just added
+  // ----------------------------------------------------------------------------------------------
   std::size_t add_value_table(std::vector<double> &value_vector);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @param	dim The index of the desired vector, where a 0-index describes the slowest-
+  ///               changing dimension and N_max is the fastest-changing dimension.
+  /// @return   The member vector defining the non-uniform rectilinear axis at dimension @c dim.
+  // ----------------------------------------------------------------------------------------------
   const std::vector<double> &get_grid_vector(const std::size_t &dim);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @param	dim The index of the desired vector, where a 0-index describes the slowest-
+  ///               changing dimension and N_max is the fastest-changing dimension.
+  /// @return   Min and max extrapolation limits defined by the user. Hmm, what are these?
+  // ----------------------------------------------------------------------------------------------
   std::pair<double, double> get_extrap_limits(const std::size_t &dim);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @param	coords Coordinates in N-dimensional space, provided in the order of 
+  ///           [slowest-changing, ..., fastest_changing]
+  // ----------------------------------------------------------------------------------------------
   std::size_t get_value_index(const std::vector<std::size_t> &coords);
 
   std::size_t get_value_index_relative(const std::vector<std::size_t> &coords,
                                        const std::vector<short> &translation);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @param	coords Coordinates in N-dimensional space, provided in the order of
+  ///           [slowest-changing, ..., fastest_changing]
+  /// @return   A vector of values at the given coordinates from all value tables.
+  // ----------------------------------------------------------------------------------------------
   std::vector<double> get_values(const std::vector<std::size_t> &coords);
 
   std::vector<double> get_values_relative(const std::vector<std::size_t> &coords,

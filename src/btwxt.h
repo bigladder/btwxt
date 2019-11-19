@@ -24,15 +24,30 @@ extern void *messageCallbackContextPtr;
 
 void setMessageCallback(BtwxtCallbackFunction callbackFunction, void *contextPtr);
 
-// this will be the public-facing class.
+/// @class RegularGridInterpolator btwxt.h
+/// @brief This class performs the N-dimensional interpolation for the desired N-dimensional target 
+///        point
+
 class RegularGridInterpolator {
 public:
-  // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
+  // GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Default constructor (not used!)
+  // ----------------------------------------------------------------------------------------------
   RegularGridInterpolator();
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Initialize an RGI with a previously defined GriddedData object.
+  /// @param	grid_data TBD
+  // ----------------------------------------------------------------------------------------------
   explicit RegularGridInterpolator(GriddedData &grid_data);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Initialize an RGI with the elements needed to construct a GriddedData object.
+  /// @param	grid TBD
+  /// @param	values TBD
+  // ----------------------------------------------------------------------------------------------
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                           const std::vector<std::vector<double>> &values);
 
