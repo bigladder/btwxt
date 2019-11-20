@@ -25,8 +25,8 @@ extern void *messageCallbackContextPtr;
 void setMessageCallback(BtwxtCallbackFunction callbackFunction, void *contextPtr);
 
 /// @class RegularGridInterpolator btwxt.h
-/// @brief This class performs the N-dimensional interpolation for the desired N-dimensional target 
-///        point
+/// @brief This class provides the public interface for GridPoint.
+/// @see GriddedData, GridPoint
 
 class RegularGridInterpolator {
 public:
@@ -66,12 +66,17 @@ public:
     return *this;
   }
 
-  // Add value table to GriddedData
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Add value table to GriddedData.
+  /// @param	value_vector Values representing a parameter with N-dim dependence; its length is 
+  ///           equal to the product of all dimension sizes.
+  /// @return	Index of the table just added
+  /// @see      GriddedData::add_value_table
+  // ----------------------------------------------------------------------------------------------
   std::size_t add_value_table(std::vector<double> &value_vector) {
     return grid_data.add_value_table(value_vector);
   }
 
-  // GridPoint gets instantiated inside calculate_value_at_target
   double get_value_at_target(std::vector<double> target, std::size_t table_index);
 
   double operator()(std::vector<double> target, std::size_t table_index) {

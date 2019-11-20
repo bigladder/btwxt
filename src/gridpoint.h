@@ -5,18 +5,29 @@
 #define GRIDPOINT_H_
 
 // Standard
+#include <map>
 #include <memory>
 #include <vector>
-#include <map>
 
 // btwxt
 #include "griddeddata.h"
 
-namespace Btwxt {
+namespace Btwxt
+{
 
-enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
+enum class Bounds
+{
+  OUTLAW,
+  OUTBOUNDS,
+  INBOUNDS
+};
 
-class GridPoint {
+/// @class GridPoint gridpoint.h
+/// @brief This class performs the N-dimensional interpolation for the desired N-dimensional target
+///        point.
+
+class GridPoint
+{
 public:
   GridPoint();
 
@@ -52,27 +63,33 @@ public:
 
 private:
   friend class RegularGridInterpolator;
-  GriddedData *grid_data;
-  std::size_t ndims;
-  std::vector<double> target;
+  GriddedData *grid_data;     ///< Local pointer to externally-defined GriddedData object
+  std::size_t ndims;          ///< Local copy of the number of GriddedData dimensions
+  std::vector<double> target; ///< One number for each of the GriddedData dimensions
   bool target_is_set;
-  std::vector<std::size_t> point_floor; // index of grid point <= target
-  std::size_t floor_index;
-  std::vector<double> weights;
-  std::vector<Bounds> is_inbounds; // for deciding interpolation vs. extrapolation;
-  std::vector<Method> methods;
-  std::vector<Method> previous_methods;
-  std::vector<std::vector<short>> hypercube;
-  bool reset_hypercube;
-  std::vector<std::vector<double>> weighting_factors; // A set of weighting factors for each dimension
+  std::vector<std::size_t> point_floor; ///< N-dimensional coordinate of the nearest
+                                        ///< grid point <= target
+  std::size_t floor_index;              ///< 1D value-space index of the point_floor coordinate
+  std::vector<double> weights;     ///< N-dimensional weight calculated as the ratio between the
+                                   ///< point_floor-to-target distance, and point_floor-to-adjacent
+                                   ///< point distance
+  std::vector<Bounds> is_inbounds; ///< for deciding interpolation vs. extrapolation when
+                                   ///< there is a change in the target
+  std::vector<Method> methods;     ///< Extrapolation or interpolation method
+  std::vector<Method> previous_methods;               ///< Temporary; does not need to be a member
+  std::vector<std::vector<short>> hypercube;          ///< Hypercube (TBD)
+  bool reset_hypercube;                               ///< If the target changes?
+  std::vector<std::vector<double>> weighting_factors; ///< A set of 4 weighting factors for each 
+                                                      ///< dimension
 
-
-  std::vector<std::vector<double>> interp_coeffs;
-  std::vector<std::vector<double>> cubic_slope_coeffs;
+  std::vector<std::vector<double>> interp_coeffs;      ///< Coefficients for calculating vertex
+                                                       ///< weights
+  std::vector<std::vector<double>> cubic_slope_coeffs; ///< Coefficients for calculating vertex
+                                                       ///< weights
 
   std::vector<std::vector<double>> hypercube_values;
   std::vector<double> hypercube_weights;
-  std::vector<double> results;
+  std::vector<double> results; ///< Results of the interpolation for each target
 
   void calculate_weights();
 
@@ -86,16 +103,15 @@ private:
 
   void set_hypercube(std::vector<Method> methods);
 
-  std::vector<std::vector<short>>& get_hypercube();
+  std::vector<std::vector<short>> &get_hypercube();
 
   void set_hypercube_values();
 
   void set_results();
 
-  std::map<std::pair<std::size_t,std::size_t>,std::vector<std::vector<double>>> hypercube_cache;
+  std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
 
   std::size_t hypercube_size_hash;
-
 };
 
 // free functions

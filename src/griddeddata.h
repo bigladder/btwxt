@@ -37,12 +37,19 @@ public:
 
   // bool is_regular;  <-- to add later
 
+  // ----------------------------------------------------------------------------------------------
+  /// @return	The number of axes in the parameter space.
+  // ----------------------------------------------------------------------------------------------
   std::size_t get_length();
 
   void set_interp_method(Method interpolation_method);
   void set_extrap_method(Method extrapolation_method);
   void set_extrap_limits(std::pair<double, double> extrap_limits);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @param	flavor Choices are 0 or 1.
+  /// @param	index Choices are in the range [0, N_axes-1]
+  // ----------------------------------------------------------------------------------------------
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
 
 private:
@@ -89,7 +96,7 @@ public:
   // ----------------------------------------------------------------------------------------------
   /// @brief	Add a table of data from which interpolated results will be calculated.
   /// @param	value_vector Vector of length equal to the product of GridAxis dimension sizes.
-  /// @return	Index in @value_tables of the table just added
+  /// @return	Index in @c value_tables of the table just added
   // ----------------------------------------------------------------------------------------------
   std::size_t add_value_table(std::vector<double> &value_vector);
 
