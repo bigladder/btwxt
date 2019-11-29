@@ -106,6 +106,25 @@ protected:
   }
 };
 
+class TwoDSimpleNormalizationFixture : public testing::Test {
+protected:
+    RegularGridInterpolator test_rgi;
+    GriddedData test_gridded_data;
+    std::vector<std::vector<double>> values;
+    std::vector<double> target;
+
+    TwoDSimpleNormalizationFixture() {
+        std::vector<std::vector<double>> grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
+        //          1.0   2.0   3.0
+        values = {{ 2.0,  2.0,  6.0,    // 2.0
+                    7.0,  14.0, 21.0}}; // 7.0
+        target = {7.0, 3.0};
+        test_gridded_data = GriddedData(grid, values);
+        test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
+        test_rgi = RegularGridInterpolator(test_gridded_data);
+    }
+};
+
 class CubicFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
