@@ -199,3 +199,48 @@ TEST_F(TwoDFixture, normalize) {
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.0), testing::DoubleEq(8.832)));
   Btwxt::LOG_LEVEL = 1;
 }
+
+TEST_F(TwoDFixture, normalization_return_scalar) {
+
+    std::vector<std::vector<double>> my_grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
+                                                    //  1.0   2.0   3.0
+    std::vector<std::vector<double>> lookup_table = {{  2.0,  2.0,  6.0,    // 2.0
+                                                        7.0,  14.0, 21.0}}; // 7.0
+    std::vector<double>target = {7.0, 3.0};
+    GriddedData test_gridded_data = GriddedData(my_grid, lookup_table);
+    test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
+    RegularGridInterpolator test_rgi = RegularGridInterpolator(test_gridded_data);
+    test_rgi.set_new_target(target);
+    std::vector<double> result = test_rgi.get_values_at_target();
+    EXPECT_THAT(result, testing::ElementsAre(21.0));
+
+    std::vector<double> normalization_target = {2.0, 3.0};
+    double return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, 1.0);
+    test_rgi.set_new_target({7.0,3.0});
+    result = test_rgi.get_values_at_target();
+    EXPECT_THAT(return_scalar, testing::DoubleEq(6.0));
+    EXPECT_THAT(result, testing::ElementsAre(3.5));
+
+}
+
+TEST_F(TwoDFixture, normalization_return_compound_scalar) {
+
+    std::vector<std::vector<double>> my_grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
+    //  1.0   2.0   3.0
+    std::vector<std::vector<double>> lookup_table = {{  2.0,  2.0,  6.0,    // 2.0
+                                                             7.0,  14.0, 21.0}}; // 7.0
+    std::vector<double>target = {7.0, 3.0};
+    GriddedData test_gridded_data = GriddedData(my_grid, lookup_table);
+    test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
+    RegularGridInterpolator test_rgi = RegularGridInterpolator(test_gridded_data);
+    test_rgi.set_new_target(target);
+    std::vector<double> result = test_rgi.get_values_at_target();
+    EXPECT_THAT(result, testing::ElementsAre(21.0));
+
+    std::vector<double> normalization_target = {2.0, 3.0};
+    double return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, 4.0);
+    test_rgi.set_new_target({7.0,3.0});
+    result = test_rgi.get_values_at_target();
+    EXPECT_THAT(return_scalar, testing::DoubleEq(24.0));
+    EXPECT_THAT(result, testing::ElementsAre(0.875));
+}

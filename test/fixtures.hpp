@@ -94,7 +94,7 @@ protected:
 
   TwoDFixture() {
     std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
-    //  4   6
+    //         4  6
     values = {{6, 3,  // 0
                2, 8,  // 10
                4, 2}, // 15
