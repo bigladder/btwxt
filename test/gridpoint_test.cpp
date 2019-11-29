@@ -79,10 +79,6 @@ TEST_F(TwoDSimpleNormalizationFixture, grid_point_scalar_return) {
     grid_point.set_target(normalize_target);
     return_scalar = grid_point.normalize_grid_values_at_target(0, 1.0);
     EXPECT_EQ(return_scalar, expected_divisor);
-
-    grid_point.set_target(normalize_target);
-    return_scalar = grid_point.normalize_grid_values_at_target(0, 4.0);
-    EXPECT_EQ(return_scalar, 4.0);
 }
 
 TEST_F(TwoDSimpleNormalizationFixture, grid_point_compound_scalar_return) {
