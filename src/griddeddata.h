@@ -26,8 +26,8 @@ public:
   /// @param	extrapolation_limits TBD
   // ----------------------------------------------------------------------------------------------
   GridAxis(std::vector<double> grid_vector, Method extrapolation_method = Method::CONSTANT,
-                    Method interpolation_method = Method::LINEAR,
-                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+           Method interpolation_method = Method::LINEAR,
+           std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
   std::vector<double> grid;
   std::vector<std::vector<double>> spacing_multipliers;
@@ -131,7 +131,7 @@ public:
   std::vector<double> get_values(const std::vector<std::size_t> &coords);
 
   std::vector<double> get_values_relative(const std::vector<std::size_t> &coords,
-                                           const std::vector<short> &translation);
+                                          const std::vector<short> &translation);
 
   std::vector<double> get_values(const std::size_t index);
 

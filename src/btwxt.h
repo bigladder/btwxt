@@ -105,7 +105,8 @@ public:
 
   void normalize_values_at_target(std::size_t table_index, const double scalar = 1.0);
 
-  void normalize_values_at_target(std::size_t table_index, const std::vector<double> &target, const double scalar = 1.0);
+  void normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
+                                  const double scalar = 1.0);
 
   std::vector<double> get_current_target();
 
@@ -117,7 +118,7 @@ public:
     grid_data.set_axis_interp_method(dim, method);
   }
 
-  std::vector<std::vector<short>>& get_hypercube();
+  std::vector<std::vector<short>> &get_hypercube();
 
   std::pair<double, double> get_axis_limits(int dim);
 

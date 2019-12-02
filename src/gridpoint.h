@@ -12,22 +12,15 @@
 // btwxt
 #include "griddeddata.h"
 
-namespace Btwxt
-{
+namespace Btwxt {
 
-enum class Bounds
-{
-  OUTLAW,
-  OUTBOUNDS,
-  INBOUNDS
-};
+enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
 
 /// @class GridPoint gridpoint.h
 /// @brief This class performs the N-dimensional interpolation for the desired N-dimensional target
 ///        point.
 
-class GridPoint
-{
+class GridPoint {
 public:
   GridPoint();
 
