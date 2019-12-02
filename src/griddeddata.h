@@ -69,7 +69,7 @@ public:
   /// @brief	Construct a multidimensional data space spanned by axis vectors; initialized
   ///			with @a values
   /// @param	grid Each internal vector in @c grid initializes a GridAxis instance
-  /// @param	values Each internal vector in @c values has length equal to the product of all  
+  /// @param	values Each internal vector in @c values has length equal to the product of all
   ///                  dimension sizes. @c values is therefore a list of value tables
   // ----------------------------------------------------------------------------------------------
   GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values);
@@ -115,7 +115,7 @@ public:
   std::pair<double, double> get_extrap_limits(const std::size_t &dim);
 
   // ----------------------------------------------------------------------------------------------
-  /// @param	coords Coordinates in N-dimensional space, provided in the order of 
+  /// @param	coords Coordinates in N-dimensional space, provided in the order of
   ///           [slowest-changing, ..., fastest_changing]
   // ----------------------------------------------------------------------------------------------
   std::size_t get_value_index(const std::vector<std::size_t> &coords);

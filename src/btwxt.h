@@ -68,7 +68,7 @@ public:
 
   // ----------------------------------------------------------------------------------------------
   /// @brief	Add value table to GriddedData.
-  /// @param	value_vector Values representing a parameter with N-dim dependence; its length is 
+  /// @param	value_vector Values representing a parameter with N-dim dependence; its length is
   ///           equal to the product of all dimension sizes.
   /// @return	Index of the table just added
   /// @see      GriddedData::add_value_table
