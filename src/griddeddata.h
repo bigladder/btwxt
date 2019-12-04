@@ -21,9 +21,10 @@ public:
   // ----------------------------------------------------------------------------------------------
   /// @brief	Construct a parameter axis
   /// @param	grid_vector Known values of a single-dimensional non-uniform parameter axis
-  /// @param	extrapolation_method TBD
-  /// @param	interpolation_method TBD
-  /// @param	extrapolation_limits TBD
+  /// @param	extrapolation_method For this axis, extrapolate using one of the enum class Method
+  /// @param	interpolation_method For this axis, extrapolate using one of the enum class Method
+  /// @param	extrapolation_limits Lower and upper limits beyond which result will 
+  ///                                be constant (constant/no interpolation)
   // ----------------------------------------------------------------------------------------------
   GridAxis(std::vector<double> grid_vector, Method extrapolation_method = Method::CONSTANT,
            Method interpolation_method = Method::LINEAR,

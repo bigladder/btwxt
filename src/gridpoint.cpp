@@ -53,6 +53,8 @@ void GridPoint::set_target(const std::vector<double> &v) {
   }
   if (target_is_set) {
     if (std::equal(v.begin(), v.end(), target.begin())) {
+      // Any advantage to using std::equal over op== ? Also tricky with double precision: could
+      // try std::numeric_limits<double>::epsilon(), though it gets ugly
       return;
     }
   }
@@ -134,13 +136,15 @@ void GridPoint::calculate_weights() {
   }
 }
 
+// ------------------------------------------------------------------------------------------------
+/// @brief  Return how far along an edge the target is.
+// ------------------------------------------------------------------------------------------------
 double compute_fraction(double x, double edge[2]) {
-  // how far along an edge is the target?
   return (x - edge[0]) / (edge[1] - edge[0]);
 }
 
 // ------------------------------------------------------------------------------------------------
-/// @brief  If out of bounds, extrapolate according to prescription
+/// @brief  If out of bounds, extrapolate according to prescription (default CONSTANT)
 ///         If outside of extrapolation limits, send a warning and perform constant extrapolation.
 // ------------------------------------------------------------------------------------------------
 void GridPoint::consolidate_methods() {
@@ -150,6 +154,7 @@ void GridPoint::consolidate_methods() {
     auto extrap_methods = grid_data->get_extrap_methods();
     for (std::size_t dim = 0; dim < ndims; dim++) {
       if (is_inbounds[dim] == Bounds::OUTBOUNDS) {
+        // Can you use ANY extrapolation methods if OUTBOUNDS? : TM120219
         methods[dim] = extrap_methods[dim];
       } else if (is_inbounds[dim] == Bounds::OUTLAW) {
         // showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation limits
@@ -173,13 +178,14 @@ void GridPoint::set_hypercube(std::vector<Method> methods) {
                                              "have the correct number of dimensions."));
   }
   std::size_t previous_size = hypercube.size();
+  // options always default to Method::LINEAR
   std::vector<std::vector<int>> options(ndims, {0, 1});
   reset_hypercube = false;
 
   hypercube_size_hash = 0;
   std::size_t digit = 1;
   for (std::size_t dim = 0; dim < ndims; dim++) {
-    if (target_is_set && weights[dim] == 0.0) {
+    if (target_is_set && weights[dim] == 0.0) { // If target is EXACTLY the point_floor
       options[dim] = {0};
       reset_hypercube = true;
     } else if (methods[dim] == Method::CUBIC) {
@@ -222,7 +228,8 @@ void GridPoint::calculate_interp_coeffs() {
           (mu * mu * mu - mu * mu) * grid_data->get_axis_spacing_mult(dim, 1, point_floor[dim]);
     } else {
       if (methods[dim] == Method::CONSTANT) {
-        mu = mu < 0 ? 0 : 1;
+        mu = mu < 0 ? 0 : 1; // In practice, mu cannot be < 0, as the GridAxis is guaranteed to be 
+                             // sorted in ascending order.
       }
       interp_coeffs[dim][0] = 1 - mu;
       interp_coeffs[dim][1] = mu;
@@ -247,8 +254,8 @@ void GridPoint::set_hypercube_values() {
     return;
   }
   std::size_t hypercube_index = 0;
-  for (const auto &v : hypercube) { // v is a vertex in the hypercube
-    hypercube_values[hypercube_index] = grid_data->get_values_relative(point_floor, v);
+  for (const auto &vertex : hypercube) {
+    hypercube_values[hypercube_index] = grid_data->get_values_relative(point_floor, vertex);
     ++hypercube_index;
   }
   hypercube_cache[{floor_index, hypercube_size_hash}] = hypercube_values;

@@ -22,14 +22,34 @@ enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
 
 class GridPoint {
 public:
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	This default constructor actually can't be used...
+  // ----------------------------------------------------------------------------------------------
   GridPoint();
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Construct a parameter axis
+  /// @param	grid_data Parameter hyper-space in which target interpolations will be done.
+  // ----------------------------------------------------------------------------------------------
   GridPoint(GriddedData &grid_data);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Construct a parameter axis
+  /// @param	grid_data Parameter hyper-space in which target interpolations will be done.
+  /// @param	v N-dimensional lookup target 
+  // ----------------------------------------------------------------------------------------------
   GridPoint(GriddedData &grid_data, std::vector<double> v);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Store the lookup target and calculate an interpolated result.
+  /// @param	v N-dimensional lookup target
+  // ----------------------------------------------------------------------------------------------
   void set_target(const std::vector<double> &v);
 
+  /// @defgroup Getters 
+  /// get_ functions to enable testing of the internal state of the interpolator
+
+  /// @{
   std::vector<double> get_current_target();
 
   std::vector<std::size_t> get_floor();
@@ -45,13 +65,31 @@ public:
   std::vector<std::vector<double>> get_cubic_slope_coeffs();
 
   std::vector<double> get_results();
+  /// @}
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Calculate the total weight that a hypercube vertex has on the N-dimensional 
+  ///           interpolation
+  /// @param	v N-dimensional lookup target
+  // ----------------------------------------------------------------------------------------------
   double get_vertex_weight(const std::vector<short> &v);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	
+  /// @param	table_num
+  /// @param	scalar
+  // ----------------------------------------------------------------------------------------------
   void normalize_grid_values_at_target(std::size_t table_num, const double scalar = 1.0);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief
+  /// @param	scalar
+  // ----------------------------------------------------------------------------------------------
   void normalize_grid_values_at_target(const double scalar = 1.0);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief    Calculate and store the target point's floor index in N dimensions.
+  // ----------------------------------------------------------------------------------------------
   void set_floor();
 
 private:
@@ -70,8 +108,9 @@ private:
                                    ///< there is a change in the target
   std::vector<Method> methods;     ///< Extrapolation or interpolation method
   std::vector<Method> previous_methods;      ///< Temporary; does not need to be a member
-  std::vector<std::vector<short>> hypercube; ///< An ordered list of relative indices
-                                             ///< necessary for the interpolation of target.
+  std::vector<std::vector<short>> hypercube; ///< An ordered list of vertices (in relative index
+                                             ///< form) defining the N-dimensional limits of the
+                                             ///< interpolation space for @c target.
                                              ///< Size = Product(N_nodes for each axis'
                                              ///< interpolation)
   bool reset_hypercube;                      ///< If the target changes? Or interp method changes?
@@ -86,7 +125,9 @@ private:
   std::vector<std::vector<double>> hypercube_values; ///< Performance map values corresponding to
                                                      ///< the placement of the hypercube origin
                                                      ///< at the point floor
-  std::vector<double> hypercube_weights;             ///< No idea. Same size as hypercube
+  std::vector<double> hypercube_weights;             ///< For each vertex in the hypercube, a
+                                                     ///< scalar weight that takes its role in
+                                                     ///< each dimension into account.
   std::vector<double> results; ///< Results of the interpolation for each target
 
   void calculate_weights();
