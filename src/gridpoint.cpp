@@ -228,8 +228,7 @@ void GridPoint::calculate_interp_coeffs() {
           (mu * mu * mu - mu * mu) * grid_data->get_axis_spacing_mult(dim, 1, point_floor[dim]);
     } else {
       if (methods[dim] == Method::CONSTANT) {
-        mu = mu < 0 ? 0 : 1; // In practice, mu cannot be < 0, as the GridAxis is guaranteed to be 
-                             // sorted in ascending order.
+        mu = mu < 0 ? 0 : 1; // mu can be < 0 if the target is OUTBOUNDS on the left
       }
       interp_coeffs[dim][0] = 1 - mu;
       interp_coeffs[dim][1] = mu;

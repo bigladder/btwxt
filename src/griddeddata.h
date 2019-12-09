@@ -111,7 +111,7 @@ public:
   // ----------------------------------------------------------------------------------------------
   /// @param	dim The index of the desired vector, where a 0-index describes the slowest-
   ///               changing dimension and N_max is the fastest-changing dimension.
-  /// @return   Min and max extrapolation limits defined by the user. Hmm, what are these?
+  /// @return   Min and max extrapolation limits defined by the user.
   // ----------------------------------------------------------------------------------------------
   std::pair<double, double> get_extrap_limits(const std::size_t &dim);
 
