@@ -22,10 +22,12 @@ GridAxis::GridAxis(std::vector<double> grid_vector, Method extrapolation_method,
       interpolation_method(interpolation_method),
       extrapolation_limits(std::move(extrapolation_limits)) {
   if (grid.size() == 0) {
-      showMessage(MsgLevel::MSG_ERR, "Cannot create a GridAxis from a zero-length vector.");
+    showMessage(MsgLevel::MSG_ERR, "Cannot create a GridAxis from a zero-length vector.");
   }
   check_grid_sorted();
   check_extrap_limits();
+  // Probably need to add something like check_extrapolation_methods() here; is
+  // CUBIC allowed in extrapolation?: TM120219
   if (interpolation_method == Method::CUBIC) {
     calc_spacing_multipliers();
   }
@@ -55,8 +57,9 @@ void GridAxis::calc_spacing_multipliers() {
   // "0" and "1" are the "flavors" of the calc_spacing_multipliers.
   // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavof
   if (grid.size() == 1) {
-      set_interp_method(Method::LINEAR);
-      showMessage(MsgLevel::MSG_WARN, "A cubic interpolation method is not valid for grid axes with only one value. Interpolation method reset to linear.");
+    set_interp_method(Method::LINEAR);
+    showMessage(MsgLevel::MSG_WARN, "A cubic interpolation method is not valid for grid axes with "
+                                    "only one value. Interpolation method reset to linear.");
   }
   double center_spacing;
   for (std::size_t i = 0; i < grid.size() - 1; i++) {
@@ -79,11 +82,17 @@ void GridAxis::check_grid_sorted() {
 
 void GridAxis::check_extrap_limits() {
   if (extrapolation_limits.first > grid[0]) {
-    showMessage(MsgLevel::MSG_WARN, stringify("The lower extrapolation limit (", extrapolation_limits.first,") is within the set of grid values. Setting to smallest grid value (", grid[0],")."));
+    showMessage(MsgLevel::MSG_WARN,
+                stringify("The lower extrapolation limit (", extrapolation_limits.first,
+                          ") is within the set of grid values. Setting to smallest grid value (",
+                          grid[0], ")."));
     extrapolation_limits.first = grid[0];
   }
   if (extrapolation_limits.second < grid.back()) {
-    showMessage(MsgLevel::MSG_WARN, stringify("The upper extrapolation limit (", extrapolation_limits.first,") is within the set of grid values. Setting to largest grid value (", grid.back(),")."));
+    showMessage(MsgLevel::MSG_WARN,
+                stringify("The upper extrapolation limit (", extrapolation_limits.first,
+                          ") is within the set of grid values. Setting to largest grid value (",
+                          grid.back(), ")."));
     extrapolation_limits.second = grid.back();
   }
 }
@@ -167,13 +176,14 @@ std::size_t GriddedData::get_value_index(const std::vector<std::size_t> &coords)
 }
 
 std::size_t GriddedData::get_value_index_relative(const std::vector<std::size_t> &coords,
-                                     const std::vector<short> &translation) {
+                                                  const std::vector<short> &translation) {
   int new_coord;
   for (std::size_t dim = 0; dim < coords.size(); dim++) {
     new_coord = coords[dim] + translation[dim];
     if (new_coord < 0) {
       temp_coords[dim] = 0u;
     } else if (new_coord >= (int)dimension_lengths[dim]) {
+      // Under current Catmull-Rom cubic fit, does this get used? TM120419
       temp_coords[dim] = dimension_lengths[dim] - 1u;
     } else {
       temp_coords[dim] = new_coord;
@@ -198,7 +208,7 @@ std::vector<double> GriddedData::get_values(const std::size_t index) {
 }
 
 std::vector<double> GriddedData::get_values_relative(const std::vector<std::size_t> &coords,
-                                                      const std::vector<short> &translation) {
+                                                     const std::vector<short> &translation) {
   return get_values(get_value_index_relative(coords, translation));
 }
 
@@ -255,32 +265,32 @@ void GriddedData::normalize_value_table(std::size_t table_num, double scalar) {
   if (scalar == 0.0) {
     showMessage(MsgLevel::MSG_ERR, "Attempt to normalize values by zero.");
   }
-  scalar = 1.0/scalar;
+  scalar = 1.0 / scalar;
   std::transform(table.begin(), table.end(), table.begin(),
                  std::bind(std::multiplies<double>(), std::placeholders::_1, scalar));
 }
 
 std::string GriddedData::write_data() {
-  std::vector<std::size_t> indices(ndims,0);
+  std::vector<std::size_t> indices(ndims, 0);
   std::stringstream output("");
 
-  for (std::size_t dim=0; dim < ndims; ++dim) {
+  for (std::size_t dim = 0; dim < ndims; ++dim) {
     output << "Axis " << dim + 1 << ",";
   }
-  for (std::size_t tab=0; tab < num_tables; ++tab) {
+  for (std::size_t tab = 0; tab < num_tables; ++tab) {
     output << "Value " << tab + 1 << ",";
   }
   output << std::endl;
-  for (std::size_t index=0; index < num_values; ++index) {
-    for (std::size_t dim=0; dim < ndims; ++dim) {
+  for (std::size_t index = 0; index < num_values; ++index) {
+    for (std::size_t dim = 0; dim < ndims; ++dim) {
       output << grid_axes[dim].grid[indices[dim]] << ",";
     }
-    for (std::size_t tab=0; tab < num_tables; ++tab) {
+    for (std::size_t tab = 0; tab < num_tables; ++tab) {
       output << value_tables[tab][index] << ",";
     }
     output << std::endl;
     ++indices[ndims - 1];
-    for (std::size_t dim= ndims - 1; dim > 0; --dim) {
+    for (std::size_t dim = ndims - 1; dim > 0; --dim) {
       if (indices[dim] >= dimension_lengths[dim]) {
         ++indices[dim - 1];
         indices[dim] = 0;

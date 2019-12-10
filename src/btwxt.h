@@ -24,15 +24,30 @@ extern void *messageCallbackContextPtr;
 
 void setMessageCallback(BtwxtCallbackFunction callbackFunction, void *contextPtr);
 
-// this will be the public-facing class.
+/// @class RegularGridInterpolator btwxt.h
+/// @brief This class provides the public interface for GridPoint.
+/// @see GriddedData, GridPoint
+
 class RegularGridInterpolator {
 public:
-  // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
+  // GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Default constructor (not used!)
+  // ----------------------------------------------------------------------------------------------
   RegularGridInterpolator();
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Initialize an RGI with a previously defined GriddedData object.
+  /// @param	grid_data TBD
+  // ----------------------------------------------------------------------------------------------
   explicit RegularGridInterpolator(GriddedData &grid_data);
 
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Initialize an RGI with the elements needed to construct a GriddedData object.
+  /// @param	grid TBD
+  /// @param	values TBD
+  // ----------------------------------------------------------------------------------------------
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                           const std::vector<std::vector<double>> &values);
 
@@ -51,12 +66,17 @@ public:
     return *this;
   }
 
-  // Add value table to GriddedData
+  // ----------------------------------------------------------------------------------------------
+  /// @brief	Add value table to GriddedData.
+  /// @param	value_vector Values representing a parameter with N-dim dependence; its length is
+  ///           equal to the product of all dimension sizes.
+  /// @return	Index of the table just added
+  /// @see      GriddedData::add_value_table
+  // ----------------------------------------------------------------------------------------------
   std::size_t add_value_table(std::vector<double> &value_vector) {
     return grid_data.add_value_table(value_vector);
   }
 
-  // GridPoint gets instantiated inside calculate_value_at_target
   double get_value_at_target(std::vector<double> target, std::size_t table_index);
 
   double operator()(std::vector<double> target, std::size_t table_index) {
@@ -85,7 +105,8 @@ public:
 
   void normalize_values_at_target(std::size_t table_index, const double scalar = 1.0);
 
-  void normalize_values_at_target(std::size_t table_index, const std::vector<double> &target, const double scalar = 1.0);
+  void normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
+                                  const double scalar = 1.0);
 
   std::vector<double> get_current_target();
 
@@ -97,7 +118,7 @@ public:
     grid_data.set_axis_interp_method(dim, method);
   }
 
-  std::vector<std::vector<short>>& get_hypercube();
+  std::vector<std::vector<short>> &get_hypercube();
 
   std::pair<double, double> get_axis_limits(int dim);
 
