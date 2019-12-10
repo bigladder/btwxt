@@ -95,6 +95,12 @@ void GridPoint::set_floor() {
   floor_index = grid_data->get_value_index(point_floor);
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief   Sets whether the requested target value on dimension @c dim is within bounds, within
+///          extrapolation limits, or outside extrapolation limits (outlawed). Also sets the 
+///          point floor index for dimension @c dim.
+/// @param	dim Dimension number
+// ----------------------------------------------------------------------------------------------
 void GridPoint::set_dim_floor(std::size_t dim) {
   GridAxis &axis = grid_data->grid_axes[dim];
   std::size_t l = axis.grid.size();
@@ -124,6 +130,10 @@ void GridPoint::set_dim_floor(std::size_t dim) {
   }
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief   Calculate the (proportional) distance of the target from its point floor, 
+///          normalizing to the distance between the floor and its first neighbor, in N dims.
+// ----------------------------------------------------------------------------------------------
 void GridPoint::calculate_weights() {
   for (std::size_t dim = 0; dim < ndims; ++dim) {
     if (grid_data->grid_axes[dim].grid.size() > 1) {
@@ -170,8 +180,18 @@ void GridPoint::consolidate_methods() {
   }
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief  set_hypercube with member data used.
+// ----------------------------------------------------------------------------------------------
 void GridPoint::set_hypercube() { set_hypercube(grid_data->get_interp_methods()); }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief  Create a list of all the vertices in the interpolation hypercube. The hypercube 
+///         contains every possible combination of the interpolation indices (from possible lists
+///         {0,1}, {-1,0,1,2}, or {0}) in N-dimensions; therefore each element in the
+///         list is N-dimensional.
+/// @param	methods
+// ----------------------------------------------------------------------------------------------
 void GridPoint::set_hypercube(std::vector<Method> methods) {
   if (methods.size() != ndims) {
     showMessage(MsgLevel::MSG_ERR, stringify("Error setting hypercube. Methods vector does not "
@@ -211,11 +231,17 @@ void GridPoint::set_hypercube(std::vector<Method> methods) {
   }
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief  Return a newly-created hypercube.
+// ----------------------------------------------------------------------------------------------
 std::vector<std::vector<short>> &GridPoint::get_hypercube() {
   consolidate_methods();
   return hypercube;
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief  The interpolation target is converted into weight coefficients. 
+// ----------------------------------------------------------------------------------------------
 void GridPoint::calculate_interp_coeffs() {
   for (std::size_t dim = 0; dim < ndims; dim++) {
     double mu = weights[dim];
@@ -243,6 +269,9 @@ void GridPoint::calculate_interp_coeffs() {
   }
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief
+// ----------------------------------------------------------------------------------------------
 void GridPoint::set_hypercube_values() {
   if (results.size() != grid_data->num_tables) {
     results.resize(grid_data->num_tables);
@@ -261,6 +290,9 @@ void GridPoint::set_hypercube_values() {
   hypercube_cache[{floor_index, hypercube_size_hash}] = hypercube_values;
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief
+// ----------------------------------------------------------------------------------------------
 void GridPoint::set_results() {
   set_hypercube_values();
   std::fill(results.begin(), results.end(), 0.0);
