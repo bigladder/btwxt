@@ -26,8 +26,8 @@ GridAxis::GridAxis(std::vector<double> grid_vector, Method extrapolation_method,
   }
   check_grid_sorted();
   check_extrap_limits();
-  // Probably need to add something like check_extrapolation_methods() here; are
-  // CUBIC or LINEAR allowed in extrapolation?: TM120219
+  // Probably need to add something like check_extrapolation_methods() here; is
+  // CUBIC allowed in extrapolation?: TM120219
   if (interpolation_method == Method::CUBIC) {
     calc_spacing_multipliers();
   }
@@ -183,7 +183,7 @@ std::size_t GriddedData::get_value_index_relative(const std::vector<std::size_t>
     if (new_coord < 0) {
       temp_coords[dim] = 0u;
     } else if (new_coord >= (int)dimension_lengths[dim]) {
-      // Under current Catmull-Rom cubic fit, this is bypassed. TM120419
+      // Under current Catmull-Rom cubic fit, does this get used? TM120419
       temp_coords[dim] = dimension_lengths[dim] - 1u;
     } else {
       temp_coords[dim] = new_coord;
