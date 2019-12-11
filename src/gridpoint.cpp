@@ -128,6 +128,7 @@ void GridPoint::set_dim_floor(std::size_t dim) {
         std::upper_bound(axis.grid.begin(), axis.grid.end(), target[dim]);
     point_floor[dim] = upper - axis.grid.begin() - 1;
   }
+  //check_cell_for_nulls();
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -304,6 +305,13 @@ void GridPoint::set_results() {
   }
 }
 
+// ----------------------------------------------------------------------------------------------
+/// @brief
+// ----------------------------------------------------------------------------------------------
+void GridPoint::check_cell_for_nulls() {
+
+}
+    
 std::vector<double> GridPoint::get_results() {
   if (grid_data->num_tables == 0u) {
     showMessage(MsgLevel::MSG_WARN,

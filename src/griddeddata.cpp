@@ -26,8 +26,7 @@ GridAxis::GridAxis(std::vector<double> grid_vector, Method extrapolation_method,
   }
   check_grid_sorted();
   check_extrap_limits();
-  // Probably need to add something like check_extrapolation_methods() here; is
-  // CUBIC allowed in extrapolation?: TM120219
+  check_extrapolation_method();
   if (interpolation_method == Method::CUBIC) {
     calc_spacing_multipliers();
   }
@@ -42,7 +41,10 @@ void GridAxis::set_interp_method(const Method im) {
   }
 }
 
-void GridAxis::set_extrap_method(const Method em) { extrapolation_method = em; }
+void GridAxis::set_extrap_method(const Method em) { 
+   extrapolation_method = em;
+   check_extrapolation_method();
+}
 
 void GridAxis::set_extrap_limits(const std::pair<double, double> extrap_limits) {
   extrapolation_limits = extrap_limits;
@@ -95,6 +97,13 @@ void GridAxis::check_extrap_limits() {
                           grid.back(), ")."));
     extrapolation_limits.second = grid.back();
   }
+}
+
+void GridAxis::check_extrapolation_method() {
+   if (extrapolation_method == Method::CUBIC) {
+    showMessage(MsgLevel::MSG_WARN, "Cubic extrapolation is disallowed; setting method to LINEAR.");
+   }
+   extrapolation_method = Method::LINEAR;
 }
 
 GriddedData::GriddedData() = default;

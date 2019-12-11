@@ -148,6 +148,8 @@ private:
 
   void set_results();
 
+  void check_cell_for_nulls();
+
   std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>>
       hypercube_cache; ///< Once a set of @c hypercube_values is calculated for any given point
                        ///< floor, it's cached here using a key consisting of two unique numbers:

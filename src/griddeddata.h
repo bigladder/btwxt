@@ -57,6 +57,7 @@ private:
   void calc_spacing_multipliers();
   void check_grid_sorted();
   void check_extrap_limits();
+  void check_extrapolation_method();
 };
 
 /// @class GriddedData griddeddata.h
