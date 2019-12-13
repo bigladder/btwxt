@@ -116,7 +116,7 @@ protected:
     TwoDSimpleNormalizationFixture() {
         std::vector<std::vector<double>> grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
         //          1.0   2.0   3.0
-        values = {{ 2.0,  2.0,  6.0,    // 2.0
+        values = {{ 2.0,  4.0,  6.0,    // 2.0
                     7.0,  14.0, 21.0}}; // 7.0
         target = {7.0, 3.0};
         test_gridded_data = GriddedData(grid, values);

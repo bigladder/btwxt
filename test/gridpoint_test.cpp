@@ -68,32 +68,6 @@ TEST_F(TwoDFixture, grid_point_interp_coeffs) {
   EXPECT_EQ(cubic_slope_coeffs[1][1], 0);
 }
 
-TEST_F(TwoDSimpleNormalizationFixture, grid_point_scalar_return) {
-    GridPoint grid_point(test_gridded_data, target);
-    double return_scalar;
-    std::vector<double> results;
-    double expected_divisor {6.0};
-    double expected_value_at_target {1.5};
-    std::vector<double> normalize_target {2.0, 3.0};
-
-    grid_point.set_target(normalize_target);
-    return_scalar = grid_point.normalize_grid_values_at_target(0, 1.0);
-    EXPECT_EQ(return_scalar, expected_divisor);
-}
-
-TEST_F(TwoDSimpleNormalizationFixture, grid_point_compound_scalar_return) {
-    GridPoint grid_point(test_gridded_data, target);
-    double return_scalar;
-    std::vector<double> results;
-    double expected_divisor {6.0*4.0};
-    double expected_value_at_target {1.5};
-    std::vector<double> normalize_target {2.0, 3.0};
-
-    grid_point.set_target(normalize_target);
-    return_scalar = grid_point.normalize_grid_values_at_target(0, 4.0);
-    EXPECT_EQ(return_scalar, expected_divisor);
-}
-
 TEST_F(CubicFixture, grid_point_interp_coeffs) {
   GridPoint grid_point(test_gridded_data, target);
 

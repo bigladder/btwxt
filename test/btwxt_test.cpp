@@ -203,9 +203,13 @@ TEST_F(TwoDFixture, normalize) {
 TEST_F(TwoDSimpleNormalizationFixture, normalization_return_scalar) {
     double return_scalar;
     std::vector<double> results;
-    double expected_divisor {6.0};
-    double expected_value_at_target {3.5};
-    std::vector<double> normalization_target = {2.0, 3.0};
+    double x = target[0];       // 7.0
+    double y = target[1];       // 3.0
+    double x_n = 2.0;
+    double y_n = 3.0;
+    double expected_divisor {x_n*y_n};
+    double expected_value_at_target {(x*y)/expected_divisor};   // (7.0 * 3.0) / 6.0 = 3.5
+    std::vector<double> normalization_target = {x_n, y_n};
     return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, 1.0);
     test_rgi.set_new_target(target);
     results = test_rgi.get_values_at_target();
@@ -216,10 +220,15 @@ TEST_F(TwoDSimpleNormalizationFixture, normalization_return_scalar) {
 TEST_F(TwoDSimpleNormalizationFixture, normalization_return_compound_scalar) {
     double return_scalar;
     std::vector<double> results;
-    double expected_compound_divisor {6.0*4.0};
-    double expected_value_at_target {0.875};
-    std::vector<double> normalization_target = {2.0, 3.0};
-    return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, 4.0);
+    double x = target[0];       // 7.0
+    double y = target[1];       // 3.0
+    double x_n = 2.0;
+    double y_n = 3.0;
+    double c_n = 4.0;
+    double expected_compound_divisor {x_n*y_n*c_n};
+    double expected_value_at_target {(x*y)/expected_compound_divisor};    //0.875
+    std::vector<double> normalization_target = {x_n, y_n};
+    return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, c_n);
     test_rgi.set_new_target(target);
     results = test_rgi.get_values_at_target();
     EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));
