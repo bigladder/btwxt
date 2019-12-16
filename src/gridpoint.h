@@ -36,7 +36,7 @@ public:
   // ----------------------------------------------------------------------------------------------
   /// @brief	Construct a parameter axis
   /// @param	grid_data Parameter hyper-space in which target interpolations will be done.
-  /// @param	v N-dimensional lookup target 
+  /// @param	v N-dimensional lookup target
   // ----------------------------------------------------------------------------------------------
   GridPoint(GriddedData &grid_data, std::vector<double> v);
 
@@ -46,7 +46,7 @@ public:
   // ----------------------------------------------------------------------------------------------
   void set_target(const std::vector<double> &v);
 
-  /// @defgroup Getters 
+  /// @defgroup Getters
   /// get_ functions to enable testing of the internal state of the interpolator
 
   /// @{
@@ -68,14 +68,14 @@ public:
   /// @}
 
   // ----------------------------------------------------------------------------------------------
-  /// @brief	Calculate the total weight that a hypercube vertex has on the N-dimensional 
+  /// @brief	Calculate the total weight that a hypercube vertex has on the N-dimensional
   ///           interpolation
   /// @param	v N-dimensional lookup target
   // ----------------------------------------------------------------------------------------------
   double get_vertex_weight(const std::vector<short> &v);
 
   // ----------------------------------------------------------------------------------------------
-  /// @brief	
+  /// @brief
   /// @param	table_num
   /// @param	scalar
   // ----------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ private:
   std::vector<Bounds> is_inbounds; ///< for deciding interpolation vs. extrapolation when
                                    ///< there is a change in the target
   std::vector<Method> methods;     ///< Extrapolation or interpolation method
-  std::vector<Method> previous_methods;      ///< Temporary; does not need to be a member
+  //std::vector<Method> previous_methods;      ///< Temporary; does not need to be a member
   std::vector<std::vector<short>> hypercube; ///< An ordered list of vertices (in relative index
                                              ///< form) defining the N-dimensional limits of the
                                              ///< interpolation space for @c target.
@@ -116,18 +116,34 @@ private:
   bool reset_hypercube;                      ///< If the target changes? Or interp method changes?
   std::vector<std::vector<double>> weighting_factors; ///< A set of 4 weighting factors for each
                                                       ///< dimension
+  std::vector<std::vector<short>> hypercell; ///< The closest vertices bounding the target, which
+                                             ///< are always required for any type of interpolation
+                                             ///< Storing these allows us to isolate invalid
+                                             ///< operating points.
 
+  std::vector<bool> hypercell_has_null;      ///< Stores true when one of the bounding cell 
+                                             ///< vertices for a given value
+                                             ///< table contains a null (i.e. NAN) value.
   std::vector<std::vector<double>> interp_coeffs;      ///< Coefficients for calculating vertex
                                                        ///< weights
   std::vector<std::vector<double>> cubic_slope_coeffs; ///< Coefficients for calculating vertex
                                                        ///< weights
 
-  std::vector<std::vector<double>> hypercube_values; ///< Performance map values corresponding to
+  std::vector<std::vector<double>> hypercube_values; ///< Performance map(s') values corresponding to
                                                      ///< the placement of the hypercube origin
-                                                     ///< at the point floor
+                                                     ///< at the point floor. 
   std::vector<double> hypercube_weights;             ///< For each vertex in the hypercube, a
                                                      ///< scalar weight that takes its role in
                                                      ///< each dimension into account.
+
+  std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>>
+      hypercube_cache; ///< Once a set of @c hypercube_values is calculated for any given point
+                       ///< floor, it's cached here using a key consisting of two unique numbers:
+                       ///< {floor_index, hash comprised of each dimension's interpolation method}
+
+  std::size_t hypercube_size_hash; ///< integer hash comprised of digits representing each
+                                   ///< dimension's interpolation method
+
   std::vector<double> results; ///< Results of the interpolation for each target
 
   void calculate_weights();
@@ -137,6 +153,8 @@ private:
   void calculate_interp_coeffs();
 
   void set_dim_floor(std::size_t dim);
+
+  void set_hypercell();
 
   void set_hypercube();
 
@@ -149,14 +167,6 @@ private:
   void set_results();
 
   void check_cell_for_nulls();
-
-  std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>>
-      hypercube_cache; ///< Once a set of @c hypercube_values is calculated for any given point
-                       ///< floor, it's cached here using a key consisting of two unique numbers:
-                       ///< {floor_index, hash comprised of each dimension's interpolation method}
-
-  std::size_t hypercube_size_hash; ///< integer hash comprised of digits representing each
-                                   ///< dimension's interpolation method
 };
 
 // free functions

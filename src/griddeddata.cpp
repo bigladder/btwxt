@@ -102,8 +102,8 @@ void GridAxis::check_extrap_limits() {
 void GridAxis::check_extrapolation_method() {
    if (extrapolation_method == Method::CUBIC) {
     showMessage(MsgLevel::MSG_WARN, "Cubic extrapolation is disallowed; setting method to LINEAR.");
+    extrapolation_method = Method::LINEAR;
    }
-   extrapolation_method = Method::LINEAR;
 }
 
 GriddedData::GriddedData() = default;
@@ -188,11 +188,11 @@ std::size_t GriddedData::get_value_index_relative(const std::vector<std::size_t>
                                                   const std::vector<short> &translation) {
   int new_coord;
   for (std::size_t dim = 0; dim < coords.size(); dim++) {
-    new_coord = coords[dim] + translation[dim];
+    new_coord = static_cast<int>(coords[dim] + translation[dim]); // signed
     if (new_coord < 0) {
       temp_coords[dim] = 0u;
-    } else if (new_coord >= (int)dimension_lengths[dim]) {
-      // Under current Catmull-Rom cubic fit, does this get used? TM120419
+    } else if (new_coord >= static_cast<int>(dimension_lengths[dim])) {
+      // Safety check for rare translations > 2
       temp_coords[dim] = dimension_lengths[dim] - 1u;
     } else {
       temp_coords[dim] = new_coord;

@@ -23,26 +23,43 @@ GridPoint::GridPoint(GriddedData &grid_data_in)
       weights(ndims, 0),
       is_inbounds(ndims),
       methods(ndims, Method::UNDEF),
+      hypercube(),
       reset_hypercube(false),
       weighting_factors(ndims, std::vector<double>(4, 0.0)),
+      hypercell(static_cast<size_t>(std::pow(2, ndims)), std::vector<short>(ndims, 0)),
+      hypercell_has_null(grid_data->get_num_tables(), false),
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
-      results(grid_data->num_tables),
-      hypercube_size_hash(0) {}
+      hypercube_values(),
+      hypercube_weights(),
+      hypercube_cache(),
+      hypercube_size_hash(0),
+      results(grid_data->num_tables) {
+  //set_hypercell();
+}
 
 GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
+      target(ndims, 0.0),
       target_is_set(false),
       point_floor(ndims, 0),
       weights(ndims, 0),
       is_inbounds(ndims),
       methods(ndims, Method::UNDEF),
+      hypercube(),
       reset_hypercube(false),
       weighting_factors(ndims, std::vector<double>(4, 0.0)),
+      hypercell(static_cast<size_t>(std::pow(2, ndims)), std::vector<short>(ndims, 0)),
+      hypercell_has_null(grid_data->get_num_tables(), false),
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
+      hypercube_values(),
+      hypercube_weights(),
+      hypercube_cache(),
+      hypercube_size_hash(0),
       results(grid_data->num_tables) {
+  //set_hypercell();
   set_target(v);
 }
 
@@ -92,12 +109,13 @@ void GridPoint::set_floor() {
   for (std::size_t dim = 0; dim < ndims; dim += 1) {
     set_dim_floor(dim);
   }
+  //check_cell_for_nulls();
   floor_index = grid_data->get_value_index(point_floor);
 }
 
 // ----------------------------------------------------------------------------------------------
 /// @brief   Sets whether the requested target value on dimension @c dim is within bounds, within
-///          extrapolation limits, or outside extrapolation limits (outlawed). Also sets the 
+///          extrapolation limits, or outside extrapolation limits (outlawed). Also sets the
 ///          point floor index for dimension @c dim.
 /// @param	dim Dimension number
 // ----------------------------------------------------------------------------------------------
@@ -128,11 +146,10 @@ void GridPoint::set_dim_floor(std::size_t dim) {
         std::upper_bound(axis.grid.begin(), axis.grid.end(), target[dim]);
     point_floor[dim] = upper - axis.grid.begin() - 1;
   }
-  //check_cell_for_nulls();
 }
 
 // ----------------------------------------------------------------------------------------------
-/// @brief   Calculate the (proportional) distance of the target from its point floor, 
+/// @brief   Calculate the (proportional) distance of the target from its point floor,
 ///          normalizing to the distance between the floor and its first neighbor, in N dims.
 // ----------------------------------------------------------------------------------------------
 void GridPoint::calculate_weights() {
@@ -150,16 +167,14 @@ void GridPoint::calculate_weights() {
 // ------------------------------------------------------------------------------------------------
 /// @brief  Return how far along an edge the target is.
 // ------------------------------------------------------------------------------------------------
-double compute_fraction(double x, double edge[2]) {
-  return (x - edge[0]) / (edge[1] - edge[0]);
-}
+double compute_fraction(double x, double edge[2]) { return (x - edge[0]) / (edge[1] - edge[0]); }
 
 // ------------------------------------------------------------------------------------------------
 /// @brief  If out of bounds, extrapolate according to prescription (default CONSTANT)
 ///         If outside of extrapolation limits, send a warning and perform constant extrapolation.
 // ------------------------------------------------------------------------------------------------
 void GridPoint::consolidate_methods() {
-  previous_methods = methods;
+  const auto previous_methods = methods;
   methods = grid_data->get_interp_methods();
   if (target_is_set) {
     auto extrap_methods = grid_data->get_extrap_methods();
@@ -182,12 +197,33 @@ void GridPoint::consolidate_methods() {
 }
 
 // ----------------------------------------------------------------------------------------------
+/// @brief  Create a generic vector of all possible nearest-bounding vertices in N dimensions. We
+///         use trickery with a binary integer, knowing that relative indices can only be [0, 1]
+///         (representing the point floor and point ceiling.)
+// ----------------------------------------------------------------------------------------------
+void GridPoint::set_hypercell() {
+  // The point ceiling is described by a set of "ndims" ones. We represent it with an
+  // integer = 2^ndims-1
+  // TODO: Write a test to make sure this is the correct integer for the dimensionality.
+  unsigned int n_dim_point_ceiling = (1 << ndims) - 1;
+  hypercell.reserve(n_dim_point_ceiling);
+  std::vector<short> coord_vec(ndims);
+  for (auto i = 0u; i < n_dim_point_ceiling; i++) { // Iterate over every (binary) integer; it's 
+                                                   // the equivalent of every vertex
+    for (auto d = 0; d < ndims; d++) {
+      coord_vec[d] = i >> (ndims - 1 - d) & 1;     // Each digit takes its place in the vector
+    }
+    hypercell.emplace_back(coord_vec);
+  }
+}
+
+// ----------------------------------------------------------------------------------------------
 /// @brief  set_hypercube with member data used.
 // ----------------------------------------------------------------------------------------------
 void GridPoint::set_hypercube() { set_hypercube(grid_data->get_interp_methods()); }
 
 // ----------------------------------------------------------------------------------------------
-/// @brief  Create a list of all the vertices in the interpolation hypercube. The hypercube 
+/// @brief  Create a list of all the vertices in the interpolation hypercube. The hypercube
 ///         contains every possible combination of the interpolation indices (from possible lists
 ///         {0,1}, {-1,0,1,2}, or {0}) in N-dimensions; therefore each element in the
 ///         list is N-dimensional.
@@ -241,7 +277,7 @@ std::vector<std::vector<short>> &GridPoint::get_hypercube() {
 }
 
 // ----------------------------------------------------------------------------------------------
-/// @brief  The interpolation target is converted into weight coefficients. 
+/// @brief  The interpolation target is converted into weight coefficients.
 // ----------------------------------------------------------------------------------------------
 void GridPoint::calculate_interp_coeffs() {
   for (std::size_t dim = 0; dim < ndims; dim++) {
@@ -284,6 +320,8 @@ void GridPoint::set_hypercube_values() {
   }
   std::size_t hypercube_index = 0;
   for (const auto &vertex : hypercube) {
+    // At each interpolation vertex, a value is contributed by each input table (e.g. performance 
+    // map). These are returned collectively.
     hypercube_values[hypercube_index] = grid_data->get_values_relative(point_floor, vertex);
     ++hypercube_index;
   }
@@ -291,7 +329,9 @@ void GridPoint::set_hypercube_values() {
 }
 
 // ----------------------------------------------------------------------------------------------
-/// @brief
+/// @brief  Iterate over each vertex in the hypercube, calculating the total vertex weight
+///         in N dimensions, and adding the contribution of that vertex to all tables'
+///         results.
 // ----------------------------------------------------------------------------------------------
 void GridPoint::set_results() {
   set_hypercube_values();
@@ -306,12 +346,23 @@ void GridPoint::set_results() {
 }
 
 // ----------------------------------------------------------------------------------------------
-/// @brief
+/// @brief  Check for null values in any of the N-dimensional bounding coordinates of the target
+///         coordinate. Store state for later use.
 // ----------------------------------------------------------------------------------------------
 void GridPoint::check_cell_for_nulls() {
-
+  for (const auto &vertex : hypercell) {
+    size_t table_num = 0;
+    for (const auto &table_value : grid_data->get_values_relative(point_floor, vertex)) {
+      if (std::isnan(table_value)) {
+        hypercell_has_null[table_num] = true;
+        //showMessage(MsgLevel::MSG_ERR, stringify("Grid cell for target contains null value."));
+        break;
+      }
+      ++table_num;
+    }
+  }
 }
-    
+
 std::vector<double> GridPoint::get_results() {
   if (grid_data->num_tables == 0u) {
     showMessage(MsgLevel::MSG_WARN,
