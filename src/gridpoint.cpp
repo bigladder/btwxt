@@ -35,7 +35,7 @@ GridPoint::GridPoint(GriddedData &grid_data_in)
       hypercube_cache(),
       hypercube_size_hash(0),
       results(grid_data->num_tables) {
-  //set_hypercell();
+  set_hypercell();
 }
 
 GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
@@ -59,7 +59,7 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
       hypercube_cache(),
       hypercube_size_hash(0),
       results(grid_data->num_tables) {
-  //set_hypercell();
+  set_hypercell();
   set_target(v);
 }
 
@@ -109,7 +109,7 @@ void GridPoint::set_floor() {
   for (std::size_t dim = 0; dim < ndims; dim += 1) {
     set_dim_floor(dim);
   }
-  //check_cell_for_nulls();
+  check_cell_for_nulls();
   floor_index = grid_data->get_value_index(point_floor);
 }
 
@@ -350,16 +350,22 @@ void GridPoint::set_results() {
 ///         coordinate. Store state for later use.
 // ----------------------------------------------------------------------------------------------
 void GridPoint::check_cell_for_nulls() {
+  if (null_value_cache.count(floor_index)) {
+    return;
+  }
   for (const auto &vertex : hypercell) {
     size_t table_num = 0;
+    std::vector<size_t> tables_with_null;
     for (const auto &table_value : grid_data->get_values_relative(point_floor, vertex)) {
       if (std::isnan(table_value)) {
-        hypercell_has_null[table_num] = true;
-        //showMessage(MsgLevel::MSG_ERR, stringify("Grid cell for target contains null value."));
-        break;
+        tables_with_null.push_back(table_num);
       }
       ++table_num;
     }
+    if (tables_with_null.size()) {
+      break; // Don't bother trying the other vertices
+    }
+    null_value_cache[floor_index] = tables_with_null;
   }
 }
 

@@ -121,6 +121,10 @@ private:
   std::vector<bool> hypercell_has_null;      ///< Stores true when one of the bounding cell 
                                              ///< vertices for a given value
                                              ///< table contains a null (i.e. NAN) value.
+  std::map<std::size_t, std::vector<size_t>>
+      null_value_cache; ///< If there exists a null at a particular point floor, store the floor
+                        ///< and the table indices where null exists.
+
   std::vector<std::vector<double>> interp_coeffs;      ///< Coefficients for calculating vertex
                                                        ///< weights
   std::vector<std::vector<double>> cubic_slope_coeffs; ///< Coefficients for calculating vertex
