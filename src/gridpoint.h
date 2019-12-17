@@ -76,20 +76,17 @@ public:
 
   // ----------------------------------------------------------------------------------------------
   /// @brief
-  /// @param	table_num
-  /// @param	scalar
-  // ----------------------------------------------------------------------------------------------
-  void normalize_grid_values_at_target(std::size_t table_num, const double scalar = 1.0);
-
-  // ----------------------------------------------------------------------------------------------
-  /// @brief
   /// @param	scalar
   // ----------------------------------------------------------------------------------------------
   void normalize_grid_values_at_target(const double scalar = 1.0);
 
   // ----------------------------------------------------------------------------------------------
-  /// @brief    Calculate and store the target point's floor index in N dimensions.
+  /// @brief
+  /// @param	table_num
+  /// @param	scalar
   // ----------------------------------------------------------------------------------------------
+  double normalize_grid_values_at_target(std::size_t table_num, const double scalar = 1.0);
+
   void set_floor();
 
 private:
