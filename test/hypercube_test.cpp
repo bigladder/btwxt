@@ -105,6 +105,20 @@ TEST_F(CubicFixture, hypercube_calculations) {
   EXPECT_NEAR(result[1], 11.9271, 0.0001);
 }
 
+TEST_F(CubicFixture, null_checking_calculations) {
+  test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
+  test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
+  std::vector<double> table_with_null = {std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1,
+                                         5, 4, 2, 1,
+                                         8, 6, 3, 2,
+                                         10, 8, 4, 2};
+  test_gridded_data.add_value_table(table_with_null);
+  GridPoint grid_point(test_gridded_data, target);
+
+  std::vector<double> result = grid_point.get_results();
+  EXPECT_TRUE(std::isnan(result[2]));
+}
+
 TEST_F(OneDFixture, hypercube_calculations) {
   test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
   GridPoint grid_point(test_gridded_data, target);
