@@ -1,24 +1,16 @@
+include(initialize-submodules)
+initialize_submodules()
 
-
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-    # Initialize submodules
-    if (NOT EXISTS "${PROJECT_SOURCE_DIR}/vendor/googletest/.git")
-        message(STATUS "Inititalize googletest submodule")
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive "${PROJECT_SOURCE_DIR}/vendor/googletest"
-          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-          RESULT_VARIABLE GIT_SUBMOD_RESULT)
-        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-        endif()
-    endif()
-endif()
-
-if (BUILD_BTWXT_TESTING AND NOT TARGET gtest)
+# googletest library
+if (${PROJECT_NAME}_BUILD_TESTING AND NOT TARGET gtest)
 
     # Prevent GoogleTest from overriding our compiler/linker options
     # when building with Visual Studio
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    set(BUILD_GTEST ON CACHE BOOL "" FORCE)
+    set(BUILD_GTEST ON CACHE BOOL "" FORCE MARK)
+    set(BUILD_GMOCK ON CACHE BOOL "" FORCE)
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+    mark_as_advanced(BUILD_GTEST BUILD_GMOCK INSTALL_GTEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 
 endif()

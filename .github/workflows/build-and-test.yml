@@ -35,10 +35,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - run: echo "REPOSITORY_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
       - name: Create Build Directory
         run: cmake -E make_directory ${{github.workspace}}/build
       - name: Configure CMake
-        run: cmake -S . -B build -DBUILD_BTWXT_TESTING="ON" -DBTWXT_STATIC_LIB="${{ matrix.static_lib }}" -DBTWXT_COVERAGE="${{ matrix.coverage }}" -DCMAKE_BUILD_TYPE="${{ matrix.config }}"
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE="${{ matrix.config }}" -D${{ env.REPOSITORY_NAME }}_BUILD_TESTING="ON" -D${{ env.REPOSITORY_NAME }}_STATIC_LIB="${{ matrix.static_lib }}" -D${{ env.REPOSITORY_NAME }}_COVERAGE="${{ matrix.coverage }}"
       - name: Build
         run: cmake --build build --config ${{ matrix.config }}
       - name: Test
