@@ -11,19 +11,19 @@ set(library_sources
   error.cpp
 )
 
-option( BTWXT_STATIC_LIB "Make btwxt a static library" ON )
+option( ${PROJECT_NAME}_STATIC_LIB "Make ${PROJECT_NAME} a static library" ON )
 
-if (BTWXT_STATIC_LIB)
-  add_library(btwxt STATIC ${library_sources})
-  set_target_properties(btwxt PROPERTIES COMPILE_FLAGS "-DBTWXT_STATIC_DEFINE")
+if (${PROJECT_NAME}_STATIC_LIB)
+  add_library(${PROJECT_NAME} STATIC ${library_sources})
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-D${PROJECT_NAME}_STATIC_DEFINE")
 else()
   set(CMAKE_MACOSX_RPATH 1)
-  add_library(btwxt SHARED ${library_sources})
+  add_library(${PROJECT_NAME} SHARED ${library_sources})
 endif()
 
 include(GenerateExportHeader)
-generate_export_header(btwxt)
+generate_export_header(${PROJECT_NAME})
 
-if (BTWXT_COVERAGE)
-  add_coverage(btwxt)
+if (${PROJECT_NAME}_COVERAGE)
+  add_coverage(${PROJECT_NAME})
 endif()

@@ -1,6 +1,6 @@
 # Test Executable
 
-include_directories("${btwxt_SOURCE_DIR}/src"
+include_directories("${PROJECT_SOURCE_DIR}/src"
                     "${gtest_SOURCE_DIR}/include")
 
 set(library_sources
@@ -14,10 +14,11 @@ set(library_sources
   hypercube_test.cpp
 )
 
-link_libraries(btwxt gtest gmock)
 
-add_executable(btwxt_tests ${library_sources})
+add_executable(${PROJECT_NAME}_tests ${library_sources})
+
+target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} gtest gmock)
 
 include(GoogleTest)
 
-gtest_discover_tests(btwxt_tests TEST_PREFIX btwxt:)
+gtest_discover_tests(${PROJECT_NAME}_tests TEST_PREFIX ${PROJECT_NAME}:)
