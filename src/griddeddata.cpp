@@ -170,7 +170,7 @@ std::size_t GriddedData::get_value_index_relative(const std::vector<std::size_t>
                                      const std::vector<short> &translation) {
   int new_coord;
   for (std::size_t dim = 0; dim < coords.size(); dim++) {
-    new_coord = coords[dim] + translation[dim];
+    new_coord = static_cast<int>(coords[dim]) + translation[dim];
     if (new_coord < 0) {
       temp_coords[dim] = 0u;
     } else if (new_coord >= (int)dimension_lengths[dim]) {

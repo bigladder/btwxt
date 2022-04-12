@@ -164,8 +164,8 @@ void GridPoint::consolidate_methods()
 
 void GridPoint::set_hypercube() { set_hypercube(grid_data->get_interp_methods()); }
 
-void GridPoint::set_hypercube(std::vector<Method> methods) {
-  if (methods.size() != ndims) {
+void GridPoint::set_hypercube(std::vector<Method> m_methods) {
+  if (m_methods.size() != ndims) {
     showMessage(MsgLevel::MSG_ERR, stringify("Error setting hypercube. Methods vector does not "
                                              "have the correct number of dimensions."));
   }
@@ -179,7 +179,7 @@ void GridPoint::set_hypercube(std::vector<Method> methods) {
     if (target_is_set && weights[dim] == 0.0) {
       options[dim] = {0};
       reset_hypercube = true;
-    } else if (methods[dim] == Method::CUBIC) {
+    } else if (m_methods[dim] == Method::CUBIC) {
       options[dim] = {-1, 0, 1, 2};
     }
     hypercube_size_hash += options[dim].size()*digit;
@@ -191,7 +191,7 @@ void GridPoint::set_hypercube(std::vector<Method> methods) {
     for (const auto &x : hypercube) {
       for (const auto item : list) {
         r.push_back(x);
-        r.back().push_back(item);
+        r.back().push_back(static_cast<short>(item));
       }
     }
     hypercube = std::move(r);
