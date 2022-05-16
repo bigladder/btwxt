@@ -97,6 +97,14 @@ public:
     grid_data.set_axis_interp_method(dim, method);
   }
 
+  void set_axis_extrap_method(std::size_t dim, Method method) {
+    grid_data.set_axis_extrap_method(dim, method);
+  }
+
+  void set_axis_extrap_limits(std::size_t dim, const std::pair<double, double> &extrap_limits) {
+    grid_data.set_axis_extrap_limits(dim, extrap_limits);
+  }
+
   std::vector<std::vector<short>>& get_hypercube();
 
   std::pair<double, double> get_axis_limits(int dim);
