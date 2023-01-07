@@ -26,10 +26,18 @@ target_compile_options(btwxt PRIVATE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
   -Wall -Wextra -Wpedantic>
 )
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_export.h
+              ${CMAKE_CURRENT_SOURCE_DIR}/btwxt.h  
+              ${CMAKE_CURRENT_SOURCE_DIR}/error.h  
+              ${CMAKE_CURRENT_SOURCE_DIR}/griddeddata.h  
+              ${CMAKE_CURRENT_SOURCE_DIR}/gridpoint.h
+              DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/btwxt COMPONENT libs)
 
 if (${PROJECT_NAME}_COVERAGE)
   add_coverage(${PROJECT_NAME})

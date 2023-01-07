@@ -16,6 +16,7 @@ find_package(Git QUIET)
 set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(compiler-flags)
+include(GNUInstallDirs)
 
 option( ${PROJECT_NAME}_BUILD_TESTING "Build ${PROJECT_NAME} testing targets" OFF )
 option( ${PROJECT_NAME}_COVERAGE "Add ${PROJECT_NAME} coverage reports" OFF)
