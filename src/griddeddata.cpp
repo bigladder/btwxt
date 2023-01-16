@@ -15,29 +15,34 @@ namespace Btwxt {
 GridAxis::GridAxis() = default;
 
 GridAxis::GridAxis(std::vector<double> grid_vector, Method extrapolation_method,
-                   Method interpolation_method, std::pair<double, double> extrapolation_limits)
+                   Method interpolation_method, std::pair<double, double> extrapolation_limits,
+                   const char** info_message)
     : grid(std::move(grid_vector)),
       spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
       extrapolation_method(extrapolation_method),
       interpolation_method(interpolation_method),
       extrapolation_limits(std::move(extrapolation_limits)) {
   if (grid.size() == 0) {
-      showMessage(MsgLevel::MSG_ERR, "Cannot create a GridAxis from a zero-length vector.");
+      throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
   }
   check_grid_sorted();
   check_extrap_limits();
   if (interpolation_method == Method::CUBIC) {
-    calc_spacing_multipliers();
+    auto info = calc_spacing_multipliers();
+      if ((info != std::nullopt) && info_message) {
+      *info_message = info.value().data();
+      }
   }
 }
 
 std::size_t GridAxis::get_length() { return grid.size(); }
 
-void GridAxis::set_interp_method(const Method im) {
+std::optional<std::string_view> GridAxis::set_interp_method(const Method im) {
   interpolation_method = im;
   if (im == Method::CUBIC) {
-    calc_spacing_multipliers();
+    return calc_spacing_multipliers();
   }
+  { return {}; }
 }
 
 void GridAxis::set_extrap_method(const Method em) { extrapolation_method = em; }
@@ -51,12 +56,12 @@ double GridAxis::get_spacing_multiplier(const std::size_t &flavor, const std::si
   return spacing_multipliers[flavor][index];
 }
 
-void GridAxis::calc_spacing_multipliers() {
+std::optional<std::string_view> GridAxis::calc_spacing_multipliers() {
   // "0" and "1" are the "flavors" of the calc_spacing_multipliers.
-  // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavof
+  // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavor
   if (grid.size() == 1) {
-      set_interp_method(Method::LINEAR);
-      showMessage(MsgLevel::MSG_INFO, "A cubic interpolation method is not valid for grid axes with only one value. Interpolation method reset to linear.");
+      interpolation_method = Method::LINEAR;
+      return "A cubic interpolation method is not valid for grid axes with only one value. Interpolation method reset to linear.";
   }
   double center_spacing;
   for (std::size_t i = 0; i < grid.size() - 1; i++) {
@@ -68,6 +73,7 @@ void GridAxis::calc_spacing_multipliers() {
       spacing_multipliers[1][i] = center_spacing / (grid[i + 2] - grid[i]);
     }
   }
+  return {};
 }
 
 void GridAxis::check_grid_sorted() {

@@ -6,6 +6,7 @@
 
 // Standard
 #include <vector>
+#include <functional>
 
 // btwxt
 #include "griddeddata.h"
@@ -100,6 +101,14 @@ public:
   std::vector<std::vector<short>>& get_hypercube();
 
   std::pair<double, double> get_axis_limits(int dim);
+
+  using BtwxtErrorHandler = std::function<void(MsgLevel, const std::string_view &, void *)>;
+  BtwxtErrorHandler error_handler_;
+  void *caller_context_;
+
+  void set_error_callback(BtwxtErrorHandler callback_function, void *caller_info);
+
+  void handle_error_message(MsgLevel messageType, std::string_view message);
 
 private:
   GriddedData grid_data;

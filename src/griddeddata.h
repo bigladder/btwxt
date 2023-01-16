@@ -6,6 +6,7 @@
 
 #include <cfloat>
 #include <vector>
+#include <optional>
 
 namespace Btwxt {
 
@@ -18,7 +19,8 @@ public:
 
   GridAxis(std::vector<double> grid_vector, Method extrapolation_method = Method::CONSTANT,
                     Method interpolation_method = Method::LINEAR,
-                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
+                    const char** info_message = 0);
 
   std::vector<double> grid;
   std::vector<std::vector<double>> spacing_multipliers;
@@ -30,14 +32,14 @@ public:
 
   std::size_t get_length();
 
-  void set_interp_method(Method interpolation_method);
+  std::optional<std::string_view> set_interp_method(Method interpolation_method);
   void set_extrap_method(Method extrapolation_method);
   void set_extrap_limits(std::pair<double, double> extrap_limits);
 
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
 
 private:
-  void calc_spacing_multipliers();
+  std::optional<std::string_view> calc_spacing_multipliers();
   void check_grid_sorted();
   void check_extrap_limits();
 };

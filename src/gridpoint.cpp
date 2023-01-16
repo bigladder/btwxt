@@ -49,11 +49,10 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
 
 void GridPoint::set_target(const std::vector<double> &v) {
   if (v.size() != ndims) {
-    showMessage(MsgLevel::MSG_ERR,
-                stringify("Target and Gridded Data do not have the same dimensions."));
+    throw BtwxtErr(stringify("Target and Gridded Data do not have the same dimensions."));
   }
   if (target_is_set) {
-    if (std::equal(v.begin(), v.end(), target.begin()) && (methods == grid_data->get_interp_methods())) {
+    if ((v == target) && (methods == grid_data->get_interp_methods())) {
       return;
     }
   }
@@ -66,13 +65,11 @@ void GridPoint::set_target(const std::vector<double> &v) {
   set_results();
 }
 
-std::vector<double> GridPoint::get_current_target() {
+std::pair<std::vector<double>, std::optional<std::string_view>> GridPoint::get_current_target() {
   if (!target_is_set) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("The current target was requested, but no target has been set."));
-    return target;
+    return std::make_pair(target, stringify("The current target was requested, but no target has been set."));
   }
-  return target;
+  return std::make_pair(target, std::nullopt);
 }
 
 std::vector<std::size_t> GridPoint::get_floor() { return point_floor; }
@@ -166,8 +163,8 @@ void GridPoint::set_hypercube() { set_hypercube(grid_data->get_interp_methods())
 
 void GridPoint::set_hypercube(std::vector<Method> m_methods) {
   if (m_methods.size() != ndims) {
-    showMessage(MsgLevel::MSG_ERR, stringify("Error setting hypercube. Methods vector does not "
-                                             "have the correct number of dimensions."));
+    throw BtwxtErr(stringify("Error setting hypercube. Methods vector does not "
+                             "have the correct number of dimensions."));
   }
   std::size_t previous_size = hypercube.size();
   std::vector<std::vector<int>> options(ndims, {0, 1});
@@ -261,16 +258,14 @@ void GridPoint::set_results() {
   }
 }
 
-std::vector<double> GridPoint::get_results() {
+std::pair<std::vector<double>, std::optional<std::string_view>> GridPoint::get_results() {
   if (grid_data->num_tables == 0u) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("There are no value tables in the gridded data. No results returned."));
+    return std::make_pair(results, stringify("There are no value tables in the gridded data. No results returned."));
   }
   if (!target_is_set) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("Results were requested, but no target has been set."));
+    return std::make_pair(results, stringify("Results were requested, but no target has been set."));
   }
-  return results;
+  return std::make_pair(results, std::nullopt);
 }
 
 double GridPoint::get_vertex_weight(const std::vector<short> &v) {
@@ -283,9 +278,7 @@ double GridPoint::get_vertex_weight(const std::vector<short> &v) {
 
 void GridPoint::normalize_grid_values_at_target(const double scalar) {
   if (!target_is_set) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("Cannot normalize grid values. No target has been set."));
-    return;
+    throw BtwxtWarn(stringify("Cannot normalize grid values. No target has been set."));
   }
   for (std::size_t table_index = 0; table_index < grid_data->num_tables; ++table_index) {
     grid_data->normalize_value_table(table_index,results[table_index]*scalar);
@@ -296,9 +289,7 @@ void GridPoint::normalize_grid_values_at_target(const double scalar) {
 
 double GridPoint::normalize_grid_values_at_target(std::size_t table_num, const double scalar) {
   if (!target_is_set) {
-    showMessage(MsgLevel::MSG_WARN,
-                stringify("Cannot normalize grid values. No target has been set."));
-    return scalar;
+    throw BtwxtWarn(stringify("Cannot normalize grid values. No target has been set."));
   }
   // create a scalar which represents the product of the inverted normalization factor and the value in the table at the independent variable reference value
   double total_scalar = results[table_num]*scalar;

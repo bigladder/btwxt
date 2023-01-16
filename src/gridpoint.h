@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <optional>
 
 // btwxt
 #include "griddeddata.h"
@@ -26,7 +27,7 @@ public:
 
   void set_target(const std::vector<double> &v);
 
-  std::vector<double> get_current_target();
+  std::pair<std::vector<double>, std::optional<std::string_view>> get_current_target();
 
   std::vector<std::size_t> get_floor();
 
@@ -40,7 +41,7 @@ public:
 
   std::vector<std::vector<double>> get_cubic_slope_coeffs();
 
-  std::vector<double> get_results();
+  std::pair<std::vector<double>, std::optional<std::string_view>> get_results();
 
   double get_vertex_weight(const std::vector<short> &v);
 

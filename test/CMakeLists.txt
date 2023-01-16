@@ -14,7 +14,6 @@ set(library_sources
   hypercube_test.cpp
 )
 
-
 add_executable(${PROJECT_NAME}_tests ${library_sources})
 
 target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} gtest gmock)

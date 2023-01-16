@@ -165,7 +165,7 @@ TEST_F(OneDFixture, cubic_interpolate) {
 
 TEST_F(OneDL0Fixture, throw_test) {
     Btwxt::LOG_LEVEL = 0;
-    EXPECT_THROW(GriddedData(grid, values),std::invalid_argument);
+    EXPECT_THROW(GriddedData(grid, values), BtwxtErr);
 }
 
 TEST_F(OneDL1Fixture, cubic_interpolate) {

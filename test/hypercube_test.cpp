@@ -99,7 +99,7 @@ TEST_F(CubicFixture, hypercube_calculations) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
   GridPoint grid_point(test_gridded_data, target);
 
-  std::vector<double> result = grid_point.get_results();
+  auto [result, err_is_null] = grid_point.get_results();
   EXPECT_NEAR(result[0], 4.1953, 0.0001);
   EXPECT_NEAR(result[1], 11.9271, 0.0001);
 }
@@ -109,6 +109,6 @@ TEST_F(OneDFixture, hypercube_calculations) {
   GridPoint grid_point(test_gridded_data, target);
   std::vector<Method> methods = grid_point.get_methods();
 
-  std::vector<double> result = grid_point.get_results();
+  auto [result, err_is_null] = grid_point.get_results();
   EXPECT_NEAR(result[0], 4.804398, 0.00001);
 }
