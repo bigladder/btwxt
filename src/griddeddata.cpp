@@ -14,9 +14,8 @@ namespace Btwxt {
 
 GridAxis::GridAxis() = default;
 
-GridAxis::GridAxis(std::vector<double> grid_vector, Method extrapolation_method,
-                   Method interpolation_method, std::pair<double, double> extrapolation_limits,
-                   const char** info_message)
+GridAxis::GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method,
+                   Method interpolation_method, std::pair<double, double> extrapolation_limits)
     : grid(std::move(grid_vector)),
       spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
       extrapolation_method(extrapolation_method),
@@ -26,14 +25,34 @@ GridAxis::GridAxis(std::vector<double> grid_vector, Method extrapolation_method,
       throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
   }
   check_grid_sorted();
-  check_extrap_limits();
+  info_message = check_extrap_limits();
   if (interpolation_method == Method::CUBIC) {
-    auto info = calc_spacing_multipliers();
-      if ((info != std::nullopt) && info_message) {
-      *info_message = info.value().data();
+    auto multipiers_info = calc_spacing_multipliers();
+      if ((multipiers_info != std::nullopt)) {
+        info_message += multipiers_info.value();
       }
   }
 }
+
+GridAxis::GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn info_callback, Method extrapolation_method,
+                  Method interpolation_method,
+                  std::pair<double, double> extrapolation_limits)
+    : grid(std::move(grid_vector)),
+      spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
+      extrapolation_method(extrapolation_method),
+      interpolation_method(interpolation_method),
+      extrapolation_limits(std::move(extrapolation_limits)),
+      callback_(info_callback) {
+  if (grid.size() == 0) {
+      throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
+  }
+  check_grid_sorted();
+  check_extrap_limits();
+  if (interpolation_method == Method::CUBIC) {
+    calc_spacing_multipliers();
+  }
+}
+
 
 std::size_t GridAxis::get_length() { return grid.size(); }
 
@@ -47,9 +66,9 @@ std::optional<std::string_view> GridAxis::set_interp_method(const Method im) {
 
 void GridAxis::set_extrap_method(const Method em) { extrapolation_method = em; }
 
-void GridAxis::set_extrap_limits(const std::pair<double, double> extrap_limits) {
+std::string GridAxis::set_extrap_limits(const std::pair<double, double> extrap_limits) {
   extrapolation_limits = extrap_limits;
-  check_extrap_limits();
+  return check_extrap_limits();
 }
 
 double GridAxis::get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) {
@@ -61,6 +80,9 @@ std::optional<std::string_view> GridAxis::calc_spacing_multipliers() {
   // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavor
   if (grid.size() == 1) {
       interpolation_method = Method::LINEAR;
+      if (callback_) {
+        callback_(MsgLevel::MSG_INFO, "A cubic interpolation method is not valid for grid axes with only one value. Interpolation method reset to linear.", 0);
+      }
       return "A cubic interpolation method is not valid for grid axes with only one value. Interpolation method reset to linear.";
   }
   double center_spacing;
@@ -79,19 +101,27 @@ std::optional<std::string_view> GridAxis::calc_spacing_multipliers() {
 void GridAxis::check_grid_sorted() {
   bool grid_is_sorted = Btwxt::free_check_sorted(grid);
   if (!grid_is_sorted) {
-    showMessage(MsgLevel::MSG_ERR, "axis is not sorted.");
+    throw BtwxtErr("Axis is not sorted.");
   }
 }
 
-void GridAxis::check_extrap_limits() {
+std::string GridAxis::check_extrap_limits() {
+  std::string info;
   if (extrapolation_limits.first > grid[0]) {
-    showMessage(MsgLevel::MSG_INFO, stringify("The lower extrapolation limit (", extrapolation_limits.first,") is within the set of grid values. Setting to smallest grid value (", grid[0],")."));
+    info = stringify("The lower extrapolation limit (", extrapolation_limits.first,") is within the set of grid values. Setting to smallest grid value (", grid[0],").");
+    if (callback_) {
+      callback_(MsgLevel::MSG_INFO, info, 0);
+    }
     extrapolation_limits.first = grid[0];
   }
   if (extrapolation_limits.second < grid.back()) {
-    showMessage(MsgLevel::MSG_INFO, stringify("The upper extrapolation limit (", extrapolation_limits.first,") is within the set of grid values. Setting to largest grid value (", grid.back(),")."));
+    info = stringify("The upper extrapolation limit (", extrapolation_limits.first,") is within the set of grid values. Setting to largest grid value (", grid.back(),").");
+    if (callback_) {
+      callback_(MsgLevel::MSG_INFO, info, 0);
+    }
     extrapolation_limits.second = grid.back();
   }
+  return info;
 }
 
 GriddedData::GriddedData() = default;
@@ -135,7 +165,7 @@ void GriddedData::set_dimension_sizes() {
   for (std::size_t dim = ndims - 1; /* dim >= 0 */ dim < ndims; --dim) {
     std::size_t length = grid_axes[dim].get_length();
     if (length == 0) {
-      showMessage(MsgLevel::MSG_ERR, stringify("Dimension ", dim, " has an axis of length zero."));
+      throw BtwxtErr(stringify("Dimension ", dim, " has an axis of length zero."));
     }
     dimension_lengths[dim] = length;
     dimension_step_size[dim] = num_values;
@@ -151,7 +181,7 @@ void GriddedData::construct_axes(const std::vector<std::vector<double>> &grid) {
 
 std::size_t GriddedData::add_value_table(std::vector<double> &value_vector) {
   if (value_vector.size() != num_values) {
-    showMessage(MsgLevel::MSG_ERR, stringify("Input value table does not match the grid size: ",
+    throw BtwxtErr(stringify("Input value table does not match the grid size: ",
                                              value_vector.size(), " != ", num_values));
   }
   value_tables.push_back(value_vector);
@@ -238,9 +268,9 @@ std::vector<Method> GriddedData::get_extrap_methods() {
   return extrap_methods;
 }
 
-void GriddedData::set_axis_extrap_limits(const std::size_t &dim,
+std::string GriddedData::set_axis_extrap_limits(const std::size_t &dim,
                                          const std::pair<double, double> &extrap_limits) {
-  grid_axes[dim].set_extrap_limits(extrap_limits);
+  return grid_axes[dim].set_extrap_limits(extrap_limits);
 }
 
 std::vector<Method> GriddedData::get_interp_methods() {
@@ -259,7 +289,7 @@ void GriddedData::set_axis_interp_method(const std::size_t &dim,
 void GriddedData::normalize_value_table(std::size_t table_num, double scalar) {
   auto &table = value_tables[table_num];
   if (scalar == 0.0) {
-    showMessage(MsgLevel::MSG_ERR, "Attempt to normalize values by zero.");
+    throw BtwxtErr("Attempt to normalize values by zero.");
   }
   scalar = 1.0/scalar;
   std::transform(table.begin(), table.end(), table.begin(),

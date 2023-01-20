@@ -7,6 +7,7 @@
 #include <cfloat>
 #include <vector>
 #include <optional>
+#include "error.h"
 
 namespace Btwxt {
 
@@ -17,10 +18,16 @@ class GridAxis {
 public:
   GridAxis();
 
-  GridAxis(std::vector<double> grid_vector, Method extrapolation_method = Method::CONSTANT,
+  GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method = Method::CONSTANT,
                     Method interpolation_method = Method::LINEAR,
-                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
-                    const char** info_message = 0);
+                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+
+//TODO: BtwxtLoggerFn could be std::optional instead of empty; prevents calling nothing function
+  GridAxis(std::vector<double> grid_vector, 
+           BtwxtLoggerFn info_callback = [](MsgLevel, const std::string_view &, void *){},
+           Method extrapolation_method = Method::CONSTANT,
+           Method interpolation_method = Method::LINEAR,
+           std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
   std::vector<double> grid;
   std::vector<std::vector<double>> spacing_multipliers;
@@ -34,14 +41,16 @@ public:
 
   std::optional<std::string_view> set_interp_method(Method interpolation_method);
   void set_extrap_method(Method extrapolation_method);
-  void set_extrap_limits(std::pair<double, double> extrap_limits);
+  std::string set_extrap_limits(std::pair<double, double> extrap_limits);
 
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
 
 private:
+  BtwxtLoggerFn callback_;
+
   std::optional<std::string_view> calc_spacing_multipliers();
   void check_grid_sorted();
-  void check_extrap_limits();
+  std::string check_extrap_limits();
 };
 
 class GriddedData {
@@ -87,8 +96,8 @@ public:
 
   void set_axis_extrap_method(const std::size_t &dim, Method);
 
-  void set_axis_extrap_limits(const std::size_t &dim,
-                              const std::pair<double, double> &extrap_limits);
+  std::string set_axis_extrap_limits(const std::size_t &dim,
+                                          const std::pair<double, double> &extrap_limits);
 
   void set_axis_interp_method(const std::size_t &dim, Method);
 

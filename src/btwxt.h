@@ -11,19 +11,9 @@
 // btwxt
 #include "griddeddata.h"
 #include "gridpoint.h"
+#include "error.h"
 
 namespace Btwxt {
-
-enum class MsgLevel { MSG_DEBUG, MSG_INFO, MSG_WARN, MSG_ERR };
-extern int LOG_LEVEL;
-
-typedef void (*BtwxtCallbackFunction)(const MsgLevel messageType, const std::string message,
-                                      void *contextPtr);
-
-extern BtwxtCallbackFunction btwxtCallbackFunction;
-extern void *messageCallbackContextPtr;
-
-void setMessageCallback(BtwxtCallbackFunction callbackFunction, void *contextPtr);
 
 // this will be the public-facing class.
 class RegularGridInterpolator {
@@ -53,9 +43,7 @@ public:
   }
 
   // Add value table to GriddedData
-  std::size_t add_value_table(std::vector<double> &value_vector) {
-    return grid_data.add_value_table(value_vector);
-  }
+  std::size_t add_value_table(std::vector<double> &value_vector);
 
   // GridPoint gets instantiated inside calculate_value_at_target
   double get_value_at_target(std::vector<double> target, std::size_t table_index);
@@ -98,17 +86,19 @@ public:
     grid_data.set_axis_interp_method(dim, method);
   }
 
+  void set_axis_extrap_limits(const std::size_t &dim,
+                              const std::pair<double, double> &extrap_limits);
+
   std::vector<std::vector<short>>& get_hypercube();
 
   std::pair<double, double> get_axis_limits(int dim);
 
-  using BtwxtErrorHandler = std::function<void(MsgLevel, const std::string_view &, void *)>;
-  BtwxtErrorHandler error_handler_;
+  BtwxtLoggerFn callback_function_;
   void *caller_context_;
 
-  void set_error_callback(BtwxtErrorHandler callback_function, void *caller_info);
+  void set_logging_callback(BtwxtLoggerFn callback_function, void *caller_info);
 
-  void handle_error_message(MsgLevel messageType, std::string_view message);
+  void log_message(MsgLevel messageType, std::string_view message);
 
 private:
   GriddedData grid_data;

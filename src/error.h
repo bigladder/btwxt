@@ -7,9 +7,19 @@
 #include <sstream>
 
 // BTWXT
-#include "btwxt.h"
 
 namespace Btwxt {
+
+enum class MsgLevel { MSG_DEBUG, MSG_INFO, MSG_WARN, MSG_ERR };
+extern int LOG_LEVEL;
+
+typedef void (*BtwxtCallbackFunction)(const MsgLevel messageType, const std::string message,
+                                      void *contextPtr);
+
+extern BtwxtCallbackFunction btwxtCallbackFunction;
+extern void *messageCallbackContextPtr;
+
+void setMessageCallback(BtwxtCallbackFunction callbackFunction, void *contextPtr);
 
 void showMessage(MsgLevel messageType, std::string message);
 
@@ -38,15 +48,6 @@ protected:
   std::string msg_;
 };
 
-class BtwxtInfo : public BtwxtException {
-public:
-  explicit BtwxtInfo(const char *message) : BtwxtException(message) {}
-
-  explicit BtwxtInfo(const std::string &message) : BtwxtException(message) {}
-
-  ~BtwxtInfo() noexcept = default;
-};
-
 class BtwxtWarn : public BtwxtException {
 public:
   explicit BtwxtWarn(const char *message) : BtwxtException(message) {}
@@ -64,6 +65,8 @@ public:
 
   ~BtwxtErr() noexcept = default;
 };
+
+using BtwxtLoggerFn = std::function<void(MsgLevel, const std::string_view &, void *)>;
 
 } // namespace Btwxt
 #endif // BTWXT_ERROR_H_

@@ -8,8 +8,8 @@
 
 // btwxt
 #include "fixtures.hpp"
-#include <error.h>
-#include <griddeddata.h>
+#include "error.h"
+#include "griddeddata.h"
 
 using namespace Btwxt;
 
@@ -93,7 +93,7 @@ TEST_F(TwoDFixture, get_values_relative) {
 
 TEST(GridAxis, sorting) {
   std::vector<double> grid_vector = {0, 5, 7, 17, 15};
-  EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector);, std::invalid_argument);
+  EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector), BtwxtErr);
   grid_vector = {0, 5, 7, 10, 15};
   EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector););
 }
@@ -116,7 +116,7 @@ TEST_F(CubicFixture, get_spacing_multipliers) {
 TEST(GridAxis, calc_spacing_multipliers) {
   std::vector<double> grid_vector{6, 10, 15, 20, 22};
 
-  GridAxis test_gridaxis(grid_vector, Method::CONSTANT, Method::CUBIC, {-DBL_MAX, DBL_MAX});
+  GridAxis test_gridaxis(grid_vector, [](auto&&...){}, Method::CONSTANT, Method::CUBIC, {-DBL_MAX, DBL_MAX});
   std::vector<std::vector<double>> values = test_gridaxis.spacing_multipliers;
   EXPECT_THAT(values[0], testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
   EXPECT_THAT(values[1], testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));

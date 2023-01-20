@@ -9,6 +9,8 @@
 // btwxt
 #include "error.h"
 
+#include "gridpoint.h"
+
 namespace Btwxt {
 
 GridPoint::GridPoint() {}
