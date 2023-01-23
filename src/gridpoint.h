@@ -5,10 +5,10 @@
 #define GRIDPOINT_H_
 
 // Standard
-#include <memory>
-#include <vector>
 #include <map>
+#include <memory>
 #include <optional>
+#include <vector>
 
 // btwxt
 #include "griddeddata.h"
@@ -65,8 +65,8 @@ private:
   std::vector<Method> previous_methods;
   std::vector<std::vector<short>> hypercube;
   bool reset_hypercube;
-  std::vector<std::vector<double>> weighting_factors; // A set of weighting factors for each dimension
-
+  std::vector<std::vector<double>>
+      weighting_factors; // A set of weighting factors for each dimension
 
   std::vector<std::vector<double>> interp_coeffs;
   std::vector<std::vector<double>> cubic_slope_coeffs;
@@ -87,16 +87,15 @@ private:
 
   void set_hypercube(std::vector<Method> methods);
 
-  std::vector<std::vector<short>>& get_hypercube();
+  std::vector<std::vector<short>> &get_hypercube();
 
   void set_hypercube_values();
 
   void set_results();
 
-  std::map<std::pair<std::size_t,std::size_t>,std::vector<std::vector<double>>> hypercube_cache;
+  std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
 
   std::size_t hypercube_size_hash;
-
 };
 
 // free functions

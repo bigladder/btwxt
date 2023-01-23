@@ -5,13 +5,13 @@
 #define GRIDINTERP_H_
 
 // Standard
-#include <vector>
 #include <functional>
+#include <vector>
 
 // btwxt
+#include "error.h"
 #include "griddeddata.h"
 #include "gridpoint.h"
-#include "error.h"
 
 namespace Btwxt {
 
@@ -74,7 +74,8 @@ public:
 
   double normalize_values_at_target(std::size_t table_index, const double scalar = 1.0);
 
-  double normalize_values_at_target(std::size_t table_index, const std::vector<double> &target, const double scalar = 1.0);
+  double normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
+                                    const double scalar = 1.0);
 
   std::vector<double> get_current_target();
 
@@ -89,7 +90,7 @@ public:
   void set_axis_extrap_limits(const std::size_t &dim,
                               const std::pair<double, double> &extrap_limits);
 
-  std::vector<std::vector<short>>& get_hypercube();
+  std::vector<std::vector<short>> &get_hypercube();
 
   std::pair<double, double> get_axis_limits(int dim);
 

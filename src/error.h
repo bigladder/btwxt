@@ -4,8 +4,8 @@
 #ifndef BTWXT_ERROR_H_
 #define BTWXT_ERROR_H_
 
-#include <sstream>
 #include <functional>
+#include <sstream>
 
 // BTWXT
 
@@ -35,14 +35,13 @@ template <typename... ArgTypes> std::string stringify(ArgTypes... args) {
 
 class BtwxtException : public std::exception {
 public:
-
   explicit BtwxtException(const char *message) : msg_(message) {}
 
   explicit BtwxtException(const std::string &message) : msg_(message) {}
 
   virtual ~BtwxtException() noexcept = default;
 
-  virtual const char* what() const noexcept { return msg_.c_str(); }
+  virtual const char *what() const noexcept { return msg_.c_str(); }
 
 protected:
   std::string msg_;

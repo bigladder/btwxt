@@ -20,13 +20,13 @@ void showMessage(const MsgLevel messageType, const std::string message) {
     std::cout << "  ERROR: " << message << std::endl;
     throw std::invalid_argument(stringify("  ERROR: ", message));
   } else {
-      std::string prefix("  DEBUG: ");
-      if (messageType == MsgLevel::MSG_WARN) {
-        prefix = "  WARNING: ";
-      } else if (messageType == MsgLevel::MSG_INFO) {
-        prefix = "  NOTE: ";
-      }
-      std::cout << prefix << message << std::endl;
+    std::string prefix("  DEBUG: ");
+    if (messageType == MsgLevel::MSG_WARN) {
+      prefix = "  WARNING: ";
+    } else if (messageType == MsgLevel::MSG_INFO) {
+      prefix = "  NOTE: ";
+    }
+    std::cout << prefix << message << std::endl;
   }
 }
 

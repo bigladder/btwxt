@@ -27,8 +27,7 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &
 std::size_t RegularGridInterpolator::add_value_table(std::vector<double> &value_vector) {
   try {
     return grid_data.add_value_table(value_vector);
-  }
-  catch (BtwxtErr &e) {
+  } catch (BtwxtErr &e) {
     log_message(MsgLevel::MSG_ERR, e.what());
     return 0;
   }
@@ -123,9 +122,9 @@ void RegularGridInterpolator::clear_current_target() { grid_point = GridPoint(gr
 
 std::size_t RegularGridInterpolator::get_ndims() { return grid_data.get_ndims(); }
 
-void RegularGridInterpolator::set_axis_extrap_limits(const std::size_t &dim,
-                                                     const std::pair<double, double> &extrap_limits) {
-  log_message(MsgLevel::MSG_INFO, grid_data.set_axis_extrap_limits(dim, extrap_limits));          
+void RegularGridInterpolator::set_axis_extrap_limits(
+    const std::size_t &dim, const std::pair<double, double> &extrap_limits) {
+  log_message(MsgLevel::MSG_INFO, grid_data.set_axis_extrap_limits(dim, extrap_limits));
 }
 
 std::vector<std::vector<short>> &RegularGridInterpolator::get_hypercube() {
