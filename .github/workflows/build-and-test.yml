@@ -8,10 +8,10 @@ jobs:
     strategy:
       matrix:
         include:
-#          - os: ubuntu-latest
-#            config: Release
-#            static_lib: ON
-#            coverage: OFF
+          - os: ubuntu-latest
+            config: Release
+            static_lib: ON
+            coverage: OFF
           - os: windows-latest
             config: Release
             static_lib: ON

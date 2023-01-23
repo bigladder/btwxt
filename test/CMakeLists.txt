@@ -12,9 +12,11 @@ set(library_sources
   math_test.cpp
   large_test.cpp
   hypercube_test.cpp
-        fixtures.cpp)
+  fixtures.cpp)
 
 add_executable(${PROJECT_NAME}_tests ${library_sources})
+
+target_compile_features(${PROJECT_NAME}_tests PRIVATE cxx_std_17)
 
 target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} gtest gmock)
 
