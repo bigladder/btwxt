@@ -24,11 +24,11 @@ jobs:
             config: Debug
             static_lib: OFF
             coverage: ON
-          - os: ubuntu-18.04
-            config: Release
-            static_lib: ON
-            coverage: OFF
-          - os: ubuntu-20.04
+#          - os: ubuntu-18.04
+#            config: Release
+#            static_lib: ON
+#            coverage: OFF
+          - os: ubuntu-22.04
             config: Release
             static_lib: ON
             coverage: OFF
