@@ -5,6 +5,7 @@
 #define BTWXT_ERROR_H_
 
 #include <sstream>
+#include <functional>
 
 // BTWXT
 
