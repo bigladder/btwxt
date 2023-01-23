@@ -67,7 +67,7 @@ void GridPoint::set_target(const std::vector<double> &v) {
   set_results();
 }
 
-std::pair<std::vector<double>, std::optional<std::string_view>> GridPoint::get_current_target() {
+std::pair<std::vector<double>, std::optional<std::string>> GridPoint::get_current_target() {
   if (!target_is_set) {
     return std::make_pair(target, stringify("The current target was requested, but no target has been set."));
   }
@@ -260,7 +260,7 @@ void GridPoint::set_results() {
   }
 }
 
-std::pair<std::vector<double>, std::optional<std::string_view>> GridPoint::get_results() {
+std::pair<std::vector<double>, std::optional<std::string>> GridPoint::get_results() {
   if (grid_data->num_tables == 0u) {
     return std::make_pair(results, stringify("There are no value tables in the gridded data. No results returned."));
   }

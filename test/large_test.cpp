@@ -87,11 +87,9 @@ TEST_F(LargeFixture, construct) {
 TEST_F(LargeFixture, calculate) {
   test_rgi.set_new_target(target);
 
-  Btwxt::LOG_LEVEL = 0;
   std::vector<double> result = test_rgi.get_values_at_target();
   EXPECT_NEAR(result[0], fn0(target[0], target[1], target[2], target[3]), 0.02);
   EXPECT_DOUBLE_EQ(result[1], fn1(target[0], target[1], target[2], target[3]));
-  Btwxt::LOG_LEVEL = 1;
 }
 
 TEST_F(LargeFixture, verify_linear) {
@@ -184,7 +182,6 @@ TEST_F(LargeFixture, multi_timer) {
       {4.2, 2.7, 1.3, 4.4}, {2.1, 2.9, 1.8, 1.9}};
 
   for (std::size_t count = 0; count < 10; count++) {
-    Btwxt::LOG_LEVEL = 2;
     // Get starting timepoint
     auto start = std::chrono::high_resolution_clock::now();
     for (auto target : set_of_targets) {
@@ -193,7 +190,6 @@ TEST_F(LargeFixture, multi_timer) {
     // Get ending timepoint
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    Btwxt::LOG_LEVEL = 1;
     showMessage(MsgLevel::MSG_INFO,
                 stringify("Time taken by ten interpolations: ", duration.count(), " microseconds"));
   }

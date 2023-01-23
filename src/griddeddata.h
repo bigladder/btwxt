@@ -18,11 +18,11 @@ class GridAxis {
 public:
   GridAxis();
 
-  GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method = Method::CONSTANT,
-                    Method interpolation_method = Method::LINEAR,
-                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+//  GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method = Method::CONSTANT,
+//                    Method interpolation_method = Method::LINEAR,
+//                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
-//TODO: BtwxtLoggerFn could be std::optional instead of empty; prevents calling nothing function
+//TODO: BtwxtLoggerFn could be std::optional instead of default; prevents calling nothing function
   GridAxis(std::vector<double> grid_vector, 
            BtwxtLoggerFn info_callback = [](MsgLevel, const std::string_view &, void *){},
            Method extrapolation_method = Method::CONSTANT,

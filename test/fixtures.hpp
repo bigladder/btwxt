@@ -23,6 +23,9 @@
 
 using namespace Btwxt;
 
+void btwxt_message(MsgLevel msglevel, const std::string_view &msg, void *);
+void global_callback(const MsgLevel messageType, const std::string message, void *);
+
 class OneDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
@@ -103,6 +106,29 @@ protected:
     test_gridded_data = GriddedData(grid, values);
     test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
     test_rgi = RegularGridInterpolator(test_gridded_data);
+    test_rgi.set_logging_callback(btwxt_message, nullptr);
+  }
+};
+
+class TwoDFixtureGlobalCallback : public testing::Test {
+protected:
+  RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
+  std::vector<std::vector<double>> values;
+  std::vector<double> target;
+
+  TwoDFixtureGlobalCallback() {
+    std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
+    //         4  6
+    values = {{6, 3,  // 0
+               2, 8,  // 10
+               4, 2}, // 15
+              {12, 6, 4, 16, 8, 4}};
+    target = {12, 5};
+    test_gridded_data = GriddedData(grid, values);
+    test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
+    test_rgi = RegularGridInterpolator(test_gridded_data);
+    Btwxt::setMessageCallback(global_callback, nullptr);
   }
 };
 

@@ -12,7 +12,7 @@ set(library_sources
   math_test.cpp
   large_test.cpp
   hypercube_test.cpp
-)
+        fixtures.cpp)
 
 add_executable(${PROJECT_NAME}_tests ${library_sources})
 

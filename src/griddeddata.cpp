@@ -14,25 +14,25 @@ namespace Btwxt {
 
 GridAxis::GridAxis() = default;
 
-GridAxis::GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method,
-                   Method interpolation_method, std::pair<double, double> extrapolation_limits)
-    : grid(std::move(grid_vector)),
-      spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
-      extrapolation_method(extrapolation_method),
-      interpolation_method(interpolation_method),
-      extrapolation_limits(std::move(extrapolation_limits)) {
-  if (grid.size() == 0) {
-      throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
-  }
-  check_grid_sorted();
-  info_message = check_extrap_limits();
-  if (interpolation_method == Method::CUBIC) {
-    auto multipiers_info = calc_spacing_multipliers();
-      if ((multipiers_info != std::nullopt)) {
-        info_message += multipiers_info.value();
-      }
-  }
-}
+//GridAxis::GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method,
+//                   Method interpolation_method, std::pair<double, double> extrapolation_limits)
+//    : grid(std::move(grid_vector)),
+//      spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
+//      extrapolation_method(extrapolation_method),
+//      interpolation_method(interpolation_method),
+//      extrapolation_limits(std::move(extrapolation_limits)) {
+//  if (grid.size() == 0) {
+//      throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
+//  }
+//  check_grid_sorted();
+//  info_message = check_extrap_limits();
+//  if (interpolation_method == Method::CUBIC) {
+//    auto multipiers_info = calc_spacing_multipliers();
+//      if ((multipiers_info != std::nullopt)) {
+//        info_message += multipiers_info.value();
+//      }
+//  }
+//}
 
 GridAxis::GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn info_callback, Method extrapolation_method,
                   Method interpolation_method,

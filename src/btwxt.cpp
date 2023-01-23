@@ -37,17 +37,17 @@ std::size_t RegularGridInterpolator::add_value_table(std::vector<double> &value_
 double RegularGridInterpolator::get_value_at_target(std::vector<double> target,
                                                     std::size_t table_index) {
   set_new_target(target);
-  auto [results, err_is_null] = grid_point.get_results();
-  if (!err_is_null) {
-    log_message(MsgLevel::MSG_WARN, err_is_null.value());
+  auto [results, err] = grid_point.get_results();
+  if (err.has_value()) {
+    log_message(MsgLevel::MSG_WARN, err.value());
   }
   return results[table_index];
 }
 
 double RegularGridInterpolator::get_value_at_target(std::size_t table_index) {
-  auto [results, err_is_null] = grid_point.get_results();
-  if (!err_is_null) {
-    log_message(MsgLevel::MSG_WARN, err_is_null.value());
+  auto [results, err] = grid_point.get_results();
+  if (err.has_value()) {
+    log_message(MsgLevel::MSG_WARN, err.value());
   }
   return results[table_index];
 }
@@ -55,17 +55,17 @@ double RegularGridInterpolator::get_value_at_target(std::size_t table_index) {
 std::vector<double>
 RegularGridInterpolator::get_values_at_target(const std::vector<double> &target) {
   set_new_target(target);
-  auto [results, err_is_null] = grid_point.get_results();
-  if (!err_is_null) {
-    log_message(MsgLevel::MSG_WARN, err_is_null.value());
+  auto [results, err] = grid_point.get_results();
+  if (err.has_value()) {
+    log_message(MsgLevel::MSG_WARN, err.value());
   }
   return results;
 }
 
 std::vector<double> RegularGridInterpolator::get_values_at_target() {
-  auto [results, err_is_null] = grid_point.get_results();
-  if (!err_is_null) {
-    log_message(MsgLevel::MSG_WARN, err_is_null.value());
+  auto [results, err] = grid_point.get_results();
+  if (err.has_value()) {
+    log_message(MsgLevel::MSG_WARN, err.value());
   }
   return results;
 }
@@ -112,9 +112,9 @@ void RegularGridInterpolator::set_new_target(const std::vector<double> &target) 
 }
 
 std::vector<double> RegularGridInterpolator::get_current_target() {
-  auto [target, err_is_null] = grid_point.get_current_target();
-  if (!err_is_null) {
-    log_message(MsgLevel::MSG_WARN, err_is_null.value());
+  auto [target, err] = grid_point.get_current_target();
+  if (err.has_value()) {
+    log_message(MsgLevel::MSG_WARN, err.value());
   }
   return target;
 }
