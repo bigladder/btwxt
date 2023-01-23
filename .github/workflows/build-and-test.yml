@@ -20,7 +20,7 @@ jobs:
             config: Release
             static_lib: ON
             coverage: OFF
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             config: Debug
             static_lib: OFF
             coverage: ON
