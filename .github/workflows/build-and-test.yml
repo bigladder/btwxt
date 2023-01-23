@@ -28,6 +28,7 @@ jobs:
             config: Release
             static_lib: ON
             coverage: OFF
+      fail-fast: false
     defaults:
       run:
         shell: bash
