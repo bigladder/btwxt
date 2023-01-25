@@ -18,17 +18,11 @@ class GridAxis {
 public:
   GridAxis();
 
-#if 0
-  GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method = Method::CONSTANT,
-                    Method interpolation_method = Method::LINEAR,
-                    std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
-#endif
-
   // TODO: BtwxtLoggerFn could be std::optional instead of default; prevents calling nothing
   // function
   GridAxis(
       std::vector<double> grid_vector,
-      BtwxtLoggerFn info_callback = [](MsgLevel, const std::string_view &, void *) {},
+      std::optional<BtwxtLoggerFn> info_callback = std::nullopt,
       Method extrapolation_method = Method::CONSTANT, Method interpolation_method = Method::LINEAR,
       std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
@@ -44,7 +38,7 @@ public:
 
   std::optional<std::string_view> set_interp_method(Method interpolation_method);
   void set_extrap_method(Method extrapolation_method);
-  std::string set_extrap_limits(std::pair<double, double> extrap_limits);
+  void set_extrap_limits(std::pair<double, double> extrap_limits);
 
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
 
@@ -53,7 +47,7 @@ private:
 
   std::optional<std::string_view> calc_spacing_multipliers();
   void check_grid_sorted();
-  std::string check_extrap_limits();
+  void check_extrap_limits();
 };
 
 class GriddedData {
@@ -99,7 +93,7 @@ public:
 
   void set_axis_extrap_method(const std::size_t &dim, Method);
 
-  std::string set_axis_extrap_limits(const std::size_t &dim,
+  void set_axis_extrap_limits(const std::size_t &dim,
                                      const std::pair<double, double> &extrap_limits);
 
   void set_axis_interp_method(const std::size_t &dim, Method);

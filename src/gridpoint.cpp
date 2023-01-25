@@ -15,7 +15,7 @@ namespace Btwxt {
 
 GridPoint::GridPoint() {}
 
-GridPoint::GridPoint(GriddedData &grid_data_in)
+GridPoint::GridPoint(GriddedData &grid_data_in, std::optional<BtwxtLoggerFn> logger)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
       target(ndims, 0.0),
@@ -30,9 +30,13 @@ GridPoint::GridPoint(GriddedData &grid_data_in)
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       results(grid_data->num_tables),
-      hypercube_size_hash(0) {}
+      hypercube_size_hash(0) {
+  if (logger.has_value()) {
+    callback_ = logger.value();
+  }
+}
 
-GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
+GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, std::optional<BtwxtLoggerFn> logger)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
       target_is_set(false),
@@ -45,6 +49,9 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v)
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       results(grid_data->num_tables) {
+  if (logger.has_value()) {
+    callback_ = logger.value();
+  }
   set_target(v);
 }
 
@@ -66,12 +73,11 @@ void GridPoint::set_target(const std::vector<double> &v) {
   set_results();
 }
 
-std::pair<std::vector<double>, std::optional<std::string>> GridPoint::get_current_target() {
-  if (!target_is_set) {
-    return std::make_pair(
-        target, stringify("The current target was requested, but no target has been set."));
+std::vector<double> GridPoint::get_current_target() {
+  if (!target_is_set && callback_) {
+    callback_(MsgLevel::MSG_WARN, stringify("The current target was requested, but no target has been set."), nullptr);
   }
-  return std::make_pair(target, std::nullopt);
+  return target;
 }
 
 std::vector<std::size_t> GridPoint::get_floor() { return point_floor; }
@@ -265,16 +271,14 @@ void GridPoint::set_results() {
   }
 }
 
-std::pair<std::vector<double>, std::optional<std::string>> GridPoint::get_results() {
-  if (grid_data->num_tables == 0u) {
-    return std::make_pair(
-        results, stringify("There are no value tables in the gridded data. No results returned."));
+std::vector<double> GridPoint::get_results() {
+  if (grid_data->num_tables == 0u && callback_) {
+    callback_(MsgLevel::MSG_WARN, stringify("There are no value tables in the gridded data. No results returned."), nullptr);
   }
-  if (!target_is_set) {
-    return std::make_pair(results,
-                          stringify("Results were requested, but no target has been set."));
+  if (!target_is_set && callback_) {
+    callback_(MsgLevel::MSG_WARN, stringify("Results were requested, but no target has been set."), nullptr);
   }
-  return std::make_pair(results, std::nullopt);
+  return results;
 }
 
 double GridPoint::get_vertex_weight(const std::vector<short> &v) {

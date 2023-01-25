@@ -21,13 +21,13 @@ class GridPoint {
 public:
   GridPoint();
 
-  GridPoint(GriddedData &grid_data);
+  GridPoint(GriddedData &grid_data, std::optional<BtwxtLoggerFn> logger = std::nullopt);
 
-  GridPoint(GriddedData &grid_data, std::vector<double> v);
+  GridPoint(GriddedData &grid_data, std::vector<double> v, std::optional<BtwxtLoggerFn> logger = std::nullopt);
 
   void set_target(const std::vector<double> &v);
 
-  std::pair<std::vector<double>, std::optional<std::string>> get_current_target();
+  std::vector<double> get_current_target();
 
   std::vector<std::size_t> get_floor();
 
@@ -41,7 +41,7 @@ public:
 
   std::vector<std::vector<double>> get_cubic_slope_coeffs();
 
-  std::pair<std::vector<double>, std::optional<std::string>> get_results();
+  std::vector<double> get_results();
 
   double get_vertex_weight(const std::vector<short> &v);
 
@@ -53,6 +53,7 @@ public:
 
 private:
   friend class RegularGridInterpolator;
+  BtwxtLoggerFn callback_;
   GriddedData *grid_data;
   std::size_t ndims;
   std::vector<double> target;

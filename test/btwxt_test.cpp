@@ -23,18 +23,17 @@ TEST_F(TwoDFixture, construct_from_gridded_data) {
 
 TEST_F(TwoDFixture, target_undefined) {
   std::vector<double> returned_target;
-  std::vector<std::size_t> bad_floor;
-  double bad_result;
   std::string TargetExpectedOut =
       "  WARNING: The current target was requested, but no target has been set.\n";
-  std::string ResultsExpectedOut =
-      "  WARNING: Results were requested, but no target has been set.\n";
 
   // The test fixture does not instantiate a GridPoint.
   EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, TargetExpectedOut);
   std::vector<double> expected_result = {0, 0};
   EXPECT_EQ(returned_target, expected_result);
 
+  double bad_result;
+  std::string ResultsExpectedOut =
+      "  WARNING: Results were requested, but no target has been set.\n";
   EXPECT_STDOUT(bad_result = test_rgi.get_value_at_target(0);, ResultsExpectedOut);
   EXPECT_EQ(bad_result, 0);
 

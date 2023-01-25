@@ -14,37 +14,18 @@ namespace Btwxt {
 
 GridAxis::GridAxis() = default;
 
-#if 0
-GridAxis::GridAxis(std::vector<double> grid_vector, std::string& info_message, Method extrapolation_method,
-                   Method interpolation_method, std::pair<double, double> extrapolation_limits)
-    : grid(std::move(grid_vector)),
-      spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
-      extrapolation_method(extrapolation_method),
-      interpolation_method(interpolation_method),
-      extrapolation_limits(std::move(extrapolation_limits)) {
-  if (grid.size() == 0) {
-      throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
-  }
-  check_grid_sorted();
-  info_message = check_extrap_limits();
-  if (interpolation_method == Method::CUBIC) {
-    auto multipiers_info = calc_spacing_multipliers();
-      if ((multipiers_info != std::nullopt)) {
-        info_message += multipiers_info.value();
-      }
-  }
-}
-#endif
-
-GridAxis::GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn info_callback,
+GridAxis::GridAxis(std::vector<double> grid_vector, std::optional<BtwxtLoggerFn> info_callback,
                    Method extrapolation_method, Method interpolation_method,
                    std::pair<double, double> extrapolation_limits)
     : grid(std::move(grid_vector)),
       spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
       extrapolation_method(extrapolation_method),
       interpolation_method(interpolation_method),
-      extrapolation_limits(std::move(extrapolation_limits)),
-      callback_(info_callback) {
+      extrapolation_limits(std::move(extrapolation_limits))
+{
+  if (info_callback.has_value()) {
+    callback_ = info_callback.value();
+  }
   if (grid.size() == 0) {
     throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
   }
@@ -67,9 +48,9 @@ std::optional<std::string_view> GridAxis::set_interp_method(const Method im) {
 
 void GridAxis::set_extrap_method(const Method em) { extrapolation_method = em; }
 
-std::string GridAxis::set_extrap_limits(const std::pair<double, double> extrap_limits) {
+void GridAxis::set_extrap_limits(const std::pair<double, double> extrap_limits) {
   extrapolation_limits = extrap_limits;
-  return check_extrap_limits();
+  check_extrap_limits();
 }
 
 double GridAxis::get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) {
@@ -110,27 +91,23 @@ void GridAxis::check_grid_sorted() {
   }
 }
 
-std::string GridAxis::check_extrap_limits() {
-  std::string info;
+void GridAxis::check_extrap_limits() {
   if (extrapolation_limits.first > grid[0]) {
-    info = stringify("The lower extrapolation limit (", extrapolation_limits.first,
-                     ") is within the set of grid values. Setting to smallest grid value (",
-                     grid[0], ").");
     if (callback_) {
-      callback_(MsgLevel::MSG_INFO, info, 0);
+      callback_(MsgLevel::MSG_INFO, stringify("The lower extrapolation limit (", extrapolation_limits.first,
+                                              ") is within the set of grid values. Setting to smallest grid value (",
+                                              grid[0], ")."), 0);
     }
     extrapolation_limits.first = grid[0];
   }
   if (extrapolation_limits.second < grid.back()) {
-    info = stringify("The upper extrapolation limit (", extrapolation_limits.first,
-                     ") is within the set of grid values. Setting to largest grid value (",
-                     grid.back(), ").");
     if (callback_) {
-      callback_(MsgLevel::MSG_INFO, info, 0);
+      callback_(MsgLevel::MSG_INFO, stringify("The upper extrapolation limit (", extrapolation_limits.first,
+                                              ") is within the set of grid values. Setting to largest grid value (",
+                                              grid.back(), ")."), 0);
     }
     extrapolation_limits.second = grid.back();
   }
-  return info;
 }
 
 GriddedData::GriddedData() = default;
@@ -277,9 +254,9 @@ std::vector<Method> GriddedData::get_extrap_methods() {
   return extrap_methods;
 }
 
-std::string GriddedData::set_axis_extrap_limits(const std::size_t &dim,
+void GriddedData::set_axis_extrap_limits(const std::size_t &dim,
                                                 const std::pair<double, double> &extrap_limits) {
-  return grid_axes[dim].set_extrap_limits(extrap_limits);
+  grid_axes[dim].set_extrap_limits(extrap_limits);
 }
 
 std::vector<Method> GriddedData::get_interp_methods() {

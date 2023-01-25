@@ -36,37 +36,23 @@ std::size_t RegularGridInterpolator::add_value_table(std::vector<double> &value_
 double RegularGridInterpolator::get_value_at_target(std::vector<double> target,
                                                     std::size_t table_index) {
   set_new_target(target);
-  auto [results, err] = grid_point.get_results();
-  if (err.has_value()) {
-    log_message(MsgLevel::MSG_WARN, err.value());
-  }
+  auto results = grid_point.get_results();
   return results[table_index];
 }
 
 double RegularGridInterpolator::get_value_at_target(std::size_t table_index) {
-  auto [results, err] = grid_point.get_results();
-  if (err.has_value()) {
-    log_message(MsgLevel::MSG_WARN, err.value());
-  }
+  auto results = grid_point.get_results();
   return results[table_index];
 }
 
 std::vector<double>
 RegularGridInterpolator::get_values_at_target(const std::vector<double> &target) {
   set_new_target(target);
-  auto [results, err] = grid_point.get_results();
-  if (err.has_value()) {
-    log_message(MsgLevel::MSG_WARN, err.value());
-  }
-  return results;
+  return grid_point.get_results();
 }
 
 std::vector<double> RegularGridInterpolator::get_values_at_target() {
-  auto [results, err] = grid_point.get_results();
-  if (err.has_value()) {
-    log_message(MsgLevel::MSG_WARN, err.value());
-  }
-  return results;
+  return grid_point.get_results();
 }
 
 double RegularGridInterpolator::normalize_values_at_target(std::size_t table_index,
@@ -111,11 +97,7 @@ void RegularGridInterpolator::set_new_target(const std::vector<double> &target) 
 }
 
 std::vector<double> RegularGridInterpolator::get_current_target() {
-  auto [target, err] = grid_point.get_current_target();
-  if (err.has_value()) {
-    log_message(MsgLevel::MSG_WARN, err.value());
-  }
-  return target;
+  return grid_point.get_current_target();
 }
 
 void RegularGridInterpolator::clear_current_target() { grid_point = GridPoint(grid_data); }
@@ -124,7 +106,7 @@ std::size_t RegularGridInterpolator::get_ndims() { return grid_data.get_ndims();
 
 void RegularGridInterpolator::set_axis_extrap_limits(
     const std::size_t &dim, const std::pair<double, double> &extrap_limits) {
-  log_message(MsgLevel::MSG_INFO, grid_data.set_axis_extrap_limits(dim, extrap_limits));
+  grid_data.set_axis_extrap_limits(dim, extrap_limits);
 }
 
 std::vector<std::vector<short>> &RegularGridInterpolator::get_hypercube() {
