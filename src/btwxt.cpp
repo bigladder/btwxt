@@ -11,9 +11,6 @@
 
 namespace Btwxt {
 
-// RegularGridInterpolator::RegularGridInterpolator(GriddedData &grid_data_in)
-//     : grid_data(grid_data_in), grid_point(grid_data) {}
-
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid)
     : grid_data(grid), grid_point(grid_data) {}
 

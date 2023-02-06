@@ -32,7 +32,7 @@ public:
 
   std::size_t get_length();
 
-  std::optional<std::string_view> set_interp_method(Method interpolation_method);
+  void set_interp_method(Method interpolation_method);
   void set_extrap_method(Method extrapolation_method);
   void set_extrap_limits(std::pair<double, double> extrap_limits);
 
@@ -44,7 +44,7 @@ private:
   BtwxtLoggerFn *callback_;
   void *callback_context_;
 
-  std::optional<std::string_view> calc_spacing_multipliers();
+  void calc_spacing_multipliers();
   void check_grid_sorted();
   void check_extrap_limits();
 };
