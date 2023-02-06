@@ -12,19 +12,19 @@
 
 namespace Btwxt {
 
-GridAxis::GridAxis() = default;
+// GridAxis::GridAxis() = default;
 
-GridAxis::GridAxis(std::vector<double> grid_vector, std::optional<BtwxtLoggerFn> info_callback,
+GridAxis::GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn *logger, void *logger_context,
                    Method extrapolation_method, Method interpolation_method,
                    std::pair<double, double> extrapolation_limits)
     : grid(std::move(grid_vector)),
       spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
       extrapolation_method(extrapolation_method),
       interpolation_method(interpolation_method),
-      extrapolation_limits(std::move(extrapolation_limits))
-{
-  if (info_callback.has_value()) {
-    callback_ = info_callback.value();
+      extrapolation_limits(std::move(extrapolation_limits)) {
+  if (logger) {
+    callback_ = logger;
+    callback_context_ = logger_context;
   }
   if (grid.size() == 0) {
     throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.");
@@ -53,7 +53,7 @@ void GridAxis::set_extrap_limits(const std::pair<double, double> extrap_limits) 
   check_extrap_limits();
 }
 
-double GridAxis::get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) {
+double GridAxis::get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const {
   return spacing_multipliers[flavor][index];
 }
 
@@ -63,10 +63,10 @@ std::optional<std::string_view> GridAxis::calc_spacing_multipliers() {
   if (grid.size() == 1) {
     interpolation_method = Method::LINEAR;
     if (callback_) {
-      callback_(MsgLevel::MSG_INFO,
-                "A cubic interpolation method is not valid for grid axes with only one value. "
-                "Interpolation method reset to linear.",
-                0);
+      (*callback_)(MsgLevel::MSG_INFO,
+                   "A cubic interpolation method is not valid for grid axes with only one value. "
+                   "Interpolation method reset to linear.",
+                   callback_context_);
     }
     return "A cubic interpolation method is not valid for grid axes with only one value. "
            "Interpolation method reset to linear.";
@@ -94,28 +94,39 @@ void GridAxis::check_grid_sorted() {
 void GridAxis::check_extrap_limits() {
   if (extrapolation_limits.first > grid[0]) {
     if (callback_) {
-      callback_(MsgLevel::MSG_INFO, stringify("The lower extrapolation limit (", extrapolation_limits.first,
-                                              ") is within the set of grid values. Setting to smallest grid value (",
-                                              grid[0], ")."), 0);
+      (*callback_)(MsgLevel::MSG_INFO,
+                   stringify("The lower extrapolation limit (", extrapolation_limits.first,
+                             ") is within the set of grid values. Setting to smallest grid value (",
+                             grid[0], ")."),
+                   callback_context_);
     }
     extrapolation_limits.first = grid[0];
   }
   if (extrapolation_limits.second < grid.back()) {
     if (callback_) {
-      callback_(MsgLevel::MSG_INFO, stringify("The upper extrapolation limit (", extrapolation_limits.first,
-                                              ") is within the set of grid values. Setting to largest grid value (",
-                                              grid.back(), ")."), 0);
+      (*callback_)(MsgLevel::MSG_INFO,
+                   stringify("The upper extrapolation limit (", extrapolation_limits.first,
+                             ") is within the set of grid values. Setting to largest grid value (",
+                             grid.back(), ")."),
+                   callback_context_);
     }
     extrapolation_limits.second = grid.back();
   }
 }
 
-GriddedData::GriddedData() = default;
+void GridAxis::set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info) {
+  callback_ = callback_function;
+  callback_context_ = caller_info;
+}
+
+// GriddedData::GriddedData() = default;
 
 GriddedData::GriddedData(std::vector<std::vector<double>> grid,
-                         std::vector<std::vector<double>> values)
+                         std::vector<std::vector<double>> values, BtwxtLoggerFn *logger,
+                         void *logger_context)
     : ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
   construct_axes(grid);
+  set_logging_callback(logger, logger_context);
   set_dimension_sizes();
   num_tables = values.size();
   results.resize(num_tables);
@@ -123,12 +134,23 @@ GriddedData::GriddedData(std::vector<std::vector<double>> grid,
   value_tables = values;
 }
 
-GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values)
+GriddedData::GriddedData(std::vector<std::vector<double>> grid, BtwxtLoggerFn *logger,
+                         void *logger_context)
+    : ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
+  construct_axes(grid);
+  set_logging_callback(logger, logger_context);
+  set_dimension_sizes();
+  num_tables = 0;
+}
+
+GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
+                         BtwxtLoggerFn *logger, void *logger_context)
     : grid_axes(grid_axes),
       ndims(grid_axes.size()),
       dimension_lengths(ndims),
       dimension_step_size(ndims),
       temp_coords(ndims) {
+  set_logging_callback(logger, logger_context);
   set_dimension_sizes();
   num_tables = values.size();
   results.resize(num_tables);
@@ -136,12 +158,14 @@ GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vecto
   value_tables = values;
 }
 
-GriddedData::GriddedData(std::vector<GridAxis> grid_axes)
+GriddedData::GriddedData(std::vector<GridAxis> grid_axes, BtwxtLoggerFn *logger,
+                         void *logger_context)
     : grid_axes(grid_axes),
       ndims(grid_axes.size()),
       dimension_lengths(ndims),
       dimension_step_size(ndims),
       temp_coords(ndims) {
+  set_logging_callback(logger, logger_context);
   set_dimension_sizes();
   num_tables = 0;
 }
@@ -176,11 +200,11 @@ std::size_t GriddedData::add_value_table(std::vector<double> &value_vector) {
   return num_tables - 1;
 }
 
-std::size_t GriddedData::get_ndims() { return grid_axes.size(); }
+std::size_t GriddedData::get_ndims() const { return grid_axes.size(); }
 
-std::size_t GriddedData::get_num_tables() { return num_tables; }
+std::size_t GriddedData::get_num_tables() const { return num_tables; }
 
-std::size_t GriddedData::get_value_index(const std::vector<std::size_t> &coords) {
+std::size_t GriddedData::get_value_index(const std::vector<std::size_t> &coords) const {
   std::size_t index = 0;
   for (std::size_t dim = 0; dim < ndims; ++dim) {
     index += coords[dim] * dimension_step_size[dim];
@@ -228,12 +252,12 @@ const std::vector<double> &GriddedData::get_grid_vector(const std::size_t &dim) 
   return grid_axes[dim].grid;
 }
 
-std::pair<double, double> GriddedData::get_extrap_limits(const std::size_t &dim) {
+std::pair<double, double> GriddedData::get_extrap_limits(const std::size_t &dim) const {
   return grid_axes[dim].extrapolation_limits;
 }
 
 double GriddedData::get_axis_spacing_mult(const std::size_t &dim, const std::size_t &flavor,
-                                          const std::size_t &index) {
+                                          const std::size_t &index) const {
   if (grid_axes[dim].interpolation_method == Method::CUBIC) {
     return grid_axes[dim].get_spacing_multiplier(flavor, index);
   } else {
@@ -246,7 +270,7 @@ void GriddedData::set_axis_extrap_method(const std::size_t &dim,
   grid_axes[dim].extrapolation_method = extrapolation_method;
 }
 
-std::vector<Method> GriddedData::get_extrap_methods() {
+std::vector<Method> GriddedData::get_extrap_methods() const {
   std::vector<Method> extrap_methods(ndims);
   for (std::size_t dim = 0; dim < ndims; dim++) {
     extrap_methods[dim] = grid_axes[dim].extrapolation_method;
@@ -259,7 +283,7 @@ void GriddedData::set_axis_extrap_limits(const std::size_t &dim,
   grid_axes[dim].set_extrap_limits(extrap_limits);
 }
 
-std::vector<Method> GriddedData::get_interp_methods() {
+std::vector<Method> GriddedData::get_interp_methods() const {
   std::vector<Method> interp_methods(ndims);
   for (std::size_t dim = 0; dim < ndims; dim++) {
     interp_methods[dim] = grid_axes[dim].interpolation_method;
@@ -310,6 +334,12 @@ std::string GriddedData::write_data() {
     }
   }
   return output.str();
+}
+
+void GriddedData::set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info) {
+  for (std::size_t dim = 0; dim < ndims; dim++) {
+    grid_axes[dim].set_logging_callback(callback_function, caller_info);
+  }
 }
 
 // free functions

@@ -11,16 +11,18 @@
 
 namespace Btwxt {
 
-RegularGridInterpolator::RegularGridInterpolator() = default;
+// RegularGridInterpolator::RegularGridInterpolator(GriddedData &grid_data_in)
+//     : grid_data(grid_data_in), grid_point(grid_data) {}
 
-RegularGridInterpolator::RegularGridInterpolator(GriddedData &grid_data_in)
-    : grid_data(grid_data_in), grid_point(grid_data) {}
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid)
+    : grid_data(grid), grid_point(grid_data) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                                                  const std::vector<std::vector<double>> &values)
     : grid_data(grid, values), grid_point(grid_data) {}
 
-RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &source) {
+RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &source)
+    : grid_data(source.grid_data), grid_point(source.grid_point) {
   *this = source;
 }
 
@@ -100,14 +102,13 @@ std::vector<double> RegularGridInterpolator::get_current_target() {
   return grid_point.get_current_target();
 }
 
-void RegularGridInterpolator::clear_current_target() { grid_point = GridPoint(grid_data); }
-
-std::size_t RegularGridInterpolator::get_ndims() { return grid_data.get_ndims(); }
-
-void RegularGridInterpolator::set_axis_extrap_limits(
-    const std::size_t &dim, const std::pair<double, double> &extrap_limits) {
-  grid_data.set_axis_extrap_limits(dim, extrap_limits);
+void RegularGridInterpolator::clear_current_target() {
+  grid_point = GridPoint(grid_data, &callback_function_, caller_context_);
 }
+
+std::size_t RegularGridInterpolator::get_ndims() const { return grid_data.get_ndims(); }
+
+std::size_t RegularGridInterpolator::get_num_tables() const { return grid_data.get_num_tables(); }
 
 std::vector<std::vector<short>> &RegularGridInterpolator::get_hypercube() {
   return grid_point.get_hypercube();
@@ -121,6 +122,8 @@ void RegularGridInterpolator::set_logging_callback(BtwxtLoggerFn callback_functi
                                                    void *caller_info) {
   callback_function_ = callback_function;
   caller_context_ = caller_info;
+  grid_data.set_logging_callback(&callback_function_, caller_context_);
+  grid_point.set_logging_callback(&callback_function_, caller_context_);
 }
 
 void RegularGridInterpolator::log_message(MsgLevel messageType, std::string_view message) {

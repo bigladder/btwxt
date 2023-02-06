@@ -13,9 +13,7 @@
 
 namespace Btwxt {
 
-GridPoint::GridPoint() {}
-
-GridPoint::GridPoint(GriddedData &grid_data_in, std::optional<BtwxtLoggerFn> logger)
+GridPoint::GridPoint(GriddedData &grid_data_in, BtwxtLoggerFn *logger, void *logger_context)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
       target(ndims, 0.0),
@@ -31,12 +29,14 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::optional<BtwxtLoggerFn> log
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       results(grid_data->num_tables),
       hypercube_size_hash(0) {
-  if (logger.has_value()) {
-    callback_ = logger.value();
+  if (logger) {
+    callback_ = logger;
+    callback_context_ = logger_context;
   }
 }
 
-GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, std::optional<BtwxtLoggerFn> logger)
+GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, BtwxtLoggerFn *logger,
+                     void *logger_context)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
       target_is_set(false),
@@ -49,8 +49,9 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, std::opti
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       results(grid_data->num_tables) {
-  if (logger.has_value()) {
-    callback_ = logger.value();
+  if (logger) {
+    callback_ = logger;
+    callback_context_ = logger_context;
   }
   set_target(v);
 }
@@ -75,7 +76,9 @@ void GridPoint::set_target(const std::vector<double> &v) {
 
 std::vector<double> GridPoint::get_current_target() {
   if (!target_is_set && callback_) {
-    callback_(MsgLevel::MSG_WARN, stringify("The current target was requested, but no target has been set."), nullptr);
+    (*callback_)(MsgLevel::MSG_WARN,
+                 stringify("The current target was requested, but no target has been set."),
+                 callback_context_);
   }
   return target;
 }
@@ -100,7 +103,7 @@ void GridPoint::set_floor() {
 }
 
 void GridPoint::set_dim_floor(std::size_t dim) {
-  GridAxis &axis = grid_data->grid_axes[dim];
+  const GridAxis &axis = grid_data->grid_axes[dim];
   std::size_t l = axis.grid.size();
   if (target[dim] < axis.extrapolation_limits.first) {
     is_inbounds[dim] = Bounds::OUTLAW;
@@ -273,10 +276,14 @@ void GridPoint::set_results() {
 
 std::vector<double> GridPoint::get_results() {
   if (grid_data->num_tables == 0u && callback_) {
-    callback_(MsgLevel::MSG_WARN, stringify("There are no value tables in the gridded data. No results returned."), nullptr);
+    (*callback_)(MsgLevel::MSG_WARN,
+                 stringify("There are no value tables in the gridded data. No results returned."),
+                 callback_context_);
   }
   if (!target_is_set && callback_) {
-    callback_(MsgLevel::MSG_WARN, stringify("Results were requested, but no target has been set."), nullptr);
+    (*callback_)(MsgLevel::MSG_WARN,
+                 stringify("Results were requested, but no target has been set."),
+                 callback_context_);
   }
   return results;
 }
@@ -312,6 +319,11 @@ double GridPoint::normalize_grid_values_at_target(std::size_t table_num, const d
   set_results();
 
   return total_scalar;
+}
+
+void GridPoint::set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info) {
+  callback_ = callback_function;
+  callback_context_ = caller_info;
 }
 
 } // namespace Btwxt

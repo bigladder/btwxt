@@ -48,7 +48,7 @@ TEST(Hypercube, cart_product) {
   EXPECT_THAT(result[3 * 2 * 4 - 1], testing::ElementsAre(3, 5, 9));
 }
 
-TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
+TEST_F(CubicGriddedDataFixture, hypercube_weigh_one_vertex) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
   GridPoint grid_point(test_gridded_data, target);
   std::vector<Method> methods = grid_point.get_methods();
@@ -95,7 +95,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
   EXPECT_DOUBLE_EQ(weight, expected_result);
 }
 
-TEST_F(CubicFixture, hypercube_calculations) {
+TEST_F(CubicGriddedDataFixture, hypercube_calculations) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
   GridPoint grid_point(test_gridded_data, target);
 
@@ -104,11 +104,9 @@ TEST_F(CubicFixture, hypercube_calculations) {
   EXPECT_NEAR(result[1], 11.9271, 0.0001);
 }
 
+//TODO: Determine if testing GridPoint outside of RGI has value - the "unit" of functionality is within RGI
 TEST_F(OneDFixture, hypercube_calculations) {
-  test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-  GridPoint grid_point(test_gridded_data, target);
-  std::vector<Method> methods = grid_point.get_methods();
-
-  auto result = grid_point.get_results();
+  test_rgi.set_axis_interp_method(0, Method::CUBIC);
+  auto result = test_rgi.get_values_at_target(target);
   EXPECT_NEAR(result[0], 4.804398, 0.00001);
 }

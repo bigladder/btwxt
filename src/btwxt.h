@@ -20,9 +20,7 @@ class RegularGridInterpolator {
 public:
   // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
 
-  RegularGridInterpolator();
-
-  explicit RegularGridInterpolator(GriddedData &grid_data);
+  RegularGridInterpolator(const std::vector<std::vector<double>> &grid);
 
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                           const std::vector<std::vector<double>> &values);
@@ -81,14 +79,24 @@ public:
 
   void clear_current_target();
 
-  std::size_t get_ndims();
+  std::size_t get_ndims() const;
+
+  std::size_t get_num_tables() const;
+
+  const GriddedData &get_grid_data() { return grid_data; }
 
   void set_axis_interp_method(std::size_t dim, Method method) {
     grid_data.set_axis_interp_method(dim, method);
   }
 
+  void set_axis_extrap_method(const std::size_t &dim, Method method) {
+    grid_data.set_axis_extrap_method(dim, method);
+  }
+
   void set_axis_extrap_limits(const std::size_t &dim,
-                              const std::pair<double, double> &extrap_limits);
+                              const std::pair<double, double> &extrap_limits) {
+    grid_data.set_axis_extrap_limits(dim, extrap_limits);
+  }
 
   std::vector<std::vector<short>> &get_hypercube();
 

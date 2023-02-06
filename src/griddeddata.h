@@ -16,15 +16,11 @@ enum class Method { CONSTANT, LINEAR, CUBIC, UNDEF };
 class GridAxis {
   // A single input dimension of the performance space
 public:
-  GridAxis();
 
-  // TODO: BtwxtLoggerFn could be std::optional instead of default; prevents calling nothing
-  // function
-  GridAxis(
-      std::vector<double> grid_vector,
-      std::optional<BtwxtLoggerFn> info_callback = std::nullopt,
-      Method extrapolation_method = Method::CONSTANT, Method interpolation_method = Method::LINEAR,
-      std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+  GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn *logger = nullptr,
+           void *logger_context = nullptr, Method extrapolation_method = Method::CONSTANT,
+           Method interpolation_method = Method::LINEAR,
+           std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
   std::vector<double> grid;
   std::vector<std::vector<double>> spacing_multipliers;
@@ -40,10 +36,13 @@ public:
   void set_extrap_method(Method extrapolation_method);
   void set_extrap_limits(std::pair<double, double> extrap_limits);
 
-  double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index);
+  double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const;
+
+  void set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info);
 
 private:
-  BtwxtLoggerFn callback_;
+  BtwxtLoggerFn *callback_;
+  void *callback_context_;
 
   std::optional<std::string_view> calc_spacing_multipliers();
   void check_grid_sorted();
@@ -52,25 +51,29 @@ private:
 
 class GriddedData {
 public:
-  GriddedData();
+  GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values,
+              BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
-  GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values);
+  GriddedData(std::vector<std::vector<double>> grid, BtwxtLoggerFn *logger = nullptr,
+              void *logger_context = nullptr);
 
-  GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values);
+  GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
+              BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
-  explicit GriddedData(std::vector<GridAxis> grid_axes);
+  explicit GriddedData(std::vector<GridAxis> grid_axes, BtwxtLoggerFn *logger = nullptr,
+                       void *logger_context = nullptr);
 
-  std::size_t get_ndims();
+  std::size_t get_ndims() const;
 
-  std::size_t get_num_tables();
+  std::size_t get_num_tables() const;
 
   std::size_t add_value_table(std::vector<double> &value_vector);
 
   const std::vector<double> &get_grid_vector(const std::size_t &dim);
 
-  std::pair<double, double> get_extrap_limits(const std::size_t &dim);
+  std::pair<double, double> get_extrap_limits(const std::size_t &dim) const;
 
-  std::size_t get_value_index(const std::vector<std::size_t> &coords);
+  std::size_t get_value_index(const std::vector<std::size_t> &coords) const;
 
   std::size_t get_value_index_relative(const std::vector<std::size_t> &coords,
                                        const std::vector<short> &translation);
@@ -83,22 +86,24 @@ public:
   std::vector<double> get_values(const std::size_t index);
 
   double get_axis_spacing_mult(const std::size_t &dim, const std::size_t &flavor,
-                               const std::size_t &index);
+                               const std::size_t &index) const;
 
-  std::vector<Method> get_interp_methods();
+  std::vector<Method> get_interp_methods() const;
 
-  std::vector<Method> get_extrap_methods();
+  std::vector<Method> get_extrap_methods() const;
 
   void normalize_value_table(std::size_t table_num, double scalar = 1.0);
 
   void set_axis_extrap_method(const std::size_t &dim, Method);
 
   void set_axis_extrap_limits(const std::size_t &dim,
-                                     const std::pair<double, double> &extrap_limits);
+                              const std::pair<double, double> &extrap_limits);
 
   void set_axis_interp_method(const std::size_t &dim, Method);
 
   std::string write_data();
+
+  void set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info);
 
   std::vector<std::vector<double>> value_tables;
   std::size_t num_values;

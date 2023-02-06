@@ -9,17 +9,16 @@
 
 // btwxt
 #include "fixtures.hpp"
-#include <btwxt.h>
-#include <error.h>
-#include <griddeddata.h>
 
 using namespace Btwxt;
 
+#if 0
 TEST_F(TwoDFixture, construct_from_gridded_data) {
   RegularGridInterpolator rgi_from_grid(test_gridded_data);
   std::size_t ndims = rgi_from_grid.get_ndims();
   EXPECT_EQ(ndims, 2u);
 }
+#endif
 
 TEST_F(TwoDFixture, target_undefined) {
   std::vector<double> returned_target;
@@ -54,7 +53,7 @@ TEST_F(TwoDFixture, target_undefined) {
   EXPECT_EQ(bad_result, 0);
 }
 
-TEST_F(CubicFixture, spacing_multiplier) {
+TEST_F(CubicGriddedDataFixture, spacing_multiplier) {
   double result;
   result = test_gridded_data.get_axis_spacing_mult(0, 0, 0);
   EXPECT_DOUBLE_EQ(result, 1.0);
@@ -73,12 +72,12 @@ TEST_F(CubicFixture, spacing_multiplier) {
 }
 
 TEST_F(CubicFixture, switch_interp_method) {
-  for (auto i = 0u; i < test_gridded_data.get_ndims(); i++)
+  for (auto i = 0u; i < test_rgi.get_ndims(); i++)
   {
     test_rgi.set_axis_interp_method(i, Method::CUBIC);
   }
   std::vector<double> result1 = test_rgi.get_values_at_target(target);
-  for (auto i = 0u; i < test_gridded_data.get_ndims(); i++)
+  for (auto i = 0u; i < test_rgi.get_ndims(); i++)
   {
     test_rgi.set_axis_interp_method(i, Method::LINEAR);
   }
@@ -130,18 +129,20 @@ TEST_F(TwoDFixture, extrapolate) {
 }
 
 TEST_F(TwoDFixture, invalid_inputs) {
+  std::vector<double> short_target = {1};
+  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+  std::vector<double> long_target = {1, 2, 3};
+  EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
+}
+
+TEST_F(TwoDGriddedDataFixture, invalid_inputs) {
   // we expect two errors that the value table inputs do not match the grid
   // we expect an error that the target dimensions do not match the grid
   std::vector<double> short_values = {6, 3, 2, 8, 4};
   EXPECT_THROW(test_gridded_data.add_value_table(short_values);, BtwxtErr);
   std::vector<double> long_values = {1, 1, 1, 1, 1, 1, 1};
   EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtErr);
-
-  std::vector<double> short_target = {1};
-  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
-  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
-  std::vector<double> long_target = {1, 2, 3};
-  EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
 }
 
 TEST_F(TwoDFixtureGlobalCallback, invalid_inputs) {
@@ -153,8 +154,7 @@ TEST_F(TwoDFixtureGlobalCallback, invalid_inputs) {
 }
 
 TEST_F(OneDFixture, cubic_interpolate) {
-  test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-  test_rgi = RegularGridInterpolator(test_gridded_data);
+  test_rgi.set_axis_interp_method(0, Method::CUBIC);
   double result = test_rgi.get_values_at_target(target)[0];
   EXPECT_NEAR(result, 4.804398, 0.0001);
 }
@@ -164,24 +164,21 @@ TEST_F(OneDL0Fixture, throw_test) {
 }
 
 TEST_F(OneDL1Fixture, cubic_interpolate) {
-    test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-    test_rgi = RegularGridInterpolator(test_gridded_data);
+    test_rgi.set_axis_interp_method(0, Method::CUBIC);
     double result = test_rgi.get_values_at_target(target)[0];
     EXPECT_NEAR(result, 5., 0.0001);
 }
 
 TEST_F(OneDL2Fixture, cubic_interpolate) {
-    test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-    test_rgi = RegularGridInterpolator(test_gridded_data);
+    test_rgi.set_axis_interp_method(0, Method::CUBIC);
     double result = test_rgi.get_values_at_target(target)[0];
     EXPECT_NEAR(result, 5.25, 0.0001);
 }
 
 
 TEST_F(TwoDFixture, cubic_interpolate) {
-  test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-  test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-  test_rgi = RegularGridInterpolator(test_gridded_data);
+  test_rgi.set_axis_interp_method(0, Method::CUBIC);
+  test_rgi.set_axis_interp_method(1, Method::CUBIC);
   test_rgi.set_new_target(target);
 
   // All values, current target
@@ -190,9 +187,8 @@ TEST_F(TwoDFixture, cubic_interpolate) {
 }
 
 TEST_F(TwoDFixture, normalize) {
-  test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-  test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-  test_rgi = RegularGridInterpolator(test_gridded_data);
+  test_rgi.set_axis_interp_method(0, Method::CUBIC);
+  test_rgi.set_axis_interp_method(1, Method::CUBIC);
   test_rgi.set_new_target(target);
 
   // All values, current target

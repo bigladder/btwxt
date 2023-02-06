@@ -19,11 +19,12 @@ enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
 
 class GridPoint {
 public:
-  GridPoint();
 
-  GridPoint(GriddedData &grid_data, std::optional<BtwxtLoggerFn> logger = std::nullopt);
+  GridPoint(GriddedData &grid_data, BtwxtLoggerFn *logger = nullptr,
+            void *logger_context = nullptr);
 
-  GridPoint(GriddedData &grid_data, std::vector<double> v, std::optional<BtwxtLoggerFn> logger = std::nullopt);
+  GridPoint(GriddedData &grid_data, std::vector<double> v, BtwxtLoggerFn *logger = nullptr,
+            void *logger_context = nullptr);
 
   void set_target(const std::vector<double> &v);
 
@@ -51,9 +52,12 @@ public:
 
   void set_floor();
 
+  void set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info);
+
 private:
   friend class RegularGridInterpolator;
-  BtwxtLoggerFn callback_;
+  BtwxtLoggerFn *callback_;
+  void *callback_context_;
   GriddedData *grid_data;
   std::size_t ndims;
   std::vector<double> target;
