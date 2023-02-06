@@ -16,8 +16,7 @@ enum class Method { CONSTANT, LINEAR, CUBIC, UNDEF };
 class GridAxis {
   // A single input dimension of the performance space
 public:
-
-  GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn *logger = nullptr,
+  GridAxis(std::vector<double> grid_vector, const BtwxtLoggerFn *logger = nullptr,
            void *logger_context = nullptr, Method extrapolation_method = Method::CONSTANT,
            Method interpolation_method = Method::LINEAR,
            std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
@@ -38,10 +37,10 @@ public:
 
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const;
 
-  void set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info);
+  void set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info);
 
 private:
-  BtwxtLoggerFn *callback_;
+  const BtwxtLoggerFn *callback_;
   void *callback_context_;
 
   void calc_spacing_multipliers();
@@ -52,15 +51,15 @@ private:
 class GriddedData {
 public:
   GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values,
-              BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
+              const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
-  GriddedData(std::vector<std::vector<double>> grid, BtwxtLoggerFn *logger = nullptr,
+  GriddedData(std::vector<std::vector<double>> grid, const BtwxtLoggerFn *logger = nullptr,
               void *logger_context = nullptr);
 
   GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
-              BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
+              const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
-  explicit GriddedData(std::vector<GridAxis> grid_axes, BtwxtLoggerFn *logger = nullptr,
+  explicit GriddedData(std::vector<GridAxis> grid_axes, const BtwxtLoggerFn *logger = nullptr,
                        void *logger_context = nullptr);
 
   std::size_t get_ndims() const;
@@ -103,7 +102,7 @@ public:
 
   std::string write_data();
 
-  void set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info);
+  void set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info);
 
   std::vector<std::vector<double>> value_tables;
   std::size_t num_values;

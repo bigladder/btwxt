@@ -12,10 +12,8 @@
 
 namespace Btwxt {
 
-// GridAxis::GridAxis() = default;
-
-GridAxis::GridAxis(std::vector<double> grid_vector, BtwxtLoggerFn *logger, void *logger_context,
-                   Method extrapolation_method, Method interpolation_method,
+GridAxis::GridAxis(std::vector<double> grid_vector, const BtwxtLoggerFn *logger,
+                   void *logger_context, Method extrapolation_method, Method interpolation_method,
                    std::pair<double, double> extrapolation_limits)
     : grid(std::move(grid_vector)),
       spacing_multipliers(2, std::vector<double>(std::max((int)grid.size() - 1, 0), 1.0)),
@@ -110,7 +108,7 @@ void GridAxis::check_extrap_limits() {
   }
 }
 
-void GridAxis::set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info) {
+void GridAxis::set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info) {
   callback_ = callback_function;
   callback_context_ = caller_info;
 }
@@ -118,7 +116,7 @@ void GridAxis::set_logging_callback(BtwxtLoggerFn *callback_function, void *call
 // GriddedData::GriddedData() = default;
 
 GriddedData::GriddedData(std::vector<std::vector<double>> grid,
-                         std::vector<std::vector<double>> values, BtwxtLoggerFn *logger,
+                         std::vector<std::vector<double>> values, const BtwxtLoggerFn *logger,
                          void *logger_context)
     : ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
   construct_axes(grid);
@@ -130,7 +128,7 @@ GriddedData::GriddedData(std::vector<std::vector<double>> grid,
   value_tables = values;
 }
 
-GriddedData::GriddedData(std::vector<std::vector<double>> grid, BtwxtLoggerFn *logger,
+GriddedData::GriddedData(std::vector<std::vector<double>> grid, const BtwxtLoggerFn *logger,
                          void *logger_context)
     : ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
   construct_axes(grid);
@@ -140,7 +138,7 @@ GriddedData::GriddedData(std::vector<std::vector<double>> grid, BtwxtLoggerFn *l
 }
 
 GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
-                         BtwxtLoggerFn *logger, void *logger_context)
+                         const BtwxtLoggerFn *logger, void *logger_context)
     : grid_axes(grid_axes),
       ndims(grid_axes.size()),
       dimension_lengths(ndims),
@@ -154,7 +152,7 @@ GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vecto
   value_tables = values;
 }
 
-GriddedData::GriddedData(std::vector<GridAxis> grid_axes, BtwxtLoggerFn *logger,
+GriddedData::GriddedData(std::vector<GridAxis> grid_axes, const BtwxtLoggerFn *logger,
                          void *logger_context)
     : grid_axes(grid_axes),
       ndims(grid_axes.size()),
@@ -332,7 +330,7 @@ std::string GriddedData::write_data() {
   return output.str();
 }
 
-void GriddedData::set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info) {
+void GriddedData::set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info) {
   for (std::size_t dim = 0; dim < ndims; dim++) {
     grid_axes[dim].set_logging_callback(callback_function, caller_info);
   }
