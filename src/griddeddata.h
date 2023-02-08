@@ -56,8 +56,7 @@ public:
   GriddedData(std::vector<std::vector<double>> grid, const BtwxtLoggerFn *logger = nullptr,
               void *logger_context = nullptr);
 
-  // GridAxis c'tor is explicit for overload disambiguation when initializing with braced lists
-  explicit GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
+  GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
               const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
   explicit GriddedData(std::vector<GridAxis> grid_axes, const BtwxtLoggerFn *logger = nullptr,

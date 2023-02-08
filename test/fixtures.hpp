@@ -165,7 +165,6 @@ protected:
 class CubicFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
-  // GriddedData test_gridded_data;
   std::vector<double> target;
 
   CubicFixture() : test_rgi({{0}}, {{}}) {
@@ -233,14 +232,12 @@ protected:
   GriddedData test_gridded_data;
   std::vector<double> target{26.9, 12, 5};
 
-  ThreeDGriddedDataFixture() : test_gridded_data({{0}}, {{0}}) {
-    std::vector<std::vector<double>> grid = {{-15, 0.2, 105}, {0, 10, 15}, {4, 6}};
-    //         4   6
-    std::vector<std::vector<double>> values = {{6, 3, // 0
-                                                2, 8, // 10
-                                                4, 2, // 15
-                                                3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
-    test_gridded_data = GriddedData(grid, values);
+  ThreeDGriddedDataFixture() : test_gridded_data({{-15, 0.2, 105}, {0, 10, 15}, {4, 6}},
+                                                 //4  6
+                                                 {{6, 3, // 0
+                                                   2, 8, // 10
+                                                   4, 2, // 15
+                                                   3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}}) {
     test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
     test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
     test_gridded_data.set_axis_interp_method(2, Method::LINEAR);
