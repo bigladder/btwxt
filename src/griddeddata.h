@@ -66,7 +66,7 @@ public:
 
   std::size_t get_num_tables() const;
 
-  std::size_t add_value_table(std::vector<double> &value_vector);
+  std::size_t add_value_table(const std::vector<double> &value_vector);
 
   const std::vector<double> &get_grid_vector(const std::size_t &dim);
 

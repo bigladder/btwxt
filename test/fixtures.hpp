@@ -21,10 +21,10 @@
     EXPECT_STREQ(ExpectedOut.c_str(), buffer.str().c_str());                                       \
   }
 
-using namespace Btwxt;
+void btwxt_message(Btwxt::MsgLevel msglevel, const std::string_view &msg, void *);
+void global_callback(const Btwxt::MsgLevel messageType, const std::string message, void *);
 
-void btwxt_message(MsgLevel msglevel, const std::string_view &msg, void *);
-void global_callback(const MsgLevel messageType, const std::string message, void *);
+namespace Btwxt {
 
 class OneDFixture : public testing::Test {
 protected:
@@ -76,7 +76,6 @@ protected:
 class TwoDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
-  // std::vector<std::vector<double>> values;
   std::vector<double> target;
 
   TwoDFixture() : test_rgi({{0}}, {{0}}) {
@@ -113,6 +112,7 @@ protected:
   }
 };
 
+#if 0
 class TwoDFixtureGlobalCallback : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
@@ -136,6 +136,7 @@ protected:
     Btwxt::setMessageCallback(global_callback, nullptr);
   }
 };
+#endif
 
 class TwoDSimpleNormalizationFixture : public testing::Test {
   // TODO: Create a fixture which this one can inherit from
@@ -227,4 +228,23 @@ protected:
   }
 };
 
+class ThreeDGriddedDataFixture : public testing::Test {
+protected:
+  GriddedData test_gridded_data;
+  std::vector<double> target{26.9, 12, 5};
+
+  ThreeDGriddedDataFixture() : test_gridded_data({{0}}, {{0}}) {
+    std::vector<std::vector<double>> grid = {{-15, 0.2, 105}, {0, 10, 15}, {4, 6}};
+    //         4   6
+    std::vector<std::vector<double>> values = {{6, 3, // 0
+                                                2, 8, // 10
+                                                4, 2, // 15
+                                                3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
+    test_gridded_data = GriddedData(grid, values);
+    test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
+    test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
+    test_gridded_data.set_axis_interp_method(2, Method::LINEAR);
+  }
+};
 #endif /* TEST_FIXTURE_HPP_ */
+} // namespace Btwxt

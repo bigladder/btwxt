@@ -74,7 +74,7 @@ void GridPoint::set_target(const std::vector<double> &v) {
   set_results();
 }
 
-std::vector<double> GridPoint::get_current_target() {
+std::vector<double> GridPoint::get_current_target() const {
   if (!target_is_set && callback_) {
     (*callback_)(MsgLevel::MSG_WARN,
                  stringify("The current target was requested, but no target has been set."),

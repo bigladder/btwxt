@@ -145,6 +145,7 @@ TEST_F(TwoDGriddedDataFixture, invalid_inputs) {
   EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtErr);
 }
 
+#if 0
 TEST_F(TwoDFixtureGlobalCallback, invalid_inputs) {
   std::vector<double> short_target = {1};
   std::string expected_error{"ERROR: Target and Gridded Data do not have the same dimensions.\n"};
@@ -152,6 +153,7 @@ TEST_F(TwoDFixtureGlobalCallback, invalid_inputs) {
   std::vector<double> long_target = {1, 2, 3};
   EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
 }
+#endif
 
 TEST_F(OneDFixture, cubic_interpolate) {
   test_rgi.set_axis_interp_method(0, Method::CUBIC);

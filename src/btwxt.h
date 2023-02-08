@@ -41,10 +41,10 @@ public:
   }
 
   // Add value table to GriddedData
-  std::size_t add_value_table(std::vector<double> &value_vector);
+  std::size_t add_value_table(const std::vector<double> &value_vector);
 
   // GridPoint gets instantiated inside calculate_value_at_target
-  double get_value_at_target(std::vector<double> target, std::size_t table_index);
+  double get_value_at_target(const std::vector<double>& target, std::size_t table_index);
 
   double operator()(std::vector<double> target, std::size_t table_index) {
     return get_value_at_target(std::move(target), table_index);
@@ -75,15 +75,13 @@ public:
   double normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
                                     const double scalar = 1.0);
 
-  std::vector<double> get_current_target();
+  std::vector<double> get_current_target() const;
 
   void clear_current_target();
 
   std::size_t get_ndims() const;
 
   std::size_t get_num_tables() const;
-
-  const GriddedData &get_grid_data() { return grid_data; }
 
   void set_axis_interp_method(std::size_t dim, Method method) {
     grid_data.set_axis_interp_method(dim, method);
@@ -98,8 +96,6 @@ public:
     grid_data.set_axis_extrap_limits(dim, extrap_limits);
   }
 
-  std::vector<std::vector<short>> &get_hypercube();
-
   std::pair<double, double> get_axis_limits(int dim);
 
   BtwxtLoggerFn callback_function_;
@@ -107,7 +103,7 @@ public:
 
   void set_logging_callback(BtwxtLoggerFn callback_function, void *caller_info);
 
-  void log_message(MsgLevel messageType, std::string_view message);
+  void log_message(MsgLevel messageType, std::string_view message) const;
 
 private:
   GriddedData grid_data;

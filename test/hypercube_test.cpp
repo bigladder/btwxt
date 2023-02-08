@@ -14,14 +14,17 @@
 #include <error.h>
 #include <griddeddata.h>
 
-using namespace Btwxt;
+namespace Btwxt {
 
-TEST_F(ThreeDFixture, hypercube) {
-  auto hypercube = test_rgi.get_hypercube();
-  EXPECT_EQ(hypercube.size(), 16u); }
+TEST_F(ThreeDGriddedDataFixture, hypercube) {
+  GridPoint grid_point(test_gridded_data);
+  auto hypercube = grid_point.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 16u);
+}
 
-TEST_F(ThreeDFixture, test_hypercube) {
-  auto hypercube = test_rgi.get_hypercube();
+TEST_F(ThreeDGriddedDataFixture, test_hypercube) {
+  GridPoint grid_point(test_gridded_data);
+  auto hypercube = grid_point.get_hypercube();
   EXPECT_EQ(hypercube.size(), 2u * 4u * 2u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, -1, 0));
   EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 0, 0));
@@ -29,9 +32,10 @@ TEST_F(ThreeDFixture, test_hypercube) {
   EXPECT_THAT(hypercube[15], testing::ElementsAre(1, 2, 1));
 }
 
-TEST_F(ThreeDFixture, make_linear_hypercube) {
-  test_rgi.set_axis_interp_method(1, Method::LINEAR);
-  auto hypercube = test_rgi.get_hypercube();
+TEST_F(ThreeDGriddedDataFixture, make_linear_hypercube) {
+  test_gridded_data.set_axis_interp_method(1, Method::LINEAR);
+  GridPoint grid_point(test_gridded_data);
+  auto hypercube = grid_point.get_hypercube();
   EXPECT_EQ(hypercube.size(), 8u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));
   EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 1, 0));
@@ -104,9 +108,10 @@ TEST_F(CubicGriddedDataFixture, hypercube_calculations) {
   EXPECT_NEAR(result[1], 11.9271, 0.0001);
 }
 
-//TODO: Determine if testing GridPoint outside of RGI has value - the "unit" of functionality is within RGI
+// TODO: Determine if testing GridPoint outside of RGI has value - the "unit" of functionality is within RGI
 TEST_F(OneDFixture, hypercube_calculations) {
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
   auto result = test_rgi.get_values_at_target(target);
   EXPECT_NEAR(result[0], 4.804398, 0.00001);
 }
+} // namespace Btwxt

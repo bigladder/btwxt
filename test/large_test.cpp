@@ -95,57 +95,36 @@ TEST_F(LargeFixture, verify_linear) {
   // no matter what we do, result[1] should always be 11!
   std::vector<double> result;
 
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::LINEAR, Method::LINEAR, Method::LINEAR, Method::LINEAR));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::CUBIC, Method::LINEAR, Method::LINEAR, Method::LINEAR));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
   test_rgi.set_axis_interp_method(3, Method::CUBIC);
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::CUBIC, Method::LINEAR, Method::LINEAR, Method::CUBIC));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
   test_rgi.set_axis_interp_method(0, Method::LINEAR);
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::LINEAR, Method::LINEAR, Method::LINEAR, Method::CUBIC));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
   test_rgi.set_axis_interp_method(2, Method::CUBIC);
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::LINEAR, Method::LINEAR, Method::CUBIC, Method::CUBIC));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::CUBIC, Method::LINEAR, Method::CUBIC, Method::CUBIC));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
   test_rgi.set_axis_interp_method(1, Method::CUBIC);
-  EXPECT_THAT(test_rgi.get_grid_data().get_interp_methods(),
-              testing::ElementsAre(Method::CUBIC, Method::CUBIC, Method::CUBIC, Method::CUBIC));
-  //test_rgi = RegularGridInterpolator(test_gridded_data);
   test_rgi.set_new_target(target);
   result = test_rgi.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);

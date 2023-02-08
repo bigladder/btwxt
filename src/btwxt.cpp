@@ -23,7 +23,7 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &
   *this = source;
 }
 
-std::size_t RegularGridInterpolator::add_value_table(std::vector<double> &value_vector) {
+std::size_t RegularGridInterpolator::add_value_table(const std::vector<double> &value_vector) {
   try {
     return grid_data.add_value_table(value_vector);
   } catch (BtwxtErr &e) {
@@ -32,7 +32,7 @@ std::size_t RegularGridInterpolator::add_value_table(std::vector<double> &value_
   }
 }
 
-double RegularGridInterpolator::get_value_at_target(std::vector<double> target,
+double RegularGridInterpolator::get_value_at_target(const std::vector<double>& target,
                                                     std::size_t table_index) {
   set_new_target(target);
   auto results = grid_point.get_results();
@@ -95,7 +95,7 @@ void RegularGridInterpolator::set_new_target(const std::vector<double> &target) 
   }
 }
 
-std::vector<double> RegularGridInterpolator::get_current_target() {
+std::vector<double> RegularGridInterpolator::get_current_target() const {
   return grid_point.get_current_target();
 }
 
@@ -106,10 +106,6 @@ void RegularGridInterpolator::clear_current_target() {
 std::size_t RegularGridInterpolator::get_ndims() const { return grid_data.get_ndims(); }
 
 std::size_t RegularGridInterpolator::get_num_tables() const { return grid_data.get_num_tables(); }
-
-std::vector<std::vector<short>> &RegularGridInterpolator::get_hypercube() {
-  return grid_point.get_hypercube();
-}
 
 std::pair<double, double> RegularGridInterpolator::get_axis_limits(int dim) {
   return grid_data.get_extrap_limits(dim);
@@ -123,7 +119,7 @@ void RegularGridInterpolator::set_logging_callback(BtwxtLoggerFn callback_functi
   grid_point.set_logging_callback(&callback_function_, caller_context_);
 }
 
-void RegularGridInterpolator::log_message(MsgLevel messageType, std::string_view message) {
+void RegularGridInterpolator::log_message(MsgLevel messageType, std::string_view message) const {
   if (callback_function_) {
     callback_function_(messageType, message, caller_context_);
   } else if (btwxtCallbackFunction) {

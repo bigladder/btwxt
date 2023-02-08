@@ -183,7 +183,7 @@ void GriddedData::construct_axes(const std::vector<std::vector<double>> &grid) {
   }
 }
 
-std::size_t GriddedData::add_value_table(std::vector<double> &value_vector) {
+std::size_t GriddedData::add_value_table(const std::vector<double> &value_vector) {
   if (value_vector.size() != num_values) {
     throw BtwxtErr(stringify("Input value table does not match the grid size: ",
                              value_vector.size(), " != ", num_values));

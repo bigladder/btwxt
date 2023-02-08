@@ -28,7 +28,7 @@ public:
 
   void set_target(const std::vector<double> &v);
 
-  std::vector<double> get_current_target();
+  std::vector<double> get_current_target() const;
 
   std::vector<std::size_t> get_floor();
 
@@ -56,6 +56,10 @@ public:
 
 private:
   friend class RegularGridInterpolator;
+  friend class ThreeDGriddedDataFixture;
+  friend class ThreeDGriddedDataFixture_hypercube_Test;
+  friend class ThreeDGriddedDataFixture_test_hypercube_Test;
+  friend class ThreeDGriddedDataFixture_make_linear_hypercube_Test;
   BtwxtLoggerFn *callback_;
   void *callback_context_;
   GriddedData *grid_data;
