@@ -20,6 +20,8 @@ enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
 class GridPoint {
 public:
 
+  GridPoint() = default;
+
   GridPoint(GriddedData &grid_data, BtwxtLoggerFn *logger = nullptr,
             void *logger_context = nullptr);
 

@@ -19,6 +19,7 @@ namespace Btwxt {
 class RegularGridInterpolator {
 public:
   // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
+  RegularGridInterpolator() = default;
 
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid);
 

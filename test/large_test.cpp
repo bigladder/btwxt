@@ -35,7 +35,7 @@ protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target;
 
-  LargeFixture() : test_rgi({{0}}, {{}}) {
+  LargeFixture() {
     const std::size_t ndims = 4;
     std::vector<std::vector<double>> grid(ndims);
 

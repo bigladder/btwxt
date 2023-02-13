@@ -31,7 +31,7 @@ protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target{2.5};
 
-  OneDFixture() : test_rgi({{0}}, {{0}}) {
+  OneDFixture() {
     std::vector<std::vector<double>> grid = {{0, 2, 5, 10}};
     std::vector<std::vector<double>> values = {{6, 5, 4, 3}};
 
@@ -63,7 +63,7 @@ protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target;
 
-  OneDL2Fixture() : test_rgi({{0}}, {{0}}) {
+  OneDL2Fixture() {
     std::vector<std::vector<double>> grid = {{0, 10}};
     std::vector<std::vector<double>> values = {{6, 3}};
 
@@ -78,7 +78,7 @@ protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target;
 
-  TwoDFixture() : test_rgi({{0}}, {{0}}) {
+  TwoDFixture() {
     std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
     //                                          4  6
     std::vector<std::vector<double>> values = {{6, 3,  // 0
@@ -149,7 +149,7 @@ protected:
     return target[0] * target[1];
   }
 
-  TwoDSimpleNormalizationFixture() : test_rgi({{0}}, {{}}) {
+  TwoDSimpleNormalizationFixture() {
     std::vector<std::vector<double>> grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
     std::vector<double> values;
     for (auto x : grid[0]) {
@@ -167,7 +167,7 @@ protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target;
 
-  CubicFixture() : test_rgi({{0}}, {{}}) {
+  CubicFixture() {
     std::vector<std::vector<double>> grid = {{6, 10, 15, 20}, {2, 4, 6, 8}};
     std::vector<std::vector<double>> values =
         //  2   4   6    8
@@ -213,7 +213,7 @@ protected:
   std::vector<std::vector<double>> values;
   std::vector<double> target{26.9, 12, 5};
 
-  ThreeDFixture() : test_rgi({{0}}, {{0}}) {
+  ThreeDFixture() {
     std::vector<std::vector<double>> grid = {{-15, 0.2, 105}, {0, 10, 15}, {4, 6}};
     //         4   6
     values = {{6, 3, // 0

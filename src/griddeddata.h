@@ -16,6 +16,8 @@ enum class Method { CONSTANT, LINEAR, CUBIC, UNDEF };
 class GridAxis {
   // A single input dimension of the performance space
 public:
+  GridAxis() = default;
+
   GridAxis(std::vector<double> grid_vector, const BtwxtLoggerFn *logger = nullptr,
            void *logger_context = nullptr, Method extrapolation_method = Method::CONSTANT,
            Method interpolation_method = Method::LINEAR,
@@ -50,6 +52,8 @@ private:
 
 class GriddedData {
 public:
+  GriddedData() = default;
+
   GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values,
               const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
