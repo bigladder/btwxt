@@ -62,8 +62,8 @@ private:
   friend class ThreeDGriddedDataFixture_hypercube_Test;
   friend class ThreeDGriddedDataFixture_test_hypercube_Test;
   friend class ThreeDGriddedDataFixture_make_linear_hypercube_Test;
-  BtwxtLoggerFn *callback_;
-  void *callback_context_;
+  const BtwxtLoggerFn *callback_;
+  void *callback_context_; // user-provided, so non-const
   GriddedData *grid_data;
   std::size_t ndims;
   std::vector<double> target;

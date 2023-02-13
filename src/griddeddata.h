@@ -42,8 +42,8 @@ public:
   void set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info);
 
 private:
-  const BtwxtLoggerFn *callback_;
-  void *callback_context_;
+  const BtwxtLoggerFn *callback_{nullptr};
+  void *callback_context_{nullptr}; // user-provided, so non-const
 
   void calc_spacing_multipliers();
   void check_grid_sorted();
@@ -60,7 +60,7 @@ public:
   GriddedData(std::vector<std::vector<double>> grid, const BtwxtLoggerFn *logger = nullptr,
               void *logger_context = nullptr);
 
-  GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
+  explicit GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
               const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
 
   explicit GriddedData(std::vector<GridAxis> grid_axes, const BtwxtLoggerFn *logger = nullptr,
@@ -72,9 +72,9 @@ public:
 
   std::size_t add_value_table(const std::vector<double> &value_vector);
 
-  const std::vector<double> &get_grid_vector(const std::size_t &dim);
+  const std::vector<double> &get_grid_vector(const std::size_t dim);
 
-  std::pair<double, double> get_extrap_limits(const std::size_t &dim) const;
+  std::pair<double, double> get_extrap_limits(const std::size_t dim) const;
 
   std::size_t get_value_index(const std::vector<std::size_t> &coords) const;
 
@@ -88,8 +88,8 @@ public:
 
   std::vector<double> get_values(const std::size_t index);
 
-  double get_axis_spacing_mult(const std::size_t &dim, const std::size_t &flavor,
-                               const std::size_t &index) const;
+  double get_axis_spacing_mult(const std::size_t dim, const std::size_t flavor,
+                               const std::size_t index) const;
 
   std::vector<Method> get_interp_methods() const;
 
@@ -97,12 +97,12 @@ public:
 
   void normalize_value_table(std::size_t table_num, double scalar = 1.0);
 
-  void set_axis_extrap_method(const std::size_t &dim, Method);
+  void set_axis_extrap_method(const std::size_t dim, Method);
 
-  void set_axis_extrap_limits(const std::size_t &dim,
+  void set_axis_extrap_limits(const std::size_t dim,
                               const std::pair<double, double> &extrap_limits);
 
-  void set_axis_interp_method(const std::size_t &dim, Method);
+  void set_axis_interp_method(const std::size_t dim, Method);
 
   std::string write_data();
 
