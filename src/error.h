@@ -47,15 +47,6 @@ protected:
   std::string msg_;
 };
 
-class BtwxtWarn : public BtwxtException {
-public:
-  explicit BtwxtWarn(const char *message) : BtwxtException(message) {}
-
-  explicit BtwxtWarn(const std::string &message) : BtwxtException(message) {}
-
-  ~BtwxtWarn() noexcept = default;
-};
-
 class BtwxtErr : public BtwxtException {
 public:
   explicit BtwxtErr(const char *message) : BtwxtException(message) {}

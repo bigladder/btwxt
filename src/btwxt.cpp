@@ -65,8 +65,8 @@ double RegularGridInterpolator::normalize_values_at_target(std::size_t table_ind
                                                            const double scalar) {
   try {
     return grid_point.normalize_grid_values_at_target(table_index, scalar);
-  } catch (BtwxtWarn &w) {
-    log_message(MsgLevel::MSG_WARN, w.what());
+  } catch (BtwxtErr &e) {
+    log_message(MsgLevel::MSG_ERR, e.what());
     return scalar; // TODO:
   }
 }
@@ -80,8 +80,6 @@ void RegularGridInterpolator::normalize_values_at_target(const std::vector<doubl
 void RegularGridInterpolator::normalize_values_at_target(const double scalar) {
   try {
     return grid_point.normalize_grid_values_at_target(scalar);
-  } catch (BtwxtWarn &w) {
-    log_message(MsgLevel::MSG_WARN, w.what());
   } catch (BtwxtErr &e) {
     log_message(MsgLevel::MSG_ERR, e.what());
   }

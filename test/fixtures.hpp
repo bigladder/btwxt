@@ -22,7 +22,6 @@
   }
 
 void btwxt_message(Btwxt::MsgLevel msglevel, const std::string_view &msg, void *);
-void global_callback(const Btwxt::MsgLevel messageType, const std::string message, void *);
 
 namespace Btwxt {
 
@@ -111,32 +110,6 @@ protected:
     target = {12, 5};
   }
 };
-
-#if 0
-class TwoDFixtureGlobalCallback : public testing::Test {
-protected:
-  RegularGridInterpolator test_rgi;
-  std::vector<std::vector<double>> values;
-  std::vector<double> target;
-
-  TwoDFixtureGlobalCallback()
-      : test_rgi({{0, 10, 15}, {4, 6}}, {{6, 3,  // 0
-                                          2, 8,  // 10
-                                          4, 2}, // 15
-                                         {12, 6, 4, 16, 8, 4}}) {
-    std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
-    //         4  6
-    values = {{6, 3,  // 0
-               2, 8,  // 10
-               4, 2}, // 15
-              {12, 6, 4, 16, 8, 4}};
-    target = {12, 5};
-    test_rgi = RegularGridInterpolator(grid, values);
-    test_rgi.set_axis_extrap_method(0, Method::LINEAR);
-    Btwxt::setMessageCallback(global_callback, nullptr);
-  }
-};
-#endif
 
 class TwoDSimpleNormalizationFixture : public testing::Test {
   // TODO: Create a fixture which this one can inherit from

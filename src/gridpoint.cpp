@@ -298,7 +298,7 @@ double GridPoint::get_vertex_weight(const std::vector<short> &v) {
 
 void GridPoint::normalize_grid_values_at_target(const double scalar) {
   if (!target_is_set) {
-    throw BtwxtWarn(stringify("Cannot normalize grid values. No target has been set."));
+    throw BtwxtErr(stringify("Cannot normalize grid values. No target has been set."));
   }
   for (std::size_t table_index = 0; table_index < grid_data->num_tables; ++table_index) {
     grid_data->normalize_value_table(table_index, results[table_index] * scalar);
@@ -309,7 +309,7 @@ void GridPoint::normalize_grid_values_at_target(const double scalar) {
 
 double GridPoint::normalize_grid_values_at_target(std::size_t table_num, const double scalar) {
   if (!target_is_set) {
-    throw BtwxtWarn(stringify("Cannot normalize grid values. No target has been set."));
+    throw BtwxtErr(stringify("Cannot normalize grid values. No target has been set."));
   }
   // create a scalar which represents the product of the inverted normalization factor and the value
   // in the table at the independent variable reference value
