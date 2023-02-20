@@ -87,7 +87,7 @@ protected:
     target = {12, 5};
     test_rgi = RegularGridInterpolator(grid, values);
     test_rgi.set_axis_extrap_method(0, Method::LINEAR);
-    test_rgi.set_logging_callback(btwxt_message, nullptr);
+    test_rgi.set_logging_callback(btwxt_message);
   }
 };
 

@@ -21,6 +21,9 @@ public:
   // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
   RegularGridInterpolator() = default;
 
+  RegularGridInterpolator(GriddedData &grid_data_in)
+            : grid_data(grid_data_in), grid_point(grid_data) {}
+
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid);
 
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
@@ -102,7 +105,8 @@ public:
   BtwxtLoggerFn callback_function_;
   void *caller_context_;
 
-  void set_logging_callback(BtwxtLoggerFn callback_function, void *caller_info);
+  void set_logging_callback(BtwxtLoggerFn callback_function);
+  void set_logging_context(void* caller_info);
 
   void log_message(MsgLevel messageType, std::string_view message) const;
 

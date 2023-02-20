@@ -109,9 +109,14 @@ std::pair<double, double> RegularGridInterpolator::get_axis_limits(int dim) {
   return grid_data.get_extrap_limits(dim);
 }
 
-void RegularGridInterpolator::set_logging_callback(BtwxtLoggerFn callback_function,
-                                                   void *caller_info) {
+void RegularGridInterpolator::set_logging_callback(BtwxtLoggerFn callback_function) {
   callback_function_ = callback_function;
+  grid_data.set_logging_callback(&callback_function_, caller_context_);
+  grid_point.set_logging_callback(&callback_function_, caller_context_);
+}
+
+void RegularGridInterpolator::set_logging_context(void* caller_info)
+{
   caller_context_ = caller_info;
   grid_data.set_logging_callback(&callback_function_, caller_context_);
   grid_point.set_logging_callback(&callback_function_, caller_context_);
