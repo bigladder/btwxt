@@ -56,7 +56,7 @@ public:
   ~BtwxtErr() noexcept = default;
 };
 
-using BtwxtLoggerFn = std::function<void(MsgLevel, const std::string_view &, void *)>;
+using BtwxtLoggerFn = std::function<void(MsgLevel, const std::string_view, void *)>;
 
 } // namespace Btwxt
 #endif // BTWXT_ERROR_H_

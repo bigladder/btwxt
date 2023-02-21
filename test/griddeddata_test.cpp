@@ -123,7 +123,7 @@ TEST(GridAxis, calc_spacing_multipliers) {
 }
 
 TEST(GridAxis, bad_limits) {
-  std::function write_note{[](MsgLevel, const std::string_view &str, void *){std::cout << "  NOTE: " << str << std::endl;}};
+  std::function write_note{[](MsgLevel, const std::string_view str, void *){std::cout << "  NOTE: " << str << std::endl;}};
   GridAxis my_grid_axis({0, 5, 7, 11, 12, 15}, &write_note);
   std::pair<double, double> extrap_limits{4, 17};
   std::string ExpectedOut = "  NOTE: The lower extrapolation limit (4) is within the set of "
