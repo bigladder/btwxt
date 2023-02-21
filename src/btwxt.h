@@ -44,6 +44,22 @@ public:
     return *this;
   }
 
+//  RegularGridInterpolator(RegularGridInterpolator&& source) = delete;
+//
+//  RegularGridInterpolator& operator=(RegularGridInterpolator&& source) {
+//    if (this == &source) {
+//      return *this;
+//    }
+//    grid_data = std::move(source.grid_data);
+//    grid_point = std::move(source.grid_point);
+//    if (source.grid_point.grid_data != nullptr) {
+//      this->grid_point.grid_data = &this->grid_data;
+//    }
+//    callback_function_ = std::move(source.callback_function_); // what happens to the function pointer in members?
+//    caller_context_ = source.caller_context_;
+//    return *this;
+//  }
+
   // Add value table to GriddedData
   std::size_t add_value_table(const std::vector<double> &value_vector);
 
@@ -62,8 +78,8 @@ public:
 
   std::vector<double> get_values_at_target(const std::vector<double> &target);
 
-  std::vector<double> operator()(const std::vector<double> &target) {
-    return get_values_at_target(target);
+  std::vector<double> operator()(std::vector<double> target) {
+    return get_values_at_target(std::move(target));
   }
 
   std::vector<double> operator()() { return get_values_at_target(); }
@@ -102,9 +118,6 @@ public:
 
   std::pair<double, double> get_axis_limits(int dim);
 
-  BtwxtLoggerFn callback_function_;
-  void *caller_context_;
-
   void set_logging_callback(BtwxtLoggerFn callback_function);
   void set_logging_context(void* caller_info);
 
@@ -113,6 +126,9 @@ public:
 private:
   GriddedData grid_data;
   GridPoint grid_point;
+  BtwxtLoggerFn callback_function_;
+  void *caller_context_;
+
 };
 
 } // namespace Btwxt
