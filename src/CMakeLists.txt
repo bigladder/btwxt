@@ -21,12 +21,7 @@ else()
   add_library(${PROJECT_NAME} SHARED ${library_sources})
 endif()
 
-target_compile_options(btwxt PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/W4>
-  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-  -Wall -Wextra -Wpedantic>
-)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE btwxt_interface_library)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME})

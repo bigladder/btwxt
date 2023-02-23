@@ -17,7 +17,7 @@ set(library_sources
 
 add_executable(${PROJECT_NAME}_tests ${library_sources})
 
-target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} gtest gmock)
+target_link_libraries(${PROJECT_NAME}_tests PRIVATE ${PROJECT_NAME} gtest gmock btwxt_interface_library)
 
 include(GoogleTest)
 
