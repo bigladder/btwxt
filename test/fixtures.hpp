@@ -4,12 +4,16 @@
 #ifndef TEST_FIXTURE_HPP_
 #define TEST_FIXTURE_HPP_
 
+#include <memory>
+
 #include "gtest/gtest.h"
 
 // btwxt
 #include <btwxt.h>
 #include <error.h>
 #include <griddeddata.h>
+
+#include <fmt/format.h>
 
 #define EXPECT_STDOUT(action, ExpectedOut)                                                         \
   {                                                                                                \
@@ -21,7 +25,36 @@
     EXPECT_STREQ(ExpectedOut.c_str(), buffer.str().c_str());                                       \
   }
 
-void btwxt_message(Btwxt::MsgLevel msglevel, const std::string_view &msg, void *);
+class BtwxtCourierr : public Courierr::CourierrBase
+{
+  public:
+  void error(const std::string_view message) override { write_message("  ERROR:", message); }
+  void warning(const std::string_view message) override { write_message("  WARNING:", message); }
+  void info(const std::string_view message) override { write_message("  NOTE:", message); }
+  void debug(const std::string_view message) override { write_message("  DEBUG:", message); }
+
+  private:
+    void write_message(const std::string_view message_type, const std::string_view message)
+    {
+        std::cout << fmt::format("{} {}", message_type, message) << std::endl;
+    }
+};
+
+class BtwxtContextCourierr : public Courierr::CourierrBase
+{
+  public:
+  void error(const std::string_view message) override { write_message("  ERROR:", message); }
+  void warning(const std::string_view message) override { write_message("  WARNING:", message); }
+  void info(const std::string_view message) override { write_message("  NOTE:", message); }
+  void debug(const std::string_view message) override { write_message("  DEBUG:", message); }
+
+  private:
+    void write_message(const std::string_view message_type, const std::string_view message)
+    {
+        std::string context_string = message_context ? *(reinterpret_cast<std::string *>(message_context)) : "(Null context)";
+        std::cout << fmt::format("{}:{} {}", context_string, message_type, message) << std::endl;
+    }
+};
 
 namespace Btwxt {
 
@@ -87,7 +120,7 @@ protected:
     target = {12, 5};
     test_rgi = RegularGridInterpolator(grid, values);
     test_rgi.set_axis_extrap_method(0, Method::LINEAR);
-    test_rgi.set_logging_callback(btwxt_message);
+    test_rgi.set_logger(std::make_shared<BtwxtCourierr>());
   }
 };
 
@@ -108,6 +141,26 @@ protected:
                                                    4, 2}, // 15
                                                   {12, 6, 4, 16, 8, 4}}) {
     target = {12, 5};
+  }
+};
+
+class TwoDFixtureWithLoggingContext : public testing::Test {
+protected:
+  RegularGridInterpolator test_rgi;
+  std::vector<double> target;
+  std::shared_ptr<BtwxtContextCourierr> logger{std::make_shared<BtwxtContextCourierr>()};
+
+  TwoDFixtureWithLoggingContext() {
+    std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
+    //                                          4  6
+    std::vector<std::vector<double>> values = {{6, 3,  // 0
+                                                2, 8,  // 10
+                                                4, 2}, // 15
+                                               {12, 6, 4, 16, 8, 4}};
+    target = {12, 5};
+    test_rgi = RegularGridInterpolator(grid, values);
+    test_rgi.set_axis_extrap_method(0, Method::LINEAR);
+    test_rgi.set_logger(logger);
   }
 };
 

@@ -7,6 +7,9 @@
 // Standard
 #include <functional>
 #include <vector>
+#include <memory>
+
+#include <courierr/courierr.h>
 
 // btwxt
 #include "error.h"
@@ -95,7 +98,7 @@ public:
   double normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
                                     const double scalar = 1.0);
 
-  std::vector<double> get_current_target() const;
+  std::vector<double> get_current_target();
 
   void clear_current_target();
 
@@ -118,16 +121,18 @@ public:
 
   std::pair<double, double> get_axis_limits(int dim);
 
-  void set_logging_callback(BtwxtLoggerFn callback_function);
-  void set_logging_context(void* caller_info);
-
-  void log_message(MsgLevel messageType, std::string_view message) const;
+  void set_logger(std::shared_ptr<Courierr::CourierrBase> logger);
 
 private:
+  friend class TwoDFixtureWithLoggingContext;
+  friend class TwoDFixtureWithLoggingContext_set_message_context_Test;
+
   GriddedData grid_data;
   GridPoint grid_point;
-  BtwxtLoggerFn callback_function_;
-  void *caller_context_;
+  std::shared_ptr<Courierr::CourierrBase> btwxt_logger_;
+
+  void log_error(const std::string_view msg) { if (btwxt_logger_) {btwxt_logger_->error(msg);} }
+  void log_warning(const std::string_view msg) { if (btwxt_logger_) {btwxt_logger_->warning(msg);} }
 
 };
 

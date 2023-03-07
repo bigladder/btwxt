@@ -29,7 +29,6 @@ if (${PROJECT_NAME}_BUILD_TESTING)
   endif()
 endif()
 
-
 add_subdirectory(src)
 add_subdirectory(vendor)
 

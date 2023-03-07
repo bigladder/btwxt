@@ -10,7 +10,7 @@
 // btwxt
 #include "fixtures.hpp"
 
-using namespace Btwxt;
+namespace Btwxt{
 
 #if 0
 TEST_F(TwoDFixture, construct_from_gridded_data) {
@@ -145,15 +145,17 @@ TEST_F(TwoDGriddedDataFixture, invalid_inputs) {
   EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtErr);
 }
 
-#if 0
-TEST_F(TwoDFixtureGlobalCallback, invalid_inputs) {
+TEST_F(TwoDFixtureWithLoggingContext, set_message_context) {
+  std::string context_str{"Context 1"};
   std::vector<double> short_target = {1};
-  std::string expected_error{"ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  std::string expected_error{"(Null context):  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
-  std::vector<double> long_target = {1, 2, 3};
-  EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
+  logger->set_message_context(reinterpret_cast<void *>(&context_str));
+  expected_error = "Context 1:  ERROR: Target and Gridded Data do not have the same dimensions.\n";
+  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
 }
-#endif
+
+//TODO: Test that logger copies in GriddedData/GridPoint also receive modified context
 
 TEST_F(OneDFixture, cubic_interpolate) {
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
@@ -222,4 +224,5 @@ TEST_F(TwoDSimpleNormalizationFixture, normalization_return_compound_scalar) {
     std::vector<double> results = test_rgi.get_values_at_target();
     EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));
     EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
+}
 }

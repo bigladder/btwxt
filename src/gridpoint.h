@@ -13,24 +13,25 @@
 // btwxt
 #include "griddeddata.h"
 
+namespace Courierr { class CourierrBase; }
+
 namespace Btwxt {
 
 enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
+
 
 class GridPoint {
 public:
 
   GridPoint() = default;
 
-  GridPoint(GriddedData &grid_data, BtwxtLoggerFn *logger = nullptr,
-            void *logger_context = nullptr);
+  GridPoint(GriddedData &grid_data, std::shared_ptr<Courierr::CourierrBase> logger = nullptr);
 
-  GridPoint(GriddedData &grid_data, std::vector<double> v, BtwxtLoggerFn *logger = nullptr,
-            void *logger_context = nullptr);
+  GridPoint(GriddedData &grid_data, std::vector<double> v, std::shared_ptr<Courierr::CourierrBase> logger = nullptr);
 
   void set_target(const std::vector<double> &v);
 
-  std::vector<double> get_current_target() const;
+  std::vector<double> get_current_target();
 
   std::vector<std::size_t> get_floor();
 
@@ -54,7 +55,7 @@ public:
 
   void set_floor();
 
-  void set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info);
+  void set_logger(std::shared_ptr<Courierr::CourierrBase> logger) { gridpoint_logger = logger; }
 
 private:
   friend class RegularGridInterpolator;
@@ -62,8 +63,7 @@ private:
   friend class ThreeDGriddedDataFixture_hypercube_Test;
   friend class ThreeDGriddedDataFixture_test_hypercube_Test;
   friend class ThreeDGriddedDataFixture_make_linear_hypercube_Test;
-  const BtwxtLoggerFn *callback_;
-  void *callback_context_; // user-provided, so non-const
+
   GriddedData *grid_data;
   std::size_t ndims;
   std::vector<double> target;
@@ -86,6 +86,18 @@ private:
   std::vector<double> hypercube_weights;
   std::vector<double> results;
 
+  std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
+
+  std::size_t hypercube_size_hash;
+
+  std::shared_ptr<Courierr::CourierrBase> gridpoint_logger;
+
+  void log_err(const std::string_view msg);
+
+  void log_warn(const std::string_view msg);
+
+  void log_info(const std::string_view msg);
+
   void calculate_weights();
 
   void consolidate_methods();
@@ -103,10 +115,7 @@ private:
   void set_hypercube_values();
 
   void set_results();
-
-  std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
-
-  std::size_t hypercube_size_hash;
+ 
 };
 
 // free functions

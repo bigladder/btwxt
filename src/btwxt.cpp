@@ -27,7 +27,7 @@ std::size_t RegularGridInterpolator::add_value_table(const std::vector<double> &
   try {
     return grid_data.add_value_table(value_vector);
   } catch (BtwxtErr &e) {
-    log_message(MsgLevel::MSG_ERR, e.what());
+    log_error(e.what());
     return 0;
   }
 }
@@ -66,7 +66,7 @@ double RegularGridInterpolator::normalize_values_at_target(std::size_t table_ind
   try {
     return grid_point.normalize_grid_values_at_target(table_index, scalar);
   } catch (BtwxtErr &e) {
-    log_message(MsgLevel::MSG_ERR, e.what());
+    log_error(e.what());
     return scalar; // TODO:
   }
 }
@@ -81,7 +81,7 @@ void RegularGridInterpolator::normalize_values_at_target(const double scalar) {
   try {
     return grid_point.normalize_grid_values_at_target(scalar);
   } catch (BtwxtErr &e) {
-    log_message(MsgLevel::MSG_ERR, e.what());
+    log_error(e.what());
   }
 }
 
@@ -89,16 +89,16 @@ void RegularGridInterpolator::set_new_target(const std::vector<double> &target) 
   try {
     grid_point.set_target(target);
   } catch (BtwxtErr &e) {
-    log_message(MsgLevel::MSG_ERR, e.what());
+    log_error(e.what());
   }
 }
 
-std::vector<double> RegularGridInterpolator::get_current_target() const {
+std::vector<double> RegularGridInterpolator::get_current_target() {
   return grid_point.get_current_target();
 }
 
 void RegularGridInterpolator::clear_current_target() {
-  grid_point = GridPoint(grid_data, &callback_function_, caller_context_);
+  grid_point = GridPoint(grid_data, btwxt_logger_);
 }
 
 std::size_t RegularGridInterpolator::get_ndims() const { return grid_data.get_ndims(); }
@@ -109,25 +109,11 @@ std::pair<double, double> RegularGridInterpolator::get_axis_limits(int dim) {
   return grid_data.get_extrap_limits(dim);
 }
 
-void RegularGridInterpolator::set_logging_callback(BtwxtLoggerFn callback_function) {
-  callback_function_ = callback_function;
-  grid_data.set_logging_callback(&callback_function_, caller_context_);
-  grid_point.set_logging_callback(&callback_function_, caller_context_);
-}
-
-void RegularGridInterpolator::set_logging_context(void* caller_info)
+void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::CourierrBase> logger) 
 {
-  caller_context_ = caller_info;
-  grid_data.set_logging_callback(&callback_function_, caller_context_);
-  grid_point.set_logging_callback(&callback_function_, caller_context_);
-}
-
-void RegularGridInterpolator::log_message(MsgLevel messageType, std::string_view message) const {
-  if (callback_function_) {
-    callback_function_(messageType, message, caller_context_);
-  } else if (btwxtCallbackFunction) {
-    showMessage(messageType, std::string{message});
-  }
+  btwxt_logger_ = logger;
+  grid_point.set_logger(logger);
+  grid_data.set_logger(logger);
 }
 
 } // namespace Btwxt

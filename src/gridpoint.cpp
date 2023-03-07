@@ -6,6 +6,8 @@
 #include <iostream>
 #include <numeric>
 
+#include <courierr/courierr.h>
+
 // btwxt
 #include "error.h"
 
@@ -13,7 +15,7 @@
 
 namespace Btwxt {
 
-GridPoint::GridPoint(GriddedData &grid_data_in, BtwxtLoggerFn *logger, void *logger_context)
+GridPoint::GridPoint(GriddedData &grid_data_in, std::shared_ptr<Courierr::CourierrBase> logger)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
       target(ndims, 0.0),
@@ -28,15 +30,12 @@ GridPoint::GridPoint(GriddedData &grid_data_in, BtwxtLoggerFn *logger, void *log
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
       results(grid_data->num_tables),
-      hypercube_size_hash(0) {
-  if (logger) {
-    callback_ = logger;
-    callback_context_ = logger_context;
-  }
+      hypercube_size_hash(0),
+      gridpoint_logger(logger)
+{
 }
 
-GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, BtwxtLoggerFn *logger,
-                     void *logger_context)
+GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, std::shared_ptr<Courierr::CourierrBase> logger)
     : grid_data(&grid_data_in),
       ndims(grid_data->get_ndims()),
       target_is_set(false),
@@ -48,12 +47,17 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, BtwxtLogg
       weighting_factors(ndims, std::vector<double>(4, 0.0)),
       interp_coeffs(ndims, std::vector<double>(2, 0.0)),
       cubic_slope_coeffs(ndims, std::vector<double>(2, 0.0)),
-      results(grid_data->num_tables) {
-  if (logger) {
-    callback_ = logger;
-    callback_context_ = logger_context;
+      results(grid_data->num_tables),
+      gridpoint_logger(logger)
+{
+  try {
+    set_target(v);
   }
-  set_target(v);
+  catch (BtwxtErr &e)
+  {
+    log_err(e.what());
+    throw;
+  }
 }
 
 void GridPoint::set_target(const std::vector<double> &v) {
@@ -74,11 +78,9 @@ void GridPoint::set_target(const std::vector<double> &v) {
   set_results();
 }
 
-std::vector<double> GridPoint::get_current_target() const {
-  if (!target_is_set && callback_) {
-    (*callback_)(MsgLevel::MSG_WARN,
-                 stringify("The current target was requested, but no target has been set."),
-                 callback_context_);
+std::vector<double> GridPoint::get_current_target() {
+  if (!target_is_set) {
+    log_warn(stringify("The current target was requested, but no target has been set."));
   }
   return target;
 }
@@ -130,6 +132,22 @@ void GridPoint::set_dim_floor(std::size_t dim) {
     point_floor[dim] = upper - axis.grid.begin() - 1;
   }
 }
+
+void GridPoint::log_err(const std::string_view msg)
+{
+  if (gridpoint_logger) { gridpoint_logger->error(msg);}
+}
+
+void GridPoint::log_warn(const std::string_view msg)
+{
+  if (gridpoint_logger) { gridpoint_logger->warning(msg);}
+}
+
+void GridPoint::log_info(const std::string_view msg)
+{
+  if (gridpoint_logger) { gridpoint_logger->info(msg);}
+}
+
 
 void GridPoint::calculate_weights() {
   for (std::size_t dim = 0; dim < ndims; ++dim) {
@@ -275,15 +293,11 @@ void GridPoint::set_results() {
 }
 
 std::vector<double> GridPoint::get_results() {
-  if (grid_data->num_tables == 0u && callback_) {
-    (*callback_)(MsgLevel::MSG_WARN,
-                 stringify("There are no value tables in the gridded data. No results returned."),
-                 callback_context_);
+  if (grid_data->num_tables == 0u) {
+    log_warn(stringify("There are no value tables in the gridded data. No results returned."));
   }
-  if (!target_is_set && callback_) {
-    (*callback_)(MsgLevel::MSG_WARN,
-                 stringify("Results were requested, but no target has been set."),
-                 callback_context_);
+  if (!target_is_set) {
+    log_warn(stringify("Results were requested, but no target has been set."));
   }
   return results;
 }
@@ -319,11 +333,6 @@ double GridPoint::normalize_grid_values_at_target(std::size_t table_num, const d
   set_results();
 
   return total_scalar;
-}
-
-void GridPoint::set_logging_callback(BtwxtLoggerFn *callback_function, void *caller_info) {
-  callback_ = callback_function;
-  callback_context_ = caller_info;
 }
 
 } // namespace Btwxt

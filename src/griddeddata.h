@@ -9,6 +9,8 @@
 #include <optional>
 #include <vector>
 
+namespace Courierr { class CourierrBase; }
+
 namespace Btwxt {
 
 enum class Method { CONSTANT, LINEAR, CUBIC, UNDEF };
@@ -18,8 +20,8 @@ class GridAxis {
 public:
   GridAxis() = default;
 
-  GridAxis(std::vector<double> grid_vector, const BtwxtLoggerFn *logger = nullptr,
-           void *logger_context = nullptr, Method extrapolation_method = Method::CONSTANT,
+  GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::CourierrBase> logger = nullptr, 
+           Method extrapolation_method = Method::CONSTANT,
            Method interpolation_method = Method::LINEAR,
            std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
@@ -30,6 +32,11 @@ public:
   std::pair<double, double> extrapolation_limits;
 
   // bool is_regular;  <-- to add later
+  std::shared_ptr<Courierr::CourierrBase> gridaxis_logger;
+
+  void log_err(const std::string_view msg);
+  void log_warn(const std::string_view msg);
+  void log_info(const std::string_view msg);
 
   std::size_t get_length();
 
@@ -39,12 +46,9 @@ public:
 
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const;
 
-  void set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info);
+  void set_logger(std::shared_ptr<Courierr::CourierrBase> logger) { gridaxis_logger = logger; }
 
 private:
-  const BtwxtLoggerFn *callback_{nullptr};
-  void *callback_context_{nullptr}; // user-provided, so non-const
-
   void calc_spacing_multipliers();
   void check_grid_sorted();
   void check_extrap_limits();
@@ -54,17 +58,13 @@ class GriddedData {
 public:
   GriddedData() = default;
 
-  GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values,
-              const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
+  GriddedData(std::vector<std::vector<double>> grid, std::vector<std::vector<double>> values, std::shared_ptr<Courierr::CourierrBase> = nullptr);
 
-  GriddedData(std::vector<std::vector<double>> grid, const BtwxtLoggerFn *logger = nullptr,
-              void *logger_context = nullptr);
+  GriddedData(std::vector<std::vector<double>> grid, std::shared_ptr<Courierr::CourierrBase> = nullptr);
 
-  explicit GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
-              const BtwxtLoggerFn *logger = nullptr, void *logger_context = nullptr);
+  explicit GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values, std::shared_ptr<Courierr::CourierrBase> = nullptr);
 
-  explicit GriddedData(std::vector<GridAxis> grid_axes, const BtwxtLoggerFn *logger = nullptr,
-                       void *logger_context = nullptr);
+  explicit GriddedData(std::vector<GridAxis> grid_axes, std::shared_ptr<Courierr::CourierrBase> = nullptr);
 
   std::size_t get_ndims() const;
 
@@ -106,7 +106,7 @@ public:
 
   std::string write_data();
 
-  void set_logging_callback(const BtwxtLoggerFn *callback_function, void *caller_info);
+  void set_logger(std::shared_ptr<Courierr::CourierrBase> logger);
 
   std::vector<std::vector<double>> value_tables;
   std::size_t num_values;

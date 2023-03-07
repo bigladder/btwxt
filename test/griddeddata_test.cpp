@@ -116,15 +116,15 @@ TEST_F(CubicGriddedDataFixture, get_spacing_multipliers) {
 TEST(GridAxis, calc_spacing_multipliers) {
   std::vector<double> grid_vector{6, 10, 15, 20, 22};
 
-  GridAxis test_gridaxis(grid_vector, nullptr, nullptr, Method::CONSTANT, Method::CUBIC, {-DBL_MAX, DBL_MAX});
+  GridAxis test_gridaxis(grid_vector, nullptr, Method::CONSTANT, Method::CUBIC, {-DBL_MAX, DBL_MAX});
   std::vector<std::vector<double>> values = test_gridaxis.spacing_multipliers;
   EXPECT_THAT(values[0], testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
   EXPECT_THAT(values[1], testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));
 }
 
 TEST(GridAxis, bad_limits) {
-  std::function write_note{[](MsgLevel, const std::string_view str, void *){std::cout << "  NOTE: " << str << std::endl;}};
-  GridAxis my_grid_axis({0, 5, 7, 11, 12, 15}, &write_note);
+  auto logger = std::make_shared<BtwxtCourierr>();
+  GridAxis my_grid_axis({0, 5, 7, 11, 12, 15}, logger);
   std::pair<double, double> extrap_limits{4, 17};
   std::string ExpectedOut = "  NOTE: The lower extrapolation limit (4) is within the set of "
                             "grid values. Setting to smallest grid value (0).\n";
