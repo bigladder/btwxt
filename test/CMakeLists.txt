@@ -11,8 +11,7 @@ set(library_sources
   gridpoint_test.cpp
   math_test.cpp
   large_test.cpp
-  hypercube_test.cpp
-  fixtures.cpp)
+  hypercube_test.cpp)
 
 add_executable(${PROJECT_NAME}_tests ${library_sources})
 

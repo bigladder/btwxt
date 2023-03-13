@@ -14,7 +14,7 @@
 
 namespace Btwxt {
 
-GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::CourierrBase> logger, 
+GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Courierr> logger, 
                    Method extrapolation_method, Method interpolation_method,
                    std::pair<double, double> extrapolation_limits)
     : grid(std::move(grid_vector)),
@@ -23,37 +23,18 @@ GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Co
       interpolation_method(interpolation_method),
       extrapolation_limits(std::move(extrapolation_limits)),
       gridaxis_logger(logger) {
+  if (!logger)
+  {
+    throw std::exception(); // TODO: correct exception
+  }
   if (grid.size() == 0) {
-    auto error{"Cannot create a GridAxis from a zero-length vector."};
-    log_err(error);
-    throw BtwxtErr(error);
+    throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.", *logger);
   }
-  try {
-    check_grid_sorted();
-  }
-  catch (BtwxtErr &e) {
-    log_err(e.what());
-    throw;
-  }
+  check_grid_sorted();
   check_extrap_limits();
   if (interpolation_method == Method::CUBIC) {
     calc_spacing_multipliers();
   }
-}
-
-void GridAxis::log_err(const std::string_view msg)
-{
-  if (gridaxis_logger) { gridaxis_logger->error(msg);}
-}
-
-void GridAxis::log_warn(const std::string_view msg)
-{
-  if (gridaxis_logger) { gridaxis_logger->warning(msg);}
-}
-
-void GridAxis::log_info(const std::string_view msg)
-{
-  if (gridaxis_logger) { gridaxis_logger->info(msg);}
 }
 
 std::size_t GridAxis::get_length() { return grid.size(); }
@@ -81,7 +62,7 @@ void GridAxis::calc_spacing_multipliers() {
   // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavor
   if (grid.size() == 1) {
     interpolation_method = Method::LINEAR;
-    log_info("A cubic interpolation method is not valid for grid axes with only one value. "
+    gridaxis_logger->info("A cubic interpolation method is not valid for grid axes with only one value. "
                    "Interpolation method reset to linear.");
   }
   double center_spacing;
@@ -99,30 +80,28 @@ void GridAxis::calc_spacing_multipliers() {
 void GridAxis::check_grid_sorted() {
   bool grid_is_sorted = Btwxt::free_check_sorted(grid);
   if (!grid_is_sorted) {
-    throw BtwxtErr("Axis is not sorted.");
+    throw BtwxtErr("Axis is not sorted.", *gridaxis_logger);
   }
 }
 
 void GridAxis::check_extrap_limits() {
   if (extrapolation_limits.first > grid[0]) {
-    log_info(stringify("The lower extrapolation limit (", extrapolation_limits.first,
+    gridaxis_logger->info(stringify("The lower extrapolation limit (", extrapolation_limits.first,
                              ") is within the set of grid values. Setting to smallest grid value (",
                              grid[0], ")."));
     extrapolation_limits.first = grid[0];
   }
   if (extrapolation_limits.second < grid.back()) {
-    log_info(stringify("The upper extrapolation limit (", extrapolation_limits.first,
+    gridaxis_logger->info(stringify("The upper extrapolation limit (", extrapolation_limits.first,
                              ") is within the set of grid values. Setting to largest grid value (",
                              grid.back(), ")."));
     extrapolation_limits.second = grid.back();
   }
 }
 
-// GriddedData::GriddedData() = default;
-
 GriddedData::GriddedData(std::vector<std::vector<double>> grid,
-                         std::vector<std::vector<double>> values, std::shared_ptr<Courierr::CourierrBase> logger)
-    : ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
+                         std::vector<std::vector<double>> values, std::shared_ptr<Courierr::Courierr> logger)
+    : griddeddata_logger(logger), ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
   construct_axes(grid);
   set_logger(logger);
   set_dimension_sizes();
@@ -132,8 +111,8 @@ GriddedData::GriddedData(std::vector<std::vector<double>> grid,
   value_tables = values;
 }
 
-GriddedData::GriddedData(std::vector<std::vector<double>> grid, std::shared_ptr<Courierr::CourierrBase> logger)
-    : ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
+GriddedData::GriddedData(std::vector<std::vector<double>> grid, std::shared_ptr<Courierr::Courierr> logger)
+    : griddeddata_logger(logger), ndims(grid.size()), dimension_lengths(ndims), dimension_step_size(ndims), temp_coords(ndims) {
   construct_axes(grid);
   set_logger(logger);
   set_dimension_sizes();
@@ -141,8 +120,9 @@ GriddedData::GriddedData(std::vector<std::vector<double>> grid, std::shared_ptr<
 }
 
 GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vector<double>> values,
-                         std::shared_ptr<Courierr::CourierrBase> logger)
+                         std::shared_ptr<Courierr::Courierr> logger)
     : grid_axes(grid_axes),
+      griddeddata_logger(logger),
       ndims(grid_axes.size()),
       dimension_lengths(ndims),
       dimension_step_size(ndims),
@@ -155,8 +135,9 @@ GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::vector<std::vecto
   value_tables = values;
 }
 
-GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::shared_ptr<Courierr::CourierrBase> logger)
+GriddedData::GriddedData(std::vector<GridAxis> grid_axes, std::shared_ptr<Courierr::Courierr> logger)
     : grid_axes(grid_axes),
+      griddeddata_logger(logger),
       ndims(grid_axes.size()),
       dimension_lengths(ndims),
       dimension_step_size(ndims),
@@ -171,7 +152,7 @@ void GriddedData::set_dimension_sizes() {
   for (std::size_t dim = ndims - 1; /* dim >= 0 */ dim < ndims; --dim) {
     std::size_t length = grid_axes[dim].get_length();
     if (length == 0) {
-      throw BtwxtErr(stringify("Dimension ", dim, " has an axis of length zero."));
+      throw BtwxtErr(stringify("Dimension ", dim, " has an axis of length zero."), *griddeddata_logger);
     }
     dimension_lengths[dim] = length;
     dimension_step_size[dim] = num_values;
@@ -181,24 +162,20 @@ void GriddedData::set_dimension_sizes() {
 
 void GriddedData::construct_axes(const std::vector<std::vector<double>> &grid) {
   for (const auto &axis : grid) {
-    grid_axes.emplace_back(axis);
+    grid_axes.emplace_back(axis, griddeddata_logger);
   }
 }
 
 std::size_t GriddedData::add_value_table(const std::vector<double> &value_vector) {
   if (value_vector.size() != num_values) {
     throw BtwxtErr(stringify("Input value table does not match the grid size: ",
-                             value_vector.size(), " != ", num_values));
+                             value_vector.size(), " != ", num_values), *griddeddata_logger);
   }
   value_tables.push_back(value_vector);
   num_tables++;
   results.resize(num_tables);
   return num_tables - 1;
 }
-
-std::size_t GriddedData::get_ndims() const { return grid_axes.size(); }
-
-std::size_t GriddedData::get_num_tables() const { return num_tables; }
 
 std::size_t GriddedData::get_value_index(const std::vector<std::size_t> &coords) const {
   std::size_t index = 0;
@@ -295,7 +272,7 @@ void GriddedData::set_axis_interp_method(const std::size_t dim,
 void GriddedData::normalize_value_table(std::size_t table_num, double scalar) {
   auto &table = value_tables[table_num];
   if (scalar == 0.0) {
-    throw BtwxtErr("Attempt to normalize values by zero.");
+    throw BtwxtErr("Attempt to normalize values by zero.", *griddeddata_logger);
   }
   scalar = 1.0 / scalar;
   std::transform(table.begin(), table.end(), table.begin(),
@@ -332,8 +309,9 @@ std::string GriddedData::write_data() {
   return output.str();
 }
 
-void GriddedData::set_logger(std::shared_ptr<Courierr::CourierrBase> logger)
+void GriddedData::set_logger(std::shared_ptr<Courierr::Courierr> logger)
 {
+  griddeddata_logger = logger;
   for (std::size_t dim = 0; dim < ndims; dim++) {
     grid_axes[dim].set_logger(logger);
   }

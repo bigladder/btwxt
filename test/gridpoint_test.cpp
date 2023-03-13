@@ -15,8 +15,8 @@
 
 using namespace Btwxt;
 
-TEST_F(TwoDGriddedDataFixture, grid_point_basics) {
-  GridPoint grid_point(test_gridded_data, target);
+TEST_F(TwoDFixture, grid_point_basics) {
+  GridPoint grid_point(test_gridded_data, target, courier);
 
   std::vector<std::size_t> point_floor = grid_point.get_floor();
   std::vector<std::size_t> expected_floor{1, 0};
@@ -27,9 +27,9 @@ TEST_F(TwoDGriddedDataFixture, grid_point_basics) {
   EXPECT_EQ(weights, expected_weights);
 }
 
-TEST_F(TwoDGriddedDataFixture, grid_point_out_of_bounds) {
+TEST_F(TwoDFixture, grid_point_out_of_bounds) {
   std::vector<double> oobounds_vector = {16, 3};
-  GridPoint grid_point(test_gridded_data, oobounds_vector);
+  GridPoint grid_point(test_gridded_data, oobounds_vector, courier);
 
   std::vector<std::size_t> point_floor = grid_point.get_floor();
   std::vector<std::size_t> expected_floor{1, 0};
@@ -40,22 +40,22 @@ TEST_F(TwoDGriddedDataFixture, grid_point_out_of_bounds) {
   EXPECT_EQ(weights, expected_weights);
 }
 
-TEST_F(TwoDGriddedDataFixture, grid_point_consolidate_methods) {
-  GridPoint grid_point(test_gridded_data, target);
+TEST_F(TwoDFixture, grid_point_consolidate_methods) {
+  GridPoint grid_point(test_gridded_data, target, courier);
 
   std::vector<Method> methods = grid_point.get_methods();
   std::vector<Method> expected_methods{Method::LINEAR, Method::LINEAR};
   EXPECT_EQ(methods, expected_methods);
 
   std::vector<double> oobounds_vector = {12, 3};
-  grid_point = GridPoint(test_gridded_data, oobounds_vector);
+  grid_point = GridPoint(test_gridded_data, oobounds_vector, courier);
   methods = grid_point.get_methods();
   expected_methods = {Method::LINEAR, Method::CONSTANT};
   EXPECT_EQ(methods, expected_methods);
 }
 
-TEST_F(TwoDGriddedDataFixture, grid_point_interp_coeffs) {
-  GridPoint grid_point(test_gridded_data, target);
+TEST_F(TwoDFixture, grid_point_interp_coeffs) {
+  GridPoint grid_point(test_gridded_data, target, courier);
 
   std::vector<std::vector<double>> interp_coeffs = grid_point.get_interp_coeffs();
   std::vector<std::vector<double>> cubic_slope_coeffs = grid_point.get_cubic_slope_coeffs();
@@ -68,8 +68,8 @@ TEST_F(TwoDGriddedDataFixture, grid_point_interp_coeffs) {
   EXPECT_EQ(cubic_slope_coeffs[1][1], 0);
 }
 
-TEST_F(CubicGriddedDataFixture, grid_point_interp_coeffs) {
-  GridPoint grid_point(test_gridded_data, target);
+TEST_F(CubicFixture, grid_point_interp_coeffs) {
+  GridPoint grid_point(test_gridded_data, target, courier);
 
   std::vector<std::vector<double>> interp_coeffs = grid_point.get_interp_coeffs();
   std::vector<std::vector<double>> cubic_slope_coeffs = grid_point.get_cubic_slope_coeffs();

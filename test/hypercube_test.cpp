@@ -16,14 +16,14 @@
 
 namespace Btwxt {
 
-TEST_F(ThreeDGriddedDataFixture, hypercube) {
-  GridPoint grid_point(test_gridded_data);
+TEST_F(ThreeDFixture, hypercube) {
+  GridPoint grid_point(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
   auto hypercube = grid_point.get_hypercube();
   EXPECT_EQ(hypercube.size(), 16u);
 }
 
-TEST_F(ThreeDGriddedDataFixture, test_hypercube) {
-  GridPoint grid_point(test_gridded_data);
+TEST_F(ThreeDFixture, test_hypercube) {
+  GridPoint grid_point(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
   auto hypercube = grid_point.get_hypercube();
   EXPECT_EQ(hypercube.size(), 2u * 4u * 2u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, -1, 0));
@@ -32,9 +32,9 @@ TEST_F(ThreeDGriddedDataFixture, test_hypercube) {
   EXPECT_THAT(hypercube[15], testing::ElementsAre(1, 2, 1));
 }
 
-TEST_F(ThreeDGriddedDataFixture, make_linear_hypercube) {
+TEST_F(ThreeDFixture, make_linear_hypercube) {
   test_gridded_data.set_axis_interp_method(1, Method::LINEAR);
-  GridPoint grid_point(test_gridded_data);
+  GridPoint grid_point(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
   auto hypercube = grid_point.get_hypercube();
   EXPECT_EQ(hypercube.size(), 8u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));
@@ -52,9 +52,9 @@ TEST(Hypercube, cart_product) {
   EXPECT_THAT(result[3 * 2 * 4 - 1], testing::ElementsAre(3, 5, 9));
 }
 
-TEST_F(CubicGriddedDataFixture, hypercube_weigh_one_vertex) {
+TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-  GridPoint grid_point(test_gridded_data, target);
+  GridPoint grid_point(test_gridded_data, target, courier);
   std::vector<Method> methods = grid_point.get_methods();
 
   std::vector<double> mus = grid_point.get_weights();
@@ -99,9 +99,9 @@ TEST_F(CubicGriddedDataFixture, hypercube_weigh_one_vertex) {
   EXPECT_DOUBLE_EQ(weight, expected_result);
 }
 
-TEST_F(CubicGriddedDataFixture, hypercube_calculations) {
+TEST_F(CubicFixture, hypercube_calculations) {
   test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-  GridPoint grid_point(test_gridded_data, target);
+  GridPoint grid_point(test_gridded_data, target, courier);
 
   auto result = grid_point.get_results();
   EXPECT_NEAR(result[0], 4.1953, 0.0001);

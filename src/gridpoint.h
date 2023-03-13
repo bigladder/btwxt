@@ -13,7 +13,7 @@
 // btwxt
 #include "griddeddata.h"
 
-namespace Courierr { class CourierrBase; }
+namespace Courierr { class Courierr; }
 
 namespace Btwxt {
 
@@ -25,9 +25,9 @@ public:
 
   GridPoint() = default;
 
-  GridPoint(GriddedData &grid_data, std::shared_ptr<Courierr::CourierrBase> logger = nullptr);
+  GridPoint(GriddedData &grid_data, std::shared_ptr<Courierr::Courierr> logger);
 
-  GridPoint(GriddedData &grid_data, std::vector<double> v, std::shared_ptr<Courierr::CourierrBase> logger = nullptr);
+  GridPoint(GriddedData &grid_data, std::vector<double> v, std::shared_ptr<Courierr::Courierr> logger);
 
   void set_target(const std::vector<double> &v);
 
@@ -55,14 +55,14 @@ public:
 
   void set_floor();
 
-  void set_logger(std::shared_ptr<Courierr::CourierrBase> logger) { gridpoint_logger = logger; }
+  void set_logger(std::shared_ptr<Courierr::Courierr> logger) { gridpoint_logger = logger; }
 
 private:
   friend class RegularGridInterpolator;
-  friend class ThreeDGriddedDataFixture;
-  friend class ThreeDGriddedDataFixture_hypercube_Test;
-  friend class ThreeDGriddedDataFixture_test_hypercube_Test;
-  friend class ThreeDGriddedDataFixture_make_linear_hypercube_Test;
+  friend class ThreeDFixture;
+  friend class ThreeDFixture_hypercube_Test;
+  friend class ThreeDFixture_test_hypercube_Test;
+  friend class ThreeDFixture_make_linear_hypercube_Test;
 
   GriddedData *grid_data;
   std::size_t ndims;
@@ -90,13 +90,7 @@ private:
 
   std::size_t hypercube_size_hash;
 
-  std::shared_ptr<Courierr::CourierrBase> gridpoint_logger;
-
-  void log_err(const std::string_view msg);
-
-  void log_warn(const std::string_view msg);
-
-  void log_info(const std::string_view msg);
+  std::shared_ptr<Courierr::Courierr> gridpoint_logger;
 
   void calculate_weights();
 

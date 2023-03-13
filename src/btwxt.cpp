@@ -11,23 +11,26 @@
 
 namespace Btwxt {
 
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid)
-    : grid_data(grid), grid_point(grid_data) {}
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid, std::shared_ptr<Courierr::Courierr> messenger)
+    : grid_data(grid, messenger), grid_point(grid_data, messenger), btwxt_logger(messenger) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
-                                                 const std::vector<std::vector<double>> &values)
-    : grid_data(grid, values), grid_point(grid_data) {}
+                                                 const std::vector<std::vector<double>> &values, std::shared_ptr<Courierr::Courierr> messenger)
+    : grid_data(grid, values, messenger)
+    , grid_point(grid_data, messenger)
+    , btwxt_logger(messenger)
+{
+}
 
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &source)
-    : grid_data(source.grid_data), grid_point(source.grid_point) {
+    : grid_data(source.grid_data), grid_point(source.grid_point), btwxt_logger(source.btwxt_logger) {
   *this = source;
 }
 
 std::size_t RegularGridInterpolator::add_value_table(const std::vector<double> &value_vector) {
   try {
     return grid_data.add_value_table(value_vector);
-  } catch (BtwxtErr &e) {
-    log_error(e.what());
+  } catch (BtwxtErr&) {
     return 0;
   }
 }
@@ -66,7 +69,6 @@ double RegularGridInterpolator::normalize_values_at_target(std::size_t table_ind
   try {
     return grid_point.normalize_grid_values_at_target(table_index, scalar);
   } catch (BtwxtErr &e) {
-    log_error(e.what());
     return scalar; // TODO:
   }
 }
@@ -80,17 +82,13 @@ void RegularGridInterpolator::normalize_values_at_target(const std::vector<doubl
 void RegularGridInterpolator::normalize_values_at_target(const double scalar) {
   try {
     return grid_point.normalize_grid_values_at_target(scalar);
-  } catch (BtwxtErr &e) {
-    log_error(e.what());
-  }
+  } catch (BtwxtErr&) {}
 }
 
 void RegularGridInterpolator::set_new_target(const std::vector<double> &target) {
   try {
     grid_point.set_target(target);
-  } catch (BtwxtErr &e) {
-    log_error(e.what());
-  }
+  } catch (BtwxtErr&) {}
 }
 
 std::vector<double> RegularGridInterpolator::get_current_target() {
@@ -98,7 +96,7 @@ std::vector<double> RegularGridInterpolator::get_current_target() {
 }
 
 void RegularGridInterpolator::clear_current_target() {
-  grid_point = GridPoint(grid_data, btwxt_logger_);
+  grid_point = GridPoint(grid_data, btwxt_logger);
 }
 
 std::size_t RegularGridInterpolator::get_ndims() const { return grid_data.get_ndims(); }
@@ -109,9 +107,9 @@ std::pair<double, double> RegularGridInterpolator::get_axis_limits(int dim) {
   return grid_data.get_extrap_limits(dim);
 }
 
-void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::CourierrBase> logger) 
+void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::Courierr> logger) 
 {
-  btwxt_logger_ = logger;
+  btwxt_logger = logger;
   grid_point.set_logger(logger);
   grid_data.set_logger(logger);
 }

@@ -21,16 +21,15 @@ namespace Btwxt {
 // this will be the public-facing class.
 class RegularGridInterpolator {
 public:
-  // GridSpace, GridAxis, AllValueTables, ValueTable are instantiated in RGI constructor.
   RegularGridInterpolator() = default;
 
-  RegularGridInterpolator(GriddedData &grid_data_in)
-            : grid_data(grid_data_in), grid_point(grid_data) {}
+  RegularGridInterpolator(GriddedData &grid_data_in, std::shared_ptr<Courierr::Courierr> messenger)
+            : grid_data(grid_data_in), grid_point(grid_data, messenger), btwxt_logger(messenger) {}
 
-  RegularGridInterpolator(const std::vector<std::vector<double>> &grid);
+  RegularGridInterpolator(const std::vector<std::vector<double>> &grid, std::shared_ptr<Courierr::Courierr> messenger);
 
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
-                          const std::vector<std::vector<double>> &values);
+                          const std::vector<std::vector<double>> &values, std::shared_ptr<Courierr::Courierr> messenger);
 
   RegularGridInterpolator(const RegularGridInterpolator &source);
 
@@ -41,6 +40,7 @@ public:
 
     grid_data = source.grid_data;
     grid_point = source.grid_point;
+    btwxt_logger = source.btwxt_logger;
     if (source.grid_point.grid_data != nullptr) {
       this->grid_point.grid_data = &this->grid_data;
     }
@@ -121,7 +121,7 @@ public:
 
   std::pair<double, double> get_axis_limits(int dim);
 
-  void set_logger(std::shared_ptr<Courierr::CourierrBase> logger);
+  void set_logger(std::shared_ptr<Courierr::Courierr> logger);
 
 private:
   friend class TwoDFixtureWithLoggingContext;
@@ -129,11 +129,7 @@ private:
 
   GriddedData grid_data;
   GridPoint grid_point;
-  std::shared_ptr<Courierr::CourierrBase> btwxt_logger_;
-
-  void log_error(const std::string_view msg) { if (btwxt_logger_) {btwxt_logger_->error(msg);} }
-  void log_warning(const std::string_view msg) { if (btwxt_logger_) {btwxt_logger_->warning(msg);} }
-
+  std::shared_ptr<Courierr::Courierr> btwxt_logger;
 };
 
 } // namespace Btwxt

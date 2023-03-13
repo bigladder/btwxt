@@ -6,22 +6,11 @@
 
 #include <functional>
 #include <sstream>
+#include <memory>
 
-// BTWXT
+#include <courierr/courierr.h>
 
 namespace Btwxt {
-
-enum class MsgLevel { MSG_DEBUG, MSG_INFO, MSG_WARN, MSG_ERR };
-
-typedef void (*BtwxtCallbackFunction)(const MsgLevel messageType, const std::string message,
-                                      void *contextPtr);
-
-extern BtwxtCallbackFunction btwxtCallbackFunction;
-extern void *messageCallbackContextPtr;
-
-void setMessageCallback(BtwxtCallbackFunction callbackFunction, void *contextPtr);
-
-void showMessage(MsgLevel messageType, std::string message);
 
 struct expand_type {
   template <typename... T> expand_type(T &&...) {}
@@ -33,30 +22,21 @@ template <typename... ArgTypes> std::string stringify(ArgTypes... args) {
   return oss.str();
 }
 
-class BtwxtException : public std::exception {
-public:
-  explicit BtwxtException(const char *message) : msg_(message) {}
-
-  explicit BtwxtException(const std::string &message) : msg_(message) {}
-
-  virtual ~BtwxtException() noexcept = default;
-
-  virtual const char *what() const noexcept { return msg_.c_str(); }
-
-protected:
-  std::string msg_;
+class BtwxtErr : public Courierr::CourierrException {
+  public:
+    explicit BtwxtErr(const char* message, Courierr::Courierr& logger)
+     : CourierrException(message, logger)
+    {
+    }
+    explicit BtwxtErr(const std::string& message, Courierr::Courierr& logger)
+     : CourierrException(message, logger)
+    {
+    }
+    explicit BtwxtErr(const std::string_view message, Courierr::Courierr& logger)
+     : CourierrException(message, logger)
+    {
+    }
 };
-
-class BtwxtErr : public BtwxtException {
-public:
-  explicit BtwxtErr(const char *message) : BtwxtException(message) {}
-
-  explicit BtwxtErr(const std::string &message) : BtwxtException(message) {}
-
-  ~BtwxtErr() noexcept = default;
-};
-
-using BtwxtLoggerFn = std::function<void(MsgLevel, const std::string_view, void *)>;
 
 } // namespace Btwxt
 #endif // BTWXT_ERROR_H_

@@ -25,7 +25,7 @@
     EXPECT_STREQ(ExpectedOut.c_str(), buffer.str().c_str());                                       \
   }
 
-class BtwxtCourierr : public Courierr::CourierrBase
+class BtwxtContextCourierr : public Courierr::Courierr
 {
   public:
   void error(const std::string_view message) override { write_message("  ERROR:", message); }
@@ -36,23 +36,8 @@ class BtwxtCourierr : public Courierr::CourierrBase
   private:
     void write_message(const std::string_view message_type, const std::string_view message)
     {
-        std::cout << fmt::format("{} {}", message_type, message) << std::endl;
-    }
-};
-
-class BtwxtContextCourierr : public Courierr::CourierrBase
-{
-  public:
-  void error(const std::string_view message) override { write_message("  ERROR:", message); }
-  void warning(const std::string_view message) override { write_message("  WARNING:", message); }
-  void info(const std::string_view message) override { write_message("  NOTE:", message); }
-  void debug(const std::string_view message) override { write_message("  DEBUG:", message); }
-
-  private:
-    void write_message(const std::string_view message_type, const std::string_view message)
-    {
-        std::string context_string = message_context ? *(reinterpret_cast<std::string *>(message_context)) : "(Null context)";
-        std::cout << fmt::format("{}:{} {}", context_string, message_type, message) << std::endl;
+        std::string context_string = message_context ? *(reinterpret_cast<std::string *>(message_context)) : "";
+        std::cout << fmt::format("{}{} {}", context_string, message_type, message) << std::endl;
     }
 };
 
@@ -61,13 +46,16 @@ namespace Btwxt {
 class OneDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
   std::vector<double> target{2.5};
 
   OneDFixture() {
     std::vector<std::vector<double>> grid = {{0, 2, 5, 10}};
     std::vector<std::vector<double>> values = {{6, 5, 4, 3}};
 
-    test_rgi = RegularGridInterpolator(grid, values);
+    auto courier = std::make_shared<BtwxtContextCourierr>();
+    test_gridded_data = GriddedData(grid, values, courier);
+    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
   }
 };
 
@@ -87,7 +75,7 @@ protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target{2.5};
 
-  OneDL1Fixture() : test_rgi({{2}}, {{5}}) { test_rgi.set_axis_extrap_method(0, Method::LINEAR); }
+  OneDL1Fixture() : test_rgi({{2}}, {{5}}, std::make_shared<BtwxtContextCourierr>()) { test_rgi.set_axis_extrap_method(0, Method::LINEAR); }
 };
 
 class OneDL2Fixture : public testing::Test {
@@ -100,7 +88,7 @@ protected:
     std::vector<std::vector<double>> values = {{6, 3}};
 
     target = {2.5};
-    test_rgi = RegularGridInterpolator(grid, values);
+    test_rgi = RegularGridInterpolator(grid, values, std::make_shared<BtwxtContextCourierr>());
     test_rgi.set_axis_extrap_method(0, Method::LINEAR);
   }
 };
@@ -108,59 +96,21 @@ protected:
 class TwoDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
-  std::vector<double> target;
+  GriddedData test_gridded_data;
+  std::vector<double> target{12, 5};
+  std::vector<std::vector<double>> values;
+  std::shared_ptr<BtwxtContextCourierr> courier = std::make_shared<BtwxtContextCourierr>();
 
   TwoDFixture() {
     std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
-    //                                          4  6
-    std::vector<std::vector<double>> values = {{6, 3,  // 0
-                                                2, 8,  // 10
-                                                4, 2}, // 15
-                                               {12, 6, 4, 16, 8, 4}};
-    target = {12, 5};
-    test_rgi = RegularGridInterpolator(grid, values);
-    test_rgi.set_axis_extrap_method(0, Method::LINEAR);
-    test_rgi.set_logger(std::make_shared<BtwxtCourierr>());
-  }
-};
-
-class TwoDGriddedDataFixture : public testing::Test {
-protected:
-  GriddedData test_gridded_data;
-  std::vector<std::vector<double>> grid{{0, 10, 15}, {4, 6}};
-  //         4  6
-  std::vector<std::vector<double>> values{{6, 3,  // 0
-                                           2, 8,  // 10
-                                           4, 2}, // 15
-                                          {12, 6, 4, 16, 8, 4}};
-  std::vector<double> target;
-
-  TwoDGriddedDataFixture()
-      : test_gridded_data({{0, 10, 15}, {4, 6}}, {{6, 3,  // 0
-                                                   2, 8,  // 10
-                                                   4, 2}, // 15
-                                                  {12, 6, 4, 16, 8, 4}}) {
-    target = {12, 5};
-  }
-};
-
-class TwoDFixtureWithLoggingContext : public testing::Test {
-protected:
-  RegularGridInterpolator test_rgi;
-  std::vector<double> target;
-  std::shared_ptr<BtwxtContextCourierr> logger{std::make_shared<BtwxtContextCourierr>()};
-
-  TwoDFixtureWithLoggingContext() {
-    std::vector<std::vector<double>> grid = {{0, 10, 15}, {4, 6}};
-    //                                          4  6
-    std::vector<std::vector<double>> values = {{6, 3,  // 0
-                                                2, 8,  // 10
-                                                4, 2}, // 15
-                                               {12, 6, 4, 16, 8, 4}};
-    target = {12, 5};
-    test_rgi = RegularGridInterpolator(grid, values);
-    test_rgi.set_axis_extrap_method(0, Method::LINEAR);
-    test_rgi.set_logger(logger);
+    //         4  6
+    values = {{6, 3,  // 0
+               2, 8,  // 10
+               4, 2}, // 15
+              {12, 6, 4, 16, 8, 4}};
+    test_gridded_data = GriddedData(grid, values, courier);
+    test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
+    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
   }
 };
 
@@ -183,14 +133,16 @@ protected:
         values.push_back(test_function({x, y}));
       }
     }
-    test_rgi = RegularGridInterpolator(grid, {values});
+    test_rgi = RegularGridInterpolator(grid, {values}, std::make_shared<BtwxtContextCourierr>());
     test_rgi.set_axis_extrap_method(0, Method::LINEAR);
   }
 };
 
 class CubicFixture : public testing::Test {
 protected:
+  std::shared_ptr<BtwxtContextCourierr> courier = std::make_shared<BtwxtContextCourierr>();
   RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
   std::vector<double> target;
 
   CubicFixture() {
@@ -208,34 +160,16 @@ protected:
           25, 20, 10, 5}}; // 20
 
     target = {12, 4.5};
-    test_rgi = RegularGridInterpolator(grid, values);
-    test_rgi.set_axis_interp_method(0, Method::CUBIC);
-  }
-};
-
-class CubicGriddedDataFixture : public testing::Test {
-protected:
-  GriddedData test_gridded_data;
-  std::vector<double> target{12, 4.5};
-  ;
-  //                                                                           //  2  4  6    8
-  CubicGriddedDataFixture()
-      : test_gridded_data({{6, 10, 15, 20}, {2, 4, 6, 8}}, {{4, 3, 1.5, 1, // 6
-                                                             5, 4, 2, 1,   // 10
-                                                             8, 6, 3, 2,   // 15
-                                                             10, 8, 4, 2}, // 20
-
-                                                            {12, 10, 4, 4, // 6
-                                                             16, 12, 6, 4, // 10
-                                                             20, 16, 8, 4, // 15
-                                                             25, 20, 10, 5}}) {
+    test_gridded_data = GriddedData(grid, values, courier);
     test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
+    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
   }
 };
 
 class ThreeDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
+  GriddedData test_gridded_data;
   std::vector<std::vector<double>> values;
   std::vector<double> target{26.9, 12, 5};
 
@@ -246,27 +180,12 @@ protected:
                2, 8, // 10
                4, 2, // 15
                3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
-    test_rgi = RegularGridInterpolator(grid, values);
-    test_rgi.set_axis_interp_method(0, Method::LINEAR);
-    test_rgi.set_axis_interp_method(1, Method::CUBIC);
-    test_rgi.set_axis_interp_method(2, Method::LINEAR);
-  }
-};
-
-class ThreeDGriddedDataFixture : public testing::Test {
-protected:
-  GriddedData test_gridded_data;
-  std::vector<double> target{26.9, 12, 5};
-
-  ThreeDGriddedDataFixture() : test_gridded_data({{-15, 0.2, 105}, {0, 10, 15}, {4, 6}},
-                                                 //4  6
-                                                 {{6, 3, // 0
-                                                   2, 8, // 10
-                                                   4, 2, // 15
-                                                   3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}}) {
+    auto courier = std::make_shared<BtwxtContextCourierr>();
+    test_gridded_data = GriddedData(grid, values, courier);
     test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
     test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
     test_gridded_data.set_axis_interp_method(2, Method::LINEAR);
+    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
   }
 };
 #endif /* TEST_FIXTURE_HPP_ */

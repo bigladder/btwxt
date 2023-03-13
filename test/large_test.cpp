@@ -2,15 +2,16 @@
  * See the LICENSE file for additional terms and conditions. */
 
 // Standard
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <chrono>
 #include <iostream>
 
 // btwxt
-#include <btwxt.h>
-#include <error.h>
-#include <griddeddata.h>
+#include "btwxt.h"
+#include "error.h"
+#include "griddeddata.h"
+#include "fixtures.hpp"
 
 using namespace Btwxt;
 
@@ -34,6 +35,7 @@ class LargeFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
   std::vector<double> target;
+  BtwxtContextCourierr logger; // constructed only for std::cout
 
   LargeFixture() {
     const std::size_t ndims = 4;
@@ -72,7 +74,8 @@ protected:
     //        test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
     //        test_gridded_data.set_axis_interp_method(2, Method::CUBIC);
     //        test_gridded_data.set_axis_interp_method(3, Method::CUBIC);
-    test_rgi = RegularGridInterpolator(grid, values);
+    auto courier = std::make_shared<BtwxtContextCourierr>();
+    test_rgi = RegularGridInterpolator(grid, values, courier);
   }
 };
 
@@ -139,8 +142,7 @@ TEST_F(LargeFixture, timer) {
   // Get ending timepoint
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  showMessage(MsgLevel::MSG_INFO,
-              stringify("Time taken by interpolation: ", duration.count(), " microseconds"));
+  logger.info(stringify("Time taken by interpolation: ", duration.count(), " microseconds"));
 
   // time running the functions straight
   start = std::chrono::high_resolution_clock::now();
@@ -149,8 +151,7 @@ TEST_F(LargeFixture, timer) {
   // Get ending timepoint
   stop = std::chrono::high_resolution_clock::now();
   auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  showMessage(MsgLevel::MSG_INFO,
-              stringify("Time taken by direct functions: ", nano_duration.count(), " nanoseconds"));
+  logger.info(stringify("Time taken by direct functions: ", nano_duration.count(), " nanoseconds"));
 }
 
 TEST_F(LargeFixture, multi_timer) {
@@ -168,7 +169,6 @@ TEST_F(LargeFixture, multi_timer) {
     // Get ending timepoint
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    showMessage(MsgLevel::MSG_INFO,
-                stringify("Time taken by ten interpolations: ", duration.count(), " microseconds"));
+    logger.info(stringify("Time taken by ten interpolations: ", duration.count(), " microseconds"));
   }
 }

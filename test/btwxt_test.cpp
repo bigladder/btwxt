@@ -12,13 +12,11 @@
 
 namespace Btwxt{
 
-#if 0
 TEST_F(TwoDFixture, construct_from_gridded_data) {
-  RegularGridInterpolator rgi_from_grid(test_gridded_data);
+  RegularGridInterpolator rgi_from_grid(test_gridded_data, courier);
   std::size_t ndims = rgi_from_grid.get_ndims();
   EXPECT_EQ(ndims, 2u);
 }
-#endif
 
 TEST_F(TwoDFixture, target_undefined) {
   std::vector<double> returned_target;
@@ -53,7 +51,7 @@ TEST_F(TwoDFixture, target_undefined) {
   EXPECT_EQ(bad_result, 0);
 }
 
-TEST_F(CubicGriddedDataFixture, spacing_multiplier) {
+TEST_F(CubicFixture, spacing_multiplier) {
   double result;
   result = test_gridded_data.get_axis_spacing_mult(0, 0, 0);
   EXPECT_DOUBLE_EQ(result, 1.0);
@@ -92,8 +90,8 @@ TEST_F(CubicFixture, interpolate) {
   std::vector<double> result = test_rgi.get_values_at_target();
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  showMessage(MsgLevel::MSG_INFO,
-              stringify("Time to do cubic interpolation: ", duration.count(), " microseconds"));
+  BtwxtContextCourierr message_display;
+  message_display.info(stringify("Time to do cubic interpolation: ", duration.count(), " microseconds"));
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));
 }
 
@@ -134,9 +132,6 @@ TEST_F(TwoDFixture, invalid_inputs) {
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
   std::vector<double> long_target = {1, 2, 3};
   EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
-}
-
-TEST_F(TwoDGriddedDataFixture, invalid_inputs) {
   // we expect two errors that the value table inputs do not match the grid
   // we expect an error that the target dimensions do not match the grid
   std::vector<double> short_values = {6, 3, 2, 8, 4};
@@ -145,14 +140,31 @@ TEST_F(TwoDGriddedDataFixture, invalid_inputs) {
   EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtErr);
 }
 
-TEST_F(TwoDFixtureWithLoggingContext, set_message_context) {
-  std::string context_str{"Context 1"};
+TEST_F(TwoDFixture, set_message_context) {
+  std::string context_str{"Context 1:"};
   std::vector<double> short_target = {1};
-  std::string expected_error{"(Null context):  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
-  logger->set_message_context(reinterpret_cast<void *>(&context_str));
+  courier->set_message_context(reinterpret_cast<void *>(&context_str));
   expected_error = "Context 1:  ERROR: Target and Gridded Data do not have the same dimensions.\n";
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+}
+
+TEST_F(TwoDFixture, different_logger_per_rgi) {
+  std::vector<double> short_target = {1};
+  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+
+  RegularGridInterpolator rgi2;
+  rgi2 = test_rgi;
+  auto logger2 = std::make_shared<BtwxtContextCourierr>();
+  std::string context_str{"RGI2 Context:"};
+  logger2->set_message_context(reinterpret_cast<void *>(&context_str));
+  rgi2.set_logger(logger2);
+  std::string expected_error2{"RGI2 Context:  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  EXPECT_STDOUT(rgi2.set_new_target(short_target);, expected_error2);
+
+  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error); // Recheck
 }
 
 //TODO: Test that logger copies in GriddedData/GridPoint also receive modified context
@@ -164,7 +176,7 @@ TEST_F(OneDFixture, cubic_interpolate) {
 }
 
 TEST_F(OneDL0Fixture, throw_test) {
-    EXPECT_THROW(GriddedData(grid, values), BtwxtErr);
+    EXPECT_THROW(GriddedData(grid, values, std::make_shared<BtwxtContextCourierr>()), BtwxtErr);
 }
 
 TEST_F(OneDL1Fixture, cubic_interpolate) {

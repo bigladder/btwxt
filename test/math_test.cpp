@@ -9,9 +9,10 @@
 #include "gtest/gtest.h"
 
 // btwxt
-#include <btwxt.h>
-#include <error.h>
-#include <griddeddata.h>
+#include "btwxt.h"
+#include "error.h"
+#include "griddeddata.h"
+#include "fixtures.hpp"
 
 using namespace Btwxt;
 
@@ -31,10 +32,11 @@ TEST(GriddedData, free_check_sorted) {
 }
 
 TEST(GriddedData, locate_coords) {
+  auto courier = std::make_shared<BtwxtContextCourierr>();
   std::vector<std::vector<double>> grid = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5, 6, 7}};
   std::vector<double> value1(5 * 7, 0.0);
   std::vector<std::vector<double>> values = {value1};
-  GriddedData test_gridded_data1(grid, values);
+  GriddedData test_gridded_data1(grid, values, courier);
 
   std::vector<std::size_t> coords = {2, 3};
   std::vector<std::size_t> dimension_lengths = {5, 7};
@@ -46,22 +48,24 @@ TEST(GriddedData, locate_coords) {
 
   std::vector<double> value2(5 * 7 * 3, 0.0);
   values = {value2};
-  GriddedData test_gridded_data2(grid, values);
+  GriddedData test_gridded_data2(grid, values, courier);
   index = test_gridded_data2.get_value_index(coords);
   EXPECT_EQ(index, 53u);
 }
 
 TEST(GridPoint, set_dim_floor) {
 
-  GridAxis axis({1, 3, 5, 7, 9});
+  auto courier = std::make_shared<BtwxtContextCourierr>();
+
+  GridAxis axis({1, 3, 5, 7, 9}, courier);
 
   axis.set_extrap_limits({0, 11});
 
   std::vector<double> target = {5.3};
 
-  GriddedData test_gridded_data = GriddedData({axis});
+  GriddedData test_gridded_data = GriddedData({axis}, courier);
 
-  GridPoint grid_point(test_gridded_data, target);
+  GridPoint grid_point(test_gridded_data, target, courier);
 
   grid_point.set_floor();
 
