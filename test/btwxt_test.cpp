@@ -167,6 +167,14 @@ TEST_F(TwoDFixture, unique_logger_per_rgi_instance) {
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error); // Recheck
 }
 
+TEST_F(TwoDFixture, access_logger_in_btwxt) {
+  RegularGridInterpolator rgi2(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
+  std::string context_str{"RGI2 Context:"};
+  rgi2.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
+  std::string expected_error2{"RGI2 Context:  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  EXPECT_STDOUT(rgi2.set_new_target({1});, expected_error2);
+}
+
 //TODO: Test that logger copies in GriddedData/GridPoint also receive modified context
 
 TEST_F(OneDFixture, cubic_interpolate) {

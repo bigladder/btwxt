@@ -123,6 +123,8 @@ public:
 
   void set_logger(std::shared_ptr<Courierr::Courierr> logger);
 
+  Courierr::Courierr& get_logger() { return *btwxt_logger; };
+
 private:
   friend class TwoDFixtureWithLoggingContext;
   friend class TwoDFixtureWithLoggingContext_set_message_context_Test;
