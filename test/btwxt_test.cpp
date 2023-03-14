@@ -140,7 +140,7 @@ TEST_F(TwoDFixture, invalid_inputs) {
   EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtErr);
 }
 
-TEST_F(TwoDFixture, set_message_context) {
+TEST_F(TwoDFixture, logger_modify_context) {
   std::string context_str{"Context 1:"};
   std::vector<double> short_target = {1};
   std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
@@ -150,7 +150,7 @@ TEST_F(TwoDFixture, set_message_context) {
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
 }
 
-TEST_F(TwoDFixture, different_logger_per_rgi) {
+TEST_F(TwoDFixture, unique_logger_per_rgi_instance) {
   std::vector<double> short_target = {1};
   std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
   EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);

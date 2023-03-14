@@ -8,7 +8,6 @@ set(library_sources
   gridpoint.h
   gridpoint.cpp
   error.h
-  error.cpp
 )
 
 option( ${PROJECT_NAME}_STATIC_LIB "Make ${PROJECT_NAME} a static library" ON )
