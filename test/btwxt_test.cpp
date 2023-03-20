@@ -129,17 +129,28 @@ TEST_F(TwoDFixture, extrapolate) {
 TEST_F(TwoDFixture, invalid_inputs) {
   std::vector<double> short_target = {1};
   std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  // Redirect cout to temporary local buffer (do not use EXPECT_STDOUT for throwing functions)
+  std::ostringstream buffer;
+  std::streambuf *sbuf = std::cout.rdbuf();
+  std::cout.rdbuf(buffer.rdbuf());
+
   try {
-    EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+    test_rgi.set_new_target(short_target);
   }
-  catch (BtwxtException&) {}
+  catch (BtwxtException&) {
+    EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
+  }
   std::vector<double> long_target = {1, 2, 3};
+  buffer.str("");
+  buffer.clear();
   try {
-    EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
+    test_rgi.set_new_target(long_target);
   }
-  catch (BtwxtException&) {}
-  // we expect two errors that the value table inputs do not match the grid
-  // we expect an error that the target dimensions do not match the grid
+  catch (BtwxtException&) {
+    EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
+  }
+  std::cout.rdbuf(sbuf);
+
   std::vector<double> short_values = {6, 3, 2, 8, 4};
   EXPECT_THROW(test_gridded_data.add_value_table(short_values);, BtwxtException);
   std::vector<double> long_values = {1, 1, 1, 1, 1, 1, 1};
