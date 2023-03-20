@@ -121,7 +121,7 @@ public:
 
   std::pair<double, double> get_axis_limits(int dim);
 
-  void set_logger(std::shared_ptr<Courierr::Courierr> logger);
+  void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_gridaxes = false);
 
   Courierr::Courierr& get_logger() { return *btwxt_logger; };
 

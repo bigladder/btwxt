@@ -28,7 +28,7 @@ GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Co
     throw std::exception(); // TODO: correct exception
   }
   if (grid.size() == 0) {
-    throw BtwxtErr("Cannot create a GridAxis from a zero-length vector.", *logger);
+    throw BtwxtException("Cannot create a GridAxis from a zero-length vector.", *logger);
   }
   check_grid_sorted();
   check_extrap_limits();
@@ -80,7 +80,7 @@ void GridAxis::calc_spacing_multipliers() {
 void GridAxis::check_grid_sorted() {
   bool grid_is_sorted = Btwxt::free_check_sorted(grid);
   if (!grid_is_sorted) {
-    throw BtwxtErr("Axis is not sorted.", *gridaxis_logger);
+    throw BtwxtException("Axis is not sorted.", *gridaxis_logger);
   }
 }
 
@@ -152,7 +152,7 @@ void GriddedData::set_dimension_sizes() {
   for (std::size_t dim = ndims - 1; /* dim >= 0 */ dim < ndims; --dim) {
     std::size_t length = grid_axes[dim].get_length();
     if (length == 0) {
-      throw BtwxtErr(stringify("Dimension ", dim, " has an axis of length zero."), *griddeddata_logger);
+      throw BtwxtException(stringify("Dimension ", dim, " has an axis of length zero."), *griddeddata_logger);
     }
     dimension_lengths[dim] = length;
     dimension_step_size[dim] = num_values;
@@ -168,7 +168,7 @@ void GriddedData::construct_axes(const std::vector<std::vector<double>> &grid) {
 
 std::size_t GriddedData::add_value_table(const std::vector<double> &value_vector) {
   if (value_vector.size() != num_values) {
-    throw BtwxtErr(stringify("Input value table does not match the grid size: ",
+    throw BtwxtException(stringify("Input value table does not match the grid size: ",
                              value_vector.size(), " != ", num_values), *griddeddata_logger);
   }
   value_tables.push_back(value_vector);
@@ -272,7 +272,7 @@ void GriddedData::set_axis_interp_method(const std::size_t dim,
 void GriddedData::normalize_value_table(std::size_t table_num, double scalar) {
   auto &table = value_tables[table_num];
   if (scalar == 0.0) {
-    throw BtwxtErr("Attempt to normalize values by zero.", *griddeddata_logger);
+    throw BtwxtException("Attempt to normalize values by zero.", *griddeddata_logger);
   }
   scalar = 1.0 / scalar;
   std::transform(table.begin(), table.end(), table.begin(),

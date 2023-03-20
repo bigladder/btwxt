@@ -55,7 +55,7 @@ GridPoint::GridPoint(GriddedData &grid_data_in, std::vector<double> v, std::shar
 
 void GridPoint::set_target(const std::vector<double> &v) {
   if (v.size() != ndims) {
-    throw BtwxtErr(stringify("Target and Gridded Data do not have the same dimensions."), *gridpoint_logger);
+    throw BtwxtException(stringify("Target and Gridded Data do not have the same dimensions."), *gridpoint_logger);
   }
   if (target_is_set) {
     if ((v == target) && (methods == grid_data->get_interp_methods())) {
@@ -172,7 +172,7 @@ void GridPoint::set_hypercube() { set_hypercube(grid_data->get_interp_methods())
 
 void GridPoint::set_hypercube(std::vector<Method> m_methods) {
   if (m_methods.size() != ndims) {
-    throw BtwxtErr(stringify("Error setting hypercube. Methods vector does not "
+    throw BtwxtException(stringify("Error setting hypercube. Methods vector does not "
                              "have the correct number of dimensions."), *gridpoint_logger);
   }
   std::size_t previous_size = hypercube.size();
@@ -289,7 +289,7 @@ double GridPoint::get_vertex_weight(const std::vector<short> &v) {
 
 void GridPoint::normalize_grid_values_at_target(const double scalar) {
   if (!target_is_set) {
-    throw BtwxtErr(stringify("Cannot normalize grid values. No target has been set."), *gridpoint_logger);
+    throw BtwxtException(stringify("Cannot normalize grid values. No target has been set."), *gridpoint_logger);
   }
   for (std::size_t table_index = 0; table_index < grid_data->get_num_tables(); ++table_index) {
     grid_data->normalize_value_table(table_index, results[table_index] * scalar);
@@ -300,7 +300,7 @@ void GridPoint::normalize_grid_values_at_target(const double scalar) {
 
 double GridPoint::normalize_grid_values_at_target(std::size_t table_num, const double scalar) {
   if (!target_is_set) {
-    throw BtwxtErr(stringify("Cannot normalize grid values. No target has been set."), *gridpoint_logger);
+    throw BtwxtException(stringify("Cannot normalize grid values. No target has been set."), *gridpoint_logger);
   }
   // create a scalar which represents the product of the inverted normalization factor and the value
   // in the table at the independent variable reference value

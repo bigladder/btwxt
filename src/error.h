@@ -22,17 +22,17 @@ template <typename... ArgTypes> std::string stringify(ArgTypes... args) {
   return oss.str();
 }
 
-class BtwxtErr : public Courierr::CourierrException {
+class BtwxtException : public Courierr::CourierrException {
   public:
-    explicit BtwxtErr(const char* message, Courierr::Courierr& logger)
+    explicit BtwxtException(const char* message, Courierr::Courierr& logger)
      : CourierrException(message, logger)
     {
     }
-    explicit BtwxtErr(const std::string& message, Courierr::Courierr& logger)
+    explicit BtwxtException(const std::string& message, Courierr::Courierr& logger)
      : CourierrException(message, logger)
     {
     }
-    explicit BtwxtErr(const std::string_view message, Courierr::Courierr& logger)
+    explicit BtwxtException(const std::string_view message, Courierr::Courierr& logger)
      : CourierrException(message, logger)
     {
     }

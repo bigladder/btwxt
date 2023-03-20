@@ -42,6 +42,7 @@ public:
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const;
 
   void set_logger(std::shared_ptr<Courierr::Courierr> logger) { gridaxis_logger = logger; }
+  Courierr::Courierr& get_logger() { return *gridaxis_logger; };
 
 private:
   std::shared_ptr<Courierr::Courierr> gridaxis_logger;

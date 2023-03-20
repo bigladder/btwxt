@@ -129,31 +129,37 @@ TEST_F(TwoDFixture, extrapolate) {
 TEST_F(TwoDFixture, invalid_inputs) {
   std::vector<double> short_target = {1};
   std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
-  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+  try {
+    EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+  }
+  catch (BtwxtException&) {}
   std::vector<double> long_target = {1, 2, 3};
-  EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
+  try {
+    EXPECT_STDOUT(test_rgi.set_new_target(long_target);, expected_error);
+  }
+  catch (BtwxtException&) {}
   // we expect two errors that the value table inputs do not match the grid
   // we expect an error that the target dimensions do not match the grid
   std::vector<double> short_values = {6, 3, 2, 8, 4};
-  EXPECT_THROW(test_gridded_data.add_value_table(short_values);, BtwxtErr);
+  EXPECT_THROW(test_gridded_data.add_value_table(short_values);, BtwxtException);
   std::vector<double> long_values = {1, 1, 1, 1, 1, 1, 1};
-  EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtErr);
+  EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtException);
 }
 
 TEST_F(TwoDFixture, logger_modify_context) {
+  std::vector<double> returned_target;
+  std::string expected_error = "  WARNING: The current target was requested, but no target has been set.\n";
+  EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, expected_error);
   std::string context_str{"Context 1:"};
-  std::vector<double> short_target = {1};
-  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
-  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
   courier->set_message_context(reinterpret_cast<void *>(&context_str));
-  expected_error = "Context 1:  ERROR: Target and Gridded Data do not have the same dimensions.\n";
-  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+  expected_error = "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
+  EXPECT_STDOUT(test_rgi.get_current_target();, expected_error);
 }
 
 TEST_F(TwoDFixture, unique_logger_per_rgi_instance) {
-  std::vector<double> short_target = {1};
-  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
-  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error);
+  std::vector<double> returned_target;
+  std::string expected_error = "  WARNING: The current target was requested, but no target has been set.\n";
+  EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, expected_error);
 
   RegularGridInterpolator rgi2;
   rgi2 = test_rgi;
@@ -161,21 +167,21 @@ TEST_F(TwoDFixture, unique_logger_per_rgi_instance) {
   std::string context_str{"RGI2 Context:"};
   logger2->set_message_context(reinterpret_cast<void *>(&context_str));
   rgi2.set_logger(logger2);
-  std::string expected_error2{"RGI2 Context:  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
-  EXPECT_STDOUT(rgi2.set_new_target(short_target);, expected_error2);
+  std::string expected_error2{"RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
+  EXPECT_STDOUT(rgi2.get_current_target();, expected_error2);
 
-  EXPECT_STDOUT(test_rgi.set_new_target(short_target);, expected_error); // Recheck
+  EXPECT_STDOUT(test_rgi.get_current_target();, expected_error); // Recheck
 }
 
 TEST_F(TwoDFixture, access_logger_in_btwxt) {
   RegularGridInterpolator rgi2(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
   std::string context_str{"RGI2 Context:"};
   rgi2.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
-  std::string expected_error2{"RGI2 Context:  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
-  EXPECT_STDOUT(rgi2.set_new_target({1});, expected_error2);
+  std::string expected_error2{"RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
+  EXPECT_STDOUT(rgi2.get_current_target();, expected_error2);
 }
 
-//TODO: Test that logger copies in GriddedData/GridPoint also receive modified context
+//TODO: Test that logger copies in GriddedData/GridPoint are the same/different
 
 TEST_F(OneDFixture, cubic_interpolate) {
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
@@ -184,7 +190,7 @@ TEST_F(OneDFixture, cubic_interpolate) {
 }
 
 TEST_F(OneDL0Fixture, throw_test) {
-    EXPECT_THROW(GriddedData(grid, values, std::make_shared<BtwxtContextCourierr>()), BtwxtErr);
+    EXPECT_THROW(GriddedData(grid, values, std::make_shared<BtwxtContextCourierr>()), BtwxtException);
 }
 
 TEST_F(OneDL1Fixture, cubic_interpolate) {

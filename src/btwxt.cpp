@@ -28,11 +28,7 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &
 }
 
 std::size_t RegularGridInterpolator::add_value_table(const std::vector<double> &value_vector) {
-  try {
-    return grid_data.add_value_table(value_vector);
-  } catch (BtwxtErr&) {
-    return 0;
-  }
+  return grid_data.add_value_table(value_vector);
 }
 
 double RegularGridInterpolator::get_value_at_target(const std::vector<double>& target,
@@ -66,11 +62,7 @@ double RegularGridInterpolator::normalize_values_at_target(std::size_t table_ind
 
 double RegularGridInterpolator::normalize_values_at_target(std::size_t table_index,
                                                            const double scalar) {
-  try {
-    return grid_point.normalize_grid_values_at_target(table_index, scalar);
-  } catch (BtwxtErr &e) {
-    return scalar; // TODO:
-  }
+  return grid_point.normalize_grid_values_at_target(table_index, scalar);
 }
 
 void RegularGridInterpolator::normalize_values_at_target(const std::vector<double> &target,
@@ -80,15 +72,11 @@ void RegularGridInterpolator::normalize_values_at_target(const std::vector<doubl
 }
 
 void RegularGridInterpolator::normalize_values_at_target(const double scalar) {
-  try {
-    return grid_point.normalize_grid_values_at_target(scalar);
-  } catch (BtwxtErr&) {}
+  return grid_point.normalize_grid_values_at_target(scalar);
 }
 
 void RegularGridInterpolator::set_new_target(const std::vector<double> &target) {
-  try {
-    grid_point.set_target(target);
-  } catch (BtwxtErr&) {}
+  grid_point.set_target(target);
 }
 
 std::vector<double> RegularGridInterpolator::get_current_target() {
@@ -107,11 +95,13 @@ std::pair<double, double> RegularGridInterpolator::get_axis_limits(int dim) {
   return grid_data.get_extrap_limits(dim);
 }
 
-void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::Courierr> logger) 
+void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_gridaxes)
 {
   btwxt_logger = logger;
   grid_point.set_logger(logger);
-  grid_data.set_logger(logger);
+  if (set_gridaxes) {
+    grid_data.set_logger(logger);
+  }
 }
 
 } // namespace Btwxt

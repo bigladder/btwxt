@@ -95,7 +95,7 @@ TEST_F(TwoDFixture, get_values_relative) {
 TEST(GridAxis, sorting) {
   std::vector<double> grid_vector = {0, 5, 7, 17, 15};
   auto courier = std::make_shared<BtwxtContextCourierr>();
-  EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, courier), BtwxtErr);
+  EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, courier), BtwxtException);
   grid_vector = {0, 5, 7, 10, 15};
   EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, courier););
 }
