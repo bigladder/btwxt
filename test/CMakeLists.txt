@@ -1,8 +1,4 @@
 # Test Executable
-
-include_directories("${PROJECT_SOURCE_DIR}/src"
-                    "${gtest_SOURCE_DIR}/include")
-
 set(library_sources
   main_test.cpp
   fixtures.hpp

@@ -7,10 +7,13 @@
 #include <chrono>
 #include <iostream>
 
+// vendor
+#include <fmt/format.h>
+
 // btwxt
-#include "btwxt.h"
-#include "error.h"
-#include "griddeddata.h"
+#include <btwxt/btwxt.h>
+
+// testing
 #include "fixtures.hpp"
 
 using namespace Btwxt;
@@ -142,7 +145,7 @@ TEST_F(LargeFixture, timer) {
   // Get ending timepoint
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  logger.info(stringify("Time taken by interpolation: ", duration.count(), " microseconds"));
+  logger.info(fmt::format("Time taken by interpolation: {} microseconds", duration.count()));
 
   // time running the functions straight
   start = std::chrono::high_resolution_clock::now();
@@ -151,7 +154,7 @@ TEST_F(LargeFixture, timer) {
   // Get ending timepoint
   stop = std::chrono::high_resolution_clock::now();
   auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  logger.info(stringify("Time taken by direct functions: ", nano_duration.count(), " nanoseconds"));
+  logger.info(fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
 }
 
 TEST_F(LargeFixture, multi_timer) {
@@ -169,6 +172,6 @@ TEST_F(LargeFixture, multi_timer) {
     // Get ending timepoint
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    logger.info(stringify("Time taken by ten interpolations: ", duration.count(), " microseconds"));
+    logger.info(fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
   }
 }

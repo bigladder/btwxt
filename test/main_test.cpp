@@ -3,13 +3,6 @@
 
 #include "gtest/gtest.h"
 
-// btwxt
-#include <btwxt.h>
-#include <error.h>
-#include <griddeddata.h>
-
-using namespace Btwxt;
-
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -8,9 +8,10 @@
 #include <memory>
 
 // btwxt
+#include <btwxt/regular-grid-interpolator.h>
+
+// testing
 #include "fixtures.hpp"
-#include "error.h"
-#include "griddeddata.h"
 
 namespace Btwxt {
 
@@ -21,10 +22,10 @@ TEST_F(OneDFixture, construct_from_vectors) {
 }
 
 TEST_F(TwoDFixture, construct_from_vectors) {
-  std::size_t ndims = test_gridded_data.get_ndims();
+  std::size_t ndims = test_rgi.get_ndims();
   EXPECT_EQ(ndims, 2u);
 
-  std::size_t num_tables = test_gridded_data.get_num_tables();
+  std::size_t num_tables = test_rgi.get_num_tables();
   EXPECT_EQ(num_tables, 2u);
 }
 
@@ -36,60 +37,64 @@ TEST_F(TwoDFixture, write_data) {
             "10,6,8,16,\n"
             "15,4,4,8,\n"
             "15,6,2,4,\n",
-            test_gridded_data.write_data());
+            test_rgi.write_data());
 }
 
 TEST_F(TwoDFixture, construct_from_axes) {
   GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}), courier);
   GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), courier);
   std::vector<GridAxis> test_axes = {ax0, ax1};
-  test_gridded_data = GriddedData(test_axes, courier);
-  EXPECT_EQ(test_gridded_data.get_ndims(), 2u);
-  EXPECT_EQ(test_gridded_data.get_num_tables(), 0u);
-  EXPECT_THAT(test_gridded_data.dimension_lengths, testing::ElementsAre(3, 2));
+  test_rgi = RegularGridInterpolator(test_axes, courier);
+  EXPECT_EQ(test_rgi.get_ndims(), 2u);
+  EXPECT_EQ(test_rgi.get_num_tables(), 0u);
+  EXPECT_THAT(test_rgi.regular_grid_interpolator->dimension_lengths, testing::ElementsAre(3, 2));
 
-  test_gridded_data.add_value_table(values[0]);
-  EXPECT_EQ(test_gridded_data.get_num_tables(), 1u);
+  test_rgi.add_value_table(values[0]);
+  EXPECT_EQ(test_rgi.get_num_tables(), 1u);
   std::vector<std::size_t> coords{1, 1};
-  EXPECT_THAT(test_gridded_data.get_values(coords), testing::ElementsAre(8));
+  EXPECT_THAT(test_rgi.regular_grid_interpolator->get_values(coords), testing::ElementsAre(8));
 
-  test_gridded_data = GriddedData(test_axes, values, courier);
-  EXPECT_EQ(test_gridded_data.get_ndims(), 2u);
-  EXPECT_EQ(test_gridded_data.get_num_tables(), 2u);
-  EXPECT_THAT(test_gridded_data.get_values(coords), testing::ElementsAre(8, 16));
+  test_rgi = RegularGridInterpolator(test_axes, values, courier);
+  EXPECT_EQ(test_rgi.get_ndims(), 2u);
+  EXPECT_EQ(test_rgi.get_num_tables(), 2u);
+  EXPECT_THAT(test_rgi.regular_grid_interpolator->get_values(coords), testing::ElementsAre(8, 16));
 }
 
 TEST_F(TwoDFixture, get_grid_vector) {
-  std::vector<double> returned_vec = test_gridded_data.get_grid_vector(1);
+  std::vector<double> returned_vec = test_rgi.regular_grid_interpolator->get_grid_vector(1);
   EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
 }
 
 TEST_F(TwoDFixture, get_values) {
   std::vector<std::size_t> coords = {0, 1};
-  std::vector<double> returned_vec = test_gridded_data.get_values(coords);
+  std::vector<double> returned_vec = test_rgi.regular_grid_interpolator->get_values(coords);
   EXPECT_THAT(returned_vec, testing::ElementsAre(3, 6));
 
   coords = {1, 0};
-  returned_vec = test_gridded_data.get_values(coords);
+  returned_vec = test_rgi.regular_grid_interpolator->get_values(coords);
   EXPECT_THAT(returned_vec, testing::ElementsAre(2, 4));
 }
 
 TEST_F(TwoDFixture, get_values_relative) {
   std::vector<std::size_t> coords{0, 1};
   std::vector<short> translation{1, 0}; // {1, 1} stays as is
-  std::vector<double> expected_vec = test_gridded_data.get_values({1, 1});
-  EXPECT_EQ(test_gridded_data.get_values_relative(coords, translation), expected_vec);
+  std::vector<double> expected_vec = test_rgi.regular_grid_interpolator->get_values({1, 1});
+  EXPECT_EQ(test_rgi.regular_grid_interpolator->get_values_relative(coords, translation),
+            expected_vec);
 
   translation = {1, 1}; // {1, 2} -> {1, 1}
-  EXPECT_EQ(test_gridded_data.get_values_relative(coords, translation), expected_vec);
+  EXPECT_EQ(test_rgi.regular_grid_interpolator->get_values_relative(coords, translation),
+            expected_vec);
 
   translation = {-1, 0}; // {-1, 1} -> {0, 1}
-  expected_vec = test_gridded_data.get_values({0, 1});
-  EXPECT_EQ(test_gridded_data.get_values_relative(coords, translation), expected_vec);
+  expected_vec = test_rgi.regular_grid_interpolator->get_values({0, 1});
+  EXPECT_EQ(test_rgi.regular_grid_interpolator->get_values_relative(coords, translation),
+            expected_vec);
 
   translation = {3, -2}; // {3, -1} -> {2, 0}
-  expected_vec = test_gridded_data.get_values({2, 0});
-  EXPECT_EQ(test_gridded_data.get_values_relative(coords, translation), expected_vec);
+  expected_vec = test_rgi.regular_grid_interpolator->get_values({2, 0});
+  EXPECT_EQ(test_rgi.regular_grid_interpolator->get_values_relative(coords, translation),
+            expected_vec);
 }
 
 TEST(GridAxis, sorting) {
@@ -109,7 +114,7 @@ TEST_F(CubicFixture, get_spacing_multipliers) {
   double result;
   for (std::size_t flavor = 0; flavor < 2; flavor++) {
     for (std::size_t index = 0; index < 3; index++) {
-      result = test_gridded_data.get_axis_spacing_mult(0, flavor, index);
+      result = test_rgi.regular_grid_interpolator->get_axis_spacing_mult(0, flavor, index);
       EXPECT_DOUBLE_EQ(result, expected_results[flavor][index]);
     }
   }
@@ -118,8 +123,8 @@ TEST_F(CubicFixture, get_spacing_multipliers) {
 TEST(GridAxis, calc_spacing_multipliers) {
   std::vector<double> grid_vector{6, 10, 15, 20, 22};
 
-  GridAxis test_gridaxis(grid_vector, std::make_shared<BtwxtContextCourierr>(), Method::CONSTANT, Method::CUBIC,
-                         {-DBL_MAX, DBL_MAX});
+  GridAxis test_gridaxis(grid_vector, std::make_shared<BtwxtContextCourierr>(), Method::CONSTANT,
+                         Method::CUBIC, {-DBL_MAX, DBL_MAX});
   std::vector<std::vector<double>> values = test_gridaxis.spacing_multipliers;
   EXPECT_THAT(values[0], testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
   EXPECT_THAT(values[1], testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));
@@ -135,7 +140,7 @@ TEST(GridAxis, bad_limits) {
   EXPECT_EQ(my_grid_axis.extrapolation_limits.first, 0);
 
   extrap_limits = {-2, 12};
-  ExpectedOut = "  NOTE: The upper extrapolation limit (-2) is within the set of grid values. "
+  ExpectedOut = "  NOTE: The upper extrapolation limit (12) is within the set of grid values. "
                 "Setting to largest grid value (15).\n";
   EXPECT_STDOUT(my_grid_axis.set_extrap_limits(extrap_limits);, ExpectedOut);
   EXPECT_EQ(my_grid_axis.extrapolation_limits.second, 15);

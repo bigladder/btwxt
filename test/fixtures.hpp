@@ -9,9 +9,8 @@
 #include "gtest/gtest.h"
 
 // btwxt
-#include <btwxt.h>
-#include <error.h>
-#include <griddeddata.h>
+#include <btwxt/btwxt.h>
+#include "../src/regular-grid-interpolator-private.h"
 
 #include <fmt/format.h>
 
@@ -46,7 +45,6 @@ namespace Btwxt {
 class OneDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
-  GriddedData test_gridded_data;
   std::vector<double> target{2.5};
 
   OneDFixture() {
@@ -54,8 +52,7 @@ protected:
     std::vector<std::vector<double>> values = {{6, 5, 4, 3}};
 
     auto courier = std::make_shared<BtwxtContextCourierr>();
-    test_gridded_data = GriddedData(grid, values, courier);
-    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
+    test_rgi = RegularGridInterpolator(grid, values, courier);
   }
 };
 
@@ -96,7 +93,6 @@ protected:
 class TwoDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
-  GriddedData test_gridded_data;
   std::vector<double> target{12, 5};
   std::vector<std::vector<double>> values;
   std::shared_ptr<BtwxtContextCourierr> courier = std::make_shared<BtwxtContextCourierr>();
@@ -108,9 +104,8 @@ protected:
                2, 8,  // 10
                4, 2}, // 15
               {12, 6, 4, 16, 8, 4}};
-    test_gridded_data = GriddedData(grid, values, courier);
-    test_gridded_data.set_axis_extrap_method(0, Method::LINEAR);
-    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
+    test_rgi = RegularGridInterpolator(grid, values, courier);
+    test_rgi.set_axis_extrap_method(0, Method::LINEAR);
   }
 };
 
@@ -142,7 +137,6 @@ class CubicFixture : public testing::Test {
 protected:
   std::shared_ptr<BtwxtContextCourierr> courier = std::make_shared<BtwxtContextCourierr>();
   RegularGridInterpolator test_rgi;
-  GriddedData test_gridded_data;
   std::vector<double> target;
 
   CubicFixture() {
@@ -160,16 +154,14 @@ protected:
           25, 20, 10, 5}}; // 20
 
     target = {12, 4.5};
-    test_gridded_data = GriddedData(grid, values, courier);
-    test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
+    test_rgi = RegularGridInterpolator(grid, values, courier);
+    test_rgi.set_axis_interp_method(0, Method::CUBIC);
   }
 };
 
 class ThreeDFixture : public testing::Test {
 protected:
   RegularGridInterpolator test_rgi;
-  GriddedData test_gridded_data;
   std::vector<std::vector<double>> values;
   std::vector<double> target{26.9, 12, 5};
 
@@ -181,11 +173,10 @@ protected:
                4, 2, // 15
                3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
     auto courier = std::make_shared<BtwxtContextCourierr>();
-    test_gridded_data = GriddedData(grid, values, courier);
-    test_gridded_data.set_axis_interp_method(0, Method::LINEAR);
-    test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-    test_gridded_data.set_axis_interp_method(2, Method::LINEAR);
-    test_rgi = RegularGridInterpolator(test_gridded_data, courier);
+    test_rgi = RegularGridInterpolator(grid, values, courier);
+    test_rgi.set_axis_interp_method(0, Method::LINEAR);
+    test_rgi.set_axis_interp_method(1, Method::CUBIC);
+    test_rgi.set_axis_interp_method(2, Method::LINEAR);
   }
 };
 #endif /* TEST_FIXTURE_HPP_ */

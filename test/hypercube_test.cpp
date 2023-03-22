@@ -9,22 +9,20 @@
 #include "gtest/gtest.h"
 
 // btwxt
+#include <btwxt/btwxt.h>
+
+// testing
 #include "fixtures.hpp"
-#include <btwxt.h>
-#include <error.h>
-#include <griddeddata.h>
 
 namespace Btwxt {
 
 TEST_F(ThreeDFixture, hypercube) {
-  GridPoint grid_point(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
-  auto hypercube = grid_point.get_hypercube();
+  auto hypercube = test_rgi.regular_grid_interpolator->get_hypercube();
   EXPECT_EQ(hypercube.size(), 16u);
 }
 
 TEST_F(ThreeDFixture, test_hypercube) {
-  GridPoint grid_point(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
-  auto hypercube = grid_point.get_hypercube();
+  auto hypercube = test_rgi.regular_grid_interpolator->get_hypercube();
   EXPECT_EQ(hypercube.size(), 2u * 4u * 2u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, -1, 0));
   EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 0, 0));
@@ -33,9 +31,8 @@ TEST_F(ThreeDFixture, test_hypercube) {
 }
 
 TEST_F(ThreeDFixture, make_linear_hypercube) {
-  test_gridded_data.set_axis_interp_method(1, Method::LINEAR);
-  GridPoint grid_point(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
-  auto hypercube = grid_point.get_hypercube();
+  test_rgi.set_axis_interp_method(1, Method::LINEAR);
+  auto hypercube = test_rgi.regular_grid_interpolator->get_hypercube();
   EXPECT_EQ(hypercube.size(), 8u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));
   EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 1, 0));
@@ -53,11 +50,11 @@ TEST(Hypercube, cart_product) {
 }
 
 TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
-  test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-  GridPoint grid_point(test_gridded_data, target, courier);
-  std::vector<Method> methods = grid_point.get_methods();
+  test_rgi.set_axis_interp_method(1, Method::CUBIC);
+  test_rgi.set_new_target(target);
+  std::vector<Method> methods = test_rgi.regular_grid_interpolator->get_methods();
 
-  std::vector<double> mus = grid_point.get_weights();
+  std::vector<double> mus = test_rgi.regular_grid_interpolator->get_weights();
   double mx = mus[0];
   double my = mus[1];
   double c0x = 2 * mx * mx * mx - 3 * mx * mx + 1;
@@ -74,7 +71,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
   double s0y = 2.0 / 4;
 
   std::vector<short> this_vertex = {0, 0};
-  double weight = grid_point.get_vertex_weight(this_vertex);
+  double weight = test_rgi.regular_grid_interpolator->get_vertex_weight(this_vertex);
   double expected_result = c0x * c0y;
   expected_result += -1 * c0x * d1y * s1y;
   expected_result += -1 * d1x * s1x * c0y;
@@ -82,28 +79,28 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
   EXPECT_DOUBLE_EQ(weight, expected_result);
 
   this_vertex = {-1, 1};
-  weight = grid_point.get_vertex_weight(this_vertex);
+  weight = test_rgi.regular_grid_interpolator->get_vertex_weight(this_vertex);
   expected_result = -1 * d0x * s0x * c1y;
   expected_result += -1 * d0x * s0x * d0y * s0y;
   EXPECT_DOUBLE_EQ(weight, expected_result);
 
   this_vertex = {2, 0};
-  weight = grid_point.get_vertex_weight(this_vertex);
+  weight = test_rgi.regular_grid_interpolator->get_vertex_weight(this_vertex);
   expected_result = d1x * s1x * c0y;
   expected_result += -1 * d1x * s1x * d1y * s1y;
   EXPECT_DOUBLE_EQ(weight, expected_result);
 
   this_vertex = {2, 2};
-  weight = grid_point.get_vertex_weight(this_vertex);
+  weight = test_rgi.regular_grid_interpolator->get_vertex_weight(this_vertex);
   expected_result = d1x * s1x * d1y * s1y;
   EXPECT_DOUBLE_EQ(weight, expected_result);
 }
 
 TEST_F(CubicFixture, hypercube_calculations) {
-  test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-  GridPoint grid_point(test_gridded_data, target, courier);
+  test_rgi.set_axis_interp_method(1, Method::CUBIC);
+  test_rgi.set_new_target(target);
 
-  auto result = grid_point.get_results();
+  auto result = test_rgi.regular_grid_interpolator->get_results();
   EXPECT_NEAR(result[0], 4.1953, 0.0001);
   EXPECT_NEAR(result[1], 11.9271, 0.0001);
 }

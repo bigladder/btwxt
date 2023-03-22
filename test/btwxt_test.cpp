@@ -7,16 +7,13 @@
 #include <chrono>
 #include <iostream>
 
+// vendor
+#include <fmt/format.h>
+
 // btwxt
 #include "fixtures.hpp"
 
-namespace Btwxt{
-
-TEST_F(TwoDFixture, construct_from_gridded_data) {
-  RegularGridInterpolator rgi_from_grid(test_gridded_data, courier);
-  std::size_t ndims = rgi_from_grid.get_ndims();
-  EXPECT_EQ(ndims, 2u);
-}
+namespace Btwxt {
 
 TEST_F(TwoDFixture, target_undefined) {
   std::vector<double> returned_target;
@@ -53,30 +50,28 @@ TEST_F(TwoDFixture, target_undefined) {
 
 TEST_F(CubicFixture, spacing_multiplier) {
   double result;
-  result = test_gridded_data.get_axis_spacing_mult(0, 0, 0);
+  result = test_rgi.regular_grid_interpolator->get_axis_spacing_mult(0, 0, 0);
   EXPECT_DOUBLE_EQ(result, 1.0);
 
-  result = test_gridded_data.get_axis_spacing_mult(0, 1, 0);
+  result = test_rgi.regular_grid_interpolator->get_axis_spacing_mult(0, 1, 0);
   EXPECT_DOUBLE_EQ(result, (10 - 6) / (15.0 - 6.0));
 
-  result = test_gridded_data.get_axis_spacing_mult(0, 0, 1);
+  result = test_rgi.regular_grid_interpolator->get_axis_spacing_mult(0, 0, 1);
   EXPECT_DOUBLE_EQ(result, (15 - 10) / (15.0 - 6.0));
 
-  result = test_gridded_data.get_axis_spacing_mult(0, 1, 2);
+  result = test_rgi.regular_grid_interpolator->get_axis_spacing_mult(0, 1, 2);
   EXPECT_DOUBLE_EQ(result, 1.0);
 
-  result = test_gridded_data.get_axis_spacing_mult(1, 0, 0);
+  result = test_rgi.regular_grid_interpolator->get_axis_spacing_mult(1, 0, 0);
   EXPECT_DOUBLE_EQ(result, 0.0);
 }
 
 TEST_F(CubicFixture, switch_interp_method) {
-  for (auto i = 0u; i < test_rgi.get_ndims(); i++)
-  {
+  for (auto i = 0u; i < test_rgi.get_ndims(); i++) {
     test_rgi.set_axis_interp_method(i, Method::CUBIC);
   }
   std::vector<double> result1 = test_rgi.get_values_at_target(target);
-  for (auto i = 0u; i < test_rgi.get_ndims(); i++)
-  {
+  for (auto i = 0u; i < test_rgi.get_ndims(); i++) {
     test_rgi.set_axis_interp_method(i, Method::LINEAR);
   }
   std::vector<double> result2 = test_rgi.get_values_at_target(target);
@@ -91,7 +86,8 @@ TEST_F(CubicFixture, interpolate) {
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
   BtwxtContextCourierr message_display;
-  message_display.info(stringify("Time to do cubic interpolation: ", duration.count(), " microseconds"));
+  message_display.info(
+      fmt::format("Time to do cubic interpolation: {} microseconds", duration.count()));
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));
 }
 
@@ -136,8 +132,7 @@ TEST_F(TwoDFixture, invalid_inputs) {
 
   try {
     test_rgi.set_new_target(short_target);
-  }
-  catch (BtwxtException&) {
+  } catch (BtwxtException &) {
     EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
   }
   std::vector<double> long_target = {1, 2, 3};
@@ -145,31 +140,33 @@ TEST_F(TwoDFixture, invalid_inputs) {
   buffer.clear();
   try {
     test_rgi.set_new_target(long_target);
-  }
-  catch (BtwxtException&) {
+  } catch (BtwxtException &) {
     EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
   }
   std::cout.rdbuf(sbuf);
 
   std::vector<double> short_values = {6, 3, 2, 8, 4};
-  EXPECT_THROW(test_gridded_data.add_value_table(short_values);, BtwxtException);
+  EXPECT_THROW(test_rgi.add_value_table(short_values);, BtwxtException);
   std::vector<double> long_values = {1, 1, 1, 1, 1, 1, 1};
-  EXPECT_THROW(test_gridded_data.add_value_table(long_values);, BtwxtException);
+  EXPECT_THROW(test_rgi.add_value_table(long_values);, BtwxtException);
 }
 
 TEST_F(TwoDFixture, logger_modify_context) {
   std::vector<double> returned_target;
-  std::string expected_error = "  WARNING: The current target was requested, but no target has been set.\n";
+  std::string expected_error =
+      "  WARNING: The current target was requested, but no target has been set.\n";
   EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, expected_error);
   std::string context_str{"Context 1:"};
   courier->set_message_context(reinterpret_cast<void *>(&context_str));
-  expected_error = "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
+  expected_error =
+      "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
   EXPECT_STDOUT(test_rgi.get_current_target();, expected_error);
 }
 
 TEST_F(TwoDFixture, unique_logger_per_rgi_instance) {
   std::vector<double> returned_target;
-  std::string expected_error = "  WARNING: The current target was requested, but no target has been set.\n";
+  std::string expected_error =
+      "  WARNING: The current target was requested, but no target has been set.\n";
   EXPECT_STDOUT(returned_target = test_rgi.get_current_target();, expected_error);
 
   RegularGridInterpolator rgi2;
@@ -178,21 +175,21 @@ TEST_F(TwoDFixture, unique_logger_per_rgi_instance) {
   std::string context_str{"RGI2 Context:"};
   logger2->set_message_context(reinterpret_cast<void *>(&context_str));
   rgi2.set_logger(logger2);
-  std::string expected_error2{"RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
+  std::string expected_error2{
+      "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
   EXPECT_STDOUT(rgi2.get_current_target();, expected_error2);
 
   EXPECT_STDOUT(test_rgi.get_current_target();, expected_error); // Recheck
 }
 
 TEST_F(TwoDFixture, access_logger_in_btwxt) {
-  RegularGridInterpolator rgi2(test_gridded_data, std::make_shared<BtwxtContextCourierr>());
+  RegularGridInterpolator rgi2(test_rgi, std::make_shared<BtwxtContextCourierr>());
   std::string context_str{"RGI2 Context:"};
   rgi2.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
-  std::string expected_error2{"RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
+  std::string expected_error2{
+      "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
   EXPECT_STDOUT(rgi2.get_current_target();, expected_error2);
 }
-
-//TODO: Test that logger copies in GriddedData/GridPoint are the same/different
 
 TEST_F(OneDFixture, cubic_interpolate) {
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
@@ -201,21 +198,21 @@ TEST_F(OneDFixture, cubic_interpolate) {
 }
 
 TEST_F(OneDL0Fixture, throw_test) {
-    EXPECT_THROW(GriddedData(grid, values, std::make_shared<BtwxtContextCourierr>()), BtwxtException);
+  EXPECT_THROW(RegularGridInterpolator(grid, values, std::make_shared<BtwxtContextCourierr>()),
+               BtwxtException);
 }
 
 TEST_F(OneDL1Fixture, cubic_interpolate) {
-    test_rgi.set_axis_interp_method(0, Method::CUBIC);
-    double result = test_rgi.get_values_at_target(target)[0];
-    EXPECT_NEAR(result, 5., 0.0001);
+  test_rgi.set_axis_interp_method(0, Method::CUBIC);
+  double result = test_rgi.get_values_at_target(target)[0];
+  EXPECT_NEAR(result, 5., 0.0001);
 }
 
 TEST_F(OneDL2Fixture, cubic_interpolate) {
-    test_rgi.set_axis_interp_method(0, Method::CUBIC);
-    double result = test_rgi.get_values_at_target(target)[0];
-    EXPECT_NEAR(result, 5.25, 0.0001);
+  test_rgi.set_axis_interp_method(0, Method::CUBIC);
+  double result = test_rgi.get_values_at_target(target)[0];
+  EXPECT_NEAR(result, 5.25, 0.0001);
 }
-
 
 TEST_F(TwoDFixture, cubic_interpolate) {
   test_rgi.set_axis_interp_method(0, Method::CUBIC);
@@ -239,27 +236,28 @@ TEST_F(TwoDFixture, normalize) {
 }
 
 TEST_F(TwoDSimpleNormalizationFixture, normalization_return_scalar) {
-    std::vector<double> target {7.0, 3.0};
-    std::vector<double> normalization_target = {2.0, 3.0};
-    double expected_divisor {test_function(normalization_target)};
-    double expected_value_at_target {test_function(target)/expected_divisor};
-    double return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, 1.0);
-    test_rgi.set_new_target(target);
-    std::vector<double> results = test_rgi.get_values_at_target();
-    EXPECT_THAT(return_scalar, testing::DoubleEq(expected_divisor));
-    EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
+  std::vector<double> target{7.0, 3.0};
+  std::vector<double> normalization_target = {2.0, 3.0};
+  double expected_divisor{test_function(normalization_target)};
+  double expected_value_at_target{test_function(target) / expected_divisor};
+  double return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, 1.0);
+  test_rgi.set_new_target(target);
+  std::vector<double> results = test_rgi.get_values_at_target();
+  EXPECT_THAT(return_scalar, testing::DoubleEq(expected_divisor));
+  EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
 
 TEST_F(TwoDSimpleNormalizationFixture, normalization_return_compound_scalar) {
-    std::vector<double> target {7.0, 3.0};
-    std::vector<double> normalization_target = {2.0, 3.0};
-    double normalization_divisor = 4.0;
-    double expected_compound_divisor {test_function(normalization_target)*normalization_divisor};
-    double expected_value_at_target {test_function(target)/expected_compound_divisor};
-    double return_scalar = test_rgi.normalize_values_at_target(0, normalization_target, normalization_divisor);
-    test_rgi.set_new_target(target);
-    std::vector<double> results = test_rgi.get_values_at_target();
-    EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));
-    EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
+  std::vector<double> target{7.0, 3.0};
+  std::vector<double> normalization_target = {2.0, 3.0};
+  double normalization_divisor = 4.0;
+  double expected_compound_divisor{test_function(normalization_target) * normalization_divisor};
+  double expected_value_at_target{test_function(target) / expected_compound_divisor};
+  double return_scalar =
+      test_rgi.normalize_values_at_target(0, normalization_target, normalization_divisor);
+  test_rgi.set_new_target(target);
+  std::vector<double> results = test_rgi.get_values_at_target();
+  EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));
+  EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
-}
+} // namespace Btwxt
