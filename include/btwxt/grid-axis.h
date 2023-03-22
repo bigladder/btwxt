@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cfloat>
 #include <memory>
 #include <optional>
