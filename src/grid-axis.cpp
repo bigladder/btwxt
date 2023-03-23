@@ -14,7 +14,7 @@ GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Co
       extrapolation_method(extrapolation_method),
       interpolation_method(interpolation_method),
       extrapolation_limits(std::move(extrapolation_limits)),
-      gridaxis_logger(logger) {
+      logger(logger) {
   if (!logger) {
     throw std::exception(); // TODO: correct exception
   }
@@ -22,27 +22,26 @@ GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Co
     throw BtwxtException("Cannot create a GridAxis from a zero-length vector.", *logger);
   }
   check_grid_sorted();
-  check_extrap_limits();
+  check_extrapolation_limits();
   if (interpolation_method == Method::CUBIC) {
-    calc_spacing_multipliers();
+    calculate_spacing_multipliers();
   }
 }
 
 void GridAxis::set_interpolation_method(Method interpolation_method) {
   this->interpolation_method = interpolation_method;
   if (interpolation_method == Method::CUBIC) {
-    calc_spacing_multipliers();
+    calculate_spacing_multipliers();
   }
 }
 
-void GridAxis::calc_spacing_multipliers() {
-  // "0" and "1" are the "flavors" of the calc_spacing_multipliers.
+void GridAxis::calculate_spacing_multipliers() {
+  // "0" and "1" are the "flavors" of the calculate_spacing_multipliers.
   // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavor
   if (grid.size() == 1) {
     interpolation_method = Method::LINEAR;
-    gridaxis_logger->info(
-        "A cubic interpolation method is not valid for grid axes with only one value. "
-        "Interpolation method reset to linear.");
+    logger->info("A cubic interpolation method is not valid for grid axes with only one value. "
+                 "Interpolation method reset to linear.");
   }
   double center_spacing;
   for (std::size_t i = 0; i < grid.size() - 1; i++) {
@@ -59,21 +58,21 @@ void GridAxis::calc_spacing_multipliers() {
 void GridAxis::check_grid_sorted() {
   bool grid_is_sorted = free_check_sorted(grid);
   if (!grid_is_sorted) {
-    throw BtwxtException("Axis is not sorted.", *gridaxis_logger);
+    throw BtwxtException("Axis is not sorted.", *logger);
   }
 }
 
-void GridAxis::check_extrap_limits() {
+void GridAxis::check_extrapolation_limits() {
   if (extrapolation_limits.first > grid[0]) {
-    gridaxis_logger->info(fmt::format("The lower extrapolation limit ({}) is within the set of "
-                                      "grid values. Setting to smallest grid value ({}).",
-                                      extrapolation_limits.first, grid[0]));
+    logger->info(fmt::format("The lower extrapolation limit ({}) is within the set of "
+                             "grid values. Setting to smallest grid value ({}).",
+                             extrapolation_limits.first, grid[0]));
     extrapolation_limits.first = grid[0];
   }
   if (extrapolation_limits.second < grid.back()) {
-    gridaxis_logger->info(fmt::format("The upper extrapolation limit ({}) is within the set of "
-                                      "grid values. Setting to largest grid value ({}).",
-                                      extrapolation_limits.second, grid.back()));
+    logger->info(fmt::format("The upper extrapolation limit ({}) is within the set of "
+                             "grid values. Setting to largest grid value ({}).",
+                             extrapolation_limits.second, grid.back()));
     extrapolation_limits.second = grid.back();
   }
 }

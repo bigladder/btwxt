@@ -3,6 +3,7 @@
 
 #pragma once
 
+// Standard
 #include <algorithm>
 #include <cfloat>
 #include <memory>
@@ -10,9 +11,8 @@
 #include <string_view>
 #include <vector>
 
-namespace Courierr {
-class Courierr;
-}
+// btwxt
+#include "logging.h"
 
 namespace Btwxt {
 
@@ -29,7 +29,8 @@ class GridAxis {
 public:
   GridAxis() = default;
 
-  GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Courierr> logger,
+  GridAxis(std::vector<double> grid_vector,
+           std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>(),
            Method extrapolation_method = Method::CONSTANT,
            Method interpolation_method = Method::LINEAR,
            std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
@@ -43,29 +44,29 @@ public:
   std::size_t get_length() { return grid.size(); }
 
   void set_interpolation_method(Method interpolation_method);
-  void set_extrap_method(Method extrapolation_method) {
+  void set_extrapolation_method(Method extrapolation_method) {
     this->extrapolation_method = extrapolation_method;
   }
 
-  void set_extrapolation_limits(std::pair<double, double> extrap_limits) {
-    extrapolation_limits = extrap_limits;
-    check_extrap_limits();
+  void set_extrapolation_limits(std::pair<double, double> limits) {
+    extrapolation_limits = limits;
+    check_extrapolation_limits();
   }
 
   double get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const;
 
-  void set_logger(std::shared_ptr<Courierr::Courierr> logger) { gridaxis_logger = logger; }
-  Courierr::Courierr &get_logger() { return *gridaxis_logger; };
+  void set_logger(std::shared_ptr<Courierr::Courierr> logger) { this->logger = logger; }
+  std::shared_ptr<Courierr::Courierr> get_logger() { return logger; };
 
 private:
-  std::shared_ptr<Courierr::Courierr> gridaxis_logger;
-  void calc_spacing_multipliers();
+  std::shared_ptr<Courierr::Courierr> logger;
+  void calculate_spacing_multipliers();
   void check_grid_sorted();
-  void check_extrap_limits();
+  void check_extrapolation_limits();
 };
 
 template <typename T>
-std::vector<std::vector<T>> cart_product(const std::vector<std::vector<T>> &v) {
+std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>> &v) {
   std::vector<std::vector<T>> combinations = {{}};
   for (const auto &list : v) {
     std::vector<std::vector<T>> r;

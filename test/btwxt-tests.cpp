@@ -156,7 +156,7 @@ TEST_F(GridFixture2D, logger_modify_context) {
       "  WARNING: The current target was requested, but no target has been set.\n";
   EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error);
   std::string context_str{"Context 1:"};
-  interpolator.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
+  interpolator.get_logger()->set_message_context(reinterpret_cast<void *>(&context_str));
   expected_error =
       "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
   EXPECT_STDOUT(interpolator.get_target();, expected_error);
@@ -184,7 +184,7 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance) {
 TEST_F(GridFixture2D, access_logger_in_btwxt) {
   RegularGridInterpolator rgi2(interpolator, std::make_shared<BtwxtContextCourierr>());
   std::string context_str{"RGI2 Context:"};
-  rgi2.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
+  rgi2.get_logger()->set_message_context(reinterpret_cast<void *>(&context_str));
   std::string expected_error2{
       "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
   EXPECT_STDOUT(rgi2.get_target();, expected_error2);
@@ -311,7 +311,7 @@ TEST_F(FunctionFixture4D, timer) {
   // Get ending timepoint
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  interpolator.get_logger().info(
+  interpolator.get_logger()->info(
       fmt::format("Time taken by interpolation: {} microseconds", duration.count()));
 
   // time running the functions straight
@@ -321,7 +321,7 @@ TEST_F(FunctionFixture4D, timer) {
   // Get ending timepoint
   stop = std::chrono::high_resolution_clock::now();
   auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  interpolator.get_logger().info(
+  interpolator.get_logger()->info(
       fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
 }
 
@@ -340,7 +340,7 @@ TEST_F(FunctionFixture4D, multi_timer) {
     // Get ending timepoint
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    interpolator.get_logger().info(
+    interpolator.get_logger()->info(
         fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
   }
 }

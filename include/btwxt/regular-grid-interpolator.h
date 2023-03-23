@@ -12,6 +12,7 @@
 
 // btwxt
 #include "grid-axis.h"
+#include "logging.h"
 
 namespace Btwxt {
 
@@ -22,24 +23,27 @@ class RegularGridInterpolator {
 public:
   RegularGridInterpolator() = default;
 
-  RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
-                          std::shared_ptr<Courierr::Courierr> logger);
+  RegularGridInterpolator(
+      const std::vector<std::vector<double>> &grid,
+      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
 
-  RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
-                          const std::vector<std::vector<double>> &values,
-                          std::shared_ptr<Courierr::Courierr> logger);
+  RegularGridInterpolator(
+      const std::vector<std::vector<double>> &grid, const std::vector<std::vector<double>> &values,
+      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
 
-  RegularGridInterpolator(const std::vector<GridAxis> &grid,
-                          std::shared_ptr<Courierr::Courierr> logger);
+  RegularGridInterpolator(
+      const std::vector<GridAxis> &grid,
+      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
 
-  RegularGridInterpolator(const std::vector<GridAxis> &grid,
-                          const std::vector<std::vector<double>> &values,
-                          std::shared_ptr<Courierr::Courierr> logger);
+  RegularGridInterpolator(
+      const std::vector<GridAxis> &grid, const std::vector<std::vector<double>> &values,
+      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
 
   RegularGridInterpolator(const RegularGridInterpolator &source);
 
-  RegularGridInterpolator(const RegularGridInterpolator &source,
-                          std::shared_ptr<Courierr::Courierr> logger);
+  RegularGridInterpolator(
+      const RegularGridInterpolator &source,
+      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
 
   RegularGridInterpolator &operator=(const RegularGridInterpolator &source);
 
@@ -99,7 +103,7 @@ public:
 
   void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_grid_axes_loggers = false);
 
-  Courierr::Courierr &get_logger();
+  std::shared_ptr<Courierr::Courierr> get_logger();
 
 private:
   std::unique_ptr<RegularGridInterpolatorPrivate> regular_grid_interpolator;

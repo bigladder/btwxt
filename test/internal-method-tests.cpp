@@ -262,8 +262,8 @@ TEST_F(GridFixture2DPrivate, grid_point_interp_coeffs) {
 }
 
 TEST_F(GridFixture2DPrivate, construct_from_axes) {
-  auto logger = std::make_shared<BtwxtContextCourierr>();
-  GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}), logger);
+  GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}));
+  auto logger = ax0.get_logger();
   GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), logger);
   std::vector<GridAxis> test_axes = {ax0, ax1};
   interpolator = RegularGridInterpolatorPrivate(test_axes, logger);
@@ -343,9 +343,9 @@ TEST_F(GridFixture3DPrivate, make_linear_hypercube) {
   EXPECT_THAT(hypercube[5], testing::ElementsAre(1, 0, 1));
 }
 
-TEST(Hypercube, cart_product) {
+TEST(Hypercube, cartesian_product) {
   std::vector<std::vector<short>> v = {{1, 2, 3}, {4, 5}, {6, 7, 8, 9}};
-  std::vector<std::vector<short>> result = cart_product(v);
+  std::vector<std::vector<short>> result = cartesian_product(v);
   EXPECT_EQ(result.size(), 3u * 2u * 4u);
   EXPECT_THAT(result[0], testing::ElementsAre(1, 4, 6));
   EXPECT_THAT(result[1], testing::ElementsAre(1, 4, 7));

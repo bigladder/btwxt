@@ -21,6 +21,10 @@ RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<d
     : regular_grid_interpolator(
           std::make_unique<RegularGridInterpolatorPrivate>(grid, values, logger)) {}
 
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
+                                                 std::shared_ptr<Courierr::Courierr> logger)
+    : RegularGridInterpolator(grid, {}, logger) {}
+
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis> &grid,
                                                  const std::vector<std::vector<double>> &values,
                                                  std::shared_ptr<Courierr::Courierr> logger)
@@ -355,8 +359,8 @@ void RegularGridInterpolatorPrivate::set_logger(std::shared_ptr<Courierr::Courie
   }
 }
 
-Courierr::Courierr &RegularGridInterpolator::get_logger() {
-  return *(regular_grid_interpolator->logger);
+std::shared_ptr<Courierr::Courierr> RegularGridInterpolator::get_logger() {
+  return regular_grid_interpolator->logger;
 }
 
 // Internal calculation methods

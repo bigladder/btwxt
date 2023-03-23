@@ -23,21 +23,6 @@
     EXPECT_STREQ(ExpectedOut.c_str(), buffer.str().c_str());                                       \
   }
 
-class BtwxtContextCourierr : public Courierr::Courierr {
-public:
-  void error(const std::string_view message) override { write_message("  ERROR:", message); }
-  void warning(const std::string_view message) override { write_message("  WARNING:", message); }
-  void info(const std::string_view message) override { write_message("  NOTE:", message); }
-  void debug(const std::string_view message) override { write_message("  DEBUG:", message); }
-
-private:
-  void write_message(const std::string_view message_type, const std::string_view message) {
-    std::string context_string =
-        message_context ? *(reinterpret_cast<std::string *>(message_context)) : "";
-    std::cout << fmt::format("{}{} {}", context_string, message_type, message) << std::endl;
-  }
-};
-
 namespace Btwxt {
 
 class GridFixture : public testing::Test {
@@ -49,9 +34,7 @@ public:
 
   GridFixture() {}
 
-  void setup() {
-    interpolator = RegularGridInterpolator(grid, values, std::make_shared<BtwxtContextCourierr>());
-  }
+  void setup() { interpolator = RegularGridInterpolator(grid, values); }
 };
 
 class GridFixture2D : public GridFixture {
@@ -81,11 +64,11 @@ protected:
   void setup() {
     values.resize(functions.size());
     for (std::size_t i = 0u; i < functions.size(); i++) {
-      for (auto &grid_point : cart_product(grid)) {
+      for (auto &grid_point : cartesian_product(grid)) {
         values[i].push_back(functions[i](grid_point));
       }
     }
-    interpolator = RegularGridInterpolator(grid, values, std::make_shared<BtwxtContextCourierr>());
+    interpolator = RegularGridInterpolator(grid, values);
   }
 };
 
