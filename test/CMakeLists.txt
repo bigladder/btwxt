@@ -1,13 +1,10 @@
 # Test Executable
 set(library_sources
-  main_test.cpp
-  fixtures.hpp
-  btwxt_test.cpp
-  griddeddata_test.cpp
-  gridpoint_test.cpp
-  math_test.cpp
-  large_test.cpp
-  hypercube_test.cpp)
+        test-main.cpp
+        public-fixtures.hpp
+        btwxt-tests.cpp
+        internal-method-tests.cpp
+        grid-axis-tests.cpp)
 
 add_executable(${PROJECT_NAME}_tests ${library_sources})
 

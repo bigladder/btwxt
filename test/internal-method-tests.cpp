@@ -1,0 +1,356 @@
+/* Copyright (c) 2018 Big Ladder Software LLC. All rights reserved.
+ * See the LICENSE file for additional terms and conditions. */
+
+// Standard
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include <chrono>
+#include <iostream>
+
+// vendor
+#include <fmt/format.h>
+
+// btwxt
+#include "private-fixtures.hpp"
+
+namespace Btwxt {
+
+TEST_F(CubicFixture, spacing_multiplier) {
+  double result;
+  result = interpolator.get_axis_spacing_mult(0, 0, 0);
+  EXPECT_DOUBLE_EQ(result, 1.0);
+
+  result = interpolator.get_axis_spacing_mult(0, 1, 0);
+  EXPECT_DOUBLE_EQ(result, (10. - 6.) / (15.0 - 6.0));
+
+  result = interpolator.get_axis_spacing_mult(0, 0, 1);
+  EXPECT_DOUBLE_EQ(result, (15. - 10.) / (15.0 - 6.0));
+
+  result = interpolator.get_axis_spacing_mult(0, 1, 2);
+  EXPECT_DOUBLE_EQ(result, 1.0);
+
+  result = interpolator.get_axis_spacing_mult(1, 0, 0);
+  EXPECT_DOUBLE_EQ(result, 0.0);
+}
+
+TEST_F(CubicFixture, switch_interp_method) {
+  for (auto i = 0u; i < interpolator.get_ndims(); i++) {
+    interpolator.set_axis_interp_method(i, Method::CUBIC);
+  }
+  std::vector<double> result1 = interpolator.get_results(target);
+  for (auto i = 0u; i < interpolator.get_ndims(); i++) {
+    interpolator.set_axis_interp_method(i, Method::LINEAR);
+  }
+  std::vector<double> result2 = interpolator.get_results(target);
+  EXPECT_NE(result1, result2);
+}
+
+TEST_F(CubicFixture, interpolate) {
+  interpolator.set_target(target);
+
+  auto start = std::chrono::high_resolution_clock::now();
+  std::vector<double> result = interpolator.get_results();
+  auto stop = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  BtwxtContextCourierr message_display;
+  message_display.info(
+      fmt::format("Time to do cubic interpolation: {} microseconds", duration.count()));
+  EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));
+}
+
+TEST_F(CubicFixture, grid_point_interp_coeffs) {
+  interpolator.set_target(target);
+
+  std::vector<std::vector<double>> interp_coeffs = interpolator.get_interp_coeffs();
+  std::vector<std::vector<double>> cubic_slope_coeffs = interpolator.get_cubic_slope_coeffs();
+  double mu = interpolator.get_weights()[0];
+  std::size_t floor = interpolator.get_floor()[0];
+
+  EXPECT_EQ(interp_coeffs[0][0], 2 * mu * mu * mu - 3 * mu * mu + 1);
+  EXPECT_EQ(interp_coeffs[0][1], -2 * mu * mu * mu + 3 * mu * mu);
+
+  EXPECT_EQ(cubic_slope_coeffs[0][0],
+            (mu * mu * mu - 2 * mu * mu + mu) * interpolator.get_axis_spacing_mult(0, 0, floor));
+  EXPECT_EQ(cubic_slope_coeffs[0][1],
+            (mu * mu * mu - mu * mu) * interpolator.get_axis_spacing_mult(0, 1, floor));
+}
+
+TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
+  interpolator.set_axis_interp_method(1, Method::CUBIC);
+  interpolator.set_target(target);
+  std::vector<Method> methods = interpolator.get_methods();
+
+  std::vector<double> mus = interpolator.get_weights();
+  double mx = mus[0];
+  double my = mus[1];
+  double c0x = 2 * mx * mx * mx - 3 * mx * mx + 1;
+  double c0y = 2 * my * my * my - 3 * my * my + 1;
+  // double c1x = -2*mx*mx*mx + 3*mx*mx;
+  double c1y = -2 * my * my * my + 3 * my * my;
+  double d0x = mx * mx * mx - 2 * mx * mx + mx;
+  double d0y = my * my * my - 2 * my * my + my;
+  double d1x = mx * mx * mx - mx * mx;
+  double d1y = my * my * my - my * my;
+  double s1x = 5.0 / 10;
+  double s1y = 2.0 / 4;
+  double s0x = 5.0 / 9;
+  double s0y = 2.0 / 4;
+
+  std::vector<short> this_vertex = {0, 0};
+  double weight = interpolator.get_vertex_weight(this_vertex);
+  double expected_result = c0x * c0y;
+  expected_result += -1 * c0x * d1y * s1y;
+  expected_result += -1 * d1x * s1x * c0y;
+  expected_result += d1x * s1x * d1y * s1y;
+  EXPECT_DOUBLE_EQ(weight, expected_result);
+
+  this_vertex = {-1, 1};
+  weight = interpolator.get_vertex_weight(this_vertex);
+  expected_result = -1 * d0x * s0x * c1y;
+  expected_result += -1 * d0x * s0x * d0y * s0y;
+  EXPECT_DOUBLE_EQ(weight, expected_result);
+
+  this_vertex = {2, 0};
+  weight = interpolator.get_vertex_weight(this_vertex);
+  expected_result = d1x * s1x * c0y;
+  expected_result += -1 * d1x * s1x * d1y * s1y;
+  EXPECT_DOUBLE_EQ(weight, expected_result);
+
+  this_vertex = {2, 2};
+  weight = interpolator.get_vertex_weight(this_vertex);
+  expected_result = d1x * s1x * d1y * s1y;
+  EXPECT_DOUBLE_EQ(weight, expected_result);
+}
+
+TEST_F(CubicFixture, hypercube_calculations) {
+  interpolator.set_axis_interp_method(1, Method::CUBIC);
+  interpolator.set_target(target);
+
+  auto result = interpolator.get_results();
+  EXPECT_NEAR(result[0], 4.1953, 0.0001);
+  EXPECT_NEAR(result[1], 11.9271, 0.0001);
+}
+
+TEST_F(CubicFixture, get_spacing_multipliers) {
+  // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:
+  // flavor 0: {4/4, 5/9, 5/10}
+  // flavor 1: {4/9, 5/10, 5/5}
+  std::vector<std::vector<double>> expected_results{{4.0 / 4, 5.0 / 9, 5.0 / 10},
+                                                    {4.0 / 9, 5.0 / 10, 5.0 / 5}};
+  double result;
+  for (std::size_t flavor = 0; flavor < 2; flavor++) {
+    for (std::size_t index = 0; index < 3; index++) {
+      result = interpolator.get_axis_spacing_mult(0, flavor, index);
+      EXPECT_DOUBLE_EQ(result, expected_results[flavor][index]);
+    }
+  }
+}
+
+TEST_F(EmptyGridFixturePrivate, locate_coordinates) {
+  grid = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5, 6, 7}};
+  setup();
+
+  std::vector<std::size_t> coords = {2, 3};
+  std::vector<std::size_t> dimension_lengths = {5, 7};
+  std::size_t index = interpolator.get_value_index(coords);
+  EXPECT_EQ(index, 17u);
+
+  coords = {2, 3, 2};
+  grid = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5, 6, 7}, {1, 2, 3}};
+  setup();
+
+  index = interpolator.get_value_index(coords);
+  EXPECT_EQ(index, 53u);
+}
+
+TEST_F(EmptyGridFixturePrivate, set_dim_floor) {
+
+  grid = {{1, 3, 5, 7, 9}};
+  setup();
+  interpolator.set_axis_extrap_limits(0, {0, 11});
+
+  interpolator.set_target({5.3});
+
+  interpolator.set_floor();
+
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::INBOUNDS);
+  EXPECT_EQ(interpolator.get_floor()[0], 2u);
+
+  interpolator.set_target({0.3});
+  interpolator.set_floor();
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTBOUNDS);
+  EXPECT_EQ(interpolator.get_floor()[0], 0u);
+
+  interpolator.set_target({10.3});
+  interpolator.set_floor();
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTBOUNDS);
+  EXPECT_EQ(interpolator.get_floor()[0], 3u);
+
+  interpolator.set_target({-0.3});
+  interpolator.set_floor();
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTLAW);
+  EXPECT_EQ(interpolator.get_floor()[0], 0u);
+
+  interpolator.set_target({11.3});
+  interpolator.set_floor();
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTLAW);
+  EXPECT_EQ(interpolator.get_floor()[0], 3u);
+
+  interpolator.set_axis_extrap_limits(0, {-DBL_MAX, DBL_MAX});
+  interpolator.set_target({-0.3});
+  interpolator.set_floor();
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTBOUNDS);
+  EXPECT_EQ(interpolator.get_floor()[0], 0u);
+
+  interpolator.set_target({11.3});
+  interpolator.set_floor();
+  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTBOUNDS);
+  EXPECT_EQ(interpolator.get_floor()[0], 3u);
+}
+
+TEST_F(GridFixture2DPrivate, grid_point_basics) {
+  interpolator.set_target(target);
+
+  std::vector<std::size_t> point_floor = interpolator.get_floor();
+  std::vector<std::size_t> expected_floor{1, 0};
+  EXPECT_EQ(point_floor, expected_floor);
+
+  std::vector<double> weights = interpolator.get_weights();
+  std::vector<double> expected_weights{0.4, 0.5};
+  EXPECT_EQ(weights, expected_weights);
+}
+
+TEST_F(GridFixture2DPrivate, grid_point_out_of_bounds) {
+  std::vector<double> oobounds_vector = {16, 3};
+  interpolator.set_target(oobounds_vector);
+
+  std::vector<std::size_t> point_floor = interpolator.get_floor();
+  std::vector<std::size_t> expected_floor{1, 0};
+  EXPECT_EQ(point_floor, expected_floor);
+
+  std::vector<double> weights = interpolator.get_weights();
+  std::vector<double> expected_weights{1.2, -0.5};
+  EXPECT_EQ(weights, expected_weights);
+}
+
+TEST_F(GridFixture2DPrivate, grid_point_consolidate_methods) {
+  interpolator.set_target(target);
+
+  std::vector<Method> methods = interpolator.get_methods();
+  std::vector<Method> expected_methods{Method::LINEAR, Method::LINEAR};
+  EXPECT_EQ(methods, expected_methods);
+
+  std::vector<double> oobounds_vector = {12, 3};
+  interpolator.set_target(oobounds_vector);
+  methods = interpolator.get_methods();
+  expected_methods = {Method::LINEAR, Method::CONSTANT};
+  EXPECT_EQ(methods, expected_methods);
+}
+
+TEST_F(GridFixture2DPrivate, grid_point_interp_coeffs) {
+  interpolator.set_target(target);
+
+  std::vector<std::vector<double>> interp_coeffs = interpolator.get_interp_coeffs();
+  std::vector<std::vector<double>> cubic_slope_coeffs = interpolator.get_cubic_slope_coeffs();
+  std::vector<double> mu = interpolator.get_weights();
+
+  EXPECT_EQ(interp_coeffs[0][1], mu[0]);
+  EXPECT_EQ(interp_coeffs[1][0], 1 - mu[1]);
+
+  EXPECT_EQ(cubic_slope_coeffs[0][0], 0);
+  EXPECT_EQ(cubic_slope_coeffs[1][1], 0);
+}
+
+TEST_F(GridFixture2DPrivate, construct_from_axes) {
+  auto courier = std::make_shared<BtwxtContextCourierr>();
+  GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}), courier);
+  GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), courier);
+  std::vector<GridAxis> test_axes = {ax0, ax1};
+  interpolator = RegularGridInterpolatorPrivate(test_axes, courier);
+  EXPECT_EQ(interpolator.get_ndims(), 2u);
+  EXPECT_EQ(interpolator.num_tables, 0u);
+  EXPECT_THAT(interpolator.dimension_lengths, testing::ElementsAre(3, 2));
+
+  interpolator.add_value_table(values[0]);
+  EXPECT_EQ(interpolator.num_tables, 1u);
+  std::vector<std::size_t> coords{1, 1};
+  EXPECT_THAT(interpolator.get_values(coords), testing::ElementsAre(8));
+
+  interpolator = RegularGridInterpolatorPrivate(test_axes, values, courier);
+  EXPECT_EQ(interpolator.get_ndims(), 2u);
+  EXPECT_EQ(interpolator.num_tables, 2u);
+  EXPECT_THAT(interpolator.get_values(coords), testing::ElementsAre(8, 16));
+}
+
+TEST_F(GridFixture2DPrivate, get_grid_vector) {
+  std::vector<double> returned_vec = interpolator.get_grid_vector(1);
+  EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
+}
+
+TEST_F(GridFixture2DPrivate, get_values) {
+  std::vector<std::size_t> coords = {0, 1};
+  std::vector<double> returned_vec = interpolator.get_values(coords);
+  EXPECT_THAT(returned_vec, testing::ElementsAre(3, 6));
+
+  coords = {1, 0};
+  returned_vec = interpolator.get_values(coords);
+  EXPECT_THAT(returned_vec, testing::ElementsAre(2, 4));
+}
+
+TEST_F(GridFixture2DPrivate, get_values_relative) {
+  std::vector<std::size_t> coords{0, 1};
+  std::vector<short> translation{1, 0}; // {1, 1} stays as is
+  std::vector<double> expected_vec = interpolator.get_values({1, 1});
+  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+
+  translation = {1, 1}; // {1, 2} -> {1, 1}
+  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+
+  translation = {-1, 0}; // {-1, 1} -> {0, 1}
+  expected_vec = interpolator.get_values({0, 1});
+  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+
+  translation = {3, -2}; // {3, -1} -> {2, 0}
+  expected_vec = interpolator.get_values({2, 0});
+  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+}
+
+TEST(Weights, compute_fraction) {
+  double weight = compute_fraction(4.3, 4, 6);
+  EXPECT_DOUBLE_EQ(weight, 0.15);
+}
+
+TEST_F(GridFixture3DPrivate, hypercube) {
+  auto hypercube = interpolator.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 16u);
+}
+
+TEST_F(GridFixture3DPrivate, test_hypercube) {
+  auto hypercube = interpolator.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 2u * 4u * 2u);
+  EXPECT_THAT(hypercube[0], testing::ElementsAre(0, -1, 0));
+  EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 0, 0));
+  EXPECT_THAT(hypercube[12], testing::ElementsAre(1, 1, 0));
+  EXPECT_THAT(hypercube[15], testing::ElementsAre(1, 2, 1));
+}
+
+TEST_F(GridFixture3DPrivate, make_linear_hypercube) {
+  interpolator.set_axis_interp_method(1, Method::LINEAR);
+  auto hypercube = interpolator.get_hypercube();
+  EXPECT_EQ(hypercube.size(), 8u);
+  EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));
+  EXPECT_THAT(hypercube[2], testing::ElementsAre(0, 1, 0));
+  EXPECT_THAT(hypercube[5], testing::ElementsAre(1, 0, 1));
+}
+
+TEST(Hypercube, cart_product) {
+  std::vector<std::vector<short>> v = {{1, 2, 3}, {4, 5}, {6, 7, 8, 9}};
+  std::vector<std::vector<short>> result = cart_product(v);
+  EXPECT_EQ(result.size(), 3u * 2u * 4u);
+  EXPECT_THAT(result[0], testing::ElementsAre(1, 4, 6));
+  EXPECT_THAT(result[1], testing::ElementsAre(1, 4, 7));
+  EXPECT_THAT(result[10], testing::ElementsAre(2, 4, 8));
+  EXPECT_THAT(result[3 * 2 * 4 - 1], testing::ElementsAre(3, 5, 9));
+}
+
+} // namespace Btwxt

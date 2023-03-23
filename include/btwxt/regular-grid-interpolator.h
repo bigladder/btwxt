@@ -100,7 +100,7 @@ public:
 
   Courierr::Courierr &get_logger();
 
-  // TODO Move to private once tests are settled.
+private:
   std::unique_ptr<RegularGridInterpolatorPrivate> regular_grid_interpolator;
 };
 

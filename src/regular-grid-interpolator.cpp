@@ -57,6 +57,10 @@ RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     : RegularGridInterpolatorPrivate(construct_axes(grid, messenger), values, messenger) {}
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
+    const std::vector<std::vector<double>> &grid, std::shared_ptr<Courierr::Courierr> messenger)
+    : RegularGridInterpolatorPrivate(construct_axes(grid, messenger), {}, messenger) {}
+
+RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     const std::vector<GridAxis> &grid, std::shared_ptr<Courierr::Courierr> messenger)
     : RegularGridInterpolatorPrivate(grid, {}, messenger) {}
 
@@ -74,20 +78,9 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &source,
                                                  std::shared_ptr<Courierr::Courierr> messenger) {
   *this = source;
-  this->regular_grid_interpolator = std::make_unique<RegularGridInterpolatorPrivate>(
-      *source.regular_grid_interpolator, messenger);
-}
-
-RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
-    const RegularGridInterpolatorPrivate &source)
-    : btwxt_logger(source.btwxt_logger) {
-  *this = source;
-}
-
-RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
-    const RegularGridInterpolatorPrivate &source, std::shared_ptr<Courierr::Courierr> messenger)
-    : btwxt_logger(messenger) {
-  *this = source;
+  this->regular_grid_interpolator =
+      std::make_unique<RegularGridInterpolatorPrivate>(*source.regular_grid_interpolator);
+  this->regular_grid_interpolator->btwxt_logger = messenger;
 }
 
 RegularGridInterpolator &RegularGridInterpolator::operator=(const RegularGridInterpolator &source) {
@@ -132,17 +125,17 @@ RegularGridInterpolatorPrivate::add_value_table(const std::vector<double> &value
 
 void RegularGridInterpolator::set_axis_extrap_method(const std::size_t dim,
                                                      const Method extrapolation_method) {
-  regular_grid_interpolator->grid_axes[dim].extrapolation_method = extrapolation_method;
+  regular_grid_interpolator->set_axis_extrap_method(dim, extrapolation_method);
 }
 
 void RegularGridInterpolator::set_axis_interp_method(const std::size_t dim,
                                                      const Method interpolation_method) {
-  regular_grid_interpolator->grid_axes[dim].set_interp_method(interpolation_method);
+  regular_grid_interpolator->set_axis_interp_method(dim, interpolation_method);
 }
 
 void RegularGridInterpolator::set_axis_extrap_limits(
     const std::size_t dim, const std::pair<double, double> &extrap_limits) {
-  regular_grid_interpolator->grid_axes[dim].set_extrap_limits(extrap_limits);
+  regular_grid_interpolator->set_axis_extrap_limits(dim, extrap_limits);
 }
 
 // Public normalization methods
@@ -308,13 +301,11 @@ void RegularGridInterpolatorPrivate::set_results() {
 double RegularGridInterpolator::get_value_at_target(const std::vector<double> &target,
                                                     std::size_t table_index) {
   set_new_target(target);
-  auto results = regular_grid_interpolator->get_results();
-  return results[table_index];
+  return get_value_at_target(table_index);
 }
 
 double RegularGridInterpolator::get_value_at_target(std::size_t table_index) {
-  auto results = regular_grid_interpolator->get_results();
-  return results[table_index];
+  return regular_grid_interpolator->get_results()[table_index];
 }
 
 std::vector<double> RegularGridInterpolatorPrivate::get_results() {
@@ -328,10 +319,14 @@ std::vector<double> RegularGridInterpolatorPrivate::get_results() {
   return results;
 }
 
+std::vector<double> RegularGridInterpolatorPrivate::get_results(const std::vector<double> &target) {
+  set_target(target);
+  return get_results();
+}
+
 std::vector<double>
 RegularGridInterpolator::get_values_at_target(const std::vector<double> &target) {
-  set_new_target(target);
-  return regular_grid_interpolator->get_results();
+  return regular_grid_interpolator->get_results(target);
 }
 
 std::vector<double> RegularGridInterpolator::get_values_at_target() {
@@ -456,9 +451,8 @@ void RegularGridInterpolatorPrivate::set_dim_floor(std::size_t dim) {
 void RegularGridInterpolatorPrivate::calculate_weights() {
   for (std::size_t dim = 0; dim < ndims; ++dim) {
     if (grid_axes[dim].grid.size() > 1) {
-      double edge[] = {grid_axes[dim].grid[point_floor[dim]],
-                       grid_axes[dim].grid[point_floor[dim] + 1]};
-      weights[dim] = compute_fraction(target[dim], edge);
+      weights[dim] = compute_fraction(target[dim], grid_axes[dim].grid[point_floor[dim]],
+                                      grid_axes[dim].grid[point_floor[dim] + 1]);
     } else {
       weights[dim] = 1.0;
     }

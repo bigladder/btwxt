@@ -13,8 +13,7 @@
 #include <courierr/courierr.h>
 
 // btwxt
-#include <btwxt/grid-axis.h>
-#include <btwxt/regular-grid-interpolator.h>
+#include <btwxt/btwxt.h>
 
 namespace Btwxt {
 
@@ -38,45 +37,7 @@ public:
                                  const std::vector<std::vector<double>> &values,
                                  std::shared_ptr<Courierr::Courierr> messenger);
 
-  RegularGridInterpolatorPrivate(const RegularGridInterpolatorPrivate &source);
-
-  RegularGridInterpolatorPrivate(const RegularGridInterpolatorPrivate &source,
-                                 std::shared_ptr<Courierr::Courierr> messenger);
-
-  // Add value table to GriddedData
   std::size_t add_value_table(const std::vector<double> &value_vector);
-
-  // GridPoint gets instantiated inside calculate_value_at_target
-  double get_value_at_target(const std::vector<double> &target, std::size_t table_index);
-
-  double operator()(std::vector<double> target, std::size_t table_index) {
-    return get_value_at_target(std::move(target), table_index);
-  }
-
-  double get_value_at_target(std::size_t table_index);
-
-  double operator()(std::size_t table_index) { return get_value_at_target(table_index); }
-
-  std::vector<double> get_values_at_target();
-
-  std::vector<double> get_values_at_target(const std::vector<double> &target);
-
-  std::vector<double> operator()(std::vector<double> target) {
-    return get_values_at_target(std::move(target));
-  }
-
-  std::vector<double> operator()() { return get_values_at_target(); }
-
-  void set_new_target(const std::vector<double> &target);
-
-  void normalize_values_at_target(const double scalar = 1.0);
-
-  void normalize_values_at_target(const std::vector<double> &target, const double scalar = 1.0);
-
-  double normalize_values_at_target(std::size_t table_index, const double scalar = 1.0);
-
-  double normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
-                                    const double scalar = 1.0);
 
   std::vector<double> get_current_target();
 
@@ -87,15 +48,36 @@ public:
   std::size_t get_num_tables() const;
 
   void set_axis_interp_method(std::size_t dim, Method method) {
-    grid_axes[dim].interpolation_method = method;
+    if (dim > ndims - 1) {
+      throw BtwxtException(
+          fmt::format(
+              "Unable to set axis interpolation method on dimension {}. Number of grid axes = {}.",
+              dim, ndims),
+          *btwxt_logger);
+    }
+    grid_axes[dim].set_interp_method(method);
   }
 
   void set_axis_extrap_method(const std::size_t &dim, Method method) {
+    if (dim > ndims - 1) {
+      throw BtwxtException(
+          fmt::format(
+              "Unable to set axis extrapolation method on dimension {}. Number of grid axes = {}.",
+              dim, ndims),
+          *btwxt_logger);
+    }
     grid_axes[dim].extrapolation_method = method;
   }
 
-  void set_axis_extrap_limits(const std::size_t &dim,
+  void set_axis_extrap_limits(const std::size_t dim,
                               const std::pair<double, double> &extrap_limits) {
+    if (dim > ndims - 1) {
+      throw BtwxtException(
+          fmt::format(
+              "Unable to set axis extrapolation limits on dimension {}. Number of grid axes = {}.",
+              dim, ndims),
+          *btwxt_logger);
+    }
     grid_axes[dim].set_extrap_limits(extrap_limits);
   }
 
@@ -122,6 +104,8 @@ public:
 
   std::vector<double> get_results();
 
+  std::vector<double> get_results(const std::vector<double> &target);
+
   std::pair<double, double> get_extrap_limits(const std::size_t dim) const;
 
   double get_vertex_weight(const std::vector<short> &v);
@@ -147,7 +131,8 @@ public:
   friend class TwoDFixtureWithLoggingContext;
   friend class TwoDFixtureWithLoggingContext_set_message_context_Test;
 
-  static std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>> &grid, std::shared_ptr<Courierr::Courierr> logger) {
+  static std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>> &grid,
+                                              std::shared_ptr<Courierr::Courierr> logger) {
     std::vector<GridAxis> grid_axes;
     for (const auto &axis : grid) {
       grid_axes.emplace_back(axis, logger);
@@ -225,9 +210,9 @@ public:
   void set_dimension_sizes();
 };
 
-inline double compute_fraction(double x, double edge[2]) {
+inline double compute_fraction(const double x, const double start, const double end) {
   // how far along an edge is the target?
-  return (x - edge[0]) / (edge[1] - edge[0]);
+  return (x - start) / (end - start);
 }
 
 } // namespace Btwxt
