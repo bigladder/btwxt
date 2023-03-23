@@ -42,12 +42,12 @@ public:
 
   std::size_t get_length() { return grid.size(); }
 
-  void set_interp_method(Method interpolation_method);
+  void set_interpolation_method(Method interpolation_method);
   void set_extrap_method(Method extrapolation_method) {
     this->extrapolation_method = extrapolation_method;
   }
 
-  void set_extrap_limits(std::pair<double, double> extrap_limits) {
+  void set_extrapolation_limits(std::pair<double, double> extrap_limits) {
     extrapolation_limits = extrap_limits;
     check_extrap_limits();
   }

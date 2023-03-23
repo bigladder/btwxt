@@ -30,10 +30,10 @@ TEST(GridAxis, free_check_sorted) {
 
 TEST(GridAxis, sorting) {
   std::vector<double> grid_vector = {0, 5, 7, 17, 15};
-  auto courier = std::make_shared<BtwxtContextCourierr>();
-  EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, courier), BtwxtException);
+  auto logger = std::make_shared<BtwxtContextCourierr>();
+  EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, logger), BtwxtException);
   grid_vector = {0, 5, 7, 10, 15};
-  EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, courier););
+  EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, logger););
 }
 
 TEST(GridAxis, calc_spacing_multipliers) {
@@ -47,18 +47,18 @@ TEST(GridAxis, calc_spacing_multipliers) {
 }
 
 TEST(GridAxis, bad_limits) {
-  auto courier = std::make_shared<BtwxtContextCourierr>();
-  GridAxis my_grid_axis({0, 5, 7, 11, 12, 15}, courier);
+  auto logger = std::make_shared<BtwxtContextCourierr>();
+  GridAxis my_grid_axis({0, 5, 7, 11, 12, 15}, logger);
   std::pair<double, double> extrap_limits{4, 17};
   std::string ExpectedOut = "  NOTE: The lower extrapolation limit (4) is within the set of "
                             "grid values. Setting to smallest grid value (0).\n";
-  EXPECT_STDOUT(my_grid_axis.set_extrap_limits(extrap_limits);, ExpectedOut);
+  EXPECT_STDOUT(my_grid_axis.set_extrapolation_limits(extrap_limits);, ExpectedOut);
   EXPECT_EQ(my_grid_axis.extrapolation_limits.first, 0);
 
   extrap_limits = {-2, 12};
   ExpectedOut = "  NOTE: The upper extrapolation limit (12) is within the set of grid values. "
                 "Setting to largest grid value (15).\n";
-  EXPECT_STDOUT(my_grid_axis.set_extrap_limits(extrap_limits);, ExpectedOut);
+  EXPECT_STDOUT(my_grid_axis.set_extrapolation_limits(extrap_limits);, ExpectedOut);
   EXPECT_EQ(my_grid_axis.extrapolation_limits.second, 15);
 }
 } // namespace Btwxt

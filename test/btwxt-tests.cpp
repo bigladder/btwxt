@@ -22,7 +22,7 @@ TEST_F(GridFixture, four_point_1d_cubic_interpolate) {
   target = {2.5};
   setup();
 
-  interpolator.set_axis_interp_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
 
   const double expected_value = 4.804398;
   const double epsilon = 0.0001;
@@ -42,7 +42,7 @@ TEST_F(GridFixture, single_point_1d_extrapolate) {
   values = {{5.}};
   target = {2.5};
   setup();
-  interpolator.set_axis_extrap_method(0, Method::CUBIC);
+  interpolator.set_axis_extrapolation_method(0, Method::CUBIC);
   double result = interpolator.get_values_at_target(target)[0];
   EXPECT_NEAR(result, 5., 0.0001);
 }
@@ -52,7 +52,7 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate) {
   values = {{6, 3}};
   target = {2.5};
   setup();
-  interpolator.set_axis_interp_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
   double result = interpolator.get_values_at_target(target)[0];
   EXPECT_NEAR(result, 5.25, 0.0001);
 }
@@ -63,7 +63,7 @@ TEST_F(GridFixture2D, target_undefined) {
       "  WARNING: The current target was requested, but no target has been set.\n";
 
   // The test fixture does not instantiate a GridPoint.
-  EXPECT_STDOUT(returned_target = interpolator.get_current_target();, TargetExpectedOut);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, TargetExpectedOut);
   std::vector<double> expected_result = {0, 0};
   EXPECT_EQ(returned_target, expected_result);
 
@@ -74,15 +74,15 @@ TEST_F(GridFixture2D, target_undefined) {
   EXPECT_EQ(bad_result, 0);
 
   // Define the target; make sure it works now.
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
   std::string EmptyOut = "";
-  EXPECT_STDOUT(returned_target = interpolator.get_current_target();, EmptyOut);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, EmptyOut);
   expected_result = {12, 5};
   EXPECT_EQ(returned_target, expected_result);
 
   // Clear the target; see that it reverts to warnings.
-  interpolator.clear_current_target();
-  EXPECT_STDOUT(returned_target = interpolator.get_current_target();, TargetExpectedOut);
+  interpolator.clear_target();
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, TargetExpectedOut);
   expected_result = {0, 0};
   EXPECT_EQ(returned_target, expected_result);
 
@@ -91,7 +91,7 @@ TEST_F(GridFixture2D, target_undefined) {
 }
 
 TEST_F(GridFixture2D, interpolate) {
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
 
   // All values, current target
   std::vector<double> result = interpolator.get_values_at_target();
@@ -130,7 +130,7 @@ TEST_F(GridFixture2D, invalid_inputs) {
   std::cout.rdbuf(buffer.rdbuf());
 
   try {
-    interpolator.set_new_target(short_target);
+    interpolator.set_target(short_target);
   } catch (BtwxtException &) {
     EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
   }
@@ -138,7 +138,7 @@ TEST_F(GridFixture2D, invalid_inputs) {
   buffer.str("");
   buffer.clear();
   try {
-    interpolator.set_new_target(long_target);
+    interpolator.set_target(long_target);
   } catch (BtwxtException &) {
     EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
   }
@@ -154,19 +154,19 @@ TEST_F(GridFixture2D, logger_modify_context) {
   std::vector<double> returned_target;
   std::string expected_error =
       "  WARNING: The current target was requested, but no target has been set.\n";
-  EXPECT_STDOUT(returned_target = interpolator.get_current_target();, expected_error);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error);
   std::string context_str{"Context 1:"};
   interpolator.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
   expected_error =
       "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
-  EXPECT_STDOUT(interpolator.get_current_target();, expected_error);
+  EXPECT_STDOUT(interpolator.get_target();, expected_error);
 }
 
 TEST_F(GridFixture2D, unique_logger_per_rgi_instance) {
   std::vector<double> returned_target;
   std::string expected_error =
       "  WARNING: The current target was requested, but no target has been set.\n";
-  EXPECT_STDOUT(returned_target = interpolator.get_current_target();, expected_error);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error);
 
   RegularGridInterpolator rgi2;
   rgi2 = interpolator;
@@ -176,9 +176,9 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance) {
   rgi2.set_logger(logger2);
   std::string expected_error2{
       "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
-  EXPECT_STDOUT(rgi2.get_current_target();, expected_error2);
+  EXPECT_STDOUT(rgi2.get_target();, expected_error2);
 
-  EXPECT_STDOUT(interpolator.get_current_target();, expected_error); // Recheck
+  EXPECT_STDOUT(interpolator.get_target();, expected_error); // Recheck
 }
 
 TEST_F(GridFixture2D, access_logger_in_btwxt) {
@@ -187,13 +187,13 @@ TEST_F(GridFixture2D, access_logger_in_btwxt) {
   rgi2.get_logger().set_message_context(reinterpret_cast<void *>(&context_str));
   std::string expected_error2{
       "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
-  EXPECT_STDOUT(rgi2.get_current_target();, expected_error2);
+  EXPECT_STDOUT(rgi2.get_target();, expected_error2);
 }
 
 TEST_F(GridFixture2D, cubic_interpolate) {
-  interpolator.set_axis_interp_method(0, Method::CUBIC);
-  interpolator.set_axis_interp_method(1, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+  interpolator.set_target(target);
 
   // All values, current target
   std::vector<double> result = interpolator.get_values_at_target();
@@ -201,9 +201,9 @@ TEST_F(GridFixture2D, cubic_interpolate) {
 }
 
 TEST_F(GridFixture2D, normalize) {
-  interpolator.set_axis_interp_method(0, Method::CUBIC);
-  interpolator.set_axis_interp_method(1, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+  interpolator.set_target(target);
 
   // All values, current target
   interpolator.normalize_values_at_target((std::size_t)0); // normalize first value table
@@ -228,7 +228,7 @@ TEST_F(FunctionFixture2D, normalization_return_scalar) {
   double expected_divisor{functions[0](normalization_target)};
   double expected_value_at_target{functions[0](target) / expected_divisor};
   double return_scalar = interpolator.normalize_values_at_target(0, normalization_target, 1.0);
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
   std::vector<double> results = interpolator.get_values_at_target();
   EXPECT_THAT(return_scalar, testing::DoubleEq(expected_divisor));
   EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
@@ -242,21 +242,21 @@ TEST_F(FunctionFixture2D, normalization_return_compound_scalar) {
   double expected_value_at_target{functions[0](target) / expected_compound_divisor};
   double return_scalar =
       interpolator.normalize_values_at_target(0, normalization_target, normalization_divisor);
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
   std::vector<double> results = interpolator.get_values_at_target();
   EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));
   EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
 
 TEST_F(FunctionFixture4D, construct) {
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
 
-  std::vector<double> returned_target = interpolator.get_current_target();
+  std::vector<double> returned_target = interpolator.get_target();
   EXPECT_THAT(returned_target, testing::ElementsAre(2.2, 3.3, 1.4, 4.1));
 }
 
 TEST_F(FunctionFixture4D, calculate) {
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
 
   std::vector<double> result = interpolator.get_values_at_target();
   EXPECT_NEAR(result[0], functions[0](target), 0.02);
@@ -267,43 +267,43 @@ TEST_F(FunctionFixture4D, verify_linear) {
   // no matter what we do, result[1] should always be 11!
   std::vector<double> result;
 
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interp_method(0, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interp_method(3, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(3, Method::CUBIC);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interp_method(0, Method::LINEAR);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(0, Method::LINEAR);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interp_method(2, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(2, Method::CUBIC);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interp_method(0, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interp_method(1, Method::CUBIC);
-  interpolator.set_new_target(target);
+  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+  interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 }
 
 TEST_F(FunctionFixture4D, timer) {
-  interpolator.set_new_target(target);
+  interpolator.set_target(target);
 
   // Get starting timepoint
   auto start = std::chrono::high_resolution_clock::now();

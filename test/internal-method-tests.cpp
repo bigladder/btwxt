@@ -34,12 +34,12 @@ TEST_F(CubicFixture, spacing_multiplier) {
 }
 
 TEST_F(CubicFixture, switch_interp_method) {
-  for (auto i = 0u; i < interpolator.get_ndims(); i++) {
-    interpolator.set_axis_interp_method(i, Method::CUBIC);
+  for (auto i = 0u; i < interpolator.number_of_dimensions; i++) {
+    interpolator.set_axis_interpolation_method(i, Method::CUBIC);
   }
   std::vector<double> result1 = interpolator.get_results(target);
-  for (auto i = 0u; i < interpolator.get_ndims(); i++) {
-    interpolator.set_axis_interp_method(i, Method::LINEAR);
+  for (auto i = 0u; i < interpolator.number_of_dimensions; i++) {
+    interpolator.set_axis_interpolation_method(i, Method::LINEAR);
   }
   std::vector<double> result2 = interpolator.get_results(target);
   EXPECT_NE(result1, result2);
@@ -76,7 +76,7 @@ TEST_F(CubicFixture, grid_point_interp_coeffs) {
 }
 
 TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
-  interpolator.set_axis_interp_method(1, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
   interpolator.set_target(target);
   std::vector<Method> methods = interpolator.get_methods();
 
@@ -123,7 +123,7 @@ TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
 }
 
 TEST_F(CubicFixture, hypercube_calculations) {
-  interpolator.set_axis_interp_method(1, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
   interpolator.set_target(target);
 
   auto result = interpolator.get_results();
@@ -167,7 +167,7 @@ TEST_F(EmptyGridFixturePrivate, set_dim_floor) {
 
   grid = {{1, 3, 5, 7, 9}};
   setup();
-  interpolator.set_axis_extrap_limits(0, {0, 11});
+  interpolator.set_axis_extrapolation_limits(0, {0, 11});
 
   interpolator.set_target({5.3});
 
@@ -196,7 +196,7 @@ TEST_F(EmptyGridFixturePrivate, set_dim_floor) {
   EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTLAW);
   EXPECT_EQ(interpolator.get_floor()[0], 3u);
 
-  interpolator.set_axis_extrap_limits(0, {-DBL_MAX, DBL_MAX});
+  interpolator.set_axis_extrapolation_limits(0, {-DBL_MAX, DBL_MAX});
   interpolator.set_target({-0.3});
   interpolator.set_floor();
   EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::OUTBOUNDS);
@@ -262,23 +262,23 @@ TEST_F(GridFixture2DPrivate, grid_point_interp_coeffs) {
 }
 
 TEST_F(GridFixture2DPrivate, construct_from_axes) {
-  auto courier = std::make_shared<BtwxtContextCourierr>();
-  GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}), courier);
-  GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), courier);
+  auto logger = std::make_shared<BtwxtContextCourierr>();
+  GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}), logger);
+  GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), logger);
   std::vector<GridAxis> test_axes = {ax0, ax1};
-  interpolator = RegularGridInterpolatorPrivate(test_axes, courier);
-  EXPECT_EQ(interpolator.get_ndims(), 2u);
-  EXPECT_EQ(interpolator.num_tables, 0u);
+  interpolator = RegularGridInterpolatorPrivate(test_axes, logger);
+  EXPECT_EQ(interpolator.number_of_dimensions, 2u);
+  EXPECT_EQ(interpolator.number_of_tables, 0u);
   EXPECT_THAT(interpolator.dimension_lengths, testing::ElementsAre(3, 2));
 
   interpolator.add_value_table(values[0]);
-  EXPECT_EQ(interpolator.num_tables, 1u);
+  EXPECT_EQ(interpolator.number_of_tables, 1u);
   std::vector<std::size_t> coords{1, 1};
   EXPECT_THAT(interpolator.get_values(coords), testing::ElementsAre(8));
 
-  interpolator = RegularGridInterpolatorPrivate(test_axes, values, courier);
-  EXPECT_EQ(interpolator.get_ndims(), 2u);
-  EXPECT_EQ(interpolator.num_tables, 2u);
+  interpolator = RegularGridInterpolatorPrivate(test_axes, values, logger);
+  EXPECT_EQ(interpolator.number_of_dimensions, 2u);
+  EXPECT_EQ(interpolator.number_of_tables, 2u);
   EXPECT_THAT(interpolator.get_values(coords), testing::ElementsAre(8, 16));
 }
 
@@ -335,7 +335,7 @@ TEST_F(GridFixture3DPrivate, test_hypercube) {
 }
 
 TEST_F(GridFixture3DPrivate, make_linear_hypercube) {
-  interpolator.set_axis_interp_method(1, Method::LINEAR);
+  interpolator.set_axis_interpolation_method(1, Method::LINEAR);
   auto hypercube = interpolator.get_hypercube();
   EXPECT_EQ(hypercube.size(), 8u);
   EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));

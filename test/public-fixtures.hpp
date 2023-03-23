@@ -67,7 +67,7 @@ protected:
                8, 4}}; // 15
     target = {12, 5};
     setup();
-    interpolator.set_axis_extrap_method(0, Method::LINEAR);
+    interpolator.set_axis_extrapolation_method(0, Method::LINEAR);
   }
 };
 

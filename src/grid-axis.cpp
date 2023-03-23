@@ -28,9 +28,9 @@ GridAxis::GridAxis(std::vector<double> grid_vector, std::shared_ptr<Courierr::Co
   }
 }
 
-void GridAxis::set_interp_method(const Method im) {
-  interpolation_method = im;
-  if (im == Method::CUBIC) {
+void GridAxis::set_interpolation_method(Method interpolation_method) {
+  this->interpolation_method = interpolation_method;
+  if (interpolation_method == Method::CUBIC) {
     calc_spacing_multipliers();
   }
 }

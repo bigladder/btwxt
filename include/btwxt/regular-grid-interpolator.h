@@ -23,40 +23,41 @@ public:
   RegularGridInterpolator() = default;
 
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
-                          std::shared_ptr<Courierr::Courierr> messenger);
+                          std::shared_ptr<Courierr::Courierr> logger);
 
   RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                           const std::vector<std::vector<double>> &values,
-                          std::shared_ptr<Courierr::Courierr> messenger);
+                          std::shared_ptr<Courierr::Courierr> logger);
 
   RegularGridInterpolator(const std::vector<GridAxis> &grid,
-                          std::shared_ptr<Courierr::Courierr> messenger);
+                          std::shared_ptr<Courierr::Courierr> logger);
 
   RegularGridInterpolator(const std::vector<GridAxis> &grid,
                           const std::vector<std::vector<double>> &values,
-                          std::shared_ptr<Courierr::Courierr> messenger);
+                          std::shared_ptr<Courierr::Courierr> logger);
 
   RegularGridInterpolator(const RegularGridInterpolator &source);
 
   RegularGridInterpolator(const RegularGridInterpolator &source,
-                          std::shared_ptr<Courierr::Courierr> messenger);
+                          std::shared_ptr<Courierr::Courierr> logger);
 
   RegularGridInterpolator &operator=(const RegularGridInterpolator &source);
 
   // Add value table
   std::size_t add_value_table(const std::vector<double> &value_vector);
 
-  double get_value_at_target(const std::vector<double> &target, std::size_t table_index);
+  // Get results
+  void set_target(const std::vector<double> &target);
 
-  double operator()(std::vector<double> target, std::size_t table_index) {
+  double get_value_at_target(const std::vector<double> &target, const std::size_t table_index);
+
+  double operator()(std::vector<double> target, const std::size_t table_index) {
     return get_value_at_target(std::move(target), table_index);
   }
 
   double get_value_at_target(std::size_t table_index);
 
-  double operator()(std::size_t table_index) { return get_value_at_target(table_index); }
-
-  std::vector<double> get_values_at_target();
+  double operator()(const std::size_t table_index) { return get_value_at_target(table_index); }
 
   std::vector<double> get_values_at_target(const std::vector<double> &target);
 
@@ -64,39 +65,39 @@ public:
     return get_values_at_target(std::move(target));
   }
 
-  std::vector<double> operator()() { return get_values_at_target(); }
+  std::vector<double> get_values_at_target();
 
-  void set_new_target(const std::vector<double> &target);
+  std::vector<double> operator()() { return get_values_at_target(); }
 
   void normalize_values_at_target(const double scalar = 1.0);
 
   void normalize_values_at_target(const std::vector<double> &target, const double scalar = 1.0);
 
-  double normalize_values_at_target(std::size_t table_index, const double scalar = 1.0);
+  double normalize_values_at_target(const std::size_t table_index, const double scalar = 1.0);
 
-  double normalize_values_at_target(std::size_t table_index, const std::vector<double> &target,
-                                    const double scalar = 1.0);
+  double normalize_values_at_target(const std::size_t table_index,
+                                    const std::vector<double> &target, const double scalar = 1.0);
 
-  std::vector<double> get_current_target();
+  std::vector<double> get_target();
 
-  void clear_current_target();
+  void clear_target();
 
-  std::size_t get_ndims() const;
+  std::size_t get_number_of_dimensions() const;
 
-  std::size_t get_num_tables() const;
+  std::size_t get_number_of_tables() const;
 
-  void set_axis_interp_method(const std::size_t dim, const Method method);
+  void set_axis_interpolation_method(const std::size_t dimension, const Method method);
 
-  void set_axis_extrap_method(const std::size_t dim, const Method method);
+  void set_axis_extrapolation_method(const std::size_t dimension, const Method method);
 
-  void set_axis_extrap_limits(const std::size_t dim,
-                              const std::pair<double, double> &extrap_limits);
+  void set_axis_extrapolation_limits(const std::size_t dimension,
+                                     const std::pair<double, double> &extrap_limits);
 
-  std::pair<double, double> get_axis_limits(int dim);
+  std::pair<double, double> get_axis_extrapolation_limits(const std::size_t dimension);
 
   std::string write_data();
 
-  void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_gridaxes = false);
+  void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_grid_axes_loggers = false);
 
   Courierr::Courierr &get_logger();
 

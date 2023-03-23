@@ -58,7 +58,7 @@ protected:
                8, 4}}; // 15
     target = {12, 5};
     setup();
-    interpolator.set_axis_extrap_method(0, Method::LINEAR);
+    interpolator.set_axis_extrapolation_method(0, Method::LINEAR);
   }
 };
 
@@ -80,7 +80,7 @@ protected:
 
     target = {12, 4.5};
     setup();
-    interpolator.set_axis_interp_method(0, Method::CUBIC);
+    interpolator.set_axis_interpolation_method(0, Method::CUBIC);
   }
 };
 
@@ -104,9 +104,9 @@ protected:
     values = {{6, 3, 2, 8, 4, 2, 3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
     target = {26.9, 12, 5};
     setup();
-    interpolator.set_axis_interp_method(0, Method::LINEAR);
-    interpolator.set_axis_interp_method(1, Method::CUBIC);
-    interpolator.set_axis_interp_method(2, Method::LINEAR);
+    interpolator.set_axis_interpolation_method(0, Method::LINEAR);
+    interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+    interpolator.set_axis_interpolation_method(2, Method::LINEAR);
   }
 };
 
