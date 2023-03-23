@@ -71,27 +71,30 @@ protected:
   }
 };
 
-class TwoDSimpleNormalizationFixture : public testing::Test {
-  // TODO: Create a fixture which this one can inherit from
-  // takes a vector of functions as a parameter (these become separate value tables)
-  // takes a vector of vectors which is the data structure that stores the grid
-protected:
-  RegularGridInterpolator test_rgi;
-  double test_function(std::vector<double> target) {
-    assert(target.size() == 2);
-    return target[0] * target[1];
-  }
+class FunctionFixture : public GridFixture {
+public:
+  std::vector<std::function<double(std::vector<double>)>> functions;
 
-  TwoDSimpleNormalizationFixture() {
-    std::vector<std::vector<double>> grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
-    std::vector<double> values;
-    for (auto x : grid[0]) {
-      for (auto y : grid[1]) {
-        values.push_back(test_function({x, y}));
+protected:
+  FunctionFixture() {}
+
+  void setup() {
+    values.resize(functions.size());
+    for (std::size_t i = 0u; i < functions.size(); i++) {
+      for (auto &grid_point : cart_product(grid)) {
+        values[i].push_back(functions[i](grid_point));
       }
     }
-    test_rgi = RegularGridInterpolator(grid, {values}, std::make_shared<BtwxtContextCourierr>());
-    test_rgi.set_axis_extrap_method(0, Method::LINEAR);
+    interpolator = RegularGridInterpolator(grid, values, std::make_shared<BtwxtContextCourierr>());
+  }
+};
+
+class FunctionFixture2D : public FunctionFixture {
+protected:
+  FunctionFixture2D() {
+    grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
+    functions = {[](std::vector<double> x) -> double { return x[0] * x[1]; }};
+    setup();
   }
 };
 
