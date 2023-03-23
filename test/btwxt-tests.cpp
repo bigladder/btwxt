@@ -235,7 +235,7 @@ TEST_F(FunctionFixture2D, normalization_return_scalar) {
 }
 
 TEST_F(FunctionFixture2D, normalization_return_compound_scalar) {
-  std::vector<double> target{7.0, 3.0};
+  target = {7.0, 3.0};
   std::vector<double> normalization_target = {2.0, 3.0};
   double normalization_divisor = 4.0;
   double expected_compound_divisor{functions[0](normalization_target) * normalization_divisor};
@@ -248,134 +248,71 @@ TEST_F(FunctionFixture2D, normalization_return_compound_scalar) {
   EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
 
-// return an evenly spaced 1-d grid of doubles.
-std::vector<double> linspace(double first, double last, std::size_t len) {
-  std::vector<double> result(len);
-  double step = (last - first) / (len - 1);
-  double val = first;
-  for (std::size_t i = 0; i < len; i++, val += step) {
-    result[i] = val;
-  }
-  return result;
-}
+TEST_F(FunctionFixture4D, construct) {
+  interpolator.set_new_target(target);
 
-// the functions to interpolate.
-double fn0(double x0, double x1, double x2, double x3) { return sin(x0 + x1) + cos(x2 + x3); }
-
-double fn1(double x0, double x1, double x2, double x3) { return (x0 + x1 + x2 + x3); }
-
-class LargeFixture : public testing::Test {
-protected:
-  RegularGridInterpolator test_rgi;
-  std::vector<double> target;
-  BtwxtContextCourierr logger; // constructed only for std::cout
-
-  LargeFixture() {
-    const std::size_t ndims = 4;
-    std::vector<std::vector<double>> grid(ndims);
-
-    std::size_t axis_len = 10; // could easily change to vector of lengths
-    std::size_t num_values = 1;
-    std::vector<std::size_t> dim_lengths;
-    for (std::size_t i = 0; i < ndims; i++) {
-      grid[i] = linspace(0.0, 4.5, axis_len);
-      num_values *= grid[i].size();
-      dim_lengths.push_back(grid[i].size());
-    }
-
-    std::vector<double> values0(num_values);
-    std::vector<double> values1(num_values);
-    std::size_t value_loc = 0;
-    for (std::size_t i0 = 0; i0 < dim_lengths[0]; i0++) {
-      for (std::size_t i1 = 0; i1 < dim_lengths[1]; i1++) {
-        for (std::size_t i2 = 0; i2 < dim_lengths[2]; i2++) {
-          for (std::size_t i3 = 0; i3 < dim_lengths[3]; i3++) {
-            values0[value_loc] = fn0(grid[0][i0], grid[1][i1], grid[2][i2], grid[3][i3]);
-            values1[value_loc] = fn1(grid[0][i0], grid[1][i1], grid[2][i2], grid[3][i3]);
-            value_loc++;
-          }
-        }
-      }
-    }
-    std::vector<std::vector<double>> values = {values0, values1};
-
-    // target = {2.5, 3.5, 1.4, 4.0};
-    target = {2.2, 3.3, 1.4, 4.1};
-    // target = {0.0, 0.0, 0.0, 0.0};
-    ////test_gridded_data = GriddedData(grid, values);
-    //        test_gridded_data.set_axis_interp_method(0, Method::CUBIC);
-    //        test_gridded_data.set_axis_interp_method(1, Method::CUBIC);
-    //        test_gridded_data.set_axis_interp_method(2, Method::CUBIC);
-    //        test_gridded_data.set_axis_interp_method(3, Method::CUBIC);
-    auto courier = std::make_shared<BtwxtContextCourierr>();
-    test_rgi = RegularGridInterpolator(grid, values, courier);
-  }
-};
-
-TEST_F(LargeFixture, construct) {
-  test_rgi.set_new_target(target);
-
-  std::vector<double> returned_target = test_rgi.get_current_target();
+  std::vector<double> returned_target = interpolator.get_current_target();
   EXPECT_THAT(returned_target, testing::ElementsAre(2.2, 3.3, 1.4, 4.1));
 }
 
-TEST_F(LargeFixture, calculate) {
-  test_rgi.set_new_target(target);
+TEST_F(FunctionFixture4D, calculate) {
+  interpolator.set_new_target(target);
 
-  std::vector<double> result = test_rgi.get_values_at_target();
-  EXPECT_NEAR(result[0], fn0(target[0], target[1], target[2], target[3]), 0.02);
-  EXPECT_DOUBLE_EQ(result[1], fn1(target[0], target[1], target[2], target[3]));
+  std::vector<double> result = interpolator.get_values_at_target();
+  EXPECT_NEAR(result[0], functions[0](target), 0.02);
+  EXPECT_DOUBLE_EQ(result[1], functions[1](target));
 }
 
-TEST_F(LargeFixture, verify_linear) {
+TEST_F(FunctionFixture4D, verify_linear) {
   // no matter what we do, result[1] should always be 11!
   std::vector<double> result;
 
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  test_rgi.set_axis_interp_method(0, Method::CUBIC);
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_axis_interp_method(0, Method::CUBIC);
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  test_rgi.set_axis_interp_method(3, Method::CUBIC);
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_axis_interp_method(3, Method::CUBIC);
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  test_rgi.set_axis_interp_method(0, Method::LINEAR);
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_axis_interp_method(0, Method::LINEAR);
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  test_rgi.set_axis_interp_method(2, Method::CUBIC);
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_axis_interp_method(2, Method::CUBIC);
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  test_rgi.set_axis_interp_method(0, Method::CUBIC);
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_axis_interp_method(0, Method::CUBIC);
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  test_rgi.set_axis_interp_method(1, Method::CUBIC);
-  test_rgi.set_new_target(target);
-  result = test_rgi.get_values_at_target();
+  interpolator.set_axis_interp_method(1, Method::CUBIC);
+  interpolator.set_new_target(target);
+  result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 }
 
-TEST_F(LargeFixture, timer) {
-  test_rgi.set_new_target(target);
+TEST_F(FunctionFixture4D, timer) {
+  interpolator.set_new_target(target);
 
   // Get starting timepoint
   auto start = std::chrono::high_resolution_clock::now();
-  std::vector<double> result = test_rgi.get_values_at_target();
+  std::vector<double> result = interpolator.get_values_at_target();
   // Get ending timepoint
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  logger.info(fmt::format("Time taken by interpolation: {} microseconds", duration.count()));
+  interpolator.get_logger().info(
+      fmt::format("Time taken by interpolation: {} microseconds", duration.count()));
 
   // time running the functions straight
   start = std::chrono::high_resolution_clock::now();
@@ -384,10 +321,11 @@ TEST_F(LargeFixture, timer) {
   // Get ending timepoint
   stop = std::chrono::high_resolution_clock::now();
   auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  logger.info(fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
+  interpolator.get_logger().info(
+      fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
 }
 
-TEST_F(LargeFixture, multi_timer) {
+TEST_F(FunctionFixture4D, multi_timer) {
   std::vector<std::vector<double>> set_of_targets = {
       {0.1, 0.1, 0.1, 0.1}, {3.3, 2.2, 4.1, 1.4}, {2.1, 1.6, 1.6, 2.1}, {3.7, 4.3, 0.8, 2.1},
       {1.9, 3.4, 1.2, 1.1}, {3.3, 3.8, 1.6, 3.0}, {0.3, 1.0, 2.4, 1.1}, {3.1, 1.9, 2.9, 3.3},
@@ -397,12 +335,13 @@ TEST_F(LargeFixture, multi_timer) {
     // Get starting timepoint
     auto start = std::chrono::high_resolution_clock::now();
     for (auto target : set_of_targets) {
-      std::vector<double> result = test_rgi(target);
+      std::vector<double> result = interpolator(target);
     }
     // Get ending timepoint
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    logger.info(fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
+    interpolator.get_logger().info(
+        fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
   }
 }
 

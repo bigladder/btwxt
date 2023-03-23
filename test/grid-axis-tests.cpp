@@ -8,7 +8,7 @@
 #include <memory>
 
 // btwxt
-#include <btwxt/grid-axis.h>
+#include <btwxt/btwxt.h>
 
 // testing
 #include "public-fixtures.hpp"

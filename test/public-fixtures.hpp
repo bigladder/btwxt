@@ -98,4 +98,37 @@ protected:
   }
 };
 
+// return an evenly spaced 1-d grid of doubles.
+static std::vector<double> linspace(double first, double last, std::size_t len) {
+  std::vector<double> result(len);
+  double step = (last - first) / (len - 1);
+  double val = first;
+  for (std::size_t i = 0; i < len; i++, val += step) {
+    result[i] = val;
+  }
+  return result;
+}
+
+class FunctionFixture4D : public FunctionFixture {
+protected:
+  FunctionFixture4D() {
+    const std::size_t ndims = 4;
+    grid.resize(ndims);
+
+    std::size_t axis_len = 10; // could easily change to vector of lengths
+    std::vector<std::size_t> dim_lengths;
+    for (std::size_t i = 0; i < ndims; i++) {
+      grid[i] = linspace(0.0, 4.5, axis_len);
+      dim_lengths.push_back(grid[i].size());
+    }
+
+    functions = {
+        [](std::vector<double> x) -> double { return sin(x[0] + x[1]) + cos(x[2] + x[3]); },
+        [](std::vector<double> x) -> double { return x[0] + x[1] + x[2] + x[3]; }};
+
+    target = {2.2, 3.3, 1.4, 4.1};
+    setup();
+  }
+};
+
 } // namespace Btwxt
