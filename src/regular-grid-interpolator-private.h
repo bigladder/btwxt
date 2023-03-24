@@ -17,7 +17,7 @@
 
 namespace Btwxt {
 
-enum class Bounds { OUTLAW, OUTBOUNDS, INBOUNDS };
+enum class Bounds { outlaw, out_of_bounds, in_bounds };
 
 class RegularGridInterpolatorPrivate {
 public:
@@ -42,34 +42,31 @@ public:
 
   void set_axis_interpolation_method(std::size_t dimension, Method method) {
     if (dimension > number_of_dimensions - 1) {
-      throw BtwxtException(
-          fmt::format(
-              "Unable to set axis interpolation method on dimension {}. Number of grid axes = {}.",
-              dimension, number_of_dimensions),
-          *logger);
+      throw BtwxtException(fmt::format("Unable to set axis interpolation method on dimension {}. "
+                                       "Number of grid axes = {}.",
+                                       dimension, number_of_dimensions),
+                           *logger);
     }
     grid_axes[dimension].set_interpolation_method(method);
   }
 
   void set_axis_extrapolation_method(const std::size_t dimension, Method method) {
     if (dimension > number_of_dimensions - 1) {
-      throw BtwxtException(
-          fmt::format(
-              "Unable to set axis extrapolation method on dimension {}. Number of grid axes = {}.",
-              dimension, number_of_dimensions),
-          *logger);
+      throw BtwxtException(fmt::format("Unable to set axis extrapolation method on dimension {}. "
+                                       "Number of grid axes = {}.",
+                                       dimension, number_of_dimensions),
+                           *logger);
     }
-    grid_axes[dimension].extrapolation_method = method;
+    grid_axes[dimension].set_extrapolation_method(method);
   }
 
   void set_axis_extrapolation_limits(const std::size_t dimension,
                                      const std::pair<double, double> &limits) {
     if (dimension > number_of_dimensions - 1) {
-      throw BtwxtException(
-          fmt::format(
-              "Unable to set axis extrapolation limits on dimension {}. Number of grid axes = {}.",
-              dimension, number_of_dimensions),
-          *logger);
+      throw BtwxtException(fmt::format("Unable to set axis extrapolation limits on dimension {}. "
+                                       "Number of grid axes = {}.",
+                                       dimension, number_of_dimensions),
+                           *logger);
     }
     grid_axes[dimension].set_extrapolation_limits(limits);
   }
@@ -77,13 +74,13 @@ public:
   // Public calculations
   void set_target(const std::vector<double> &target);
 
-  std::vector<double> get_target() const;
+  [[nodiscard]] std::vector<double> get_target() const;
 
   void clear_target();
 
-  std::pair<double, double> get_extrapolation_limits(const std::size_t dimension) const;
+  [[nodiscard]] std::pair<double, double> get_extrapolation_limits(std::size_t dimension) const;
 
-  std::size_t get_value_index(const std::vector<std::size_t> &coords) const;
+  [[nodiscard]] std::size_t get_value_index(const std::vector<std::size_t> &coords) const;
 
   std::size_t get_value_index_relative(const std::vector<std::size_t> &coords,
                                        const std::vector<short> &translation);
@@ -96,9 +93,9 @@ public:
 
   std::vector<Method> get_methods();
 
-  std::vector<std::vector<double>> get_interp_coeffs();
+  std::vector<std::vector<double>> &get_interpolation_coefficients();
 
-  std::vector<std::vector<double>> get_cubic_slope_coeffs();
+  std::vector<std::vector<double>> &get_cubic_slope_coefficients();
 
   std::vector<double> get_results();
 
@@ -106,25 +103,26 @@ public:
 
   double get_vertex_weight(const std::vector<short> &v);
 
-  void normalize_grid_values_at_target(const double scalar = 1.0);
+  void normalize_grid_values_at_target(double scalar = 1.0);
 
-  double normalize_grid_values_at_target(std::size_t table_num, const double scalar = 1.0);
+  double normalize_grid_values_at_target(std::size_t table_num, double scalar = 1.0);
 
   void normalize_value_table(std::size_t table_num, double scalar = 1.0);
 
   void set_floor();
 
-  double get_axis_spacing_mult(const std::size_t dim, const std::size_t flavor,
-                               const std::size_t index) const;
+  [[nodiscard]] double get_axis_spacing_multiplier(std::size_t dimension, std::size_t flavor,
+                                                   std::size_t index) const;
   std::string write_data();
 
   void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_grid_axes_loggers = false);
 
   static std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>> &grid,
-                                              std::shared_ptr<Courierr::Courierr> logger) {
+                                              std::shared_ptr<Courierr::Courierr> logger_in) {
     std::vector<GridAxis> grid_axes;
+    grid_axes.reserve(grid.size());
     for (const auto &axis : grid) {
-      grid_axes.emplace_back(axis, logger);
+      grid_axes.emplace_back(axis, logger_in);
     }
     return grid_axes;
   }
@@ -134,20 +132,20 @@ public:
   std::vector<double> get_values_relative(const std::vector<std::size_t> &coords,
                                           const std::vector<short> &translation);
 
-  std::vector<double> get_values(const std::size_t index);
-  const std::vector<double> &get_grid_vector(const std::size_t dim);
+  std::vector<double> get_values(std::size_t index);
+  const std::vector<double> &get_axis_values(const size_t dimension);
 
-  std::vector<Method> get_interp_methods() const;
+  [[nodiscard]] std::vector<Method> get_interpolation_methods() const;
 
-  std::vector<Method> get_extrap_methods() const;
+  [[nodiscard]] std::vector<Method> get_extrapolation_methods() const;
 
   void calculate_weights();
 
   void consolidate_methods();
 
-  void calculate_interp_coeffs();
+  void calculate_interpolation_coefficients();
 
-  void set_dim_floor(std::size_t dim);
+  void set_dimension_floor(std::size_t dimension);
 
   void set_hypercube(std::vector<Method> methods);
 
@@ -170,7 +168,7 @@ public:
   std::vector<std::size_t> temporary_coordinates; // Memory placeholder to avoid re-allocating
                                                   // memory (size = number_of_dimensions)
   std::vector<double>
-      value_set; // Pre-sized container to store set of values at grid point coordinates
+      value_set; // Pre-sized container to store set of values at values point coordinates
 
   // calculated data
   bool target_is_set{false};

@@ -25,6 +25,22 @@
 
 namespace Btwxt {
 
+template <typename T>
+std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>> &v) {
+  std::vector<std::vector<T>> combinations = {{}};
+  for (const auto &list : v) {
+    std::vector<std::vector<T>> r;
+    for (const auto &x : combinations) {
+      for (const auto item : list) {
+        r.push_back(x);
+        r.back().push_back(item);
+      }
+    }
+    combinations = std::move(r);
+  }
+  return combinations;
+}
+
 class GridFixture : public testing::Test {
 public:
   std::vector<std::vector<double>> grid;
@@ -32,9 +48,9 @@ public:
   std::vector<double> target;
   RegularGridInterpolator interpolator;
 
-  GridFixture() {}
+  GridFixture() = default;
 
-  void setup() { interpolator = RegularGridInterpolator(grid, values); }
+  virtual void setup() { interpolator = RegularGridInterpolator(grid, values); }
 };
 
 class GridFixture2D : public GridFixture {
@@ -50,7 +66,7 @@ protected:
                8, 4}}; // 15
     target = {12, 5};
     setup();
-    interpolator.set_axis_extrapolation_method(0, Method::LINEAR);
+    interpolator.set_axis_extrapolation_method(0, Method::linear);
   }
 };
 
@@ -59,7 +75,7 @@ public:
   std::vector<std::function<double(std::vector<double>)>> functions;
 
 protected:
-  FunctionFixture() {}
+  FunctionFixture() = default;
 
   void setup() {
     values.resize(functions.size());
@@ -81,12 +97,12 @@ protected:
   }
 };
 
-// return an evenly spaced 1-d grid of doubles.
-static std::vector<double> linspace(double first, double last, std::size_t len) {
-  std::vector<double> result(len);
-  double step = (last - first) / (len - 1);
+// return an evenly spaced 1-d vector of doubles.
+static std::vector<double> linspace(double first, double last, std::size_t length) {
+  std::vector<double> result(length);
+  double step = (last - first) / (static_cast<double>(length) - 1.);
   double val = first;
-  for (std::size_t i = 0; i < len; i++, val += step) {
+  for (std::size_t i = 0; i < length; i++, val += step) {
     result[i] = val;
   }
   return result;

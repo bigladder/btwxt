@@ -11,7 +11,7 @@
 #include <fmt/format.h>
 
 // btwxt
-#include "public-fixtures.hpp"
+#include "public-fixtures.h"
 
 namespace Btwxt {
 
@@ -22,7 +22,7 @@ TEST_F(GridFixture, four_point_1d_cubic_interpolate) {
   target = {2.5};
   setup();
 
-  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::cubic);
 
   const double expected_value = 4.804398;
   const double epsilon = 0.0001;
@@ -42,7 +42,7 @@ TEST_F(GridFixture, single_point_1d_extrapolate) {
   values = {{5.}};
   target = {2.5};
   setup();
-  interpolator.set_axis_extrapolation_method(0, Method::CUBIC);
+  interpolator.set_axis_extrapolation_method(0, Method::cubic);
   double result = interpolator.get_values_at_target(target)[0];
   EXPECT_NEAR(result, 5., 0.0001);
 }
@@ -52,7 +52,7 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate) {
   values = {{6, 3}};
   target = {2.5};
   setup();
-  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::cubic);
   double result = interpolator.get_values_at_target(target)[0];
   EXPECT_NEAR(result, 5.25, 0.0001);
 }
@@ -75,7 +75,7 @@ TEST_F(GridFixture2D, target_undefined) {
 
   // Define the target; make sure it works now.
   interpolator.set_target(target);
-  std::string EmptyOut = "";
+  std::string EmptyOut{""};
   EXPECT_STDOUT(returned_target = interpolator.get_target();, EmptyOut);
   expected_result = {12, 5};
   EXPECT_EQ(returned_target, expected_result);
@@ -191,8 +191,8 @@ TEST_F(GridFixture2D, access_logger_in_btwxt) {
 }
 
 TEST_F(GridFixture2D, cubic_interpolate) {
-  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
-  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::cubic);
+  interpolator.set_axis_interpolation_method(1, Method::cubic);
   interpolator.set_target(target);
 
   // All values, current target
@@ -201,8 +201,8 @@ TEST_F(GridFixture2D, cubic_interpolate) {
 }
 
 TEST_F(GridFixture2D, normalize) {
-  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
-  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::cubic);
+  interpolator.set_axis_interpolation_method(1, Method::cubic);
   interpolator.set_target(target);
 
   // All values, current target
@@ -271,32 +271,32 @@ TEST_F(FunctionFixture4D, verify_linear) {
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::cubic);
   interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interpolation_method(3, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(3, Method::cubic);
   interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interpolation_method(0, Method::LINEAR);
+  interpolator.set_axis_interpolation_method(0, Method::linear);
   interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interpolation_method(2, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(2, Method::cubic);
   interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(0, Method::cubic);
   interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
 
-  interpolator.set_axis_interpolation_method(1, Method::CUBIC);
+  interpolator.set_axis_interpolation_method(1, Method::cubic);
   interpolator.set_target(target);
   result = interpolator.get_values_at_target();
   EXPECT_DOUBLE_EQ(result[1], 11);
@@ -334,7 +334,7 @@ TEST_F(FunctionFixture4D, multi_timer) {
   for (std::size_t count = 0; count < 10; count++) {
     // Get starting timepoint
     auto start = std::chrono::high_resolution_clock::now();
-    for (auto target : set_of_targets) {
+    for (const auto &target : set_of_targets) {
       std::vector<double> result = interpolator(target);
     }
     // Get ending timepoint
@@ -343,6 +343,16 @@ TEST_F(FunctionFixture4D, multi_timer) {
     interpolator.get_logger()->info(
         fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
   }
+}
+
+TEST(CartesianProduct, cartesian_product) {
+  std::vector<std::vector<short>> v = {{1, 2, 3}, {4, 5}, {6, 7, 8, 9}};
+  std::vector<std::vector<short>> result = cartesian_product(v);
+  EXPECT_EQ(result.size(), 3u * 2u * 4u);
+  EXPECT_THAT(result[0], testing::ElementsAre(1, 4, 6));
+  EXPECT_THAT(result[1], testing::ElementsAre(1, 4, 7));
+  EXPECT_THAT(result[10], testing::ElementsAre(2, 4, 8));
+  EXPECT_THAT(result[3 * 2 * 4 - 1], testing::ElementsAre(3, 5, 9));
 }
 
 } // namespace Btwxt

@@ -29,7 +29,7 @@ public:
 
   RegularGridInterpolator(
       const std::vector<std::vector<double>> &grid, const std::vector<std::vector<double>> &values,
-      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
+      const std::shared_ptr<Courierr::Courierr> &logger = std::make_shared<BtwxtContextCourierr>());
 
   RegularGridInterpolator(
       const std::vector<GridAxis> &grid,
@@ -37,7 +37,7 @@ public:
 
   RegularGridInterpolator(
       const std::vector<GridAxis> &grid, const std::vector<std::vector<double>> &values,
-      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>());
+      const std::shared_ptr<Courierr::Courierr> &logger = std::make_shared<BtwxtContextCourierr>());
 
   RegularGridInterpolator(const RegularGridInterpolator &source);
 

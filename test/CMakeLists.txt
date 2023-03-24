@@ -1,7 +1,7 @@
 # Test Executable
 set(library_sources
         test-main.cpp
-        public-fixtures.hpp
+        public-fixtures.h
         btwxt-tests.cpp
         internal-method-tests.cpp
         grid-axis-tests.cpp)

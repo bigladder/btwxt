@@ -17,17 +17,17 @@ namespace Btwxt {
 // Constructors
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                                                  const std::vector<std::vector<double>> &values,
-                                                 std::shared_ptr<Courierr::Courierr> logger)
+                                                 const std::shared_ptr<Courierr::Courierr> &logger)
     : regular_grid_interpolator(
           std::make_unique<RegularGridInterpolatorPrivate>(grid, values, logger)) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
                                                  std::shared_ptr<Courierr::Courierr> logger)
-    : RegularGridInterpolator(grid, {}, logger) {}
+    : RegularGridInterpolator(grid, {}, std::move(logger)) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis> &grid,
                                                  const std::vector<std::vector<double>> &values,
-                                                 std::shared_ptr<Courierr::Courierr> logger)
+                                                 const std::shared_ptr<Courierr::Courierr> &logger)
     : regular_grid_interpolator(
           std::make_unique<RegularGridInterpolatorPrivate>(grid, values, logger)) {}
 
@@ -46,12 +46,12 @@ RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
       point_floor(number_of_dimensions, 0),
       weights(number_of_dimensions, 0.),
       is_inbounds(number_of_dimensions),
-      methods(number_of_dimensions, Method::UNDEF),
+      methods(number_of_dimensions, Method::undefined),
       weighting_factors(number_of_dimensions, std::vector<double>(4, 0.)),
       results(number_of_tables, 0.),
       interpolation_coefficients(number_of_dimensions, std::vector<double>(2, 0.)),
       cubic_slope_coefficients(number_of_dimensions, std::vector<double>(2, 0.)),
-      logger(logger) {
+      logger(std::move(logger)) {
   set_dimension_sizes();
 }
 
@@ -115,7 +115,7 @@ std::size_t RegularGridInterpolator::add_value_table(const std::vector<double> &
 std::size_t
 RegularGridInterpolatorPrivate::add_value_table(const std::vector<double> &value_vector) {
   if (value_vector.size() != number_of_values) {
-    throw BtwxtException(fmt::format("Input value table does not match the grid size: {} != {}",
+    throw BtwxtException(fmt::format("Input value table does not match the values size: {} != {}",
                                      value_vector.size(), number_of_values),
                          *logger);
   }
@@ -221,13 +221,14 @@ RegularGridInterpolator::get_axis_extrapolation_limits(const std::size_t dimensi
 
 std::pair<double, double>
 RegularGridInterpolatorPrivate::get_extrapolation_limits(std::size_t dimension) const {
-  return grid_axes[dimension].extrapolation_limits;
+  return grid_axes[dimension].get_extrapolation_limits();
 }
 
 std::vector<Method> RegularGridInterpolatorPrivate::get_methods() { return methods; }
 
-const std::vector<double> &RegularGridInterpolatorPrivate::get_grid_vector(const std::size_t dim) {
-  return grid_axes[dim].grid;
+const std::vector<double> &
+RegularGridInterpolatorPrivate::get_axis_values(const std::size_t dimension) {
+  return grid_axes[dimension].get_values();
 }
 
 // Public printing methods
@@ -248,7 +249,7 @@ std::string RegularGridInterpolatorPrivate::write_data() {
   output << std::endl;
   for (std::size_t index = 0; index < number_of_values; ++index) {
     for (std::size_t dim = 0; dim < number_of_dimensions; ++dim) {
-      output << grid_axes[dim].grid[indices[dim]] << ",";
+      output << get_axis_values(dim)[indices[dim]] << ",";
     }
     for (std::size_t tab = 0; tab < number_of_tables; ++tab) {
       output << value_tables[tab][index] << ",";
@@ -276,7 +277,7 @@ void RegularGridInterpolatorPrivate::set_target(const std::vector<double> &v) {
                          *logger);
   }
   if (target_is_set) {
-    if ((v == target) && (methods == get_interp_methods())) {
+    if ((v == target) && (methods == get_interpolation_methods())) {
       return;
     }
   }
@@ -285,7 +286,7 @@ void RegularGridInterpolatorPrivate::set_target(const std::vector<double> &v) {
   set_floor();
   calculate_weights();
   consolidate_methods();
-  calculate_interp_coeffs();
+  calculate_interpolation_coefficients();
   set_results();
 }
 
@@ -322,8 +323,9 @@ std::vector<double> RegularGridInterpolatorPrivate::get_results() {
   return results;
 }
 
-std::vector<double> RegularGridInterpolatorPrivate::get_results(const std::vector<double> &target) {
-  set_target(target);
+std::vector<double>
+RegularGridInterpolatorPrivate::get_results(const std::vector<double> &target_in) {
+  set_target(target_in);
   return get_results();
 }
 
@@ -349,9 +351,9 @@ void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::Courierr> log
   regular_grid_interpolator->set_logger(logger, set_grid_axes_loggers);
 }
 
-void RegularGridInterpolatorPrivate::set_logger(std::shared_ptr<Courierr::Courierr> logger,
+void RegularGridInterpolatorPrivate::set_logger(std::shared_ptr<Courierr::Courierr> logger_in,
                                                 bool set_grid_axes_loggers) {
-  this->logger = logger;
+  logger = logger_in;
   if (set_grid_axes_loggers) {
     for (auto &axis : grid_axes) {
       axis.set_logger(logger);
@@ -415,45 +417,45 @@ RegularGridInterpolatorPrivate::get_values_relative(const std::vector<std::size_
 
 void RegularGridInterpolatorPrivate::set_floor() {
   for (std::size_t dim = 0; dim < number_of_dimensions; dim += 1) {
-    set_dim_floor(dim);
+    set_dimension_floor(dim);
   }
   floor_index = get_value_index(point_floor);
 }
 
-void RegularGridInterpolatorPrivate::set_dim_floor(std::size_t dim) {
-  const GridAxis &axis = grid_axes[dim];
-  std::size_t l = axis.grid.size();
-  if (target[dim] < axis.extrapolation_limits.first) {
-    is_inbounds[dim] = Bounds::OUTLAW;
-    point_floor[dim] = 0u;
-  } else if (target[dim] > axis.extrapolation_limits.second) {
-    is_inbounds[dim] = Bounds::OUTLAW;
-    point_floor[dim] =
-        std::max((int)l - 2, 0); // l-2 because that's the left side of the (l-2, l-1) edge.
-  } else if (target[dim] < axis.grid[0]) {
-    is_inbounds[dim] = Bounds::OUTBOUNDS;
-    point_floor[dim] = 0;
-  } else if (target[dim] > axis.grid.back()) {
-    is_inbounds[dim] = Bounds::OUTBOUNDS;
-    point_floor[dim] =
-        std::max((int)l - 2, 0); // l-2 because that's the left side of the (l-2, l-1) edge.
-  } else if (target[dim] == axis.grid.back()) {
-    is_inbounds[dim] = Bounds::INBOUNDS;
-    point_floor[dim] =
-        std::max((int)l - 2, 0); // l-2 because that's the left side of the (l-2, l-1) edge.
+void RegularGridInterpolatorPrivate::set_dimension_floor(const std::size_t dimension) {
+  const auto &axis_values = get_axis_values(dimension);
+  int length = static_cast<int>(dimension_lengths[dimension]);
+  if (target[dimension] < get_extrapolation_limits(dimension).first) {
+    is_inbounds[dimension] = Bounds::outlaw;
+    point_floor[dimension] = 0u;
+  } else if (target[dimension] > get_extrapolation_limits(dimension).second) {
+    is_inbounds[dimension] = Bounds::outlaw;
+    point_floor[dimension] = std::max(
+        length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
+  } else if (target[dimension] < axis_values[0]) {
+    is_inbounds[dimension] = Bounds::out_of_bounds;
+    point_floor[dimension] = 0;
+  } else if (target[dimension] > axis_values.back()) {
+    is_inbounds[dimension] = Bounds::out_of_bounds;
+    point_floor[dimension] = std::max(
+        length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
+  } else if (target[dimension] == axis_values.back()) {
+    is_inbounds[dimension] = Bounds::in_bounds;
+    point_floor[dimension] = std::max(
+        length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
   } else {
-    is_inbounds[dim] = Bounds::INBOUNDS;
+    is_inbounds[dimension] = Bounds::in_bounds;
     std::vector<double>::const_iterator upper =
-        std::upper_bound(axis.grid.begin(), axis.grid.end(), target[dim]);
-    point_floor[dim] = upper - axis.grid.begin() - 1;
+        std::upper_bound(axis_values.begin(), axis_values.end(), target[dimension]);
+    point_floor[dimension] = upper - axis_values.begin() - 1;
   }
 }
 
 void RegularGridInterpolatorPrivate::calculate_weights() {
   for (std::size_t dim = 0; dim < number_of_dimensions; ++dim) {
-    if (grid_axes[dim].grid.size() > 1) {
-      weights[dim] = compute_fraction(target[dim], grid_axes[dim].grid[point_floor[dim]],
-                                      grid_axes[dim].grid[point_floor[dim] + 1]);
+    if (dimension_lengths[dim] > 1) {
+      weights[dim] = compute_fraction(target[dim], get_axis_values(dim)[point_floor[dim]],
+                                      get_axis_values(dim)[point_floor[dim] + 1]);
     } else {
       weights[dim] = 1.0;
     }
@@ -465,17 +467,17 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
 // If outside of extrapolation limits, send a warning and perform constant extrapolation.
 {
   previous_methods = methods;
-  methods = get_interp_methods();
+  methods = get_interpolation_methods();
   if (target_is_set) {
-    auto extrap_methods = get_extrap_methods();
+    auto extrapolation_methods = get_extrapolation_methods();
     for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
-      if (is_inbounds[dim] == Bounds::OUTBOUNDS) {
-        methods[dim] = extrap_methods[dim];
-      } else if (is_inbounds[dim] == Bounds::OUTLAW) {
+      if (is_inbounds[dim] == Bounds::out_of_bounds) {
+        methods[dim] = extrapolation_methods[dim];
+      } else if (is_inbounds[dim] == Bounds::outlaw) {
         // showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation
         // limits in dimension ", dim,
         //                                ". Will perform constant extrapolation."));
-        methods[dim] = Method::CONSTANT;
+        methods[dim] = Method::constant;
       }
     }
   }
@@ -507,7 +509,7 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
     if (target_is_set && weights[dim] == 0.0) {
       options[dim] = {0};
       reset_hypercube = true;
-    } else if (m_methods[dim] == Method::CUBIC) {
+    } else if (m_methods[dim] == Method::cubic) {
       options[dim] = {-1, 0, 1, 2};
     }
     hypercube_size_hash += options[dim].size() * digit;
@@ -530,18 +532,18 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
   }
 }
 
-void RegularGridInterpolatorPrivate::calculate_interp_coeffs() {
+void RegularGridInterpolatorPrivate::calculate_interpolation_coefficients() {
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
     double mu = weights[dim];
-    if (methods[dim] == Method::CUBIC) {
+    if (methods[dim] == Method::cubic) {
       interpolation_coefficients[dim][0] = 2 * mu * mu * mu - 3 * mu * mu + 1;
       interpolation_coefficients[dim][1] = -2 * mu * mu * mu + 3 * mu * mu;
       cubic_slope_coefficients[dim][0] =
-          (mu * mu * mu - 2 * mu * mu + mu) * get_axis_spacing_mult(dim, 0, point_floor[dim]);
+          (mu * mu * mu - 2 * mu * mu + mu) * get_axis_spacing_multiplier(dim, 0, point_floor[dim]);
       cubic_slope_coefficients[dim][1] =
-          (mu * mu * mu - mu * mu) * get_axis_spacing_mult(dim, 1, point_floor[dim]);
+          (mu * mu * mu - mu * mu) * get_axis_spacing_multiplier(dim, 1, point_floor[dim]);
     } else {
-      if (methods[dim] == Method::CONSTANT) {
+      if (methods[dim] == Method::constant) {
         mu = mu < 0 ? 0 : 1;
       }
       interpolation_coefficients[dim][0] = 1 - mu;
@@ -601,35 +603,35 @@ std::vector<std::vector<short>> &RegularGridInterpolatorPrivate::get_hypercube()
   return hypercube;
 }
 
-std::vector<std::vector<double>> RegularGridInterpolatorPrivate::get_interp_coeffs() {
+std::vector<std::vector<double>> &RegularGridInterpolatorPrivate::get_interpolation_coefficients() {
   return interpolation_coefficients;
 }
 
-std::vector<std::vector<double>> RegularGridInterpolatorPrivate::get_cubic_slope_coeffs() {
+std::vector<std::vector<double>> &RegularGridInterpolatorPrivate::get_cubic_slope_coefficients() {
   return cubic_slope_coefficients;
 }
 
-std::vector<Method> RegularGridInterpolatorPrivate::get_extrap_methods() const {
+std::vector<Method> RegularGridInterpolatorPrivate::get_extrapolation_methods() const {
   std::vector<Method> extrap_methods(number_of_dimensions);
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
-    extrap_methods[dim] = grid_axes[dim].extrapolation_method;
+    extrap_methods[dim] = grid_axes[dim].get_extrapolation_method();
   }
   return extrap_methods;
 }
 
-std::vector<Method> RegularGridInterpolatorPrivate::get_interp_methods() const {
+std::vector<Method> RegularGridInterpolatorPrivate::get_interpolation_methods() const {
   std::vector<Method> interp_methods(number_of_dimensions);
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
-    interp_methods[dim] = grid_axes[dim].interpolation_method;
+    interp_methods[dim] = grid_axes[dim].get_interpolation_method();
   }
   return interp_methods;
 }
 
-double RegularGridInterpolatorPrivate::get_axis_spacing_mult(const std::size_t dim,
-                                                             const std::size_t flavor,
-                                                             const std::size_t index) const {
-  if (grid_axes[dim].interpolation_method == Method::CUBIC) {
-    return grid_axes[dim].get_spacing_multiplier(flavor, index);
+double RegularGridInterpolatorPrivate::get_axis_spacing_multiplier(const std::size_t dimension,
+                                                                   const std::size_t flavor,
+                                                                   const std::size_t index) const {
+  if (grid_axes[dimension].get_interpolation_method() == Method::cubic) {
+    return grid_axes[dimension].get_spacing_multiplier(flavor, index);
   } else {
     return 0.0;
   }

@@ -43,7 +43,7 @@ protected:
                8, 4}}; // 15
     target = {12, 5};
     setup();
-    interpolator.set_axis_extrapolation_method(0, Method::LINEAR);
+    interpolator.set_axis_extrapolation_method(0, Method::linear);
   }
 };
 
@@ -65,7 +65,7 @@ protected:
 
     target = {12, 4.5};
     setup();
-    interpolator.set_axis_interpolation_method(0, Method::CUBIC);
+    interpolator.set_axis_interpolation_method(0, Method::cubic);
   }
 };
 
@@ -75,7 +75,7 @@ public:
   std::vector<std::vector<double>> grid;
   RegularGridInterpolatorPrivate interpolator;
 
-  EmptyGridFixturePrivate() {}
+  EmptyGridFixturePrivate() = default;
 
   void setup() {
     interpolator = RegularGridInterpolatorPrivate(grid, std::make_shared<BtwxtContextCourierr>());
@@ -89,9 +89,9 @@ protected:
     values = {{6, 3, 2, 8, 4, 2, 3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
     target = {26.9, 12, 5};
     setup();
-    interpolator.set_axis_interpolation_method(0, Method::LINEAR);
-    interpolator.set_axis_interpolation_method(1, Method::CUBIC);
-    interpolator.set_axis_interpolation_method(2, Method::LINEAR);
+    interpolator.set_axis_interpolation_method(0, Method::linear);
+    interpolator.set_axis_interpolation_method(1, Method::cubic);
+    interpolator.set_axis_interpolation_method(2, Method::linear);
   }
 };
 
