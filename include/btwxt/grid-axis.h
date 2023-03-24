@@ -56,7 +56,7 @@ public:
     return extrapolation_limits;
   }
 
-  [[nodiscard]] const std::vector<double> &get_spacing_multipliers(const std::size_t flavor) const;
+  [[nodiscard]] const std::vector<double> &get_cubic_spacing_ratios(const std::size_t flavor) const;
 
 private:
   std::vector<double> values;
@@ -64,9 +64,12 @@ private:
   Method interpolation_method{Method::linear};
   std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
   std::vector<std::vector<double>>
-      spacing_multipliers; // Used for cubic interpolation. For each point, represents the ratio of
+      cubic_spacing_ratios; // Used for cubic interpolation. Outer vector is size 2: 0: spacing for
+                            // the floor, 1: spacing for the ceiling. Inner vector is length of axis
+                            // values, but the floor vector doesn't use the first entry and the
+                            // ceiling doesn't use the last entry.
   std::shared_ptr<Courierr::Courierr> logger;
-  void calculate_spacing_multipliers();
+  void calculate_cubic_spacing_ratios();
   void check_grid_sorted();
   void check_extrapolation_limits();
 };

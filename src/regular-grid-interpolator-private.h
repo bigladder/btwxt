@@ -111,8 +111,8 @@ public:
 
   void set_floor();
 
-  [[nodiscard]] const std::vector<double> &get_axis_spacing_multipliers(std::size_t dimension,
-                                                                        std::size_t flavor) const;
+  [[nodiscard]] const std::vector<double> &get_axis_cubic_spacing_ratios(std::size_t dimension,
+                                                                         std::size_t flavor) const;
   std::string write_data();
 
   void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_grid_axes_loggers = false);

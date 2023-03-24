@@ -13,7 +13,7 @@ GridAxis::GridAxis(std::vector<double> values_in, std::shared_ptr<Courierr::Cour
       extrapolation_method(extrapolation_method),
       interpolation_method(interpolation_method),
       extrapolation_limits(std::move(extrapolation_limits)),
-      spacing_multipliers(
+      cubic_spacing_ratios(
           2, std::vector<double>(std::max(static_cast<int>(values.size()) - 1, 0), 1.0)),
       logger(logger_in) {
   if (!logger) {
@@ -25,14 +25,14 @@ GridAxis::GridAxis(std::vector<double> values_in, std::shared_ptr<Courierr::Cour
   check_grid_sorted();
   check_extrapolation_limits();
   if (interpolation_method == Method::cubic) {
-    calculate_spacing_multipliers();
+    calculate_cubic_spacing_ratios();
   }
 }
 
 void GridAxis::set_interpolation_method(Method interpolation_method_in) {
   interpolation_method = interpolation_method_in;
   if (interpolation_method_in == Method::cubic) {
-    calculate_spacing_multipliers();
+    calculate_cubic_spacing_ratios();
   }
 }
 
@@ -67,7 +67,7 @@ void GridAxis::set_extrapolation_method(Method extrapolation_method_in) {
   extrapolation_method = extrapolation_method_in;
 }
 
-void GridAxis::calculate_spacing_multipliers() {
+void GridAxis::calculate_cubic_spacing_ratios() {
   if (get_length() == 1) {
     interpolation_method = Method::linear;
     logger->info("A cubic interpolation method is not valid for grid axes with only one value. "
@@ -81,16 +81,16 @@ void GridAxis::calculate_spacing_multipliers() {
   for (std::size_t i = 0; i < values.size() - 1; i++) {
     double center_spacing = values[i + 1] - values[i];
     if (i != 0) {
-      spacing_multipliers[floor][i] = center_spacing / (values[i + 1] - values[i - 1]);
+      cubic_spacing_ratios[floor][i] = center_spacing / (values[i + 1] - values[i - 1]);
     }
     if (i + 2 != values.size()) {
-      spacing_multipliers[ceiling][i] = center_spacing / (values[i + 2] - values[i]);
+      cubic_spacing_ratios[ceiling][i] = center_spacing / (values[i + 2] - values[i]);
     }
   }
 }
 
-const std::vector<double> &GridAxis::get_spacing_multipliers(const std::size_t flavor) const {
-  return spacing_multipliers[flavor];
+const std::vector<double> &GridAxis::get_cubic_spacing_ratios(const std::size_t flavor) const {
+  return cubic_spacing_ratios[flavor];
 }
 
 void GridAxis::check_grid_sorted() {

@@ -542,9 +542,9 @@ void RegularGridInterpolatorPrivate::calculate_interpolation_coefficients() {
       interpolation_coefficients[dim][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
       cubic_slope_coefficients[dim][floor] =
           (mu * mu * mu - 2 * mu * mu + mu) *
-          get_axis_spacing_multipliers(dim, floor)[point_floor[dim]];
+          get_axis_cubic_spacing_ratios(dim, floor)[point_floor[dim]];
       cubic_slope_coefficients[dim][ceiling] =
-          (mu * mu * mu - mu * mu) * get_axis_spacing_multipliers(dim, ceiling)[point_floor[dim]];
+          (mu * mu * mu - mu * mu) * get_axis_cubic_spacing_ratios(dim, ceiling)[point_floor[dim]];
     } else {
       if (methods[dim] == Method::constant) {
         mu = mu < 0 ? 0 : 1;
@@ -631,9 +631,9 @@ std::vector<Method> RegularGridInterpolatorPrivate::get_interpolation_methods() 
 }
 
 const std::vector<double> &
-RegularGridInterpolatorPrivate::get_axis_spacing_multipliers(const std::size_t dimension,
-                                                             const std::size_t flavor) const {
-  return grid_axes[dimension].get_spacing_multipliers(flavor);
+RegularGridInterpolatorPrivate::get_axis_cubic_spacing_ratios(const std::size_t dimension,
+                                                              const std::size_t flavor) const {
+  return grid_axes[dimension].get_cubic_spacing_ratios(flavor);
 }
 
 } // namespace Btwxt

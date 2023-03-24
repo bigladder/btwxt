@@ -18,19 +18,19 @@ TEST_F(CubicFixture, spacing_multiplier) {
   static constexpr std::size_t floor = 0;
   static constexpr std::size_t ceiling = 1;
   double result;
-  result = interpolator.get_axis_spacing_multipliers(0, floor)[0];
+  result = interpolator.get_axis_cubic_spacing_ratios(0, floor)[0];
   EXPECT_DOUBLE_EQ(result, 1.0);
 
-  result = interpolator.get_axis_spacing_multipliers(0, ceiling)[0];
+  result = interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[0];
   EXPECT_DOUBLE_EQ(result, (10. - 6.) / (15.0 - 6.0));
 
-  result = interpolator.get_axis_spacing_multipliers(0, floor)[1];
+  result = interpolator.get_axis_cubic_spacing_ratios(0, floor)[1];
   EXPECT_DOUBLE_EQ(result, (15. - 10.) / (15.0 - 6.0));
 
-  result = interpolator.get_axis_spacing_multipliers(0, ceiling)[2];
+  result = interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[2];
   EXPECT_DOUBLE_EQ(result, 1.0);
 
-  result = interpolator.get_axis_spacing_multipliers(1, floor)[0];
+  result = interpolator.get_axis_cubic_spacing_ratios(1, floor)[0];
   EXPECT_DOUBLE_EQ(result, 1.0);
 }
 
@@ -75,10 +75,10 @@ TEST_F(CubicFixture, grid_point_interp_coeffs) {
 
   EXPECT_EQ(cubic_slope_coefficients[0][0],
             (mu * mu * mu - 2 * mu * mu + mu) *
-                interpolator.get_axis_spacing_multipliers(0, floor)[floor_index]);
+                interpolator.get_axis_cubic_spacing_ratios(0, floor)[floor_index]);
   EXPECT_EQ(cubic_slope_coefficients[0][1],
             (mu * mu * mu - mu * mu) *
-                interpolator.get_axis_spacing_multipliers(0, ceiling)[floor_index]);
+                interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[floor_index]);
 }
 
 TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
@@ -137,7 +137,7 @@ TEST_F(CubicFixture, hypercube_calculations) {
   EXPECT_NEAR(result[1], 11.9271, 0.0001);
 }
 
-TEST_F(CubicFixture, get_spacing_multipliers) {
+TEST_F(CubicFixture, get_cubic_spacing_ratios) {
   // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:
   // flavor 0: {4/4, 5/9, 5/10}
   // flavor 1: {4/9, 5/10, 5/5}
@@ -146,7 +146,7 @@ TEST_F(CubicFixture, get_spacing_multipliers) {
   double result;
   for (std::size_t flavor = 0; flavor < 2; flavor++) {
     for (std::size_t index = 0; index < 3; index++) {
-      result = interpolator.get_axis_spacing_multipliers(0, flavor)[index];
+      result = interpolator.get_axis_cubic_spacing_ratios(0, flavor)[index];
       EXPECT_DOUBLE_EQ(result, expected_results[flavor][index]);
     }
   }

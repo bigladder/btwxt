@@ -36,16 +36,16 @@ TEST(GridAxis, sorting) {
   EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector, logger););
 }
 
-TEST(GridAxis, calculate_spacing_multipliers) {
+TEST(GridAxis, calculate_cubic_spacing_ratios) {
   static constexpr std::size_t floor = 0;
   static constexpr std::size_t ceiling = 1;
   std::vector<double> grid_vector{6, 10, 15, 20, 22};
 
   GridAxis test_gridaxis(grid_vector, std::make_shared<BtwxtContextCourierr>(), Method::constant,
                          Method::cubic, {-DBL_MAX, DBL_MAX});
-  EXPECT_THAT(test_gridaxis.get_spacing_multipliers(floor),
+  EXPECT_THAT(test_gridaxis.get_cubic_spacing_ratios(floor),
               testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
-  EXPECT_THAT(test_gridaxis.get_spacing_multipliers(ceiling),
+  EXPECT_THAT(test_gridaxis.get_cubic_spacing_ratios(ceiling),
               testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));
 }
 
