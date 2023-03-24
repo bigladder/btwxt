@@ -10,11 +10,11 @@ GridAxis::GridAxis(std::vector<double> values_in, std::shared_ptr<Courierr::Cour
                    Method extrapolation_method, Method interpolation_method,
                    std::pair<double, double> extrapolation_limits)
     : values(std::move(values_in)),
-      spacing_multipliers(
-          2, std::vector<double>(std::max(static_cast<int>(values_in.size()) - 1, 0), 1.0)),
       extrapolation_method(extrapolation_method),
       interpolation_method(interpolation_method),
       extrapolation_limits(std::move(extrapolation_limits)),
+      spacing_multipliers(
+          2, std::vector<double>(std::max(static_cast<int>(values.size()) - 1, 0), 1.0)),
       logger(logger_in) {
   if (!logger) {
     throw std::exception(); // TODO: correct exception
@@ -36,27 +36,61 @@ void GridAxis::set_interpolation_method(Method interpolation_method_in) {
   }
 }
 
+void GridAxis::set_extrapolation_method(Method extrapolation_method_in) {
+  switch (extrapolation_method_in) {
+  case Method::linear: {
+    if (get_length() == 1) {
+      extrapolation_method = Method::constant;
+      logger->info("A linear extrapolation method is not valid for grid axes with only one value. "
+                   "Extrapolation method reset to constant.");
+      return;
+    }
+    break;
+  }
+  case Method::cubic: {
+    if (get_length() <= 1) {
+      extrapolation_method = Method::constant;
+      logger->info("A cubic extrapolation method is not valid for grid axes with only one value. "
+                   "Extrapolation method reset to constant.");
+      return;
+    } else if (get_length() == 2) {
+      extrapolation_method = Method::linear;
+      logger->info("A cubic extrapolation method is not valid for grid axes with only two values. "
+                   "Extrapolation method reset to linear.");
+      return;
+    }
+  }
+  default: {
+    break;
+  }
+  }
+  extrapolation_method = extrapolation_method_in;
+}
+
 void GridAxis::calculate_spacing_multipliers() {
-  // "0" and "1" are the "flavors" of the calculate_spacing_multipliers.
-  // If you are sitting at the "0" along an edge of the hypercube, you want the "0" flavor
-  if (values.size() == 1) {
+  if (get_length() == 1) {
     interpolation_method = Method::linear;
     logger->info("A cubic interpolation method is not valid for grid axes with only one value. "
                  "Interpolation method reset to linear.");
   }
+  if (interpolation_method == Method::linear) {
+    return;
+  }
+  static constexpr std::size_t floor = 0;
+  static constexpr std::size_t ceiling = 1;
   for (std::size_t i = 0; i < values.size() - 1; i++) {
     double center_spacing = values[i + 1] - values[i];
     if (i != 0) {
-      spacing_multipliers[0][i] = center_spacing / (values[i + 1] - values[i - 1]);
+      spacing_multipliers[floor][i] = center_spacing / (values[i + 1] - values[i - 1]);
     }
     if (i + 2 != values.size()) {
-      spacing_multipliers[1][i] = center_spacing / (values[i + 2] - values[i]);
+      spacing_multipliers[ceiling][i] = center_spacing / (values[i + 2] - values[i]);
     }
   }
 }
 
-double GridAxis::get_spacing_multiplier(const std::size_t &flavor, const std::size_t &index) const {
-  return spacing_multipliers[flavor][index];
+const std::vector<double> &GridAxis::get_spacing_multipliers(const std::size_t flavor) const {
+  return spacing_multipliers[flavor];
 }
 
 void GridAxis::check_grid_sorted() {
@@ -80,5 +114,4 @@ void GridAxis::check_extrapolation_limits() {
     extrapolation_limits.second = values.back();
   }
 }
-
 } // namespace Btwxt

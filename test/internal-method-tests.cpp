@@ -15,21 +15,23 @@
 namespace Btwxt {
 
 TEST_F(CubicFixture, spacing_multiplier) {
+  static constexpr std::size_t floor = 0;
+  static constexpr std::size_t ceiling = 1;
   double result;
-  result = interpolator.get_axis_spacing_multiplier(0, 0, 0);
+  result = interpolator.get_axis_spacing_multipliers(0, floor)[0];
   EXPECT_DOUBLE_EQ(result, 1.0);
 
-  result = interpolator.get_axis_spacing_multiplier(0, 1, 0);
+  result = interpolator.get_axis_spacing_multipliers(0, ceiling)[0];
   EXPECT_DOUBLE_EQ(result, (10. - 6.) / (15.0 - 6.0));
 
-  result = interpolator.get_axis_spacing_multiplier(0, 0, 1);
+  result = interpolator.get_axis_spacing_multipliers(0, floor)[1];
   EXPECT_DOUBLE_EQ(result, (15. - 10.) / (15.0 - 6.0));
 
-  result = interpolator.get_axis_spacing_multiplier(0, 1, 2);
+  result = interpolator.get_axis_spacing_multipliers(0, ceiling)[2];
   EXPECT_DOUBLE_EQ(result, 1.0);
 
-  result = interpolator.get_axis_spacing_multiplier(1, 0, 0);
-  EXPECT_DOUBLE_EQ(result, 0.0);
+  result = interpolator.get_axis_spacing_multipliers(1, floor)[0];
+  EXPECT_DOUBLE_EQ(result, 1.0);
 }
 
 TEST_F(CubicFixture, switch_interp_method) {
@@ -58,21 +60,25 @@ TEST_F(CubicFixture, interpolate) {
 }
 
 TEST_F(CubicFixture, grid_point_interp_coeffs) {
+  static constexpr std::size_t floor = 0;
+  static constexpr std::size_t ceiling = 1;
+
   interpolator.set_target(target);
 
   auto &interpolation_coefficients = interpolator.get_interpolation_coefficients();
   auto &cubic_slope_coefficients = interpolator.get_cubic_slope_coefficients();
   double mu = interpolator.get_weights()[0];
-  std::size_t floor = interpolator.get_floor()[0];
+  std::size_t floor_index = interpolator.get_floor()[0];
 
   EXPECT_EQ(interpolation_coefficients[0][0], 2 * mu * mu * mu - 3 * mu * mu + 1);
   EXPECT_EQ(interpolation_coefficients[0][1], -2 * mu * mu * mu + 3 * mu * mu);
 
   EXPECT_EQ(cubic_slope_coefficients[0][0],
             (mu * mu * mu - 2 * mu * mu + mu) *
-                interpolator.get_axis_spacing_multiplier(0, 0, floor));
+                interpolator.get_axis_spacing_multipliers(0, floor)[floor_index]);
   EXPECT_EQ(cubic_slope_coefficients[0][1],
-            (mu * mu * mu - mu * mu) * interpolator.get_axis_spacing_multiplier(0, 1, floor));
+            (mu * mu * mu - mu * mu) *
+                interpolator.get_axis_spacing_multipliers(0, ceiling)[floor_index]);
 }
 
 TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
@@ -140,7 +146,7 @@ TEST_F(CubicFixture, get_spacing_multipliers) {
   double result;
   for (std::size_t flavor = 0; flavor < 2; flavor++) {
     for (std::size_t index = 0; index < 3; index++) {
-      result = interpolator.get_axis_spacing_multiplier(0, flavor, index);
+      result = interpolator.get_axis_spacing_multipliers(0, flavor)[index];
       EXPECT_DOUBLE_EQ(result, expected_results[flavor][index]);
     }
   }

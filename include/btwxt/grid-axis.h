@@ -38,10 +38,7 @@ public:
 
   // Setters
   void set_interpolation_method(Method interpolation_method_in);
-  void set_extrapolation_method(Method extrapolation_method_in) {
-    extrapolation_method = extrapolation_method_in;
-  }
-
+  void set_extrapolation_method(Method extrapolation_method_in);
   void set_extrapolation_limits(std::pair<double, double> limits) {
     extrapolation_limits = limits;
     check_extrapolation_limits();
@@ -51,7 +48,7 @@ public:
   std::shared_ptr<Courierr::Courierr> get_logger() { return logger; };
 
   // Getters
-  [[nodiscard]] std::vector<double> &get_values() { return values; }
+  [[nodiscard]] const std::vector<double> &get_values() { return values; }
   [[nodiscard]] std::size_t get_length() const { return values.size(); }
   [[nodiscard]] Method get_extrapolation_method() const { return extrapolation_method; }
   [[nodiscard]] Method get_interpolation_method() const { return interpolation_method; }
@@ -59,17 +56,15 @@ public:
     return extrapolation_limits;
   }
 
-  [[nodiscard]] double get_spacing_multiplier(const std::size_t &flavor,
-                                              const std::size_t &index) const;
-  // TODO Make private
-  std::vector<std::vector<double>>
-      spacing_multipliers; // Used for cubic interpolation. For each point, represents the ratio of
+  [[nodiscard]] const std::vector<double> &get_spacing_multipliers(const std::size_t flavor) const;
 
 private:
   std::vector<double> values;
   Method extrapolation_method{Method::constant};
   Method interpolation_method{Method::linear};
   std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
+  std::vector<std::vector<double>>
+      spacing_multipliers; // Used for cubic interpolation. For each point, represents the ratio of
   std::shared_ptr<Courierr::Courierr> logger;
   void calculate_spacing_multipliers();
   void check_grid_sorted();

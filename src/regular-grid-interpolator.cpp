@@ -474,7 +474,7 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
       if (is_inbounds[dim] == Bounds::out_of_bounds) {
         methods[dim] = extrapolation_methods[dim];
       } else if (is_inbounds[dim] == Bounds::outlaw) {
-        // showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation
+        // TODO showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the extrapolation
         // limits in dimension ", dim,
         //                                ". Will perform constant extrapolation."));
         methods[dim] = Method::constant;
@@ -533,30 +533,33 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
 }
 
 void RegularGridInterpolatorPrivate::calculate_interpolation_coefficients() {
+  static constexpr std::size_t floor = 0;
+  static constexpr std::size_t ceiling = 1;
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
     double mu = weights[dim];
     if (methods[dim] == Method::cubic) {
-      interpolation_coefficients[dim][0] = 2 * mu * mu * mu - 3 * mu * mu + 1;
-      interpolation_coefficients[dim][1] = -2 * mu * mu * mu + 3 * mu * mu;
-      cubic_slope_coefficients[dim][0] =
-          (mu * mu * mu - 2 * mu * mu + mu) * get_axis_spacing_multiplier(dim, 0, point_floor[dim]);
-      cubic_slope_coefficients[dim][1] =
-          (mu * mu * mu - mu * mu) * get_axis_spacing_multiplier(dim, 1, point_floor[dim]);
+      interpolation_coefficients[dim][floor] = 2 * mu * mu * mu - 3 * mu * mu + 1;
+      interpolation_coefficients[dim][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
+      cubic_slope_coefficients[dim][floor] =
+          (mu * mu * mu - 2 * mu * mu + mu) *
+          get_axis_spacing_multipliers(dim, floor)[point_floor[dim]];
+      cubic_slope_coefficients[dim][ceiling] =
+          (mu * mu * mu - mu * mu) * get_axis_spacing_multipliers(dim, ceiling)[point_floor[dim]];
     } else {
       if (methods[dim] == Method::constant) {
         mu = mu < 0 ? 0 : 1;
       }
-      interpolation_coefficients[dim][0] = 1 - mu;
-      interpolation_coefficients[dim][1] = mu;
-      cubic_slope_coefficients[dim][0] = 0.0;
-      cubic_slope_coefficients[dim][1] = 0.0;
+      interpolation_coefficients[dim][floor] = 1 - mu;
+      interpolation_coefficients[dim][ceiling] = mu;
+      cubic_slope_coefficients[dim][floor] = 0.0;
+      cubic_slope_coefficients[dim][ceiling] = 0.0;
     }
-    weighting_factors[dim][0] = -cubic_slope_coefficients[dim][0]; // point below floor (-1)
-    weighting_factors[dim][1] =
-        interpolation_coefficients[dim][0] - cubic_slope_coefficients[dim][1]; // floor (0)
-    weighting_factors[dim][2] =
-        interpolation_coefficients[dim][1] + cubic_slope_coefficients[dim][0]; // ceiling (1)
-    weighting_factors[dim][3] = cubic_slope_coefficients[dim][1]; // point above ceiling (2)
+    weighting_factors[dim][0] = -cubic_slope_coefficients[dim][floor]; // point below floor (-1)
+    weighting_factors[dim][1] = interpolation_coefficients[dim][floor] -
+                                cubic_slope_coefficients[dim][ceiling]; // floor (0)
+    weighting_factors[dim][2] = interpolation_coefficients[dim][ceiling] +
+                                cubic_slope_coefficients[dim][floor];   // ceiling (1)
+    weighting_factors[dim][3] = cubic_slope_coefficients[dim][ceiling]; // point above ceiling (2)
   }
 }
 
@@ -627,14 +630,10 @@ std::vector<Method> RegularGridInterpolatorPrivate::get_interpolation_methods() 
   return interp_methods;
 }
 
-double RegularGridInterpolatorPrivate::get_axis_spacing_multiplier(const std::size_t dimension,
-                                                                   const std::size_t flavor,
-                                                                   const std::size_t index) const {
-  if (grid_axes[dimension].get_interpolation_method() == Method::cubic) {
-    return grid_axes[dimension].get_spacing_multiplier(flavor, index);
-  } else {
-    return 0.0;
-  }
+const std::vector<double> &
+RegularGridInterpolatorPrivate::get_axis_spacing_multipliers(const std::size_t dimension,
+                                                             const std::size_t flavor) const {
+  return grid_axes[dimension].get_spacing_multipliers(flavor);
 }
 
 } // namespace Btwxt
