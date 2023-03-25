@@ -13,14 +13,14 @@
 
 #include <fmt/format.h>
 
-#define EXPECT_STDOUT(action, ExpectedOut)                                                         \
+#define EXPECT_STDOUT(action, expected_stdout)                                                     \
   {                                                                                                \
     std::stringstream buffer;                                                                      \
     std::streambuf *sbuf = std::cout.rdbuf();                                                      \
     std::cout.rdbuf(buffer.rdbuf());                                                               \
     action std::string capture = buffer.str();                                                     \
     std::cout.rdbuf(sbuf);                                                                         \
-    EXPECT_STREQ(ExpectedOut.c_str(), buffer.str().c_str());                                       \
+    EXPECT_STREQ(expected_stdout.c_str(), buffer.str().c_str());                                   \
   }
 
 namespace Btwxt {
@@ -77,7 +77,7 @@ public:
 protected:
   FunctionFixture() = default;
 
-  void setup() {
+  void setup() override {
     values.resize(functions.size());
     for (std::size_t i = 0u; i < functions.size(); i++) {
       for (auto &grid_point : cartesian_product(grid)) {
@@ -102,8 +102,9 @@ static std::vector<double> linspace(double first, double last, std::size_t lengt
   std::vector<double> result(length);
   double step = (last - first) / (static_cast<double>(length) - 1.);
   double val = first;
-  for (std::size_t i = 0; i < length; i++, val += step) {
+  for (std::size_t i = 0; i < length; i++) {
     result[i] = val;
+    val += step;
   }
   return result;
 }

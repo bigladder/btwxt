@@ -24,18 +24,18 @@ public:
   RegularGridInterpolatorPrivate() = default;
 
   RegularGridInterpolatorPrivate(const std::vector<std::vector<double>> &grid,
-                                 std::shared_ptr<Courierr::Courierr> logger);
+                                 const std::shared_ptr<Courierr::Courierr> &logger);
 
   RegularGridInterpolatorPrivate(const std::vector<GridAxis> &grid,
-                                 std::shared_ptr<Courierr::Courierr> logger);
+                                 const std::shared_ptr<Courierr::Courierr> &logger);
 
   RegularGridInterpolatorPrivate(const std::vector<std::vector<double>> &grid,
                                  const std::vector<std::vector<double>> &values,
-                                 std::shared_ptr<Courierr::Courierr> logger);
+                                 const std::shared_ptr<Courierr::Courierr> &logger);
 
   RegularGridInterpolatorPrivate(const std::vector<GridAxis> &grid,
                                  const std::vector<std::vector<double>> &values,
-                                 std::shared_ptr<Courierr::Courierr> logger);
+                                 const std::shared_ptr<Courierr::Courierr> &logger);
 
   // Data manipulation and settings
   std::size_t add_value_table(const std::vector<double> &value_vector);
@@ -78,7 +78,7 @@ public:
 
   void clear_target();
 
-  std::vector<double> get_results();
+  [[nodiscard]] std::vector<double> get_results() const;
 
   std::vector<double> get_results(const std::vector<double> &target);
 
@@ -90,7 +90,8 @@ public:
 
   std::string write_data();
 
-  void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_grid_axes_loggers = false);
+  void set_logger(const std::shared_ptr<Courierr::Courierr> &logger,
+                  bool set_grid_axes_loggers = false);
 
   // Public getters
   [[nodiscard]] std::pair<double, double> get_extrapolation_limits(std::size_t axis) const;
@@ -110,8 +111,9 @@ public:
   [[nodiscard]] const std::vector<double> &
   get_axis_cubic_spacing_ratios(std::size_t axis, std::size_t floor_or_ceiling) const;
 
-  static std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>> &grid,
-                                              std::shared_ptr<Courierr::Courierr> logger_in) {
+  static std::vector<GridAxis>
+  construct_axes(const std::vector<std::vector<double>> &grid,
+                 const std::shared_ptr<Courierr::Courierr> &logger_in) {
     std::vector<GridAxis> grid_axes;
     grid_axes.reserve(grid.size());
     for (const auto &axis : grid) {
@@ -121,12 +123,12 @@ public:
   }
 
   const std::vector<double> &get_grid_point_values(const std::vector<std::size_t> &coords);
-  const std::vector<double> &get_grid_point_values(const size_t index);
+  const std::vector<double> &get_grid_point_values(size_t index);
 
   std::vector<double> get_grid_point_values_relative(const std::vector<std::size_t> &coords,
                                                      const std::vector<short> &translation);
 
-  const std::vector<double> &get_axis_values(const size_t axis);
+  const std::vector<double> &get_axis_values(size_t axis);
 
   [[nodiscard]] std::vector<Method> get_interpolation_methods() const;
 

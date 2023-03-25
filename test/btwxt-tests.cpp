@@ -59,34 +59,34 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate) {
 
 TEST_F(GridFixture2D, target_undefined) {
   std::vector<double> returned_target;
-  std::string TargetExpectedOut =
+  std::string expected_stdout =
       "  WARNING: The current target was requested, but no target has been set.\n";
 
   // The test fixture does not instantiate a GridPoint.
-  EXPECT_STDOUT(returned_target = interpolator.get_target();, TargetExpectedOut);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_stdout)
   std::vector<double> expected_result = {0, 0};
   EXPECT_EQ(returned_target, expected_result);
 
   double bad_result;
   std::string ResultsExpectedOut =
       "  WARNING: Results were requested, but no target has been set.\n";
-  EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut);
+  EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut)
   EXPECT_EQ(bad_result, 0);
 
   // Define the target; make sure it works now.
   interpolator.set_target(target);
-  std::string EmptyOut{""};
-  EXPECT_STDOUT(returned_target = interpolator.get_target();, EmptyOut);
+  std::string empty_out; // intentionally default ""
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, empty_out)
   expected_result = {12, 5};
   EXPECT_EQ(returned_target, expected_result);
 
   // Clear the target; see that it reverts to warnings.
   interpolator.clear_target();
-  EXPECT_STDOUT(returned_target = interpolator.get_target();, TargetExpectedOut);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_stdout)
   expected_result = {0, 0};
   EXPECT_EQ(returned_target, expected_result);
 
-  EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut);
+  EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut)
   EXPECT_EQ(bad_result, 0);
 }
 
@@ -111,13 +111,13 @@ TEST_F(GridFixture2D, interpolate) {
 
 TEST_F(GridFixture2D, extrapolate) {
   // axis1 is designated constant extrapolation
-  std::vector<double> const_extr_target = {10, 3};
-  std::vector<double> result = interpolator(const_extr_target);
+  target = {10, 3};
+  std::vector<double> result = interpolator(target);
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(2), testing::DoubleEq(4)));
 
   // axis0 is designated linear extrapolation
-  std::vector<double> lin_extr_target = {18, 5};
-  result = interpolator(lin_extr_target);
+  target = {18, 5};
+  result = interpolator(target);
   EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
 }
 
@@ -154,19 +154,19 @@ TEST_F(GridFixture2D, logger_modify_context) {
   std::vector<double> returned_target;
   std::string expected_error =
       "  WARNING: The current target was requested, but no target has been set.\n";
-  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
   std::string context_str{"Context 1:"};
   interpolator.get_logger()->set_message_context(reinterpret_cast<void *>(&context_str));
   expected_error =
       "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
-  EXPECT_STDOUT(interpolator.get_target();, expected_error);
+  EXPECT_STDOUT(interpolator.get_target();, expected_error)
 }
 
 TEST_F(GridFixture2D, unique_logger_per_rgi_instance) {
   std::vector<double> returned_target;
   std::string expected_error =
       "  WARNING: The current target was requested, but no target has been set.\n";
-  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error);
+  EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
 
   RegularGridInterpolator rgi2;
   rgi2 = interpolator;
@@ -176,9 +176,9 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance) {
   rgi2.set_logger(logger2);
   std::string expected_error2{
       "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
-  EXPECT_STDOUT(rgi2.get_target();, expected_error2);
+  EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 
-  EXPECT_STDOUT(interpolator.get_target();, expected_error); // Recheck
+  EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
 }
 
 TEST_F(GridFixture2D, access_logger_in_btwxt) {
@@ -187,7 +187,7 @@ TEST_F(GridFixture2D, access_logger_in_btwxt) {
   rgi2.get_logger()->set_message_context(reinterpret_cast<void *>(&context_str));
   std::string expected_error2{
       "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
-  EXPECT_STDOUT(rgi2.get_target();, expected_error2);
+  EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 }
 
 TEST_F(GridFixture2D, cubic_interpolate) {
@@ -305,10 +305,10 @@ TEST_F(FunctionFixture4D, verify_linear) {
 TEST_F(FunctionFixture4D, timer) {
   interpolator.set_target(target);
 
-  // Get starting timepoint
+  // Get starting time point
   auto start = std::chrono::high_resolution_clock::now();
   std::vector<double> result = interpolator.get_values_at_target();
-  // Get ending timepoint
+  // Get ending time point
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
   interpolator.get_logger()->info(
@@ -318,7 +318,7 @@ TEST_F(FunctionFixture4D, timer) {
   start = std::chrono::high_resolution_clock::now();
   // double r0 = fn0(target[0], target[1], target[2], target[3]);
   // double r1 = fn1(target[0], target[1], target[2], target[3]);
-  // Get ending timepoint
+  // Get ending time point
   stop = std::chrono::high_resolution_clock::now();
   auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
   interpolator.get_logger()->info(
@@ -332,12 +332,12 @@ TEST_F(FunctionFixture4D, multi_timer) {
       {4.2, 2.7, 1.3, 4.4}, {2.1, 2.9, 1.8, 1.9}};
 
   for (std::size_t count = 0; count < 10; count++) {
-    // Get starting timepoint
+    // Get starting time point
     auto start = std::chrono::high_resolution_clock::now();
     for (const auto &target : set_of_targets) {
       std::vector<double> result = interpolator(target);
     }
-    // Get ending timepoint
+    // Get ending time point
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     interpolator.get_logger()->info(

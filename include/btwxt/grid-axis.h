@@ -32,7 +32,7 @@ public:
 
   explicit GridAxis(
       std::vector<double> grid_vector,
-      std::shared_ptr<Courierr::Courierr> logger = std::make_shared<BtwxtContextCourierr>(),
+      const std::shared_ptr<Courierr::Courierr> &logger = std::make_shared<BtwxtContextCourierr>(),
       Method extrapolation_method = Method::constant, Method interpolation_method = Method::linear,
       std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
 
@@ -57,7 +57,7 @@ public:
   }
 
   [[nodiscard]] const std::vector<double> &
-  get_cubic_spacing_ratios(const std::size_t floor_or_ceiling) const;
+  get_cubic_spacing_ratios(std::size_t floor_or_ceiling) const;
 
 private:
   std::vector<double> values;

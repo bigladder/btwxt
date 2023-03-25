@@ -22,8 +22,8 @@ RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<d
           std::make_unique<RegularGridInterpolatorPrivate>(grid, values, logger)) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>> &grid,
-                                                 std::shared_ptr<Courierr::Courierr> logger)
-    : RegularGridInterpolator(grid, {}, std::move(logger)) {}
+                                                 const std::shared_ptr<Courierr::Courierr> &logger)
+    : RegularGridInterpolator(grid, {}, logger) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis> &grid,
                                                  const std::vector<std::vector<double>> &values,
@@ -33,7 +33,7 @@ RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis> &gr
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     const std::vector<GridAxis> &grid, const std::vector<std::vector<double>> &values,
-    std::shared_ptr<Courierr::Courierr> logger)
+    const std::shared_ptr<Courierr::Courierr> &logger)
     : grid_axes(grid),
       value_tables(values),
       number_of_tables(values.size()),
@@ -51,25 +51,25 @@ RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
       results(number_of_tables, 0.),
       interpolation_coefficients(number_of_axes, std::vector<double>(2, 0.)),
       cubic_slope_coefficients(number_of_axes, std::vector<double>(2, 0.)),
-      logger(std::move(logger)) {
+      logger(logger) {
   set_axis_sizes();
 }
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     const std::vector<std::vector<double>> &grid, const std::vector<std::vector<double>> &values,
-    std::shared_ptr<Courierr::Courierr> logger)
+    const std::shared_ptr<Courierr::Courierr> &logger)
     : RegularGridInterpolatorPrivate(construct_axes(grid, logger), values, logger) {}
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
-    const std::vector<std::vector<double>> &grid, std::shared_ptr<Courierr::Courierr> logger)
+    const std::vector<std::vector<double>> &grid, const std::shared_ptr<Courierr::Courierr> &logger)
     : RegularGridInterpolatorPrivate(construct_axes(grid, logger), {}, logger) {}
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
-    const std::vector<GridAxis> &grid, std::shared_ptr<Courierr::Courierr> logger)
+    const std::vector<GridAxis> &grid, const std::shared_ptr<Courierr::Courierr> &logger)
     : RegularGridInterpolatorPrivate(grid, {}, logger) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis> &grid,
-                                                 std::shared_ptr<Courierr::Courierr> logger)
+                                                 const std::shared_ptr<Courierr::Courierr> &logger)
     : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorPrivate>(grid, logger)) {}
 
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &source) {
@@ -78,8 +78,8 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &
       std::make_unique<RegularGridInterpolatorPrivate>(*source.regular_grid_interpolator);
 }
 
-RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator &source,
-                                                 std::shared_ptr<Courierr::Courierr> logger) {
+RegularGridInterpolator::RegularGridInterpolator(
+    const RegularGridInterpolator &source, const std::shared_ptr<Courierr::Courierr> &logger) {
   *this = source;
   this->regular_grid_interpolator =
       std::make_unique<RegularGridInterpolatorPrivate>(*source.regular_grid_interpolator);
@@ -136,8 +136,8 @@ void RegularGridInterpolator::set_axis_interpolation_method(const std::size_t ax
 }
 
 void RegularGridInterpolator::set_axis_extrapolation_limits(
-    const std::size_t axis, const std::pair<double, double> &extrap_limits) {
-  regular_grid_interpolator->set_axis_extrapolation_limits(axis, extrap_limits);
+    const std::size_t axis, const std::pair<double, double> &extrapolation_limits) {
+  regular_grid_interpolator->set_axis_extrapolation_limits(axis, extrapolation_limits);
 }
 
 // Public normalization methods
@@ -198,7 +198,7 @@ void RegularGridInterpolatorPrivate::normalize_value_table(std::size_t table_num
   }
   scalar = 1.0 / scalar;
   std::transform(table.begin(), table.end(), table.begin(),
-                 std::bind(std::multiplies<double>(), std::placeholders::_1, scalar));
+                 [scalar](double x) -> double { return x * scalar; });
 }
 
 // Public getter methods
@@ -297,7 +297,7 @@ double RegularGridInterpolator::get_value_at_target(std::size_t table_index) {
   return regular_grid_interpolator->get_results()[table_index];
 }
 
-std::vector<double> RegularGridInterpolatorPrivate::get_results() {
+std::vector<double> RegularGridInterpolatorPrivate::get_results() const {
   if (number_of_tables == 0u) {
     logger->warning(
         fmt::format("There are no value tables in the gridded data. No results returned."));
@@ -331,13 +331,13 @@ void RegularGridInterpolator::clear_target() { regular_grid_interpolator->clear_
 
 // Public logging
 
-void RegularGridInterpolator::set_logger(std::shared_ptr<Courierr::Courierr> logger,
+void RegularGridInterpolator::set_logger(const std::shared_ptr<Courierr::Courierr> &logger,
                                          bool set_grid_axes_loggers) {
   regular_grid_interpolator->set_logger(logger, set_grid_axes_loggers);
 }
 
-void RegularGridInterpolatorPrivate::set_logger(std::shared_ptr<Courierr::Courierr> logger_in,
-                                                bool set_grid_axes_loggers) {
+void RegularGridInterpolatorPrivate::set_logger(
+    const std::shared_ptr<Courierr::Courierr> &logger_in, bool set_grid_axes_loggers) {
   logger = logger_in;
   if (set_grid_axes_loggers) {
     for (auto &axis : grid_axes) {
@@ -426,8 +426,7 @@ void RegularGridInterpolatorPrivate::set_axis_floor_grid_point_index(size_t axis
         length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
   } else {
     is_inbounds[axis] = Bounds::in_bounds;
-    std::vector<double>::const_iterator upper =
-        std::upper_bound(axis_values.begin(), axis_values.end(), target[axis]);
+    auto upper = std::upper_bound(axis_values.begin(), axis_values.end(), target[axis]);
     floor_grid_point_coordinates[axis] = upper - axis_values.begin() - 1;
   }
 }
@@ -588,19 +587,19 @@ std::vector<std::vector<short>> &RegularGridInterpolatorPrivate::get_hypercube()
 }
 
 std::vector<Method> RegularGridInterpolatorPrivate::get_extrapolation_methods() const {
-  std::vector<Method> extrap_methods(number_of_axes);
+  std::vector<Method> extrapolation_methods(number_of_axes);
   for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-    extrap_methods[dim] = grid_axes[dim].get_extrapolation_method();
+    extrapolation_methods[dim] = grid_axes[dim].get_extrapolation_method();
   }
-  return extrap_methods;
+  return extrapolation_methods;
 }
 
 std::vector<Method> RegularGridInterpolatorPrivate::get_interpolation_methods() const {
-  std::vector<Method> interp_methods(number_of_axes);
+  std::vector<Method> interpolation_methods(number_of_axes);
   for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-    interp_methods[dim] = grid_axes[dim].get_interpolation_method();
+    interpolation_methods[dim] = grid_axes[dim].get_interpolation_method();
   }
-  return interp_methods;
+  return interpolation_methods;
 }
 
 const std::vector<double> &RegularGridInterpolatorPrivate::get_axis_cubic_spacing_ratios(

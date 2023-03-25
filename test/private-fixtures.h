@@ -22,7 +22,7 @@ public:
   std::vector<double> target;
   RegularGridInterpolatorPrivate interpolator;
 
-  GridFixturePrivate() {}
+  GridFixturePrivate() = default;
 
   void setup() {
     interpolator =

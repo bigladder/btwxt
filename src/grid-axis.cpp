@@ -6,7 +6,8 @@
 
 namespace Btwxt {
 
-GridAxis::GridAxis(std::vector<double> values_in, std::shared_ptr<Courierr::Courierr> logger_in,
+GridAxis::GridAxis(std::vector<double> values_in,
+                   const std::shared_ptr<Courierr::Courierr> &logger_in,
                    Method extrapolation_method, Method interpolation_method,
                    std::pair<double, double> extrapolation_limits)
     : values(std::move(values_in)),
