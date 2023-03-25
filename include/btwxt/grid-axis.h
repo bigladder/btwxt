@@ -56,7 +56,8 @@ public:
     return extrapolation_limits;
   }
 
-  [[nodiscard]] const std::vector<double> &get_cubic_spacing_ratios(const std::size_t flavor) const;
+  [[nodiscard]] const std::vector<double> &
+  get_cubic_spacing_ratios(const std::size_t floor_or_ceiling) const;
 
 private:
   std::vector<double> values;

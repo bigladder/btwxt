@@ -137,15 +137,15 @@ TEST_F(CubicFixture, hypercube_calculations) {
 
 TEST_F(CubicFixture, get_cubic_spacing_ratios) {
   // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:
-  // flavor 0: {4/4, 5/9, 5/10}
-  // flavor 1: {4/9, 5/10, 5/5}
+  // floor: {4/4, 5/9, 5/10}
+  // ceiling: {4/9, 5/10, 5/5}
   std::vector<std::vector<double>> expected_results{{4.0 / 4, 5.0 / 9, 5.0 / 10},
                                                     {4.0 / 9, 5.0 / 10, 5.0 / 5}};
   double result;
-  for (std::size_t flavor = 0; flavor < 2; flavor++) {
+  for (std::size_t floor_or_ceiling = 0; floor_or_ceiling <= 1; floor_or_ceiling++) {
     for (std::size_t index = 0; index < 3; index++) {
-      result = interpolator.get_axis_cubic_spacing_ratios(0, flavor)[index];
-      EXPECT_DOUBLE_EQ(result, expected_results[flavor][index]);
+      result = interpolator.get_axis_cubic_spacing_ratios(0, floor_or_ceiling)[index];
+      EXPECT_DOUBLE_EQ(result, expected_results[floor_or_ceiling][index]);
     }
   }
 }

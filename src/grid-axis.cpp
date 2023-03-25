@@ -86,8 +86,9 @@ void GridAxis::calculate_cubic_spacing_ratios() {
   }
 }
 
-const std::vector<double> &GridAxis::get_cubic_spacing_ratios(const std::size_t flavor) const {
-  return cubic_spacing_ratios[flavor];
+const std::vector<double> &
+GridAxis::get_cubic_spacing_ratios(const std::size_t floor_or_ceiling) const {
+  return cubic_spacing_ratios[floor_or_ceiling];
 }
 
 void GridAxis::check_grid_sorted() {

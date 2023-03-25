@@ -603,10 +603,9 @@ std::vector<Method> RegularGridInterpolatorPrivate::get_interpolation_methods() 
   return interp_methods;
 }
 
-const std::vector<double> &
-RegularGridInterpolatorPrivate::get_axis_cubic_spacing_ratios(const std::size_t dimension,
-                                                              const std::size_t flavor) const {
-  return grid_axes[dimension].get_cubic_spacing_ratios(flavor);
+const std::vector<double> &RegularGridInterpolatorPrivate::get_axis_cubic_spacing_ratios(
+    const std::size_t dimension, const std::size_t floor_or_ceiling) const {
+  return grid_axes[dimension].get_cubic_spacing_ratios(floor_or_ceiling);
 }
 
 } // namespace Btwxt

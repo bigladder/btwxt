@@ -107,8 +107,8 @@ public:
 
   void set_axis_floor_grid_point_index(std::size_t axis);
 
-  [[nodiscard]] const std::vector<double> &get_axis_cubic_spacing_ratios(std::size_t axis,
-                                                                         std::size_t flavor) const;
+  [[nodiscard]] const std::vector<double> &
+  get_axis_cubic_spacing_ratios(std::size_t axis, std::size_t floor_or_ceiling) const;
 
   static std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>> &grid,
                                               std::shared_ptr<Courierr::Courierr> logger_in) {
