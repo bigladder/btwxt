@@ -101,9 +101,9 @@ public:
   std::size_t get_grid_point_index_relative(const std::vector<std::size_t> &coordinates,
                                             const std::vector<short> &translation);
 
-  double get_vertex_weight(const std::vector<short> &v);
+  double get_grid_point_weighting_factor(const std::vector<short> &v);
 
-  void set_floor_grid_point_indices();
+  void set_floor_grid_point_coordinates();
 
   void set_dimension_floor_grid_point_index(std::size_t dimension);
 
@@ -132,7 +132,7 @@ public:
 
   [[nodiscard]] std::vector<Method> get_extrapolation_methods() const;
 
-  void calculate_weights();
+  void calculate_floor_to_ceiling_fractions();
 
   void consolidate_methods();
 
@@ -164,18 +164,20 @@ public:
   // calculated data
   bool target_is_set{false};
   std::vector<double> target;
-  std::vector<std::size_t> floor_grid_point_indices; // index of grid point <= target
-  std::size_t floor_index{0u};
-  std::vector<double> weights;
-  std::vector<Bounds> is_inbounds; // for deciding interpolation vs. extrapolation;
+  std::vector<std::size_t> floor_grid_point_coordinates; // coordinates of the grid point <= target
+  std::size_t floor_grid_point_index{
+      0u}; // Index of the floor_grid_point_coordinates (used for hypercube caching)
+  std::vector<double> floor_to_ceiling_fractions; // for each axis, the fraction the target value is
+                                                  // between its floor and ceiling axis values
+  std::vector<Bounds> is_inbounds;                // for deciding interpolation vs. extrapolation;
   std::vector<Method> methods;
   std::vector<Method> previous_methods;
   std::vector<std::vector<short>> hypercube; // A minimal set of indices near the target needed to
                                              // perform interpolation calculations.
   bool reset_hypercube{false};
-  std::vector<std::vector<double>>
-      weighting_factors;       // A set of weighting factors for each dimension
-  std::vector<double> results; // Interpolated results at a given target
+  std::vector<std::vector<double>> weighting_factors; // weights of hypercube neighbor values used
+                                                      // to calculate the value at the target
+  std::vector<double> results;                        // Interpolated results at a given target
 
   std::vector<std::vector<double>> interpolation_coefficients;
   std::vector<std::vector<double>> cubic_slope_coefficients;

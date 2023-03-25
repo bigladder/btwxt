@@ -43,8 +43,8 @@ RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
       temporary_coordinates(number_of_dimensions),
       grid_point_values(number_of_tables, 0.),
       target(number_of_dimensions, 0.),
-      floor_grid_point_indices(number_of_dimensions, 0),
-      weights(number_of_dimensions, 0.),
+      floor_grid_point_coordinates(number_of_dimensions, 0),
+      floor_to_ceiling_fractions(number_of_dimensions, 0.),
       is_inbounds(number_of_dimensions),
       methods(number_of_dimensions, Method::undefined),
       weighting_factors(number_of_dimensions, std::vector<double>(4, 0.)),
@@ -271,8 +271,8 @@ void RegularGridInterpolatorPrivate::set_target(const std::vector<double> &v) {
   }
   target = v;
   target_is_set = true;
-  set_floor_grid_point_indices();
-  calculate_weights();
+  set_floor_grid_point_coordinates();
+  calculate_floor_to_ceiling_fractions();
   consolidate_methods();
   calculate_interpolation_coefficients();
   set_results();
@@ -282,7 +282,7 @@ void RegularGridInterpolatorPrivate::set_results() {
   set_hypercube_values();
   std::fill(results.begin(), results.end(), 0.0);
   for (std::size_t i = 0; i < hypercube.size(); ++i) {
-    hypercube_weights[i] = get_vertex_weight(hypercube[i]);
+    hypercube_weights[i] = get_grid_point_weighting_factor(hypercube[i]);
     const auto &values = hypercube_values[i];
     for (std::size_t j = 0; j < number_of_tables; ++j) {
       results[j] += values[j] * hypercube_weights[i];
@@ -385,7 +385,7 @@ std::size_t RegularGridInterpolatorPrivate::get_grid_point_index_relative(
     new_coord = static_cast<int>(coords[dim]) + translation[dim];
     if (new_coord < 0) {
       temporary_coordinates[dim] = 0u;
-    } else if (new_coord >= (int)dimension_lengths[dim]) {
+    } else if (new_coord >= static_cast<int>(dimension_lengths[dim])) {
       temporary_coordinates[dim] = dimension_lengths[dim] - 1u;
     } else {
       temporary_coordinates[dim] = new_coord;
@@ -399,11 +399,11 @@ std::vector<double> RegularGridInterpolatorPrivate::get_grid_point_values_relati
   return get_grid_point_values(get_grid_point_index_relative(coords, translation));
 }
 
-void RegularGridInterpolatorPrivate::set_floor_grid_point_indices() {
+void RegularGridInterpolatorPrivate::set_floor_grid_point_coordinates() {
   for (std::size_t dim = 0; dim < number_of_dimensions; dim += 1) {
     set_dimension_floor_grid_point_index(dim);
   }
-  floor_index = get_grid_point_index(floor_grid_point_indices);
+  floor_grid_point_index = get_grid_point_index(floor_grid_point_coordinates);
 }
 
 void RegularGridInterpolatorPrivate::set_dimension_floor_grid_point_index(size_t dimension) {
@@ -411,38 +411,38 @@ void RegularGridInterpolatorPrivate::set_dimension_floor_grid_point_index(size_t
   int length = static_cast<int>(dimension_lengths[dimension]);
   if (target[dimension] < get_extrapolation_limits(dimension).first) {
     is_inbounds[dimension] = Bounds::outlaw;
-    floor_grid_point_indices[dimension] = 0u;
+    floor_grid_point_coordinates[dimension] = 0u;
   } else if (target[dimension] > get_extrapolation_limits(dimension).second) {
     is_inbounds[dimension] = Bounds::outlaw;
-    floor_grid_point_indices[dimension] = std::max(
+    floor_grid_point_coordinates[dimension] = std::max(
         length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
   } else if (target[dimension] < axis_values[0]) {
     is_inbounds[dimension] = Bounds::out_of_bounds;
-    floor_grid_point_indices[dimension] = 0;
+    floor_grid_point_coordinates[dimension] = 0;
   } else if (target[dimension] > axis_values.back()) {
     is_inbounds[dimension] = Bounds::out_of_bounds;
-    floor_grid_point_indices[dimension] = std::max(
+    floor_grid_point_coordinates[dimension] = std::max(
         length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
   } else if (target[dimension] == axis_values.back()) {
     is_inbounds[dimension] = Bounds::in_bounds;
-    floor_grid_point_indices[dimension] = std::max(
+    floor_grid_point_coordinates[dimension] = std::max(
         length - 2, 0); // length-2 because that's the left side of the (length-2, length-1) edge.
   } else {
     is_inbounds[dimension] = Bounds::in_bounds;
     std::vector<double>::const_iterator upper =
         std::upper_bound(axis_values.begin(), axis_values.end(), target[dimension]);
-    floor_grid_point_indices[dimension] = upper - axis_values.begin() - 1;
+    floor_grid_point_coordinates[dimension] = upper - axis_values.begin() - 1;
   }
 }
 
-void RegularGridInterpolatorPrivate::calculate_weights() {
+void RegularGridInterpolatorPrivate::calculate_floor_to_ceiling_fractions() {
   for (std::size_t dim = 0; dim < number_of_dimensions; ++dim) {
     if (dimension_lengths[dim] > 1) {
-      weights[dim] =
-          compute_fraction(target[dim], get_axis_values(dim)[floor_grid_point_indices[dim]],
-                           get_axis_values(dim)[floor_grid_point_indices[dim] + 1]);
+      floor_to_ceiling_fractions[dim] =
+          compute_fraction(target[dim], get_axis_values(dim)[floor_grid_point_coordinates[dim]],
+                           get_axis_values(dim)[floor_grid_point_coordinates[dim] + 1]);
     } else {
-      weights[dim] = 1.0;
+      floor_to_ceiling_fractions[dim] = 1.0;
     }
   }
 }
@@ -491,7 +491,7 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
   hypercube_size_hash = 0;
   std::size_t digit = 1;
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
-    if (target_is_set && weights[dim] == 0.0) {
+    if (target_is_set && floor_to_ceiling_fractions[dim] == 0.0) {
       options[dim] = {0};
       reset_hypercube = true;
     } else if (m_methods[dim] == Method::cubic) {
@@ -521,16 +521,16 @@ void RegularGridInterpolatorPrivate::calculate_interpolation_coefficients() {
   static constexpr std::size_t floor = 0;
   static constexpr std::size_t ceiling = 1;
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
-    double mu = weights[dim];
+    double mu = floor_to_ceiling_fractions[dim];
     if (methods[dim] == Method::cubic) {
       interpolation_coefficients[dim][floor] = 2 * mu * mu * mu - 3 * mu * mu + 1;
       interpolation_coefficients[dim][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
       cubic_slope_coefficients[dim][floor] =
           (mu * mu * mu - 2 * mu * mu + mu) *
-          get_axis_cubic_spacing_ratios(dim, floor)[floor_grid_point_indices[dim]];
+          get_axis_cubic_spacing_ratios(dim, floor)[floor_grid_point_coordinates[dim]];
       cubic_slope_coefficients[dim][ceiling] =
           (mu * mu * mu - mu * mu) *
-          get_axis_cubic_spacing_ratios(dim, ceiling)[floor_grid_point_indices[dim]];
+          get_axis_cubic_spacing_ratios(dim, ceiling)[floor_grid_point_coordinates[dim]];
     } else {
       if (methods[dim] == Method::constant) {
         mu = mu < 0 ? 0 : 1;
@@ -555,24 +555,26 @@ void RegularGridInterpolatorPrivate::set_hypercube_values() {
     hypercube_values.resize(hypercube.size(), std::vector<double>(number_of_tables));
     hypercube_cache.clear();
   }
-  if (hypercube_cache.count({floor_index, hypercube_size_hash})) {
-    hypercube_values = hypercube_cache.at({floor_index, hypercube_size_hash});
+  if (hypercube_cache.count({floor_grid_point_index, hypercube_size_hash})) {
+    hypercube_values = hypercube_cache.at({floor_grid_point_index, hypercube_size_hash});
     return;
   }
   std::size_t hypercube_index = 0;
   for (const auto &v : hypercube) {
-    hypercube_values[hypercube_index] = get_grid_point_values_relative(floor_grid_point_indices, v);
+    hypercube_values[hypercube_index] =
+        get_grid_point_values_relative(floor_grid_point_coordinates, v);
     ++hypercube_index;
   }
-  hypercube_cache[{floor_index, hypercube_size_hash}] = hypercube_values;
+  hypercube_cache[{floor_grid_point_index, hypercube_size_hash}] = hypercube_values;
 }
 
-double RegularGridInterpolatorPrivate::get_vertex_weight(const std::vector<short> &v) {
-  double weight = 1.0;
+double
+RegularGridInterpolatorPrivate::get_grid_point_weighting_factor(const std::vector<short> &v) {
+  double weighting_factor = 1.0;
   for (std::size_t dim = 0; dim < number_of_dimensions; dim++) {
-    weight *= weighting_factors[dim][v[dim] + 1];
+    weighting_factor *= weighting_factors[dim][v[dim] + 1];
   }
-  return weight;
+  return weighting_factor;
 }
 
 std::vector<double> RegularGridInterpolatorPrivate::get_target() const {
