@@ -20,6 +20,9 @@ if (${PROJECT_NAME}_BUILD_TESTING AND NOT TARGET gtest)
     mark_as_advanced(BUILD_GTEST BUILD_GMOCK INSTALL_GTEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 
-endif()
+endif ()
 
-add_subdirectory(courierr)
+if (NOT TARGET courierr)
+    add_subdirectory(courierr)
+    mark_as_advanced(courierr_BUILD_TESTING courierr_COVERAGE courierr_STATIC_LIB)
+endif ()
