@@ -35,11 +35,11 @@ TEST_F(CubicFixture, spacing_multiplier) {
 }
 
 TEST_F(CubicFixture, switch_interp_method) {
-  for (auto i = 0u; i < interpolator.number_of_dimensions; i++) {
+  for (auto i = 0u; i < interpolator.number_of_axes; i++) {
     interpolator.set_axis_interpolation_method(i, Method::cubic);
   }
   std::vector<double> result1 = interpolator.get_results(target);
-  for (auto i = 0u; i < interpolator.number_of_dimensions; i++) {
+  for (auto i = 0u; i < interpolator.number_of_axes; i++) {
     interpolator.set_axis_interpolation_method(i, Method::linear);
   }
   std::vector<double> result2 = interpolator.get_results(target);
@@ -155,7 +155,7 @@ TEST_F(EmptyGridFixturePrivate, locate_coordinates) {
   setup();
 
   std::vector<std::size_t> coords = {2, 3};
-  std::vector<std::size_t> dimension_lengths = {5, 7};
+  std::vector<std::size_t> axis_lengths = {5, 7};
   std::size_t index = interpolator.get_grid_point_index(coords);
   EXPECT_EQ(index, 17u);
 
@@ -167,7 +167,7 @@ TEST_F(EmptyGridFixturePrivate, locate_coordinates) {
   EXPECT_EQ(index, 53u);
 }
 
-TEST_F(EmptyGridFixturePrivate, set_dimension_floor) {
+TEST_F(EmptyGridFixturePrivate, set_axis_floor) {
 
   grid = {{1, 3, 5, 7, 9}};
   setup();
@@ -264,9 +264,9 @@ TEST_F(GridFixture2DPrivate, construct_from_axes) {
   GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), logger);
   std::vector<GridAxis> test_axes = {ax0, ax1};
   interpolator = RegularGridInterpolatorPrivate(test_axes, logger);
-  EXPECT_EQ(interpolator.number_of_dimensions, 2u);
+  EXPECT_EQ(interpolator.number_of_axes, 2u);
   EXPECT_EQ(interpolator.number_of_tables, 0u);
-  EXPECT_THAT(interpolator.dimension_lengths, testing::ElementsAre(3, 2));
+  EXPECT_THAT(interpolator.axis_lengths, testing::ElementsAre(3, 2));
 
   interpolator.add_value_table(values[0]);
   EXPECT_EQ(interpolator.number_of_tables, 1u);
@@ -274,7 +274,7 @@ TEST_F(GridFixture2DPrivate, construct_from_axes) {
   EXPECT_THAT(interpolator.get_grid_point_values(coords), testing::ElementsAre(8));
 
   interpolator = RegularGridInterpolatorPrivate(test_axes, values, logger);
-  EXPECT_EQ(interpolator.number_of_dimensions, 2u);
+  EXPECT_EQ(interpolator.number_of_axes, 2u);
   EXPECT_EQ(interpolator.number_of_tables, 2u);
   EXPECT_THAT(interpolator.get_grid_point_values(coords), testing::ElementsAre(8, 16));
 }

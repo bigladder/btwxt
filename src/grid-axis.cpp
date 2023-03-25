@@ -16,9 +16,6 @@ GridAxis::GridAxis(std::vector<double> values_in, std::shared_ptr<Courierr::Cour
       cubic_spacing_ratios(
           2, std::vector<double>(std::max(static_cast<int>(values.size()) - 1, 0), 1.0)),
       logger(logger_in) {
-  if (!logger) {
-    throw std::exception(); // TODO: correct exception
-  }
   if (values.empty()) {
     throw BtwxtException("Cannot create a GridAxis from a zero-length vector.", *logger);
   }

@@ -25,7 +25,7 @@ inline bool free_check_sorted(const std::vector<double> &v) {
 }
 
 class GridAxis {
-  // A single input dimension of the performance space
+  // A single input dimension of the grid
 public:
   // Constructors
   GridAxis() = default;

@@ -86,14 +86,14 @@ public:
 
   void clear_target();
 
-  void set_axis_interpolation_method(const std::size_t dimension, const Method method);
+  void set_axis_interpolation_method(const std::size_t axis, const Method method);
 
-  void set_axis_extrapolation_method(const std::size_t dimension, const Method method);
+  void set_axis_extrapolation_method(const std::size_t axis, const Method method);
 
-  void set_axis_extrapolation_limits(const std::size_t dimension,
+  void set_axis_extrapolation_limits(const std::size_t axis,
                                      const std::pair<double, double> &extrap_limits);
 
-  std::pair<double, double> get_axis_extrapolation_limits(const std::size_t dimension);
+  std::pair<double, double> get_axis_extrapolation_limits(const std::size_t axis);
 
   std::string write_data();
 

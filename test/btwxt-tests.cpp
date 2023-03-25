@@ -123,7 +123,7 @@ TEST_F(GridFixture2D, extrapolate) {
 
 TEST_F(GridFixture2D, invalid_inputs) {
   std::vector<double> short_target = {1};
-  std::string expected_error{"  ERROR: Target and Gridded Data do not have the same dimensions.\n"};
+  std::string expected_error{"  ERROR: Target and grid do not have the same dimensions.\n"};
   // Redirect cout to temporary local buffer (do not use EXPECT_STDOUT for throwing functions)
   std::ostringstream buffer;
   std::streambuf *sbuf = std::cout.rdbuf();
