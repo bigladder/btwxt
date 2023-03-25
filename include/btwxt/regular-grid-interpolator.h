@@ -86,10 +86,6 @@ public:
 
   void clear_target();
 
-  std::size_t get_number_of_dimensions() const;
-
-  std::size_t get_number_of_tables() const;
-
   void set_axis_interpolation_method(const std::size_t dimension, const Method method);
 
   void set_axis_extrapolation_method(const std::size_t dimension, const Method method);

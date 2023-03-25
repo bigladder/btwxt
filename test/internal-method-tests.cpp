@@ -65,18 +65,16 @@ TEST_F(CubicFixture, grid_point_interp_coeffs) {
 
   interpolator.set_target(target);
 
-  auto &interpolation_coefficients = interpolator.get_interpolation_coefficients();
-  auto &cubic_slope_coefficients = interpolator.get_cubic_slope_coefficients();
-  double mu = interpolator.get_weights()[0];
-  std::size_t floor_index = interpolator.get_floor()[0];
+  double mu = interpolator.weights[0];
+  std::size_t floor_index = interpolator.floor_grid_point_indices[0];
 
-  EXPECT_EQ(interpolation_coefficients[0][0], 2 * mu * mu * mu - 3 * mu * mu + 1);
-  EXPECT_EQ(interpolation_coefficients[0][1], -2 * mu * mu * mu + 3 * mu * mu);
+  EXPECT_EQ(interpolator.interpolation_coefficients[0][0], 2 * mu * mu * mu - 3 * mu * mu + 1);
+  EXPECT_EQ(interpolator.interpolation_coefficients[0][1], -2 * mu * mu * mu + 3 * mu * mu);
 
-  EXPECT_EQ(cubic_slope_coefficients[0][0],
+  EXPECT_EQ(interpolator.cubic_slope_coefficients[0][0],
             (mu * mu * mu - 2 * mu * mu + mu) *
                 interpolator.get_axis_cubic_spacing_ratios(0, floor)[floor_index]);
-  EXPECT_EQ(cubic_slope_coefficients[0][1],
+  EXPECT_EQ(interpolator.cubic_slope_coefficients[0][1],
             (mu * mu * mu - mu * mu) *
                 interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[floor_index]);
 }
@@ -84,9 +82,9 @@ TEST_F(CubicFixture, grid_point_interp_coeffs) {
 TEST_F(CubicFixture, hypercube_weigh_one_vertex) {
   interpolator.set_axis_interpolation_method(1, Method::cubic);
   interpolator.set_target(target);
-  std::vector<Method> methods = interpolator.get_methods();
+  std::vector<Method> methods = interpolator.methods;
 
-  std::vector<double> mus = interpolator.get_weights();
+  std::vector<double> mus = interpolator.weights;
   double mx = mus[0];
   double my = mus[1];
   double c0x = 2 * mx * mx * mx - 3 * mx * mx + 1;
@@ -158,14 +156,14 @@ TEST_F(EmptyGridFixturePrivate, locate_coordinates) {
 
   std::vector<std::size_t> coords = {2, 3};
   std::vector<std::size_t> dimension_lengths = {5, 7};
-  std::size_t index = interpolator.get_value_index(coords);
+  std::size_t index = interpolator.get_grid_point_index(coords);
   EXPECT_EQ(index, 17u);
 
   coords = {2, 3, 2};
   grid = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5, 6, 7}, {1, 2, 3}};
   setup();
 
-  index = interpolator.get_value_index(coords);
+  index = interpolator.get_grid_point_index(coords);
   EXPECT_EQ(index, 53u);
 }
 
@@ -177,94 +175,87 @@ TEST_F(EmptyGridFixturePrivate, set_dimension_floor) {
 
   interpolator.set_target({5.3});
 
-  interpolator.set_floor();
+  interpolator.set_floor_grid_point_indices();
 
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::in_bounds);
-  EXPECT_EQ(interpolator.get_floor()[0], 2u);
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::in_bounds);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 2u);
 
   interpolator.set_target({0.3});
-  interpolator.set_floor();
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::out_of_bounds);
-  EXPECT_EQ(interpolator.get_floor()[0], 0u);
+  interpolator.set_floor_grid_point_indices();
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::out_of_bounds);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 0u);
 
   interpolator.set_target({10.3});
-  interpolator.set_floor();
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::out_of_bounds);
-  EXPECT_EQ(interpolator.get_floor()[0], 3u);
+  interpolator.set_floor_grid_point_indices();
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::out_of_bounds);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 3u);
 
   interpolator.set_target({-0.3});
-  interpolator.set_floor();
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::outlaw);
-  EXPECT_EQ(interpolator.get_floor()[0], 0u);
+  interpolator.set_floor_grid_point_indices();
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::outlaw);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 0u);
 
   interpolator.set_target({11.3});
-  interpolator.set_floor();
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::outlaw);
-  EXPECT_EQ(interpolator.get_floor()[0], 3u);
+  interpolator.set_floor_grid_point_indices();
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::outlaw);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 3u);
 
   interpolator.set_axis_extrapolation_limits(0, {-DBL_MAX, DBL_MAX});
   interpolator.set_target({-0.3});
-  interpolator.set_floor();
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::out_of_bounds);
-  EXPECT_EQ(interpolator.get_floor()[0], 0u);
+  interpolator.set_floor_grid_point_indices();
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::out_of_bounds);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 0u);
 
   interpolator.set_target({11.3});
-  interpolator.set_floor();
-  EXPECT_EQ(interpolator.get_is_inbounds()[0], Bounds::out_of_bounds);
-  EXPECT_EQ(interpolator.get_floor()[0], 3u);
+  interpolator.set_floor_grid_point_indices();
+  EXPECT_EQ(interpolator.is_inbounds[0], Bounds::out_of_bounds);
+  EXPECT_EQ(interpolator.floor_grid_point_indices[0], 3u);
 }
 
 TEST_F(GridFixture2DPrivate, grid_point_basics) {
   interpolator.set_target(target);
 
-  std::vector<std::size_t> point_floor = interpolator.get_floor();
   std::vector<std::size_t> expected_floor{1, 0};
-  EXPECT_EQ(point_floor, expected_floor);
+  EXPECT_EQ(interpolator.floor_grid_point_indices, expected_floor);
 
-  std::vector<double> weights = interpolator.get_weights();
   std::vector<double> expected_weights{0.4, 0.5};
-  EXPECT_EQ(weights, expected_weights);
+  EXPECT_EQ(interpolator.weights, expected_weights);
 }
 
 TEST_F(GridFixture2DPrivate, grid_point_out_of_bounds) {
   std::vector<double> out_of_bounds_vector = {16, 3};
   interpolator.set_target(out_of_bounds_vector);
 
-  std::vector<std::size_t> point_floor = interpolator.get_floor();
   std::vector<std::size_t> expected_floor{1, 0};
-  EXPECT_EQ(point_floor, expected_floor);
+  EXPECT_EQ(interpolator.floor_grid_point_indices, expected_floor);
 
-  std::vector<double> weights = interpolator.get_weights();
   std::vector<double> expected_weights{1.2, -0.5};
-  EXPECT_EQ(weights, expected_weights);
+  EXPECT_EQ(interpolator.weights, expected_weights);
 }
 
 TEST_F(GridFixture2DPrivate, consolidate_methods) {
   interpolator.set_target(target);
 
-  std::vector<Method> methods = interpolator.get_methods();
   std::vector<Method> expected_methods{Method::linear, Method::linear};
-  EXPECT_EQ(methods, expected_methods);
+  EXPECT_EQ(interpolator.methods, expected_methods);
 
   std::vector<double> out_of_bounds_vector = {12, 3};
   interpolator.set_target(out_of_bounds_vector);
-  methods = interpolator.get_methods();
+  interpolator.methods = interpolator.methods;
   expected_methods = {Method::linear, Method::constant};
-  EXPECT_EQ(methods, expected_methods);
+  EXPECT_EQ(interpolator.methods, expected_methods);
 }
 
 TEST_F(GridFixture2DPrivate, interpolation_coefficients) {
   interpolator.set_target(target);
 
-  auto &interpolation_coefficients = interpolator.get_interpolation_coefficients();
-  auto &cubic_slope_coefficients = interpolator.get_cubic_slope_coefficients();
-  std::vector<double> mu = interpolator.get_weights();
+  std::vector<double> mu = interpolator.weights;
 
-  EXPECT_EQ(interpolation_coefficients[0][1], mu[0]);
-  EXPECT_EQ(interpolation_coefficients[1][0], 1 - mu[1]);
+  EXPECT_EQ(interpolator.interpolation_coefficients[0][1], mu[0]);
+  EXPECT_EQ(interpolator.interpolation_coefficients[1][0], 1 - mu[1]);
 
-  EXPECT_EQ(cubic_slope_coefficients[0][0], 0);
-  EXPECT_EQ(cubic_slope_coefficients[1][1], 0);
+  EXPECT_EQ(interpolator.cubic_slope_coefficients[0][0], 0);
+  EXPECT_EQ(interpolator.cubic_slope_coefficients[1][1], 0);
 }
 
 TEST_F(GridFixture2DPrivate, construct_from_axes) {
@@ -280,12 +271,12 @@ TEST_F(GridFixture2DPrivate, construct_from_axes) {
   interpolator.add_value_table(values[0]);
   EXPECT_EQ(interpolator.number_of_tables, 1u);
   std::vector<std::size_t> coords{1, 1};
-  EXPECT_THAT(interpolator.get_values(coords), testing::ElementsAre(8));
+  EXPECT_THAT(interpolator.get_grid_point_values(coords), testing::ElementsAre(8));
 
   interpolator = RegularGridInterpolatorPrivate(test_axes, values, logger);
   EXPECT_EQ(interpolator.number_of_dimensions, 2u);
   EXPECT_EQ(interpolator.number_of_tables, 2u);
-  EXPECT_THAT(interpolator.get_values(coords), testing::ElementsAre(8, 16));
+  EXPECT_THAT(interpolator.get_grid_point_values(coords), testing::ElementsAre(8, 16));
 }
 
 TEST_F(GridFixture2DPrivate, get_axis_values) {
@@ -293,32 +284,32 @@ TEST_F(GridFixture2DPrivate, get_axis_values) {
   EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
 }
 
-TEST_F(GridFixture2DPrivate, get_values) {
+TEST_F(GridFixture2DPrivate, get_grid_point_values) {
   std::vector<std::size_t> coords = {0, 1};
-  std::vector<double> returned_vec = interpolator.get_values(coords);
+  std::vector<double> returned_vec = interpolator.get_grid_point_values(coords);
   EXPECT_THAT(returned_vec, testing::ElementsAre(3, 6));
 
   coords = {1, 0};
-  returned_vec = interpolator.get_values(coords);
+  returned_vec = interpolator.get_grid_point_values(coords);
   EXPECT_THAT(returned_vec, testing::ElementsAre(2, 4));
 }
 
-TEST_F(GridFixture2DPrivate, get_values_relative) {
+TEST_F(GridFixture2DPrivate, get_grid_point_values_relative) {
   std::vector<std::size_t> coords{0, 1};
   std::vector<short> translation{1, 0}; // {1, 1} stays as is
-  std::vector<double> expected_vec = interpolator.get_values({1, 1});
-  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+  std::vector<double> expected_vec = interpolator.get_grid_point_values({1, 1});
+  EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
 
   translation = {1, 1}; // {1, 2} -> {1, 1}
-  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+  EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
 
   translation = {-1, 0}; // {-1, 1} -> {0, 1}
-  expected_vec = interpolator.get_values({0, 1});
-  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+  expected_vec = interpolator.get_grid_point_values({0, 1});
+  EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
 
   translation = {3, -2}; // {3, -1} -> {2, 0}
-  expected_vec = interpolator.get_values({2, 0});
-  EXPECT_EQ(interpolator.get_values_relative(coords, translation), expected_vec);
+  expected_vec = interpolator.get_grid_point_values({2, 0});
+  EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
 }
 
 TEST(Weights, compute_fraction) {

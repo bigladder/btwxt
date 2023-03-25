@@ -71,37 +71,16 @@ public:
     grid_axes[dimension].set_extrapolation_limits(limits);
   }
 
-  // Public calculations
+  // Public methods (mirrored)
   void set_target(const std::vector<double> &target);
 
   [[nodiscard]] std::vector<double> get_target() const;
 
   void clear_target();
 
-  [[nodiscard]] std::pair<double, double> get_extrapolation_limits(std::size_t dimension) const;
-
-  [[nodiscard]] std::size_t get_value_index(const std::vector<std::size_t> &coords) const;
-
-  std::size_t get_value_index_relative(const std::vector<std::size_t> &coords,
-                                       const std::vector<short> &translation);
-
-  std::vector<std::size_t> get_floor();
-
-  std::vector<double> get_weights();
-
-  std::vector<Bounds> get_is_inbounds();
-
-  std::vector<Method> get_methods();
-
-  std::vector<std::vector<double>> &get_interpolation_coefficients();
-
-  std::vector<std::vector<double>> &get_cubic_slope_coefficients();
-
   std::vector<double> get_results();
 
   std::vector<double> get_results(const std::vector<double> &target);
-
-  double get_vertex_weight(const std::vector<short> &v);
 
   void normalize_grid_values_at_target(double scalar = 1.0);
 
@@ -109,13 +88,27 @@ public:
 
   void normalize_value_table(std::size_t table_num, double scalar = 1.0);
 
-  void set_floor();
-
-  [[nodiscard]] const std::vector<double> &get_axis_cubic_spacing_ratios(std::size_t dimension,
-                                                                         std::size_t flavor) const;
   std::string write_data();
 
   void set_logger(std::shared_ptr<Courierr::Courierr> logger, bool set_grid_axes_loggers = false);
+
+  // Public getters
+  [[nodiscard]] std::pair<double, double> get_extrapolation_limits(std::size_t dimension) const;
+
+  // Internal methods
+  [[nodiscard]] std::size_t get_grid_point_index(const std::vector<std::size_t> &coords) const;
+
+  std::size_t get_grid_point_index_relative(const std::vector<std::size_t> &coordinates,
+                                            const std::vector<short> &translation);
+
+  double get_vertex_weight(const std::vector<short> &v);
+
+  void set_floor_grid_point_indices();
+
+  void set_dimension_floor_grid_point_index(std::size_t dimension);
+
+  [[nodiscard]] const std::vector<double> &get_axis_cubic_spacing_ratios(std::size_t dimension,
+                                                                         std::size_t flavor) const;
 
   static std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>> &grid,
                                               std::shared_ptr<Courierr::Courierr> logger_in) {
@@ -127,12 +120,12 @@ public:
     return grid_axes;
   }
 
-  std::vector<double> get_values(const std::vector<std::size_t> &coords);
+  const std::vector<double> &get_grid_point_values(const std::vector<std::size_t> &coords);
+  const std::vector<double> &get_grid_point_values(const size_t index);
 
-  std::vector<double> get_values_relative(const std::vector<std::size_t> &coords,
-                                          const std::vector<short> &translation);
+  std::vector<double> get_grid_point_values_relative(const std::vector<std::size_t> &coords,
+                                                     const std::vector<short> &translation);
 
-  std::vector<double> get_values(std::size_t index);
   const std::vector<double> &get_axis_values(const size_t dimension);
 
   [[nodiscard]] std::vector<Method> get_interpolation_methods() const;
@@ -144,8 +137,6 @@ public:
   void consolidate_methods();
 
   void calculate_interpolation_coefficients();
-
-  void set_dimension_floor(std::size_t dimension);
 
   void set_hypercube(std::vector<Method> methods);
 
@@ -168,18 +159,19 @@ public:
   std::vector<std::size_t> temporary_coordinates; // Memory placeholder to avoid re-allocating
                                                   // memory (size = number_of_dimensions)
   std::vector<double>
-      value_set; // Pre-sized container to store set of values at values point coordinates
+      grid_point_values; // Pre-sized container to store set of values at grid point coordinates
 
   // calculated data
   bool target_is_set{false};
   std::vector<double> target;
-  std::vector<std::size_t> point_floor; // index of grid point <= target
+  std::vector<std::size_t> floor_grid_point_indices; // index of grid point <= target
   std::size_t floor_index{0u};
   std::vector<double> weights;
   std::vector<Bounds> is_inbounds; // for deciding interpolation vs. extrapolation;
   std::vector<Method> methods;
   std::vector<Method> previous_methods;
-  std::vector<std::vector<short>> hypercube;
+  std::vector<std::vector<short>> hypercube; // A minimal set of indices near the target needed to
+                                             // perform interpolation calculations.
   bool reset_hypercube{false};
   std::vector<std::vector<double>>
       weighting_factors;       // A set of weighting factors for each dimension
