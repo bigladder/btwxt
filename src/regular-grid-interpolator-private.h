@@ -17,7 +17,13 @@
 
 namespace Btwxt {
 
-enum class Bounds { outlaw, out_of_bounds, in_bounds };
+enum class TargetBoundsStatus {
+    below_lower_extrapolation_limit,
+    extrapolate_low,
+    interpolate,
+    extrapolate_high,
+    above_upper_extrapolation_limit
+};
 
 class RegularGridInterpolatorPrivate {
   public:
@@ -38,7 +44,7 @@ class RegularGridInterpolatorPrivate {
                                    const std::shared_ptr<Courierr::Courierr>& logger);
 
     // Data manipulation and settings
-    std::size_t add_value_table(const std::vector<double>& value_vector);
+    std::size_t add_value_table(const std::vector<double>& value_table);
 
     void set_axis_interpolation_method(std::size_t axis, Method method)
     {
@@ -179,7 +185,8 @@ class RegularGridInterpolatorPrivate {
         0u}; // Index of the floor_grid_point_coordinates (used for hypercube caching)
     std::vector<double> floor_to_ceiling_fractions; // for each axis, the fraction the target value
                                                     // is between its floor and ceiling axis values
-    std::vector<Bounds> is_inbounds;                // for deciding interpolation vs. extrapolation;
+    std::vector<TargetBoundsStatus>
+        target_bounds_status; // for each axis, for deciding interpolation vs. extrapolation;
     std::vector<Method> methods;
     std::vector<Method> previous_methods;
     std::vector<std::vector<short>> hypercube; // A minimal set of indices near the target needed to

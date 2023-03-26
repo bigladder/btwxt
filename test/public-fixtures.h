@@ -108,27 +108,17 @@ class FunctionFixture2D : public FunctionFixture {
 };
 
 // return an evenly spaced 1-d vector of doubles.
-static std::vector<double> linspace(double first, double last, std::size_t length)
-{
-    std::vector<double> result(length);
-    double step = (last - first) / (static_cast<double>(length) - 1.);
-    double val = first;
-    for (std::size_t i = 0; i < length; i++) {
-        result[i] = val;
-        val += step;
-    }
-    return result;
-}
+std::vector<double> linspace(double start, double stop, std::size_t number_of_points);
 
 class FunctionFixture4D : public FunctionFixture {
   protected:
     FunctionFixture4D()
     {
-        const std::size_t axes = 4;
-        grid.resize(axes);
+        const std::size_t number_of_axes = 4;
+        grid.resize(number_of_axes);
 
         std::size_t axis_len = 10; // could easily change to vector of lengths
-        for (std::size_t i = 0; i < axes; i++) {
+        for (std::size_t i = 0; i < number_of_axes; i++) {
             grid[i] = linspace(0.0, 4.5, axis_len);
         }
 

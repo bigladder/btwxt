@@ -52,7 +52,7 @@ RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     , target(number_of_axes, 0.)
     , floor_grid_point_coordinates(number_of_axes, 0)
     , floor_to_ceiling_fractions(number_of_axes, 0.)
-    , is_inbounds(number_of_axes)
+    , target_bounds_status(number_of_axes)
     , methods(number_of_axes, Method::undefined)
     , weighting_factors(number_of_axes, std::vector<double>(4, 0.))
     , results(number_of_tables, 0.)
@@ -133,16 +133,16 @@ std::size_t RegularGridInterpolator::add_value_table(const std::vector<double>& 
     return regular_grid_interpolator->add_value_table(value_vector);
 }
 
-std::size_t RegularGridInterpolatorPrivate::add_value_table(const std::vector<double>& value_vector)
+std::size_t RegularGridInterpolatorPrivate::add_value_table(const std::vector<double>& value_table)
 {
-    if (value_vector.size() != number_of_values) {
+    if (value_table.size() != number_of_values) {
         throw BtwxtException(
             fmt::format("Input value table does not match the values size: {} != {}",
-                        value_vector.size(),
+                        value_table.size(),
                         number_of_values),
             *logger);
     }
-    value_tables.push_back(value_vector);
+    value_tables.push_back(value_table);
     number_of_tables++;
     grid_point_values.resize(number_of_tables);
     results.resize(number_of_tables);
@@ -458,8 +458,8 @@ std::vector<double> RegularGridInterpolatorPrivate::get_grid_point_values_relati
 
 void RegularGridInterpolatorPrivate::set_floor_grid_point_coordinates()
 {
-    for (std::size_t dim = 0; dim < number_of_axes; dim += 1) {
-        set_axis_floor_grid_point_index(dim);
+    for (std::size_t axis = 0; axis < number_of_axes; axis += 1) {
+        set_axis_floor_grid_point_index(axis);
     }
     floor_grid_point_index = get_grid_point_index(floor_grid_point_coordinates);
 }
@@ -469,33 +469,33 @@ void RegularGridInterpolatorPrivate::set_axis_floor_grid_point_index(size_t axis
     const auto& axis_values = get_axis_values(axis);
     int length = static_cast<int>(axis_lengths[axis]);
     if (target[axis] < get_extrapolation_limits(axis).first) {
-        is_inbounds[axis] = Bounds::outlaw;
+        target_bounds_status[axis] = TargetBoundsStatus::below_lower_extrapolation_limit;
         floor_grid_point_coordinates[axis] = 0u;
     }
     else if (target[axis] > get_extrapolation_limits(axis).second) {
-        is_inbounds[axis] = Bounds::outlaw;
+        target_bounds_status[axis] = TargetBoundsStatus::above_upper_extrapolation_limit;
         floor_grid_point_coordinates[axis] =
             std::max(length - 2,
                      0); // length-2 because that's the left side of the (length-2, length-1) edge.
     }
     else if (target[axis] < axis_values[0]) {
-        is_inbounds[axis] = Bounds::out_of_bounds;
+        target_bounds_status[axis] = TargetBoundsStatus::extrapolate_low;
         floor_grid_point_coordinates[axis] = 0;
     }
     else if (target[axis] > axis_values.back()) {
-        is_inbounds[axis] = Bounds::out_of_bounds;
+        target_bounds_status[axis] = TargetBoundsStatus::extrapolate_high;
         floor_grid_point_coordinates[axis] =
             std::max(length - 2,
                      0); // length-2 because that's the left side of the (length-2, length-1) edge.
     }
     else if (target[axis] == axis_values.back()) {
-        is_inbounds[axis] = Bounds::in_bounds;
+        target_bounds_status[axis] = TargetBoundsStatus::interpolate;
         floor_grid_point_coordinates[axis] =
             std::max(length - 2,
                      0); // length-2 because that's the left side of the (length-2, length-1) edge.
     }
     else {
-        is_inbounds[axis] = Bounds::in_bounds;
+        target_bounds_status[axis] = TargetBoundsStatus::interpolate;
         auto upper = std::upper_bound(axis_values.begin(), axis_values.end(), target[axis]);
         floor_grid_point_coordinates[axis] = upper - axis_values.begin() - 1;
     }
@@ -503,15 +503,15 @@ void RegularGridInterpolatorPrivate::set_axis_floor_grid_point_index(size_t axis
 
 void RegularGridInterpolatorPrivate::calculate_floor_to_ceiling_fractions()
 {
-    for (std::size_t dim = 0; dim < number_of_axes; ++dim) {
-        if (axis_lengths[dim] > 1) {
-            floor_to_ceiling_fractions[dim] =
-                compute_fraction(target[dim],
-                                 get_axis_values(dim)[floor_grid_point_coordinates[dim]],
-                                 get_axis_values(dim)[floor_grid_point_coordinates[dim] + 1]);
+    for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
+        if (axis_lengths[axis] > 1) {
+            floor_to_ceiling_fractions[axis] =
+                compute_fraction(target[axis],
+                                 get_axis_values(axis)[floor_grid_point_coordinates[axis]],
+                                 get_axis_values(axis)[floor_grid_point_coordinates[axis] + 1]);
         }
         else {
-            floor_to_ceiling_fractions[dim] = 1.0;
+            floor_to_ceiling_fractions[axis] = 1.0;
         }
     }
 }
@@ -524,15 +524,32 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
     methods = get_interpolation_methods();
     if (target_is_set) {
         auto extrapolation_methods = get_extrapolation_methods();
-        for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-            if (is_inbounds[dim] == Bounds::out_of_bounds) {
-                methods[dim] = extrapolation_methods[dim];
-            }
-            else if (is_inbounds[dim] == Bounds::outlaw) {
-                // TODO showMessage(MsgLevel::MSG_WARN, stringify("The target is outside the
-                // extrapolation limits in dimension ", dim,
-                //                                ". Will perform constant extrapolation."));
-                methods[dim] = Method::constant;
+        for (std::size_t axis = 0; axis < number_of_axes; axis++) {
+            switch (target_bounds_status[axis]) {
+            case TargetBoundsStatus::extrapolate_low:
+            case TargetBoundsStatus::extrapolate_high:
+                methods[axis] = extrapolation_methods[axis];
+                break;
+            case TargetBoundsStatus::below_lower_extrapolation_limit:
+                logger->warning(fmt::format("The target ({:.3g}) is below the extrapolation limit "
+                                            "({:.3g}) for axis {}. Result "
+                                            "will use constant extrapolation from the lower limit.",
+                                            target[axis],
+                                            get_extrapolation_limits(axis).first,
+                                            axis));
+                methods[axis] = Method::constant;
+                break;
+            case TargetBoundsStatus::above_upper_extrapolation_limit:
+                logger->warning(fmt::format("The target ({:.3g}) is above the extrapolation limit "
+                                            "({:.3g}) for axis {}. Result "
+                                            "will use constant extrapolation from the upper limit.",
+                                            target[axis],
+                                            get_extrapolation_limits(axis).second,
+                                            axis));
+                methods[axis] = Method::constant;
+                break;
+            case TargetBoundsStatus::interpolate:
+                break;
             }
         }
     }
@@ -563,15 +580,15 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
 
     hypercube_size_hash = 0;
     std::size_t digit = 1;
-    for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-        if (target_is_set && floor_to_ceiling_fractions[dim] == 0.0) {
-            options[dim] = {0};
+    for (std::size_t axis = 0; axis < number_of_axes; axis++) {
+        if (target_is_set && floor_to_ceiling_fractions[axis] == 0.0) {
+            options[axis] = {0};
             reset_hypercube = true;
         }
-        else if (m_methods[dim] == Method::cubic) {
-            options[dim] = {-1, 0, 1, 2};
+        else if (m_methods[axis] == Method::cubic) {
+            options[axis] = {-1, 0, 1, 2};
         }
-        hypercube_size_hash += options[dim].size() * digit;
+        hypercube_size_hash += options[axis].size() * digit;
         digit *= 10;
     }
     hypercube = {{}};
@@ -595,34 +612,35 @@ void RegularGridInterpolatorPrivate::calculate_interpolation_coefficients()
 {
     static constexpr std::size_t floor = 0;
     static constexpr std::size_t ceiling = 1;
-    for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-        double mu = floor_to_ceiling_fractions[dim];
-        if (methods[dim] == Method::cubic) {
-            interpolation_coefficients[dim][floor] = 2 * mu * mu * mu - 3 * mu * mu + 1;
-            interpolation_coefficients[dim][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
-            cubic_slope_coefficients[dim][floor] =
+    for (std::size_t axis = 0; axis < number_of_axes; axis++) {
+        double mu = floor_to_ceiling_fractions[axis];
+        if (methods[axis] == Method::cubic) {
+            interpolation_coefficients[axis][floor] = 2 * mu * mu * mu - 3 * mu * mu + 1;
+            interpolation_coefficients[axis][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
+            cubic_slope_coefficients[axis][floor] =
                 (mu * mu * mu - 2 * mu * mu + mu) *
-                get_axis_cubic_spacing_ratios(dim, floor)[floor_grid_point_coordinates[dim]];
-            cubic_slope_coefficients[dim][ceiling] =
+                get_axis_cubic_spacing_ratios(axis, floor)[floor_grid_point_coordinates[axis]];
+            cubic_slope_coefficients[axis][ceiling] =
                 (mu * mu * mu - mu * mu) *
-                get_axis_cubic_spacing_ratios(dim, ceiling)[floor_grid_point_coordinates[dim]];
+                get_axis_cubic_spacing_ratios(axis, ceiling)[floor_grid_point_coordinates[axis]];
         }
         else {
-            if (methods[dim] == Method::constant) {
+            if (methods[axis] == Method::constant) {
                 mu = mu < 0 ? 0 : 1;
             }
-            interpolation_coefficients[dim][floor] = 1 - mu;
-            interpolation_coefficients[dim][ceiling] = mu;
-            cubic_slope_coefficients[dim][floor] = 0.0;
-            cubic_slope_coefficients[dim][ceiling] = 0.0;
+            interpolation_coefficients[axis][floor] = 1 - mu;
+            interpolation_coefficients[axis][ceiling] = mu;
+            cubic_slope_coefficients[axis][floor] = 0.0;
+            cubic_slope_coefficients[axis][ceiling] = 0.0;
         }
-        weighting_factors[dim][0] = -cubic_slope_coefficients[dim][floor]; // point below floor (-1)
-        weighting_factors[dim][1] = interpolation_coefficients[dim][floor] -
-                                    cubic_slope_coefficients[dim][ceiling]; // floor (0)
-        weighting_factors[dim][2] = interpolation_coefficients[dim][ceiling] +
-                                    cubic_slope_coefficients[dim][floor]; // ceiling (1)
-        weighting_factors[dim][3] =
-            cubic_slope_coefficients[dim][ceiling]; // point above ceiling (2)
+        weighting_factors[axis][0] =
+            -cubic_slope_coefficients[axis][floor]; // point below floor (-1)
+        weighting_factors[axis][1] = interpolation_coefficients[axis][floor] -
+                                     cubic_slope_coefficients[axis][ceiling]; // floor (0)
+        weighting_factors[axis][2] = interpolation_coefficients[axis][ceiling] +
+                                     cubic_slope_coefficients[axis][floor]; // ceiling (1)
+        weighting_factors[axis][3] =
+            cubic_slope_coefficients[axis][ceiling]; // point above ceiling (2)
     }
 }
 
@@ -649,8 +667,8 @@ void RegularGridInterpolatorPrivate::set_hypercube_values()
 double RegularGridInterpolatorPrivate::get_grid_point_weighting_factor(const std::vector<short>& v)
 {
     double weighting_factor = 1.0;
-    for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-        weighting_factor *= weighting_factors[dim][v[dim] + 1];
+    for (std::size_t axis = 0; axis < number_of_axes; axis++) {
+        weighting_factor *= weighting_factors[axis][v[axis] + 1];
     }
     return weighting_factor;
 }
@@ -674,8 +692,8 @@ std::vector<std::vector<short>>& RegularGridInterpolatorPrivate::get_hypercube()
 std::vector<Method> RegularGridInterpolatorPrivate::get_extrapolation_methods() const
 {
     std::vector<Method> extrapolation_methods(number_of_axes);
-    for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-        extrapolation_methods[dim] = grid_axes[dim].get_extrapolation_method();
+    for (std::size_t axis = 0; axis < number_of_axes; axis++) {
+        extrapolation_methods[axis] = grid_axes[axis].get_extrapolation_method();
     }
     return extrapolation_methods;
 }
@@ -683,16 +701,16 @@ std::vector<Method> RegularGridInterpolatorPrivate::get_extrapolation_methods() 
 std::vector<Method> RegularGridInterpolatorPrivate::get_interpolation_methods() const
 {
     std::vector<Method> interpolation_methods(number_of_axes);
-    for (std::size_t dim = 0; dim < number_of_axes; dim++) {
-        interpolation_methods[dim] = grid_axes[dim].get_interpolation_method();
+    for (std::size_t axis = 0; axis < number_of_axes; axis++) {
+        interpolation_methods[axis] = grid_axes[axis].get_interpolation_method();
     }
     return interpolation_methods;
 }
 
 const std::vector<double>& RegularGridInterpolatorPrivate::get_axis_cubic_spacing_ratios(
-    const std::size_t dimension, const std::size_t floor_or_ceiling) const
+    const std::size_t axis, const std::size_t floor_or_ceiling) const
 {
-    return grid_axes[dimension].get_cubic_spacing_ratios(floor_or_ceiling);
+    return grid_axes[axis].get_cubic_spacing_ratios(floor_or_ceiling);
 }
 
 } // namespace Btwxt

@@ -15,6 +15,76 @@
 
 namespace Btwxt {
 
+// return an evenly spaced 1-d vector of doubles.
+std::vector<double> linspace(double start, double stop, std::size_t number_of_points)
+{
+    std::vector<double> result(number_of_points);
+    double step = (stop - start) / (static_cast<double>(number_of_points) - 1.);
+    double value = start;
+    for (std::size_t i = 0; i < number_of_points; i++) {
+        result[i] = value;
+        value += step;
+    }
+    return result;
+}
+
+TEST_F(FunctionFixture, scipy_3d_grid)
+{
+    // Based on
+    // https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html
+    grid.resize(3);
+    grid[0] = linspace(1, 4, 11);
+    grid[1] = linspace(4, 7, 22);
+    grid[2] = linspace(7, 9, 33);
+
+    functions = {[](std::vector<double> x) -> double {
+        return 2 * x[0] * x[0] * x[0] + 3 * x[1] * x[1] - x[2];
+    }};
+    setup();
+
+    const double epsilon = 0.0001;
+    double result;
+    double expected_value;
+
+    target = {2.1, 6.2, 8.3};
+    result = interpolator(target)[0];
+    expected_value = 125.80469388; // Interpolated value from example
+    EXPECT_NEAR(result, expected_value, epsilon);
+
+    target = {3.3, 5.2, 7.1};
+    result = interpolator(target)[0];
+    expected_value = 146.30069388; // Interpolated value from example
+    EXPECT_NEAR(result, expected_value, epsilon);
+}
+
+TEST_F(FunctionFixture, scipy_2d_grid)
+{
+    // Based on
+    // https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html
+    grid.resize(2);
+    grid[0] = {-2, 0, 4};
+    grid[1] = {-2, 0, 2, 5};
+
+    functions = {[](std::vector<double> x) -> double { return x[0] * x[0] + x[1] * x[1]; }};
+    setup();
+    interpolator.set_axis_extrapolation_method(0, Method::linear);
+    interpolator.set_axis_extrapolation_method(1, Method::linear);
+
+    const double epsilon = 75; // It's not a very good approximation : )
+    // TODO expect better agreement when interpolating vs. extrapolating.
+
+    auto test_axis_values1 = linspace(-4, 9, 31);
+    auto test_axis_values2 = test_axis_values1;
+    std::vector<std::vector<double>> target_space {test_axis_values1, test_axis_values2};
+    auto targets = cartesian_product(target_space);
+    for (const auto& t : targets) {
+        double result = interpolator(t)[0];
+        double expected_value = functions[0](t);
+        EXPECT_NEAR(result, expected_value, epsilon)
+            << fmt::format("difference evaluates to {}", std::abs(result - expected_value));
+    }
+}
+
 TEST_F(GridFixture, four_point_1d_cubic_interpolate)
 {
 
