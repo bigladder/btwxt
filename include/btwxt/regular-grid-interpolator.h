@@ -44,8 +44,7 @@ class RegularGridInterpolator {
     RegularGridInterpolator(const RegularGridInterpolator& source);
 
     RegularGridInterpolator(const RegularGridInterpolator& source,
-                            const std::shared_ptr<Courierr::Courierr>& logger =
-                                std::make_shared<BtwxtContextCourierr>());
+                            const std::shared_ptr<Courierr::Courierr>& logger);
 
     RegularGridInterpolator& operator=(const RegularGridInterpolator& source);
 

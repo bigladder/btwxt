@@ -98,10 +98,8 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& 
 
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& source,
                                                  const std::shared_ptr<Courierr::Courierr>& logger)
+    : RegularGridInterpolator(source)
 {
-    *this = source;
-    this->regular_grid_interpolator =
-        std::make_unique<RegularGridInterpolatorPrivate>(*source.regular_grid_interpolator);
     this->regular_grid_interpolator->logger = logger;
 }
 

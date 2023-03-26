@@ -69,12 +69,14 @@ TEST_F(FunctionFixture, scipy_2d_grid)
     setup();
     interpolator.set_axis_extrapolation_method(0, Method::linear);
     interpolator.set_axis_extrapolation_method(1, Method::linear);
+    interpolator.set_axis_extrapolation_limits(0, {-5, 10});
+    interpolator.set_axis_extrapolation_limits(1, {-5, 10});
 
     const double epsilon = 75; // It's not a very good approximation : )
     // TODO expect better agreement when interpolating vs. extrapolating.
 
     auto test_axis_values1 = linspace(-4, 9, 31);
-    auto test_axis_values2 = test_axis_values1;
+    auto& test_axis_values2 = test_axis_values1;
     std::vector<std::vector<double>> target_space {test_axis_values1, test_axis_values2};
     auto targets = cartesian_product(target_space);
     for (const auto& t : targets) {
@@ -250,12 +252,10 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance)
         "  WARNING: The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
 
-    RegularGridInterpolator rgi2;
-    rgi2 = interpolator;
     auto logger2 = std::make_shared<BtwxtContextCourierr>();
     std::string context_str {"RGI2 Context:"};
     logger2->set_message_context(reinterpret_cast<void*>(&context_str));
-    rgi2.set_logger(logger2);
+    RegularGridInterpolator rgi2(interpolator, logger2);
     std::string expected_error2 {
         "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
