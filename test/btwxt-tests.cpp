@@ -72,9 +72,6 @@ TEST_F(FunctionFixture, scipy_2d_grid)
     interpolator.set_axis_extrapolation_limits(0, {-5, 10});
     interpolator.set_axis_extrapolation_limits(1, {-5, 10});
 
-    const double epsilon = 75; // It's not a very good approximation : )
-    // TODO expect better agreement when interpolating vs. extrapolating.
-
     auto test_axis_values1 = linspace(-4, 9, 31);
     auto& test_axis_values2 = test_axis_values1;
     std::vector<std::vector<double>> target_space {test_axis_values1, test_axis_values2};
@@ -82,6 +79,16 @@ TEST_F(FunctionFixture, scipy_2d_grid)
     for (const auto& t : targets) {
         double result = interpolator(t)[0];
         double expected_value = functions[0](t);
+
+        bool extrapolating = false;
+
+        for (auto target_bounds_axis : interpolator.get_target_bounds_status()) {
+            extrapolating |= target_bounds_axis != TargetBoundsStatus::interpolate;
+        }
+        double epsilon = 7.;
+        if (extrapolating) {
+            epsilon = 75.; // It's not a very good approximation : )
+        }
         EXPECT_NEAR(result, expected_value, epsilon)
             << fmt::format("difference evaluates to {}", std::abs(result - expected_value));
     }

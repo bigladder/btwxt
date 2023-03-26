@@ -86,7 +86,7 @@ class RegularGridInterpolatorPrivate {
     // Public methods (mirrored)
     void set_target(const std::vector<double>& target);
 
-    [[nodiscard]] std::vector<double> get_target() const;
+    [[nodiscard]] const std::vector<double>& get_target() const;
 
     void clear_target();
 

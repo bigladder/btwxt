@@ -42,6 +42,9 @@ std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>>&
     return combinations;
 }
 
+// return an evenly spaced 1-d vector of doubles.
+std::vector<double> linspace(double start, double stop, std::size_t number_of_points);
+
 class GridFixture : public testing::Test {
   public:
     std::vector<std::vector<double>> grid;
@@ -58,7 +61,7 @@ class GridFixture2D : public GridFixture {
   protected:
     GridFixture2D()
     {
-        grid = grid = {{0, 10, 15}, {4, 6}};
+        grid = {{0, 10, 15}, {4, 6}};
         //         4  6
         values = {{6,
                    3, // 0
@@ -106,9 +109,6 @@ class FunctionFixture2D : public FunctionFixture {
         setup();
     }
 };
-
-// return an evenly spaced 1-d vector of doubles.
-std::vector<double> linspace(double start, double stop, std::size_t number_of_points);
 
 class FunctionFixture4D : public FunctionFixture {
   protected:

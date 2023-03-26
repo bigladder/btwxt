@@ -18,6 +18,14 @@ namespace Btwxt {
 
 class RegularGridInterpolatorPrivate;
 
+enum class TargetBoundsStatus {
+    below_lower_extrapolation_limit,
+    extrapolate_low,
+    interpolate,
+    extrapolate_high,
+    above_upper_extrapolation_limit
+};
+
 // this will be the public-facing class.
 class RegularGridInterpolator {
   public:
@@ -86,7 +94,9 @@ class RegularGridInterpolator {
                                       const std::vector<double>& target,
                                       double scalar = 1.0);
 
-    std::vector<double> get_target();
+    const std::vector<double>& get_target();
+
+    [[nodiscard]] const std::vector<TargetBoundsStatus>& get_target_bounds_status() const;
 
     void clear_target();
 

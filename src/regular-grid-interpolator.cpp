@@ -370,9 +370,14 @@ std::vector<double> RegularGridInterpolator::get_values_at_target()
     return regular_grid_interpolator->get_results();
 }
 
-std::vector<double> RegularGridInterpolator::get_target()
+const std::vector<double>& RegularGridInterpolator::get_target()
 {
     return regular_grid_interpolator->get_target();
+}
+
+const std::vector<TargetBoundsStatus>& RegularGridInterpolator::get_target_bounds_status() const
+{
+    return regular_grid_interpolator->target_bounds_status;
 }
 
 void RegularGridInterpolator::clear_target() { regular_grid_interpolator->clear_target(); }
@@ -671,7 +676,7 @@ double RegularGridInterpolatorPrivate::get_grid_point_weighting_factor(const std
     return weighting_factor;
 }
 
-std::vector<double> RegularGridInterpolatorPrivate::get_target() const
+const std::vector<double>& RegularGridInterpolatorPrivate::get_target() const
 {
     if (!target_is_set) {
         logger->warning(
