@@ -14,18 +14,29 @@
 
 namespace Btwxt {
 
+std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,
+                                     const std::shared_ptr<Courierr::Courierr>& logger_in)
+{
+    std::vector<GridAxis> grid_axes;
+    grid_axes.reserve(grid.size());
+    for (const auto& axis : grid) {
+        grid_axes.emplace_back(axis, logger_in);
+    }
+    return grid_axes;
+}
+
 // Constructors
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
                                                  const std::vector<std::vector<double>>& values,
                                                  const std::shared_ptr<Courierr::Courierr>& logger)
-    : regular_grid_interpolator(
-          std::make_unique<RegularGridInterpolatorPrivate>(grid, values, logger))
+    : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorPrivate>(
+          construct_axes(grid, logger), values, logger))
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
                                                  const std::shared_ptr<Courierr::Courierr>& logger)
-    : RegularGridInterpolator(grid, {}, logger)
+    : RegularGridInterpolator(construct_axes(grid, logger), {}, logger)
 {
 }
 
@@ -61,20 +72,6 @@ RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     , logger(logger)
 {
     set_axis_sizes();
-}
-
-RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
-    const std::vector<std::vector<double>>& grid,
-    const std::vector<std::vector<double>>& values,
-    const std::shared_ptr<Courierr::Courierr>& logger)
-    : RegularGridInterpolatorPrivate(construct_axes(grid, logger), values, logger)
-{
-}
-
-RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
-    const std::vector<std::vector<double>>& grid, const std::shared_ptr<Courierr::Courierr>& logger)
-    : RegularGridInterpolatorPrivate(construct_axes(grid, logger), {}, logger)
-{
 }
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(

@@ -26,8 +26,8 @@ class GridFixturePrivate : public testing::Test {
 
     void setup()
     {
-        interpolator =
-            RegularGridInterpolatorPrivate(grid, values, std::make_shared<BtwxtContextCourierr>());
+        auto logger = std::make_shared<BtwxtContextCourierr>();
+        interpolator = RegularGridInterpolatorPrivate(construct_axes(grid, logger), values, logger);
     }
 };
 
@@ -112,8 +112,8 @@ class EmptyGridFixturePrivate : public testing::Test {
 
     void setup()
     {
-        interpolator =
-            RegularGridInterpolatorPrivate(grid, std::make_shared<BtwxtContextCourierr>());
+        auto logger = std::make_shared<BtwxtContextCourierr>();
+        interpolator = RegularGridInterpolatorPrivate(construct_axes(grid, logger), logger);
     }
 };
 

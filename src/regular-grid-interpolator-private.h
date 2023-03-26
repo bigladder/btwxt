@@ -17,26 +17,11 @@
 
 namespace Btwxt {
 
-enum class TargetBoundsStatus {
-    below_lower_extrapolation_limit,
-    extrapolate_low,
-    interpolate,
-    extrapolate_high,
-    above_upper_extrapolation_limit
-};
-
 class RegularGridInterpolatorPrivate {
   public:
     RegularGridInterpolatorPrivate() = default;
 
-    RegularGridInterpolatorPrivate(const std::vector<std::vector<double>>& grid,
-                                   const std::shared_ptr<Courierr::Courierr>& logger);
-
     RegularGridInterpolatorPrivate(const std::vector<GridAxis>& grid,
-                                   const std::shared_ptr<Courierr::Courierr>& logger);
-
-    RegularGridInterpolatorPrivate(const std::vector<std::vector<double>>& grid,
-                                   const std::vector<std::vector<double>>& values,
                                    const std::shared_ptr<Courierr::Courierr>& logger);
 
     RegularGridInterpolatorPrivate(const std::vector<GridAxis>& grid,
@@ -123,18 +108,6 @@ class RegularGridInterpolatorPrivate {
     [[nodiscard]] const std::vector<double>&
     get_axis_cubic_spacing_ratios(std::size_t axis, std::size_t floor_or_ceiling) const;
 
-    static std::vector<GridAxis>
-    construct_axes(const std::vector<std::vector<double>>& grid,
-                   const std::shared_ptr<Courierr::Courierr>& logger_in)
-    {
-        std::vector<GridAxis> grid_axes;
-        grid_axes.reserve(grid.size());
-        for (const auto& axis : grid) {
-            grid_axes.emplace_back(axis, logger_in);
-        }
-        return grid_axes;
-    }
-
     const std::vector<double>& get_grid_point_values(const std::vector<std::size_t>& coords);
     const std::vector<double>& get_grid_point_values(size_t index);
 
@@ -209,6 +182,9 @@ class RegularGridInterpolatorPrivate {
     std::shared_ptr<Courierr::Courierr> logger;
     void set_axis_sizes();
 };
+
+std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,
+                                     const std::shared_ptr<Courierr::Courierr>& logger_in);
 
 inline double compute_fraction(const double x, const double start, const double end)
 {
