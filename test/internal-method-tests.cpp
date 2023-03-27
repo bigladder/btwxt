@@ -296,9 +296,9 @@ TEST_F(GridFixture2DPrivate, construct_from_axes)
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8, 16));
 }
 
-TEST_F(GridFixture2DPrivate, get_axis_values)
+TEST_F(GridFixture2DPrivate, get_grid_axis)
 {
-    std::vector<double> returned_vec = interpolator.get_axis_values(1);
+    std::vector<double> returned_vec = interpolator.get_grid_axis(1).get_values();
     EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
 }
 

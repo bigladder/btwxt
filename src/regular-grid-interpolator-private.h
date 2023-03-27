@@ -115,7 +115,7 @@ class RegularGridInterpolatorPrivate {
     std::vector<double> get_grid_point_data_relative(const std::vector<std::size_t>& coords,
                                                      const std::vector<short>& translation);
 
-    const std::vector<double>& get_axis_values(size_t axis);
+    const GridAxis& get_grid_axis(size_t axis) const;
 
     [[nodiscard]] std::vector<Method> get_interpolation_methods() const;
 

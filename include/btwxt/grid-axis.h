@@ -55,7 +55,7 @@ class GridAxis {
     std::shared_ptr<Courierr::Courierr> get_logger() { return logger; };
 
     // Getters
-    [[nodiscard]] const std::vector<double>& get_values() { return values; }
+    [[nodiscard]] const std::vector<double>& get_values() const { return values; }
     [[nodiscard]] std::size_t get_length() const { return values.size(); }
     [[nodiscard]] Method get_extrapolation_method() const { return extrapolation_method; }
     [[nodiscard]] Method get_interpolation_method() const { return interpolation_method; }

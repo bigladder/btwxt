@@ -279,9 +279,9 @@ RegularGridInterpolatorPrivate::get_extrapolation_limits(std::size_t axis) const
     return grid_axes[axis].get_extrapolation_limits();
 }
 
-const std::vector<double>& RegularGridInterpolatorPrivate::get_axis_values(const std::size_t axis)
+const GridAxis& RegularGridInterpolatorPrivate::get_grid_axis(const std::size_t axis) const
 {
-    return grid_axes[axis].get_values();
+    return grid_axes[axis];
 }
 
 // Public printing methods
@@ -304,7 +304,7 @@ std::string RegularGridInterpolatorPrivate::write_data()
     output << std::endl;
     for (std::size_t index = 0; index < number_of_grid_points; ++index) {
         for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
-            output << get_axis_values(axis)[indices[axis]] << ",";
+            output << get_grid_axis(axis).get_values()[indices[axis]] << ",";
         }
         for (std::size_t tab = 0; tab < number_of_grid_point_data_sets; ++tab) {
             output << grid_point_data_sets[tab].data[index] << ",";
@@ -498,7 +498,7 @@ void RegularGridInterpolatorPrivate::set_floor_grid_point_coordinates()
 
 void RegularGridInterpolatorPrivate::set_axis_floor_grid_point_index(size_t axis)
 {
-    const auto& axis_values = get_axis_values(axis);
+    const auto& axis_values = get_grid_axis(axis).get_values();
     int length = static_cast<int>(axis_lengths[axis]);
     if (target[axis] < get_extrapolation_limits(axis).first) {
         target_bounds_status[axis] = TargetBoundsStatus::below_lower_extrapolation_limit;
@@ -537,10 +537,10 @@ void RegularGridInterpolatorPrivate::calculate_floor_to_ceiling_fractions()
 {
     for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
         if (axis_lengths[axis] > 1) {
-            floor_to_ceiling_fractions[axis] =
-                compute_fraction(target[axis],
-                                 get_axis_values(axis)[floor_grid_point_coordinates[axis]],
-                                 get_axis_values(axis)[floor_grid_point_coordinates[axis] + 1]);
+            auto& axis_values = get_grid_axis(axis).get_values();
+            auto floor_index = floor_grid_point_coordinates[axis];
+            floor_to_ceiling_fractions[axis] = compute_fraction(
+                target[axis], axis_values[floor_index], axis_values[floor_index + 1]);
         }
         else {
             floor_to_ceiling_fractions[axis] = 1.0;
