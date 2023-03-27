@@ -18,7 +18,7 @@ namespace Btwxt {
 class GridFixturePrivate : public testing::Test {
   public:
     std::vector<std::vector<double>> grid;
-    std::vector<std::vector<double>> values;
+    std::vector<std::vector<double>> data_sets;
     std::vector<double> target;
     RegularGridInterpolatorPrivate interpolator;
 
@@ -27,7 +27,8 @@ class GridFixturePrivate : public testing::Test {
     void setup()
     {
         auto logger = std::make_shared<BtwxtContextCourierr>();
-        interpolator = RegularGridInterpolatorPrivate(construct_axes(grid, logger), values, logger);
+        interpolator = RegularGridInterpolatorPrivate(
+            construct_axes(grid, logger), construct_grid_point_data_sets(data_sets), logger);
     }
 };
 
@@ -37,18 +38,18 @@ class GridFixture2DPrivate : public GridFixturePrivate {
     {
         grid = grid = {{0, 10, 15}, {4, 6}};
         //         4  6
-        values = {{6,
-                   3, // 0
-                   2,
-                   8, // 10
-                   4,
-                   2}, // 15
-                  {12,
-                   6, // 0
-                   4,
-                   16, // 10
-                   8,
-                   4}}; // 15
+        data_sets = {{6,
+                      3, // 0
+                      2,
+                      8, // 10
+                      4,
+                      2}, // 15
+                     {12,
+                      6, // 0
+                      4,
+                      16, // 10
+                      8,
+                      4}}; // 15
         target = {12, 5};
         setup();
         interpolator.set_axis_extrapolation_method(0, Method::linear);
@@ -60,7 +61,7 @@ class CubicFixture : public GridFixturePrivate {
     CubicFixture()
     {
         grid = {{6, 10, 15, 20}, {2, 4, 6, 8}};
-        values =
+        data_sets =
             //  2   4   6    8
             {{4,
               3,
@@ -122,7 +123,7 @@ class GridFixture3DPrivate : public GridFixturePrivate {
     GridFixture3DPrivate()
     {
         grid = {{-15, 0.2, 105}, {0, 10, 15}, {4, 6}};
-        values = {{6, 3, 2, 8, 4, 2, 3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
+        data_sets = {{6, 3, 2, 8, 4, 2, 3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
         target = {26.9, 12, 5};
         setup();
         interpolator.set_axis_interpolation_method(0, Method::linear);

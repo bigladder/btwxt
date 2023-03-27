@@ -281,18 +281,19 @@ TEST_F(GridFixture2DPrivate, construct_from_axes)
     std::vector<GridAxis> test_axes = {ax0, ax1};
     interpolator = RegularGridInterpolatorPrivate(test_axes, logger);
     EXPECT_EQ(interpolator.number_of_axes, 2u);
-    EXPECT_EQ(interpolator.number_of_tables, 0u);
+    EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 0u);
     EXPECT_THAT(interpolator.axis_lengths, testing::ElementsAre(3, 2));
 
-    interpolator.add_value_table(values[0]);
-    EXPECT_EQ(interpolator.number_of_tables, 1u);
+    interpolator.add_grid_point_data_set(data_sets[0]);
+    EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 1u);
     std::vector<std::size_t> coords {1, 1};
-    EXPECT_THAT(interpolator.get_grid_point_values(coords), testing::ElementsAre(8));
+    EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8));
 
-    interpolator = RegularGridInterpolatorPrivate(test_axes, values, logger);
+    interpolator = RegularGridInterpolatorPrivate(
+        test_axes, construct_grid_point_data_sets(data_sets), logger);
     EXPECT_EQ(interpolator.number_of_axes, 2u);
-    EXPECT_EQ(interpolator.number_of_tables, 2u);
-    EXPECT_THAT(interpolator.get_grid_point_values(coords), testing::ElementsAre(8, 16));
+    EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 2u);
+    EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8, 16));
 }
 
 TEST_F(GridFixture2DPrivate, get_axis_values)
@@ -301,34 +302,34 @@ TEST_F(GridFixture2DPrivate, get_axis_values)
     EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
 }
 
-TEST_F(GridFixture2DPrivate, get_grid_point_values)
+TEST_F(GridFixture2DPrivate, get_grid_point_data)
 {
     std::vector<std::size_t> coords = {0, 1};
-    std::vector<double> returned_vec = interpolator.get_grid_point_values(coords);
+    std::vector<double> returned_vec = interpolator.get_grid_point_data(coords);
     EXPECT_THAT(returned_vec, testing::ElementsAre(3, 6));
 
     coords = {1, 0};
-    returned_vec = interpolator.get_grid_point_values(coords);
+    returned_vec = interpolator.get_grid_point_data(coords);
     EXPECT_THAT(returned_vec, testing::ElementsAre(2, 4));
 }
 
-TEST_F(GridFixture2DPrivate, get_grid_point_values_relative)
+TEST_F(GridFixture2DPrivate, get_grid_point_data_relative)
 {
     std::vector<std::size_t> coords {0, 1};
     std::vector<short> translation {1, 0}; // {1, 1} stays as is
-    std::vector<double> expected_vec = interpolator.get_grid_point_values({1, 1});
-    EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
+    std::vector<double> expected_vec = interpolator.get_grid_point_data({1, 1});
+    EXPECT_EQ(interpolator.get_grid_point_data_relative(coords, translation), expected_vec);
 
     translation = {1, 1}; // {1, 2} -> {1, 1}
-    EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
+    EXPECT_EQ(interpolator.get_grid_point_data_relative(coords, translation), expected_vec);
 
     translation = {-1, 0}; // {-1, 1} -> {0, 1}
-    expected_vec = interpolator.get_grid_point_values({0, 1});
-    EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
+    expected_vec = interpolator.get_grid_point_data({0, 1});
+    EXPECT_EQ(interpolator.get_grid_point_data_relative(coords, translation), expected_vec);
 
     translation = {3, -2}; // {3, -1} -> {2, 0}
-    expected_vec = interpolator.get_grid_point_values({2, 0});
-    EXPECT_EQ(interpolator.get_grid_point_values_relative(coords, translation), expected_vec);
+    expected_vec = interpolator.get_grid_point_data({2, 0});
+    EXPECT_EQ(interpolator.get_grid_point_data_relative(coords, translation), expected_vec);
 }
 
 TEST(Fractions, compute_fraction)

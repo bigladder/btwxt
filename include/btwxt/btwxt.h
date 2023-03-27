@@ -6,3 +6,4 @@
 #include "grid-axis.h"
 #include "logging.h"
 #include "regular-grid-interpolator.h"
+#include "grid-point-data.h"

@@ -12,6 +12,7 @@
 
 // btwxt
 #include "grid-axis.h"
+#include "grid-point-data.h"
 #include "logging.h"
 
 namespace Btwxt {
@@ -36,7 +37,7 @@ class RegularGridInterpolator {
                                          std::make_shared<BtwxtContextCourierr>());
 
     RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
-                            const std::vector<std::vector<double>>& values,
+                            const std::vector<std::vector<double>>& data_sets,
                             const std::shared_ptr<Courierr::Courierr>& logger =
                                 std::make_shared<BtwxtContextCourierr>());
 
@@ -45,7 +46,7 @@ class RegularGridInterpolator {
                                          std::make_shared<BtwxtContextCourierr>());
 
     RegularGridInterpolator(const std::vector<GridAxis>& grid,
-                            const std::vector<std::vector<double>>& values,
+                            const std::vector<std::vector<double>>& data_sets,
                             const std::shared_ptr<Courierr::Courierr>& logger =
                                 std::make_shared<BtwxtContextCourierr>());
 
@@ -54,24 +55,37 @@ class RegularGridInterpolator {
     RegularGridInterpolator(const RegularGridInterpolator& source,
                             const std::shared_ptr<Courierr::Courierr>& logger);
 
+    RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
+                            const std::vector<GridPointData>& data_sets,
+                            const std::shared_ptr<Courierr::Courierr>& logger =
+                                std::make_shared<BtwxtContextCourierr>());
+
+    RegularGridInterpolator(const std::vector<GridAxis>& grid,
+                            const std::vector<GridPointData>& data_sets,
+                            const std::shared_ptr<Courierr::Courierr>& logger =
+                                std::make_shared<BtwxtContextCourierr>());
+
     RegularGridInterpolator& operator=(const RegularGridInterpolator& source);
 
-    // Add value table
-    std::size_t add_value_table(const std::vector<double>& value_vector);
+    std::size_t add_grid_point_data_set(const std::vector<double>& grid_point_data,
+                                        const std::string& name = "");
 
     // Get results
     void set_target(const std::vector<double>& target);
 
-    double get_value_at_target(const std::vector<double>& target, std::size_t table_index);
+    double get_value_at_target(const std::vector<double>& target, std::size_t data_set_index);
 
-    double operator()(const std::vector<double>& target, const std::size_t table_index)
+    double operator()(const std::vector<double>& target, const std::size_t data_set_index)
     {
-        return get_value_at_target(target, table_index);
+        return get_value_at_target(target, data_set_index);
     }
 
-    double get_value_at_target(std::size_t table_index);
+    double get_value_at_target(std::size_t data_set_index);
 
-    double operator()(const std::size_t table_index) { return get_value_at_target(table_index); }
+    double operator()(const std::size_t data_set_index)
+    {
+        return get_value_at_target(data_set_index);
+    }
 
     std::vector<double> get_values_at_target(const std::vector<double>& target);
 
@@ -84,15 +98,17 @@ class RegularGridInterpolator {
 
     std::vector<double> operator()() { return get_values_at_target(); }
 
-    void normalize_values_at_target(double scalar = 1.0);
+    void normalize_grid_point_data_at_target(double scalar = 1.0);
 
-    void normalize_values_at_target(const std::vector<double>& target, double scalar = 1.0);
+    void normalize_grid_point_data_at_target(const std::vector<double>& target,
+                                             double scalar = 1.0);
 
-    double normalize_values_at_target(std::size_t table_index, double scalar = 1.0);
+    double normalize_grid_point_data_at_target(std::size_t data_set_index,
+                                               const double scalar = 1.0);
 
-    double normalize_values_at_target(std::size_t table_index,
-                                      const std::vector<double>& target,
-                                      double scalar = 1.0);
+    double normalize_grid_point_data_at_target(std::size_t data_set_index,
+                                               const std::vector<double>& target,
+                                               double scalar = 1.0);
 
     const std::vector<double>& get_target();
 

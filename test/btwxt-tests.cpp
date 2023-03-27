@@ -98,7 +98,7 @@ TEST_F(GridFixture, four_point_1d_cubic_interpolate)
 {
 
     grid = {{0, 2, 5, 10}};
-    values = {{6, 5, 4, 3}};
+    data_sets = {{6, 5, 4, 3}};
     target = {2.5};
     setup();
 
@@ -113,7 +113,7 @@ TEST_F(GridFixture, four_point_1d_cubic_interpolate)
 TEST_F(GridFixture, empty_grid_throw_test)
 {
     grid = {{}};
-    values = {{}};
+    data_sets = {{}};
     target = {};
     EXPECT_THROW(setup(), BtwxtException);
 }
@@ -121,7 +121,7 @@ TEST_F(GridFixture, empty_grid_throw_test)
 TEST_F(GridFixture, single_point_1d_extrapolate)
 {
     grid = {{2.}};
-    values = {{5.}};
+    data_sets = {{5.}};
     target = {2.5};
     setup();
     interpolator.set_axis_extrapolation_method(0, Method::cubic);
@@ -132,7 +132,7 @@ TEST_F(GridFixture, single_point_1d_extrapolate)
 TEST_F(GridFixture, two_point_cubic_1d_interpolate)
 {
     grid = {{0, 10}};
-    values = {{6, 3}};
+    data_sets = {{6, 3}};
     target = {2.5};
     setup();
     interpolator.set_axis_interpolation_method(0, Method::cubic);
@@ -233,10 +233,10 @@ TEST_F(GridFixture2D, invalid_inputs)
     }
     std::cout.rdbuf(sbuf);
 
-    std::vector<double> short_values = {6, 3, 2, 8, 4};
-    EXPECT_THROW(interpolator.add_value_table(short_values);, BtwxtException);
-    std::vector<double> long_values = {1, 1, 1, 1, 1, 1, 1};
-    EXPECT_THROW(interpolator.add_value_table(long_values);, BtwxtException);
+    std::vector<double> data_set = {6, 3, 2, 8, 4};
+    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set);, BtwxtException);
+    data_set = {1, 1, 1, 1, 1, 1, 1};
+    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set);, BtwxtException);
 }
 
 TEST_F(GridFixture2D, logger_modify_context)
@@ -298,14 +298,15 @@ TEST_F(GridFixture2D, normalize)
     interpolator.set_target(target);
 
     // All values, current target
-    interpolator.normalize_values_at_target((std::size_t)0); // normalize first value table
+    interpolator.normalize_grid_point_data_at_target(
+        static_cast<std::size_t>(0u)); // normalize first grid point data set
     std::vector<double> result = interpolator.get_values_at_target();
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.0), testing::DoubleEq(8.832)));
 }
 
 TEST_F(GridFixture2D, write_data)
 {
-    EXPECT_EQ("Axis 1,Axis 2,Value 1,Value 2,\n"
+    EXPECT_EQ("Axis 1,Axis 2,Data 1,Data 2,\n"
               "0,4,6,12,\n"
               "0,6,3,6,\n"
               "10,4,2,4,\n"
@@ -321,7 +322,8 @@ TEST_F(FunctionFixture2D, normalization_return_scalar)
     std::vector<double> normalization_target = {2.0, 3.0};
     double expected_divisor {functions[0](normalization_target)};
     double expected_value_at_target {functions[0](target) / expected_divisor};
-    double return_scalar = interpolator.normalize_values_at_target(0, normalization_target, 1.0);
+    double return_scalar =
+        interpolator.normalize_grid_point_data_at_target(0, normalization_target, 1.0);
     interpolator.set_target(target);
     std::vector<double> results = interpolator.get_values_at_target();
     EXPECT_THAT(return_scalar, testing::DoubleEq(expected_divisor));
@@ -335,8 +337,8 @@ TEST_F(FunctionFixture2D, normalization_return_compound_scalar)
     double normalization_divisor = 4.0;
     double expected_compound_divisor {functions[0](normalization_target) * normalization_divisor};
     double expected_value_at_target {functions[0](target) / expected_compound_divisor};
-    double return_scalar =
-        interpolator.normalize_values_at_target(0, normalization_target, normalization_divisor);
+    double return_scalar = interpolator.normalize_grid_point_data_at_target(
+        0, normalization_target, normalization_divisor);
     interpolator.set_target(target);
     std::vector<double> results = interpolator.get_values_at_target();
     EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));

@@ -25,11 +25,11 @@ class RegularGridInterpolatorPrivate {
                                    const std::shared_ptr<Courierr::Courierr>& logger);
 
     RegularGridInterpolatorPrivate(const std::vector<GridAxis>& grid,
-                                   const std::vector<std::vector<double>>& values,
+                                   const std::vector<GridPointData>& data_sets,
                                    const std::shared_ptr<Courierr::Courierr>& logger);
 
     // Data manipulation and settings
-    std::size_t add_value_table(const std::vector<double>& value_table);
+    std::size_t add_grid_point_data_set(const std::vector<double>& grid_point_data);
 
     void set_axis_interpolation_method(std::size_t axis, Method method)
     {
@@ -79,11 +79,12 @@ class RegularGridInterpolatorPrivate {
 
     std::vector<double> get_results(const std::vector<double>& target);
 
-    void normalize_grid_values_at_target(double scalar = 1.0);
+    void normalize_grid_point_data_at_target(double scalar = 1.0);
 
-    double normalize_grid_values_at_target(std::size_t table_num, double scalar = 1.0);
+    double normalize_grid_point_data_at_target(std::size_t data_set_index,
+                                               const double scalar = 1.0);
 
-    void normalize_value_table(std::size_t table_num, double scalar = 1.0);
+    void normalize_grid_point_data(std::size_t data_set_index, double scalar = 1.0);
 
     std::string write_data();
 
@@ -108,11 +109,11 @@ class RegularGridInterpolatorPrivate {
     [[nodiscard]] const std::vector<double>&
     get_axis_cubic_spacing_ratios(std::size_t axis, std::size_t floor_or_ceiling) const;
 
-    const std::vector<double>& get_grid_point_values(const std::vector<std::size_t>& coords);
-    const std::vector<double>& get_grid_point_values(size_t index);
+    const std::vector<double>& get_grid_point_data(const std::vector<std::size_t>& coords);
+    const std::vector<double>& get_grid_point_data(size_t index);
 
-    std::vector<double> get_grid_point_values_relative(const std::vector<std::size_t>& coords,
-                                                       const std::vector<short>& translation);
+    std::vector<double> get_grid_point_data_relative(const std::vector<std::size_t>& coords,
+                                                     const std::vector<short>& translation);
 
     const std::vector<double>& get_axis_values(size_t axis);
 
@@ -130,15 +131,15 @@ class RegularGridInterpolatorPrivate {
 
     std::vector<std::vector<short>>& get_hypercube();
 
-    void set_hypercube_values();
+    void set_hypercube_grid_point_data();
 
     void set_results();
 
     // Structured data
     std::vector<GridAxis> grid_axes;
-    std::vector<std::vector<double>> value_tables;
-    std::size_t number_of_values {0u};
-    std::size_t number_of_tables {0u};
+    std::vector<GridPointData> grid_point_data_sets;
+    std::size_t number_of_grid_points {0u};
+    std::size_t number_of_grid_point_data_sets {0u};
     std::size_t number_of_axes {0u};
     std::vector<std::size_t>
         axis_lengths; // Number of points in each grid axis (size = number_of_axes)
@@ -146,8 +147,8 @@ class RegularGridInterpolatorPrivate {
                                                     // indices (size = number_of_axes)
     std::vector<std::size_t> temporary_coordinates; // Memory placeholder to avoid re-allocating
                                                     // memory (size = number_of_axes)
-    std::vector<double>
-        grid_point_values; // Pre-sized container to store set of values at grid point coordinates
+    std::vector<double> temporary_grid_point_data;  // Pre-sized container to store set of data at
+                                                    // grid point coordinates
 
     // calculated data
     bool target_is_set {false};
@@ -165,14 +166,15 @@ class RegularGridInterpolatorPrivate {
     std::vector<std::vector<short>> hypercube; // A minimal set of indices near the target needed to
                                                // perform interpolation calculations.
     bool reset_hypercube {false};
-    std::vector<std::vector<double>> weighting_factors; // weights of hypercube neighbor values used
-                                                        // to calculate the value at the target
-    std::vector<double> results;                        // Interpolated results at a given target
+    std::vector<std::vector<double>>
+        weighting_factors;       // weights of hypercube neighbor grid point data used
+                                 // to calculate the value at the target
+    std::vector<double> results; // Interpolated results at a given target
 
     std::vector<std::vector<double>> interpolation_coefficients;
     std::vector<std::vector<double>> cubic_slope_coefficients;
 
-    std::vector<std::vector<double>> hypercube_values;
+    std::vector<std::vector<double>> hypercube_grid_point_data;
     std::vector<double> hypercube_weights;
 
     std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
@@ -185,6 +187,9 @@ class RegularGridInterpolatorPrivate {
 
 std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,
                                      const std::shared_ptr<Courierr::Courierr>& logger_in);
+
+std::vector<GridPointData>
+construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_point_data_sets);
 
 inline double compute_fraction(const double x, const double start, const double end)
 {

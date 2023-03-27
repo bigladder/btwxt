@@ -36,7 +36,8 @@ class GridAxis {
                           std::make_shared<BtwxtContextCourierr>(),
                       Method extrapolation_method = Method::constant,
                       Method interpolation_method = Method::linear,
-                      std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+                      std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
+                      const std::string& name = "");
 
     // Setters
     void set_interpolation_method(Method interpolation_method_in);
@@ -68,6 +69,7 @@ class GridAxis {
 
   private:
     std::vector<double> values;
+    std::string name;
     Method extrapolation_method {Method::constant};
     Method interpolation_method {Method::linear};
     std::pair<double, double> extrapolation_limits {-DBL_MAX, DBL_MAX};

@@ -25,48 +25,75 @@ std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& gri
     return grid_axes;
 }
 
+std::vector<GridPointData>
+construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_point_data_sets_in)
+{
+    std::vector<GridPointData> grid_point_data_sets;
+    grid_point_data_sets.reserve(grid_point_data_sets_in.size());
+    for (const auto& data_set : grid_point_data_sets_in) {
+        grid_point_data_sets.emplace_back(data_set);
+    }
+    return grid_point_data_sets;
+}
+
 // Constructors
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
-                                                 const std::vector<std::vector<double>>& values,
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
+                                                 const std::vector<GridPointData>& data_sets,
                                                  const std::shared_ptr<Courierr::Courierr>& logger)
-    : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorPrivate>(
-          construct_axes(grid, logger), values, logger))
+    : regular_grid_interpolator(
+          std::make_unique<RegularGridInterpolatorPrivate>(grid, data_sets, logger))
+{
+}
+
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
+                                                 const std::vector<std::vector<double>>& data_sets,
+                                                 const std::shared_ptr<Courierr::Courierr>& logger)
+    : RegularGridInterpolator(
+          construct_axes(grid, logger), construct_grid_point_data_sets(data_sets), logger)
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
                                                  const std::shared_ptr<Courierr::Courierr>& logger)
-    : RegularGridInterpolator(construct_axes(grid, logger), {}, logger)
+    : RegularGridInterpolator(construct_axes(grid, logger), std::vector<GridPointData>(), logger)
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
-                                                 const std::vector<std::vector<double>>& values,
+                                                 const std::vector<std::vector<double>>& data_sets,
                                                  const std::shared_ptr<Courierr::Courierr>& logger)
-    : regular_grid_interpolator(
-          std::make_unique<RegularGridInterpolatorPrivate>(grid, values, logger))
+    : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorPrivate>(
+          grid, construct_grid_point_data_sets(data_sets), logger))
+{
+}
+
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
+                                                 const std::vector<GridPointData>& data_sets,
+                                                 const std::shared_ptr<Courierr::Courierr>& logger)
+    : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorPrivate>(
+          construct_axes(grid, logger), data_sets, logger))
 {
 }
 
 RegularGridInterpolatorPrivate::RegularGridInterpolatorPrivate(
     const std::vector<GridAxis>& grid,
-    const std::vector<std::vector<double>>& values,
+    const std::vector<GridPointData>& data_sets,
     const std::shared_ptr<Courierr::Courierr>& logger)
     : grid_axes(grid)
-    , value_tables(values)
-    , number_of_tables(values.size())
+    , grid_point_data_sets(data_sets)
+    , number_of_grid_point_data_sets(data_sets.size())
     , number_of_axes(grid.size())
     , axis_lengths(number_of_axes)
     , axis_step_size(number_of_axes)
     , temporary_coordinates(number_of_axes)
-    , grid_point_values(number_of_tables, 0.)
+    , temporary_grid_point_data(number_of_grid_point_data_sets, 0.)
     , target(number_of_axes, 0.)
     , floor_grid_point_coordinates(number_of_axes, 0)
     , floor_to_ceiling_fractions(number_of_axes, 0.)
     , target_bounds_status(number_of_axes)
     , methods(number_of_axes, Method::undefined)
     , weighting_factors(number_of_axes, std::vector<double>(4, 0.))
-    , results(number_of_tables, 0.)
+    , results(number_of_grid_point_data_sets, 0.)
     , interpolation_coefficients(number_of_axes, std::vector<double>(2, 0.))
     , cubic_slope_coefficients(number_of_axes, std::vector<double>(2, 0.))
     , logger(logger)
@@ -109,39 +136,43 @@ RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInt
 
 void RegularGridInterpolatorPrivate::set_axis_sizes()
 {
-    number_of_values = 1;
+    number_of_grid_points = 1;
     for (std::size_t axis = number_of_axes - 1; /* axis >= 0 */ axis < number_of_axes; --axis) {
         std::size_t length = grid_axes[axis].get_length();
         if (length == 0) {
             throw BtwxtException(fmt::format("Axis {} has length zero.", axis), *logger);
         }
         axis_lengths[axis] = length;
-        axis_step_size[axis] = number_of_values;
-        number_of_values *= length;
+        axis_step_size[axis] = number_of_grid_points;
+        number_of_grid_points *= length;
     }
 }
 
 // Public manipulation methods
 
-std::size_t RegularGridInterpolator::add_value_table(const std::vector<double>& value_vector)
+std::size_t
+RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid_point_data,
+                                                 const std::string& name)
 {
-    return regular_grid_interpolator->add_value_table(value_vector);
+    return regular_grid_interpolator->add_grid_point_data_set(grid_point_data);
 }
 
-std::size_t RegularGridInterpolatorPrivate::add_value_table(const std::vector<double>& value_table)
+std::size_t
+RegularGridInterpolatorPrivate::add_grid_point_data_set(const std::vector<double>& grid_point_data)
 {
-    if (value_table.size() != number_of_values) {
+    if (grid_point_data.size() != number_of_grid_points) {
         throw BtwxtException(
-            fmt::format("Input value table does not match the values size: {} != {}",
-                        value_table.size(),
-                        number_of_values),
+            fmt::format(
+                "Input grid point data set size ({}) does not match number of grid points ({}).",
+                grid_point_data.size(),
+                number_of_grid_points),
             *logger);
     }
-    value_tables.push_back(value_table);
-    number_of_tables++;
-    grid_point_values.resize(number_of_tables);
-    results.resize(number_of_tables);
-    return number_of_tables - 1; // Returns index of new table
+    grid_point_data_sets.emplace_back(grid_point_data);
+    number_of_grid_point_data_sets++;
+    temporary_grid_point_data.resize(number_of_grid_point_data_sets);
+    results.resize(number_of_grid_point_data_sets);
+    return number_of_grid_point_data_sets - 1; // Returns index of new data set
 }
 
 void RegularGridInterpolator::set_axis_extrapolation_method(const std::size_t axis,
@@ -163,72 +194,75 @@ void RegularGridInterpolator::set_axis_extrapolation_limits(
 }
 
 // Public normalization methods
-double RegularGridInterpolator::normalize_values_at_target(std::size_t table_index,
-                                                           const std::vector<double>& target,
-                                                           const double scalar)
+double RegularGridInterpolator::normalize_grid_point_data_at_target(
+    std::size_t data_set_index, const std::vector<double>& target, const double scalar)
 {
     set_target(target);
-    return normalize_values_at_target(table_index, scalar);
+    return normalize_grid_point_data_at_target(data_set_index, scalar);
 }
 
-double RegularGridInterpolator::normalize_values_at_target(std::size_t table_index,
-                                                           const double scalar)
+double RegularGridInterpolator::normalize_grid_point_data_at_target(std::size_t data_set_index,
+                                                                    const double scalar)
 {
-    return regular_grid_interpolator->normalize_grid_values_at_target(table_index, scalar);
+    return regular_grid_interpolator->normalize_grid_point_data_at_target(data_set_index, scalar);
 }
 
-void RegularGridInterpolator::normalize_values_at_target(const std::vector<double>& target,
-                                                         const double scalar)
+void RegularGridInterpolator::normalize_grid_point_data_at_target(const std::vector<double>& target,
+                                                                  const double scalar)
 {
     set_target(target);
-    normalize_values_at_target(scalar);
+    normalize_grid_point_data_at_target(scalar);
 }
 
-void RegularGridInterpolator::normalize_values_at_target(const double scalar)
+void RegularGridInterpolator::normalize_grid_point_data_at_target(const double scalar)
 {
-    return regular_grid_interpolator->normalize_grid_values_at_target(scalar);
+    return regular_grid_interpolator->normalize_grid_point_data_at_target(scalar);
 }
 
-void RegularGridInterpolatorPrivate::normalize_grid_values_at_target(const double scalar)
+void RegularGridInterpolatorPrivate::normalize_grid_point_data_at_target(const double scalar)
 {
     if (!target_is_set) {
-        throw BtwxtException(fmt::format("Cannot normalize grid values. No target has been set."),
-                             *logger);
+        throw BtwxtException(
+            fmt::format("Cannot normalize grid point data. No target has been set."), *logger);
     }
-    for (std::size_t table_index = 0; table_index < number_of_tables; ++table_index) {
-        normalize_value_table(table_index, results[table_index] * scalar);
+    for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
+         ++data_set_index) {
+        normalize_grid_point_data(data_set_index, results[data_set_index] * scalar);
     }
     hypercube_cache.clear();
     set_results();
 }
 
-double RegularGridInterpolatorPrivate::normalize_grid_values_at_target(std::size_t table_num,
-                                                                       const double scalar)
+double
+RegularGridInterpolatorPrivate::normalize_grid_point_data_at_target(std::size_t data_set_index,
+                                                                    const double scalar)
 {
     if (!target_is_set) {
-        throw BtwxtException(fmt::format("Cannot normalize grid values. No target has been set."),
-                             *logger);
+        throw BtwxtException(
+            fmt::format("Cannot normalize grid point data. No target has been set."), *logger);
     }
     // create a scalar which represents the product of the inverted normalization factor and the
-    // value in the table at the independent variable reference value
-    double total_scalar = results[table_num] * scalar;
-    normalize_value_table(table_num, total_scalar);
+    // value in the data set at the independent variable reference value
+    double total_scalar = results[data_set_index] * scalar;
+    normalize_grid_point_data(data_set_index, total_scalar);
     hypercube_cache.clear();
     set_results();
 
     return total_scalar;
 }
 
-void RegularGridInterpolatorPrivate::normalize_value_table(std::size_t table_num, double scalar)
+void RegularGridInterpolatorPrivate::normalize_grid_point_data(std::size_t data_set_index,
+                                                               double scalar)
 {
-    auto& table = value_tables[table_num];
+    auto& data_set = grid_point_data_sets[data_set_index].data;
     if (scalar == 0.0) {
-        throw BtwxtException("Attempt to normalize values by zero.", *logger);
+        throw BtwxtException("Attempt to normalize data_set by zero.", *logger);
     }
     scalar = 1.0 / scalar;
-    std::transform(table.begin(), table.end(), table.begin(), [scalar](double x) -> double {
-        return x * scalar;
-    });
+    std::transform(data_set.begin(),
+                   data_set.end(),
+                   data_set.begin(),
+                   [scalar](double x) -> double { return x * scalar; });
 }
 
 // Public getter methods
@@ -264,16 +298,16 @@ std::string RegularGridInterpolatorPrivate::write_data()
     for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
         output << "Axis " << axis + 1 << ",";
     }
-    for (std::size_t tab = 0; tab < number_of_tables; ++tab) {
-        output << "Value " << tab + 1 << ",";
+    for (std::size_t tab = 0; tab < number_of_grid_point_data_sets; ++tab) {
+        output << "Data " << tab + 1 << ",";
     }
     output << std::endl;
-    for (std::size_t index = 0; index < number_of_values; ++index) {
+    for (std::size_t index = 0; index < number_of_grid_points; ++index) {
         for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
             output << get_axis_values(axis)[indices[axis]] << ",";
         }
-        for (std::size_t tab = 0; tab < number_of_tables; ++tab) {
-            output << value_tables[tab][index] << ",";
+        for (std::size_t tab = 0; tab < number_of_grid_point_data_sets; ++tab) {
+            output << grid_point_data_sets[tab].data[index] << ",";
         }
         output << std::endl;
         ++indices[number_of_axes - 1];
@@ -315,34 +349,32 @@ void RegularGridInterpolatorPrivate::set_target(const std::vector<double>& v)
 
 void RegularGridInterpolatorPrivate::set_results()
 {
-    set_hypercube_values();
+    set_hypercube_grid_point_data();
     std::fill(results.begin(), results.end(), 0.0);
     for (std::size_t i = 0; i < hypercube.size(); ++i) {
         hypercube_weights[i] = get_grid_point_weighting_factor(hypercube[i]);
-        const auto& values = hypercube_values[i];
-        for (std::size_t j = 0; j < number_of_tables; ++j) {
-            results[j] += values[j] * hypercube_weights[i];
+        for (std::size_t j = 0; j < number_of_grid_point_data_sets; ++j) {
+            results[j] += hypercube_grid_point_data[i][j] * hypercube_weights[i];
         }
     }
 }
 
 double RegularGridInterpolator::get_value_at_target(const std::vector<double>& target,
-                                                    std::size_t table_index)
+                                                    std::size_t data_set_index)
 {
     set_target(target);
-    return get_value_at_target(table_index);
+    return get_value_at_target(data_set_index);
 }
 
-double RegularGridInterpolator::get_value_at_target(std::size_t table_index)
+double RegularGridInterpolator::get_value_at_target(std::size_t data_set_index)
 {
-    return regular_grid_interpolator->get_results()[table_index];
+    return regular_grid_interpolator->get_results()[data_set_index];
 }
 
 std::vector<double> RegularGridInterpolatorPrivate::get_results() const
 {
-    if (number_of_tables == 0u) {
-        logger->warning(
-            fmt::format("There are no value tables in the gridded data. No results returned."));
+    if (number_of_grid_point_data_sets == 0u) {
+        logger->warning(fmt::format("There are no grid point data sets. No results returned."));
     }
     if (!target_is_set) {
         logger->warning(fmt::format("Results were requested, but no target has been set."));
@@ -415,20 +447,19 @@ RegularGridInterpolatorPrivate::get_grid_point_index(const std::vector<std::size
     return index;
 }
 
-const std::vector<double>&
-RegularGridInterpolatorPrivate::get_grid_point_values(const std::size_t index)
+const std::vector<double>& RegularGridInterpolatorPrivate::get_grid_point_data(size_t index)
 {
-    for (std::size_t i = 0; i < number_of_tables; ++i) {
-        grid_point_values[i] = value_tables[i][index];
+    for (std::size_t i = 0; i < number_of_grid_point_data_sets; ++i) {
+        temporary_grid_point_data[i] = grid_point_data_sets[i].data[index];
     }
-    return grid_point_values;
+    return temporary_grid_point_data;
 }
 
 const std::vector<double>&
-RegularGridInterpolatorPrivate::get_grid_point_values(const std::vector<std::size_t>& coords)
+RegularGridInterpolatorPrivate::get_grid_point_data(const std::vector<std::size_t>& coords)
 {
     std::size_t index = get_grid_point_index(coords);
-    return get_grid_point_values(index);
+    return get_grid_point_data(index);
 }
 
 std::size_t RegularGridInterpolatorPrivate::get_grid_point_index_relative(
@@ -450,10 +481,11 @@ std::size_t RegularGridInterpolatorPrivate::get_grid_point_index_relative(
     return get_grid_point_index(temporary_coordinates);
 }
 
-std::vector<double> RegularGridInterpolatorPrivate::get_grid_point_values_relative(
-    const std::vector<std::size_t>& coords, const std::vector<short>& translation)
+std::vector<double>
+RegularGridInterpolatorPrivate::get_grid_point_data_relative(const std::vector<std::size_t>& coords,
+                                                             const std::vector<short>& translation)
 {
-    return get_grid_point_values(get_grid_point_index_relative(coords, translation));
+    return get_grid_point_data(get_grid_point_index_relative(coords, translation));
 }
 
 void RegularGridInterpolatorPrivate::set_floor_grid_point_coordinates()
@@ -603,7 +635,8 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
         hypercube = std::move(r);
     }
     if (hypercube.size() != previous_size) {
-        hypercube_values.resize(hypercube.size(), std::vector<double>(number_of_tables));
+        hypercube_grid_point_data.resize(hypercube.size(),
+                                         std::vector<double>(number_of_grid_point_data_sets));
         hypercube_weights.resize(hypercube.size());
     }
 }
@@ -644,24 +677,26 @@ void RegularGridInterpolatorPrivate::calculate_interpolation_coefficients()
     }
 }
 
-void RegularGridInterpolatorPrivate::set_hypercube_values()
+void RegularGridInterpolatorPrivate::set_hypercube_grid_point_data()
 {
-    if (results.size() != number_of_tables) {
-        results.resize(number_of_tables);
-        hypercube_values.resize(hypercube.size(), std::vector<double>(number_of_tables));
+    if (results.size() != number_of_grid_point_data_sets) {
+        results.resize(number_of_grid_point_data_sets);
+        hypercube_grid_point_data.resize(hypercube.size(),
+                                         std::vector<double>(number_of_grid_point_data_sets));
         hypercube_cache.clear();
     }
     if (hypercube_cache.count({floor_grid_point_index, hypercube_size_hash})) {
-        hypercube_values = hypercube_cache.at({floor_grid_point_index, hypercube_size_hash});
+        hypercube_grid_point_data =
+            hypercube_cache.at({floor_grid_point_index, hypercube_size_hash});
         return;
     }
     std::size_t hypercube_index = 0;
     for (const auto& v : hypercube) {
-        hypercube_values[hypercube_index] =
-            get_grid_point_values_relative(floor_grid_point_coordinates, v);
+        hypercube_grid_point_data[hypercube_index] =
+            get_grid_point_data_relative(floor_grid_point_coordinates, v);
         ++hypercube_index;
     }
-    hypercube_cache[{floor_grid_point_index, hypercube_size_hash}] = hypercube_values;
+    hypercube_cache[{floor_grid_point_index, hypercube_size_hash}] = hypercube_grid_point_data;
 }
 
 double RegularGridInterpolatorPrivate::get_grid_point_weighting_factor(const std::vector<short>& v)

@@ -10,8 +10,10 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    const std::shared_ptr<Courierr::Courierr>& logger_in,
                    Method extrapolation_method,
                    Method interpolation_method,
-                   std::pair<double, double> extrapolation_limits)
+                   std::pair<double, double> extrapolation_limits,
+                   const std::string& name)
     : values(std::move(values_in))
+    , name(name)
     , extrapolation_method(extrapolation_method)
     , interpolation_method(interpolation_method)
     , extrapolation_limits(std::move(extrapolation_limits))
