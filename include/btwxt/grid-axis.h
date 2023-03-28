@@ -66,10 +66,10 @@ class GridAxis {
 
     [[nodiscard]] const std::vector<double>&
     get_cubic_spacing_ratios(std::size_t floor_or_ceiling) const;
+    std::string name;
 
   private:
     std::vector<double> values;
-    std::string name;
     Method extrapolation_method {Method::constant};
     Method interpolation_method {Method::linear};
     std::pair<double, double> extrapolation_limits {-DBL_MAX, DBL_MAX};

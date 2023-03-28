@@ -12,8 +12,8 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    Method interpolation_method,
                    std::pair<double, double> extrapolation_limits,
                    const std::string& name)
-    : values(std::move(values_in))
-    , name(name)
+    : name(name)
+    , values(std::move(values_in))
     , extrapolation_method(extrapolation_method)
     , interpolation_method(interpolation_method)
     , extrapolation_limits(std::move(extrapolation_limits))
@@ -22,7 +22,9 @@ GridAxis::GridAxis(std::vector<double> values_in,
     , logger(logger_in)
 {
     if (values.empty()) {
-        throw BtwxtException("Cannot create a GridAxis from a zero-length vector.", *logger);
+        throw BtwxtException(
+            fmt::format("Cannot create grid axis (name=\"{}\") from a zero-length vector.", name),
+            *logger);
     }
     check_grid_sorted();
     check_extrapolation_limits();
@@ -41,13 +43,14 @@ void GridAxis::set_interpolation_method(Method interpolation_method_in)
 
 void GridAxis::set_extrapolation_method(Method extrapolation_method_in)
 {
+    constexpr std::string_view info_format =
+        "A {} extrapolation method is not valid for grid axis (name=\"{}\") with only {} value. "
+        "Extrapolation method reset to {}.";
     switch (extrapolation_method_in) {
     case Method::linear: {
         if (get_length() == 1) {
             extrapolation_method = Method::constant;
-            logger->info(
-                "A linear extrapolation method is not valid for grid axes with only one value. "
-                "Extrapolation method reset to constant.");
+            logger->info(fmt::format(info_format, "linear", name, "one", "constant"));
             return;
         }
         break;
@@ -55,16 +58,12 @@ void GridAxis::set_extrapolation_method(Method extrapolation_method_in)
     case Method::cubic: {
         if (get_length() <= 1) {
             extrapolation_method = Method::constant;
-            logger->info(
-                "A cubic extrapolation method is not valid for grid axes with only one value. "
-                "Extrapolation method reset to constant.");
+            logger->info(fmt::format(info_format, "cubic", name, "one", "constant"));
             return;
         }
         else if (get_length() == 2) {
             extrapolation_method = Method::linear;
-            logger->info(
-                "A cubic extrapolation method is not valid for grid axes with only two values. "
-                "Extrapolation method reset to linear.");
+            logger->info(fmt::format(info_format, "cubic", name, "two", "linear"));
             return;
         }
     }
@@ -79,8 +78,10 @@ void GridAxis::calculate_cubic_spacing_ratios()
 {
     if (get_length() == 1) {
         interpolation_method = Method::linear;
-        logger->info("A cubic interpolation method is not valid for grid axes with only one value. "
-                     "Interpolation method reset to linear.");
+        logger->info(fmt::format(
+            "A cubic interpolation method is not valid for grid axis (name=\"{}\") with "
+            "only one value. Interpolation method reset to linear.",
+            name));
     }
     if (interpolation_method == Method::linear) {
         return;
@@ -108,24 +109,24 @@ void GridAxis::check_grid_sorted()
 {
     bool grid_is_sorted = free_check_sorted(values);
     if (!grid_is_sorted) {
-        throw BtwxtException("Axis is not sorted.", *logger);
+        throw BtwxtException(fmt::format("Grid axis (name=\"{}\") values are not sorted.", name),
+                             *logger);
     }
 }
 
 void GridAxis::check_extrapolation_limits()
 {
+    constexpr std::string_view info_format {
+        "Grid axis (name=\"{}\") {} extrapolation limit ({}) is within the set of grid axis "
+        "values. Setting to {} axis value ({})."};
     if (extrapolation_limits.first > values[0]) {
-        logger->info(fmt::format("The lower extrapolation limit ({}) is within the set of "
-                                 "axis values. Setting to smallest axis value ({}).",
-                                 extrapolation_limits.first,
-                                 values[0]));
+        logger->info(fmt::format(
+            info_format, name, "lower", extrapolation_limits.first, "smallest", values[0]));
         extrapolation_limits.first = values[0];
     }
     if (extrapolation_limits.second < values.back()) {
-        logger->info(fmt::format("The upper extrapolation limit ({}) is within the set of "
-                                 "axis values. Setting to largest axis value ({}).",
-                                 extrapolation_limits.second,
-                                 values.back()));
+        logger->info(fmt::format(
+            info_format, name, "upper", extrapolation_limits.second, "largest", values.back()));
         extrapolation_limits.second = values.back();
     }
 }

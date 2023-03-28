@@ -20,7 +20,7 @@
         std::cout.rdbuf(buffer.rdbuf());                                                           \
         action std::string capture = buffer.str();                                                 \
         std::cout.rdbuf(sbuf);                                                                     \
-        EXPECT_STREQ(expected_stdout.c_str(), buffer.str().c_str());                               \
+        EXPECT_STREQ((expected_stdout).c_str(), buffer.str().c_str());                             \
     }
 
 namespace Btwxt {

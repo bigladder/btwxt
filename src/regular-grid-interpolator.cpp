@@ -137,10 +137,15 @@ RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInt
 void RegularGridInterpolatorPrivate::set_axis_sizes()
 {
     number_of_grid_points = 1;
-    for (std::size_t axis = number_of_axes - 1; /* axis >= 0 */ axis < number_of_axes; --axis) {
+    for (std::size_t axis = number_of_axes; axis-- > 0;) {
+        if (grid_axes[axis].name.empty()) {
+            grid_axes[axis].name = fmt::format("axis {}", axis);
+        }
         std::size_t length = grid_axes[axis].get_length();
         if (length == 0) {
-            throw BtwxtException(fmt::format("Axis {} has length zero.", axis), *logger);
+            throw BtwxtException(
+                fmt::format("Grid axis (name=\"{}\") has zero length.", grid_axes[axis].name),
+                *logger);
         }
         axis_lengths[axis] = length;
         axis_step_size[axis] = number_of_grid_points;
@@ -154,19 +159,30 @@ std::size_t
 RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid_point_data,
                                                  const std::string& name)
 {
+    std::string resolved_name {name};
+    if (resolved_name.empty()) {
+        resolved_name = fmt::format("data set {}",
+                                    regular_grid_interpolator->number_of_grid_point_data_sets - 1);
+    }
+    return regular_grid_interpolator->add_grid_point_data_set(
+        GridPointData(grid_point_data, resolved_name));
+}
+
+std::size_t RegularGridInterpolator::add_grid_point_data_set(const GridPointData& grid_point_data)
+{
     return regular_grid_interpolator->add_grid_point_data_set(grid_point_data);
 }
 
 std::size_t
-RegularGridInterpolatorPrivate::add_grid_point_data_set(const std::vector<double>& grid_point_data)
+RegularGridInterpolatorPrivate::add_grid_point_data_set(const GridPointData& grid_point_data)
 {
-    if (grid_point_data.size() != number_of_grid_points) {
-        throw BtwxtException(
-            fmt::format(
-                "Input grid point data set size ({}) does not match number of grid points ({}).",
-                grid_point_data.size(),
-                number_of_grid_points),
-            *logger);
+    if (grid_point_data.data.size() != number_of_grid_points) {
+        throw BtwxtException(fmt::format("Input grid point data set (name=\"{}\") size ({}) does "
+                                         "not match number of grid points ({}).",
+                                         grid_point_data.name,
+                                         grid_point_data.data.size(),
+                                         number_of_grid_points),
+                             *logger);
     }
     grid_point_data_sets.emplace_back(grid_point_data);
     number_of_grid_point_data_sets++;
@@ -256,7 +272,7 @@ void RegularGridInterpolatorPrivate::normalize_grid_point_data(std::size_t data_
 {
     auto& data_set = grid_point_data_sets[data_set_index].data;
     if (scalar == 0.0) {
-        throw BtwxtException("Attempt to normalize data_set by zero.", *logger);
+        throw BtwxtException("Attempt to normalize data set by zero.", *logger);
     }
     scalar = 1.0 / scalar;
     std::transform(data_set.begin(),
@@ -279,11 +295,6 @@ RegularGridInterpolatorPrivate::get_extrapolation_limits(std::size_t axis) const
     return grid_axes[axis].get_extrapolation_limits();
 }
 
-const GridAxis& RegularGridInterpolatorPrivate::get_grid_axis(const std::size_t axis) const
-{
-    return grid_axes[axis];
-}
-
 // Public printing methods
 std::string RegularGridInterpolator::write_data()
 {
@@ -304,14 +315,14 @@ std::string RegularGridInterpolatorPrivate::write_data()
     output << std::endl;
     for (std::size_t index = 0; index < number_of_grid_points; ++index) {
         for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
-            output << get_grid_axis(axis).get_values()[indices[axis]] << ",";
+            output << grid_axes[axis].get_values()[indices[axis]] << ",";
         }
         for (std::size_t tab = 0; tab < number_of_grid_point_data_sets; ++tab) {
             output << grid_point_data_sets[tab].data[index] << ",";
         }
         output << std::endl;
         ++indices[number_of_axes - 1];
-        for (std::size_t axis = number_of_axes - 1; axis > 0; --axis) {
+        for (std::size_t axis = number_of_axes; axis-- > 0;) {
             if (indices[axis] >= axis_lengths[axis]) {
                 ++indices[axis - 1];
                 indices[axis] = 0;
@@ -327,18 +338,21 @@ void RegularGridInterpolator::set_target(const std::vector<double>& target)
     regular_grid_interpolator->set_target(target);
 }
 
-void RegularGridInterpolatorPrivate::set_target(const std::vector<double>& v)
+void RegularGridInterpolatorPrivate::set_target(const std::vector<double>& target_in)
 {
-    if (v.size() != number_of_axes) {
-        throw BtwxtException(fmt::format("Target and grid do not have the same dimensions."),
-                             *logger);
+    if (target_in.size() != number_of_axes) {
+        throw BtwxtException(
+            fmt::format("Target (size={}) and grid (size={}) do not have the same dimensions.",
+                        target_in.size(),
+                        number_of_axes),
+            *logger);
     }
     if (target_is_set) {
-        if ((v == target) && (methods == get_interpolation_methods())) {
+        if ((target_in == target) && (methods == get_interpolation_methods())) {
             return;
         }
     }
-    target = v;
+    target = target_in;
     target_is_set = true;
     set_floor_grid_point_coordinates();
     calculate_floor_to_ceiling_fractions();
@@ -498,7 +512,7 @@ void RegularGridInterpolatorPrivate::set_floor_grid_point_coordinates()
 
 void RegularGridInterpolatorPrivate::set_axis_floor_grid_point_index(size_t axis)
 {
-    const auto& axis_values = get_grid_axis(axis).get_values();
+    const auto& axis_values = grid_axes[axis].get_values();
     int length = static_cast<int>(axis_lengths[axis]);
     if (target[axis] < get_extrapolation_limits(axis).first) {
         target_bounds_status[axis] = TargetBoundsStatus::below_lower_extrapolation_limit;
@@ -537,7 +551,7 @@ void RegularGridInterpolatorPrivate::calculate_floor_to_ceiling_fractions()
 {
     for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
         if (axis_lengths[axis] > 1) {
-            auto& axis_values = get_grid_axis(axis).get_values();
+            auto& axis_values = grid_axes[axis].get_values();
             auto floor_index = floor_grid_point_coordinates[axis];
             floor_to_ceiling_fractions[axis] = compute_fraction(
                 target[axis], axis_values[floor_index], axis_values[floor_index + 1]);
@@ -556,6 +570,9 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
     methods = get_interpolation_methods();
     if (target_is_set) {
         auto extrapolation_methods = get_extrapolation_methods();
+        constexpr std::string_view warning_format {
+            "The target ({:.3g}) is {} the extrapolation limit ({:.3g}) for grid axis "
+            "(name=\"{}\"). Result will use constant extrapolation from the {} limit."};
         for (std::size_t axis = 0; axis < number_of_axes; axis++) {
             switch (target_bounds_status[axis]) {
             case TargetBoundsStatus::extrapolate_low:
@@ -563,21 +580,21 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
                 methods[axis] = extrapolation_methods[axis];
                 break;
             case TargetBoundsStatus::below_lower_extrapolation_limit:
-                logger->warning(fmt::format("The target ({:.3g}) is below the extrapolation limit "
-                                            "({:.3g}) for axis {}. Result "
-                                            "will use constant extrapolation from the lower limit.",
+                logger->warning(fmt::format(warning_format,
                                             target[axis],
+                                            "below",
                                             get_extrapolation_limits(axis).first,
-                                            axis));
+                                            grid_axes[axis].name,
+                                            "lower"));
                 methods[axis] = Method::constant;
                 break;
             case TargetBoundsStatus::above_upper_extrapolation_limit:
-                logger->warning(fmt::format("The target ({:.3g}) is above the extrapolation limit "
-                                            "({:.3g}) for axis {}. Result "
-                                            "will use constant extrapolation from the upper limit.",
+                logger->warning(fmt::format(warning_format,
                                             target[axis],
+                                            "above",
                                             get_extrapolation_limits(axis).second,
-                                            axis));
+                                            grid_axes[axis].name,
+                                            "upper"));
                 methods[axis] = Method::constant;
                 break;
             case TargetBoundsStatus::interpolate:
@@ -599,11 +616,13 @@ void RegularGridInterpolatorPrivate::clear_target()
     results = std::vector<double>(number_of_axes, 0.);
 }
 
-void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods)
+void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> methods_in)
 {
-    if (m_methods.size() != number_of_axes) {
-        throw BtwxtException(fmt::format("Error setting hypercube. Methods vector does not "
-                                         "have the correct number of dimensions."),
+    if (methods_in.size() != number_of_axes) {
+        throw BtwxtException(fmt::format("Error setting hypercube. Methods vector (size={}) and "
+                                         "grid (size={}) do not have the dimensions.",
+                                         methods_in.size(),
+                                         number_of_axes),
                              *logger);
     }
     std::size_t previous_size = hypercube.size();
@@ -617,7 +636,7 @@ void RegularGridInterpolatorPrivate::set_hypercube(std::vector<Method> m_methods
             options[axis] = {0};
             reset_hypercube = true;
         }
-        else if (m_methods[axis] == Method::cubic) {
+        else if (methods_in[axis] == Method::cubic) {
             options[axis] = {-1, 0, 1, 2};
         }
         hypercube_size_hash += options[axis].size() * digit;

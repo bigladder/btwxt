@@ -70,6 +70,8 @@ class RegularGridInterpolator {
     std::size_t add_grid_point_data_set(const std::vector<double>& grid_point_data,
                                         const std::string& name = "");
 
+    std::size_t add_grid_point_data_set(const GridPointData& grid_point_data);
+
     // Get results
     void set_target(const std::vector<double>& target);
 
@@ -103,8 +105,7 @@ class RegularGridInterpolator {
     void normalize_grid_point_data_at_target(const std::vector<double>& target,
                                              double scalar = 1.0);
 
-    double normalize_grid_point_data_at_target(std::size_t data_set_index,
-                                               const double scalar = 1.0);
+    double normalize_grid_point_data_at_target(std::size_t data_set_index, double scalar = 1.0);
 
     double normalize_grid_point_data_at_target(std::size_t data_set_index,
                                                const std::vector<double>& target,

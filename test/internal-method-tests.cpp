@@ -284,7 +284,7 @@ TEST_F(GridFixture2DPrivate, construct_from_axes)
     EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 0u);
     EXPECT_THAT(interpolator.axis_lengths, testing::ElementsAre(3, 2));
 
-    interpolator.add_grid_point_data_set(data_sets[0]);
+    interpolator.add_grid_point_data_set(GridPointData(data_sets[0]));
     EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 1u);
     std::vector<std::size_t> coords {1, 1};
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8));
@@ -298,7 +298,7 @@ TEST_F(GridFixture2DPrivate, construct_from_axes)
 
 TEST_F(GridFixture2DPrivate, get_grid_axis)
 {
-    std::vector<double> returned_vec = interpolator.get_grid_axis(1).get_values();
+    std::vector<double> returned_vec = interpolator.grid_axes[1].get_values();
     EXPECT_THAT(returned_vec, testing::ElementsAre(4, 6));
 }
 

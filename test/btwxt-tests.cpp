@@ -210,7 +210,8 @@ TEST_F(GridFixture2D, extrapolate)
 TEST_F(GridFixture2D, invalid_inputs)
 {
     std::vector<double> short_target = {1};
-    std::string expected_error {"  ERROR: Target and grid do not have the same dimensions.\n"};
+    constexpr std::string_view expected_error_format {
+        "  ERROR: Target (size={}) and grid (size={}) do not have the same dimensions.\n"};
     // Redirect cout to temporary local buffer (do not use EXPECT_STDOUT for throwing functions)
     std::ostringstream buffer;
     std::streambuf* sbuf = std::cout.rdbuf();
@@ -220,7 +221,7 @@ TEST_F(GridFixture2D, invalid_inputs)
         interpolator.set_target(short_target);
     }
     catch (BtwxtException&) {
-        EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
+        EXPECT_STREQ(fmt::format(expected_error_format, 1, 2).c_str(), buffer.str().c_str());
     }
     std::vector<double> long_target = {1, 2, 3};
     buffer.str("");
@@ -229,14 +230,14 @@ TEST_F(GridFixture2D, invalid_inputs)
         interpolator.set_target(long_target);
     }
     catch (BtwxtException&) {
-        EXPECT_STREQ(expected_error.c_str(), buffer.str().c_str());
+        EXPECT_STREQ(fmt::format(expected_error_format, 3, 2).c_str(), buffer.str().c_str());
     }
     std::cout.rdbuf(sbuf);
 
-    std::vector<double> data_set = {6, 3, 2, 8, 4};
-    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set);, BtwxtException);
-    data_set = {1, 1, 1, 1, 1, 1, 1};
-    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set);, BtwxtException);
+    std::vector<double> data_set_too_short = {6, 3, 2, 8, 4};
+    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_short);, BtwxtException);
+    std::vector<double> data_set_too_long = {1, 1, 1, 1, 1, 1, 1};
+    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_long);, BtwxtException);
 }
 
 TEST_F(GridFixture2D, logger_modify_context)

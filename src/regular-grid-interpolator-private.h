@@ -29,16 +29,15 @@ class RegularGridInterpolatorPrivate {
                                    const std::shared_ptr<Courierr::Courierr>& logger);
 
     // Data manipulation and settings
-    std::size_t add_grid_point_data_set(const std::vector<double>& grid_point_data);
+    std::size_t add_grid_point_data_set(const GridPointData& grid_point_data);
 
     void set_axis_interpolation_method(std::size_t axis, Method method)
     {
         if (axis > number_of_axes - 1) {
-            throw BtwxtException(fmt::format("Unable to set axis interpolation method on axis {}. "
-                                             "Number of grid axes = {}.",
-                                             axis,
-                                             number_of_axes),
-                                 *logger);
+            throw BtwxtException(
+                fmt::format(
+                    not_enough_axes_message, "set axis interpolation method", axis, number_of_axes),
+                *logger);
         }
         grid_axes[axis].set_interpolation_method(method);
     }
@@ -46,11 +45,10 @@ class RegularGridInterpolatorPrivate {
     void set_axis_extrapolation_method(const std::size_t axis, Method method)
     {
         if (axis > number_of_axes - 1) {
-            throw BtwxtException(fmt::format("Unable to set axis extrapolation method on axis {}. "
-                                             "Number of grid axes = {}.",
-                                             axis,
-                                             number_of_axes),
-                                 *logger);
+            throw BtwxtException(
+                fmt::format(
+                    not_enough_axes_message, "set axis extrapolation method", axis, number_of_axes),
+                *logger);
         }
         grid_axes[axis].set_extrapolation_method(method);
     }
@@ -59,11 +57,10 @@ class RegularGridInterpolatorPrivate {
                                        const std::pair<double, double>& limits)
     {
         if (axis > number_of_axes - 1) {
-            throw BtwxtException(fmt::format("Unable to set axis extrapolation limits on axis {}. "
-                                             "Number of grid axes = {}.",
-                                             axis,
-                                             number_of_axes),
-                                 *logger);
+            throw BtwxtException(
+                fmt::format(
+                    not_enough_axes_message, "set axis extrapolation limits", axis, number_of_axes),
+                *logger);
         }
         grid_axes[axis].set_extrapolation_limits(limits);
     }
@@ -81,8 +78,7 @@ class RegularGridInterpolatorPrivate {
 
     void normalize_grid_point_data_at_target(double scalar = 1.0);
 
-    double normalize_grid_point_data_at_target(std::size_t data_set_index,
-                                               const double scalar = 1.0);
+    double normalize_grid_point_data_at_target(std::size_t data_set_index, double scalar = 1.0);
 
     void normalize_grid_point_data(std::size_t data_set_index, double scalar = 1.0);
 
@@ -114,8 +110,6 @@ class RegularGridInterpolatorPrivate {
 
     std::vector<double> get_grid_point_data_relative(const std::vector<std::size_t>& coords,
                                                      const std::vector<short>& translation);
-
-    const GridAxis& get_grid_axis(size_t axis) const;
 
     [[nodiscard]] std::vector<Method> get_interpolation_methods() const;
 
@@ -183,6 +177,9 @@ class RegularGridInterpolatorPrivate {
 
     std::shared_ptr<Courierr::Courierr> logger;
     void set_axis_sizes();
+
+    static constexpr std::string_view not_enough_axes_message {
+        "Unable to {} for axis {}. Number of grid axes = {}."};
 };
 
 std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,

@@ -23,19 +23,11 @@ class GridPointData {
     // Constructors
     GridPointData() = default;
 
-    explicit GridPointData(std::vector<double> data, const std::string& name = "")
-        : data(std::move(data)), name(name)
+    explicit GridPointData(std::vector<double> data, std::string name = "")
+        : data(std::move(data)), name(std::move(name))
     {
     }
     std::vector<double> data;
-
-    // Setters
-    void set_name(const std::string& name_in) { name = name_in; }
-
-    // Getters
-    const std::string& set_name() { return name; }
-
-  private:
     std::string name;
 };
 
