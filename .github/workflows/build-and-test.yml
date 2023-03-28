@@ -64,7 +64,7 @@ jobs:
       - name: Set coverage variables
         id: cov
         run: |
-          if ${{inputs.coverage}}; then
+          if ${{matrix.coverage}}; then
           echo "COVERAGE=ON" >> $GITHUB_OUTPUT
           echo "STATIC_LIB=OFF" >> $GITHUB_OUTPUT
           else
