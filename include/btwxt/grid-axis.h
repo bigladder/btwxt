@@ -18,13 +18,6 @@ namespace Btwxt {
 
 enum class Method { undefined, constant, linear, cubic };
 
-// free functions
-inline bool free_check_sorted(const std::vector<double>& v)
-{
-    return std::is_sorted(
-        std::begin(v), std::end(v), [](const double a, const double b) { return a <= b; });
-}
-
 class GridAxis {
     // A single input dimension of the grid
   public:
@@ -83,5 +76,31 @@ class GridAxis {
     void check_grid_sorted();
     void check_extrapolation_limits();
 };
+
+// free functions
+inline bool vector_is_sorted(const std::vector<double>& v)
+{
+    return std::is_sorted(
+        std::begin(v), std::end(v), [](const double a, const double b) { return a <= b; });
+}
+
+template <typename T>
+std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>>& v)
+{
+    std::vector<std::vector<T>> combinations = {{}};
+    for (const auto& list : v) {
+        std::vector<std::vector<T>> r;
+        for (const auto& x : combinations) {
+            for (const auto item : list) {
+                r.push_back(x);
+                r.back().push_back(item);
+            }
+        }
+        combinations = std::move(r);
+    }
+    return combinations;
+}
+
+std::vector<double> linspace(double start, double stop, std::size_t number_of_points);
 
 } // namespace Btwxt

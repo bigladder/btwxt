@@ -15,7 +15,7 @@
 
 namespace Btwxt {
 
-TEST(GridAxis, free_check_sorted)
+TEST(GridAxis, vector_is_sorted)
 {
     std::vector<std::pair<std::vector<double>, bool>> axes = {{{1, 3, 5, 7, 9}, true},
                                                               {{1, 3, 5, 17, 9}, false},
@@ -24,7 +24,7 @@ TEST(GridAxis, free_check_sorted)
                                                               {{9}, true}};
     bool is_sorted;
     for (const auto& pair : axes) {
-        is_sorted = Btwxt::free_check_sorted(pair.first);
+        is_sorted = Btwxt::vector_is_sorted(pair.first);
         EXPECT_EQ(is_sorted, pair.second);
     }
 }

@@ -15,19 +15,6 @@
 
 namespace Btwxt {
 
-// return an evenly spaced 1-d vector of doubles.
-std::vector<double> linspace(double start, double stop, std::size_t number_of_points)
-{
-    std::vector<double> result(number_of_points);
-    double step = (stop - start) / (static_cast<double>(number_of_points) - 1.);
-    double value = start;
-    for (std::size_t i = 0; i < number_of_points; i++) {
-        result[i] = value;
-        value += step;
-    }
-    return result;
-}
-
 TEST_F(FunctionFixture, scipy_3d_grid)
 {
     // Based on
@@ -456,8 +443,8 @@ TEST_F(FunctionFixture4D, multi_timer)
 
 TEST(CartesianProduct, cartesian_product)
 {
-    std::vector<std::vector<short>> v = {{1, 2, 3}, {4, 5}, {6, 7, 8, 9}};
-    std::vector<std::vector<short>> result = cartesian_product(v);
+    std::vector<std::vector<short>> result =
+        cartesian_product(std::vector<std::vector<short>> {{1, 2, 3}, {4, 5}, {6, 7, 8, 9}});
     EXPECT_EQ(result.size(), 3u * 2u * 4u);
     EXPECT_THAT(result[0], testing::ElementsAre(1, 4, 6));
     EXPECT_THAT(result[1], testing::ElementsAre(1, 4, 7));

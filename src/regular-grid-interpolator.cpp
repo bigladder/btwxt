@@ -306,33 +306,32 @@ std::string RegularGridInterpolator::write_data()
 
 std::string RegularGridInterpolatorPrivate::write_data()
 {
-    std::vector<std::size_t> indices(number_of_axes, 0);
     std::stringstream output("");
+
+    std::vector<std::vector<double>> grid_axes_values;
 
     for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
         output << grid_axes[axis].name << ",";
+        grid_axes_values.push_back(grid_axes[axis].get_values());
     }
+
+    std::vector<std::vector<double>> grid_points = cartesian_product(grid_axes_values);
+
     for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
          ++data_set_index) {
         output << grid_point_data_sets[data_set_index].name << ",";
     }
     output << std::endl;
+
     for (std::size_t index = 0; index < number_of_grid_points; ++index) {
         for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
-            output << grid_axes[axis].get_values()[indices[axis]] << ",";
+            output << grid_points[index][axis] << ",";
         }
         for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
              ++data_set_index) {
             output << grid_point_data_sets[data_set_index].data[index] << ",";
         }
         output << std::endl;
-        ++indices[number_of_axes - 1];
-        for (std::size_t axis = number_of_axes; axis-- > 0;) {
-            if (indices[axis] >= axis_lengths[axis]) {
-                ++indices[axis - 1];
-                indices[axis] = 0;
-            }
-        }
     }
     return output.str();
 }

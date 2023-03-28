@@ -107,7 +107,7 @@ GridAxis::get_cubic_spacing_ratios(const std::size_t floor_or_ceiling) const
 
 void GridAxis::check_grid_sorted()
 {
-    bool grid_is_sorted = free_check_sorted(values);
+    bool grid_is_sorted = vector_is_sorted(values);
     if (!grid_is_sorted) {
         throw BtwxtException(fmt::format("Grid axis (name=\"{}\") values are not sorted.", name),
                              *logger);
@@ -130,4 +130,18 @@ void GridAxis::check_extrapolation_limits()
         extrapolation_limits.second = values.back();
     }
 }
+
+// return an evenly spaced 1-d vector of doubles.
+std::vector<double> linspace(double start, double stop, std::size_t number_of_points)
+{
+    std::vector<double> result(number_of_points);
+    double step = (stop - start) / (static_cast<double>(number_of_points) - 1.);
+    double value = start;
+    for (std::size_t i = 0; i < number_of_points; i++) {
+        result[i] = value;
+        value += step;
+    }
+    return result;
+}
+
 } // namespace Btwxt

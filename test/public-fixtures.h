@@ -25,26 +25,6 @@
 
 namespace Btwxt {
 
-template <typename T>
-std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>>& v)
-{
-    std::vector<std::vector<T>> combinations = {{}};
-    for (const auto& list : v) {
-        std::vector<std::vector<T>> r;
-        for (const auto& x : combinations) {
-            for (const auto item : list) {
-                r.push_back(x);
-                r.back().push_back(item);
-            }
-        }
-        combinations = std::move(r);
-    }
-    return combinations;
-}
-
-// return an evenly spaced 1-d vector of doubles.
-std::vector<double> linspace(double start, double stop, std::size_t number_of_points);
-
 class GridFixture : public testing::Test {
   public:
     std::vector<std::vector<double>> grid;
