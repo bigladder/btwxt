@@ -199,13 +199,13 @@ TEST_F(EmptyGridFixturePrivate, set_axis_floor)
     EXPECT_EQ(interpolator.target_bounds_status[0], TargetBoundsStatus::extrapolate_high);
     EXPECT_EQ(interpolator.floor_grid_point_coordinates[0], 3u);
 
-    interpolator.set_target({-0.3});
+    EXPECT_THROW(interpolator.set_target({-0.3}), BtwxtException);
     interpolator.set_floor_grid_point_coordinates();
     EXPECT_EQ(interpolator.target_bounds_status[0],
               TargetBoundsStatus::below_lower_extrapolation_limit);
     EXPECT_EQ(interpolator.floor_grid_point_coordinates[0], 0u);
 
-    interpolator.set_target({11.3});
+    EXPECT_THROW(interpolator.set_target({11.3}), BtwxtException);
     interpolator.set_floor_grid_point_coordinates();
     EXPECT_EQ(interpolator.target_bounds_status[0],
               TargetBoundsStatus::above_upper_extrapolation_limit);

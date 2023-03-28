@@ -573,9 +573,8 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
     methods = get_interpolation_methods();
     if (target_is_set) {
         auto extrapolation_methods = get_extrapolation_methods();
-        constexpr std::string_view warning_format {
-            "The target ({:.3g}) is {} the extrapolation limit ({:.3g}) for grid axis "
-            "(name=\"{}\"). Result will use constant extrapolation from the {} limit."};
+        constexpr std::string_view exception_format {"The target ({:.3g}) is {} the extrapolation "
+                                                     "limit ({:.3g}) for grid axis (name=\"{}\")."};
         for (std::size_t axis = 0; axis < number_of_axes; axis++) {
             switch (target_bounds_status[axis]) {
             case TargetBoundsStatus::extrapolate_low:
@@ -583,22 +582,20 @@ void RegularGridInterpolatorPrivate::consolidate_methods()
                 methods[axis] = extrapolation_methods[axis];
                 break;
             case TargetBoundsStatus::below_lower_extrapolation_limit:
-                logger->warning(fmt::format(warning_format,
-                                            target[axis],
-                                            "below",
-                                            get_extrapolation_limits(axis).first,
-                                            grid_axes[axis].name,
-                                            "lower"));
-                methods[axis] = Method::constant;
+                throw BtwxtException(fmt::format(exception_format,
+                                                 target[axis],
+                                                 "below",
+                                                 get_extrapolation_limits(axis).first,
+                                                 grid_axes[axis].name),
+                                     *logger);
                 break;
             case TargetBoundsStatus::above_upper_extrapolation_limit:
-                logger->warning(fmt::format(warning_format,
-                                            target[axis],
-                                            "above",
-                                            get_extrapolation_limits(axis).second,
-                                            grid_axes[axis].name,
-                                            "upper"));
-                methods[axis] = Method::constant;
+                throw BtwxtException(fmt::format(exception_format,
+                                                 target[axis],
+                                                 "above",
+                                                 get_extrapolation_limits(axis).second,
+                                                 grid_axes[axis].name),
+                                     *logger);
                 break;
             case TargetBoundsStatus::interpolate:
                 break;
