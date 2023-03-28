@@ -47,8 +47,11 @@ jobs:
     defaults:
       run:
         shell: bash
-    name: Build
-    runs-on: ${{ matrix.os }}-${{ matrix.os_ver }} ${{ matrix.cxx }} ${{ matrix.config }} coverage=${{ matrix.coverage }}
+    name: ${{ matrix.os }}-${{ matrix.os_ver }} ${{ matrix.cxx }} ${{ matrix.config }} coverage=${{ matrix.coverage }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    runs-on: ${{ matrix.os }}-${{ matrix.os_ver }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
