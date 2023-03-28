@@ -31,7 +31,8 @@ construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_poin
     std::vector<GridPointData> grid_point_data_sets;
     grid_point_data_sets.reserve(grid_point_data_sets_in.size());
     for (const auto& data_set : grid_point_data_sets_in) {
-        grid_point_data_sets.emplace_back(data_set);
+        grid_point_data_sets.emplace_back(
+            data_set, fmt::format("data set {}", grid_point_data_sets.size() + 1));
     }
     return grid_point_data_sets;
 }
@@ -139,7 +140,7 @@ void RegularGridInterpolatorPrivate::set_axis_sizes()
     number_of_grid_points = 1;
     for (std::size_t axis = number_of_axes; axis-- > 0;) {
         if (grid_axes[axis].name.empty()) {
-            grid_axes[axis].name = fmt::format("axis {}", axis);
+            grid_axes[axis].name = fmt::format("axis {}", axis + 1);
         }
         std::size_t length = grid_axes[axis].get_length();
         if (length == 0) {
@@ -161,8 +162,8 @@ RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid
 {
     std::string resolved_name {name};
     if (resolved_name.empty()) {
-        resolved_name = fmt::format("data set {}",
-                                    regular_grid_interpolator->number_of_grid_point_data_sets - 1);
+        resolved_name =
+            fmt::format("data set {}", regular_grid_interpolator->number_of_grid_point_data_sets);
     }
     return regular_grid_interpolator->add_grid_point_data_set(
         GridPointData(grid_point_data, resolved_name));
@@ -307,18 +308,20 @@ std::string RegularGridInterpolatorPrivate::write_data()
     std::stringstream output("");
 
     for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
-        output << "Axis " << axis + 1 << ",";
+        output << grid_axes[axis].name << ",";
     }
-    for (std::size_t tab = 0; tab < number_of_grid_point_data_sets; ++tab) {
-        output << "Data " << tab + 1 << ",";
+    for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
+         ++data_set_index) {
+        output << grid_point_data_sets[data_set_index].name << ",";
     }
     output << std::endl;
     for (std::size_t index = 0; index < number_of_grid_points; ++index) {
         for (std::size_t axis = 0; axis < number_of_axes; ++axis) {
             output << grid_axes[axis].get_values()[indices[axis]] << ",";
         }
-        for (std::size_t tab = 0; tab < number_of_grid_point_data_sets; ++tab) {
-            output << grid_point_data_sets[tab].data[index] << ",";
+        for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
+             ++data_set_index) {
+            output << grid_point_data_sets[data_set_index].data[index] << ",";
         }
         output << std::endl;
         ++indices[number_of_axes - 1];

@@ -307,7 +307,7 @@ TEST_F(GridFixture2D, normalize)
 
 TEST_F(GridFixture2D, write_data)
 {
-    EXPECT_EQ("Axis 1,Axis 2,Data 1,Data 2,\n"
+    EXPECT_EQ("axis 1,axis 2,data set 1,data set 2,\n"
               "0,4,6,12,\n"
               "0,6,3,6,\n"
               "10,4,2,4,\n"
