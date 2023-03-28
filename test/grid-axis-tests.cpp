@@ -60,17 +60,17 @@ TEST(GridAxis, bad_limits)
     GridAxis my_grid_axis({0, 5, 7, 11, 12, 15});
     my_grid_axis.name = "my grid axis";
     std::pair<double, double> extrapolation_limits {4, 17};
-    std::string ExpectedOut = "  NOTE: Grid axis (name=\"my grid axis\") lower extrapolation limit "
-                              "(4) is within the set of grid "
-                              "axis values. Setting to smallest axis value (0).\n";
-    EXPECT_STDOUT(my_grid_axis.set_extrapolation_limits(extrapolation_limits);, ExpectedOut)
+    std::string expected_out =
+        "  [NOTE] Grid axis (name=\"my grid axis\") lower extrapolation limit (4) is within the "
+        "set of grid axis values. Setting to smallest axis value (0).\n";
+    EXPECT_STDOUT(my_grid_axis.set_extrapolation_limits(extrapolation_limits);, expected_out)
     EXPECT_EQ(my_grid_axis.get_extrapolation_limits().first, 0);
 
     extrapolation_limits = {-2, 12};
-    ExpectedOut =
-        "  NOTE: Grid axis (name=\"my grid axis\") upper extrapolation limit (12) is within the "
+    expected_out =
+        "  [NOTE] Grid axis (name=\"my grid axis\") upper extrapolation limit (12) is within the "
         "set of grid axis values. Setting to largest axis value (15).\n";
-    EXPECT_STDOUT(my_grid_axis.set_extrapolation_limits(extrapolation_limits);, ExpectedOut)
+    EXPECT_STDOUT(my_grid_axis.set_extrapolation_limits(extrapolation_limits);, expected_out)
     EXPECT_EQ(my_grid_axis.get_extrapolation_limits().second, 15);
 }
 } // namespace Btwxt

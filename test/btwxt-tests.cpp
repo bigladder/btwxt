@@ -144,7 +144,7 @@ TEST_F(GridFixture2D, target_undefined)
 {
     std::vector<double> returned_target;
     std::string expected_stdout =
-        "  WARNING: The current target was requested, but no target has been set.\n";
+        "  [WARNING] The current target was requested, but no target has been set.\n";
 
     // The test fixture does not instantiate a GridPoint.
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_stdout)
@@ -153,7 +153,7 @@ TEST_F(GridFixture2D, target_undefined)
 
     double bad_result;
     std::string ResultsExpectedOut =
-        "  WARNING: Results were requested, but no target has been set.\n";
+        "  [WARNING] Results were requested, but no target has been set.\n";
     EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut)
     EXPECT_EQ(bad_result, 0);
 
@@ -211,7 +211,7 @@ TEST_F(GridFixture2D, invalid_inputs)
 {
     std::vector<double> short_target = {1};
     constexpr std::string_view expected_error_format {
-        "  ERROR: Target (size={}) and grid (size={}) do not have the same dimensions.\n"};
+        "  [ERROR] Target (size={}) and grid (size={}) do not have the same dimensions.\n"};
     // Redirect cout to temporary local buffer (do not use EXPECT_STDOUT for throwing functions)
     std::ostringstream buffer;
     std::streambuf* sbuf = std::cout.rdbuf();
@@ -244,12 +244,12 @@ TEST_F(GridFixture2D, logger_modify_context)
 {
     std::vector<double> returned_target;
     std::string expected_error =
-        "  WARNING: The current target was requested, but no target has been set.\n";
+        "  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
     std::string context_str {"Context 1:"};
     interpolator.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
     expected_error =
-        "Context 1:  WARNING: The current target was requested, but no target has been set.\n";
+        "Context 1:  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(interpolator.get_target();, expected_error)
 }
 
@@ -257,7 +257,7 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance)
 {
     std::vector<double> returned_target;
     std::string expected_error =
-        "  WARNING: The current target was requested, but no target has been set.\n";
+        "  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
 
     auto logger2 = std::make_shared<BtwxtContextCourierr>();
@@ -265,7 +265,7 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance)
     logger2->set_message_context(reinterpret_cast<void*>(&context_str));
     RegularGridInterpolator rgi2(interpolator, logger2);
     std::string expected_error2 {
-        "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
+        "RGI2 Context:  [WARNING] The current target was requested, but no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 
     EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
@@ -277,7 +277,7 @@ TEST_F(GridFixture2D, access_logger_in_btwxt)
     std::string context_str {"RGI2 Context:"};
     rgi2.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
     std::string expected_error2 {
-        "RGI2 Context:  WARNING: The current target was requested, but no target has been set.\n"};
+        "RGI2 Context:  [WARNING] The current target was requested, but no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 }
 
