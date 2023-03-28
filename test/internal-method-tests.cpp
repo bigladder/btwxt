@@ -275,9 +275,10 @@ TEST_F(GridFixture2DPrivate, interpolation_coefficients)
 
 TEST_F(GridFixture2DPrivate, construct_from_axes)
 {
-    GridAxis ax0 = GridAxis(std::vector<double>({0, 10, 15}));
+    GridAxis ax0 = GridAxis({0, 10, 15}, "ax0");
     auto logger = ax0.get_logger();
-    GridAxis ax1 = GridAxis(std::vector<double>({4, 6}), logger);
+    GridAxis ax1 =
+        GridAxis({4, 6}, "ax1", Method::linear, Method::constant, {-DBL_MAX, DBL_MAX}, logger);
     std::vector<GridAxis> test_axes = {ax0, ax1};
     interpolator = RegularGridInterpolatorPrivate(test_axes, logger);
     EXPECT_EQ(interpolator.number_of_axes, 2u);

@@ -14,13 +14,18 @@
 
 namespace Btwxt {
 
-std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,
+std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid_axes_in,
                                      const std::shared_ptr<Courierr::Courierr>& logger_in)
 {
     std::vector<GridAxis> grid_axes;
-    grid_axes.reserve(grid.size());
-    for (const auto& axis : grid) {
-        grid_axes.emplace_back(axis, logger_in);
+    grid_axes.reserve(grid_axes_in.size());
+    for (const auto& axis : grid_axes_in) {
+        grid_axes.emplace_back(axis,
+                               fmt::format("Axis {}", grid_axes.size() + 1),
+                               Method::linear,
+                               Method::constant,
+                               std::pair<double, double> {-DBL_MAX, DBL_MAX},
+                               logger_in);
     }
     return grid_axes;
 }
@@ -32,7 +37,7 @@ construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_poin
     grid_point_data_sets.reserve(grid_point_data_sets_in.size());
     for (const auto& data_set : grid_point_data_sets_in) {
         grid_point_data_sets.emplace_back(
-            data_set, fmt::format("data set {}", grid_point_data_sets.size() + 1));
+            data_set, fmt::format("Data Set {}", grid_point_data_sets.size() + 1));
     }
     return grid_point_data_sets;
 }
@@ -139,9 +144,6 @@ void RegularGridInterpolatorPrivate::set_axis_sizes()
 {
     number_of_grid_points = 1;
     for (std::size_t axis = number_of_axes; axis-- > 0;) {
-        if (grid_axes[axis].name.empty()) {
-            grid_axes[axis].name = fmt::format("axis {}", axis + 1);
-        }
         std::size_t length = grid_axes[axis].get_length();
         if (length == 0) {
             throw BtwxtException(
@@ -163,7 +165,7 @@ RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid
     std::string resolved_name {name};
     if (resolved_name.empty()) {
         resolved_name =
-            fmt::format("data set {}", regular_grid_interpolator->number_of_grid_point_data_sets);
+            fmt::format("Data Set {}", regular_grid_interpolator->number_of_grid_point_data_sets);
     }
     return regular_grid_interpolator->add_grid_point_data_set(
         GridPointData(grid_point_data, resolved_name));

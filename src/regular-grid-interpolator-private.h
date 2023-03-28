@@ -179,7 +179,7 @@ class RegularGridInterpolatorPrivate {
     void set_axis_sizes();
 
     static constexpr std::string_view not_enough_axes_message {
-        "Unable to {} for axis {}. Number of grid axes = {}."};
+        "Unable to {} for axis (index={}). Number of grid axes = {}."};
 };
 
 std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,

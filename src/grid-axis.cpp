@@ -7,11 +7,11 @@
 namespace Btwxt {
 
 GridAxis::GridAxis(std::vector<double> values_in,
-                   const std::shared_ptr<Courierr::Courierr>& logger_in,
-                   Method extrapolation_method,
+                   const std::string& name,
                    Method interpolation_method,
+                   Method extrapolation_method,
                    std::pair<double, double> extrapolation_limits,
-                   const std::string& name)
+                   const std::shared_ptr<Courierr::Courierr>& logger_in)
     : name(name)
     , values(std::move(values_in))
     , extrapolation_method(extrapolation_method)
