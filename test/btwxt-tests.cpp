@@ -11,7 +11,8 @@
 #include <fmt/format.h>
 
 // btwxt
-#include "public-fixtures.h"
+#include <btwxt/btwxt.h>
+#include "fixtures/public-fixtures.h"
 
 namespace Btwxt {
 
@@ -127,7 +128,7 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate)
     EXPECT_NEAR(result, 5.25, 0.0001);
 }
 
-TEST_F(GridFixture2D, target_undefined)
+TEST_F(Grid2DFixture, target_undefined)
 {
     std::vector<double> returned_target;
     std::string expected_stdout =
@@ -161,7 +162,7 @@ TEST_F(GridFixture2D, target_undefined)
     EXPECT_EQ(bad_result, 0);
 }
 
-TEST_F(GridFixture2D, interpolate)
+TEST_F(Grid2DFixture, interpolate)
 {
     interpolator.set_target(target);
 
@@ -181,7 +182,7 @@ TEST_F(GridFixture2D, interpolate)
     EXPECT_DOUBLE_EQ(d_result, 6.378);
 }
 
-TEST_F(GridFixture2D, extrapolate)
+TEST_F(Grid2DFixture, extrapolate)
 {
     // axis1 is designated constant extrapolation
     target = {10, 3};
@@ -194,7 +195,7 @@ TEST_F(GridFixture2D, extrapolate)
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
 }
 
-TEST_F(GridFixture2D, invalid_inputs)
+TEST_F(Grid2DFixture, invalid_inputs)
 {
     std::vector<double> short_target = {1};
     constexpr std::string_view expected_error_format {
@@ -227,7 +228,7 @@ TEST_F(GridFixture2D, invalid_inputs)
     EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_long);, BtwxtException);
 }
 
-TEST_F(GridFixture2D, logger_modify_context)
+TEST_F(Grid2DFixture, logger_modify_context)
 {
     std::vector<double> returned_target;
     std::string expected_error =
@@ -240,7 +241,7 @@ TEST_F(GridFixture2D, logger_modify_context)
     EXPECT_STDOUT(interpolator.get_target();, expected_error)
 }
 
-TEST_F(GridFixture2D, unique_logger_per_rgi_instance)
+TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
 {
     std::vector<double> returned_target;
     std::string expected_error =
@@ -258,7 +259,7 @@ TEST_F(GridFixture2D, unique_logger_per_rgi_instance)
     EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
 }
 
-TEST_F(GridFixture2D, access_logger_in_btwxt)
+TEST_F(Grid2DFixture, access_logger_in_btwxt)
 {
     RegularGridInterpolator rgi2(interpolator, std::make_shared<BtwxtContextCourierr>());
     std::string context_str {"RGI2 Context:"};
@@ -268,7 +269,7 @@ TEST_F(GridFixture2D, access_logger_in_btwxt)
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 }
 
-TEST_F(GridFixture2D, cubic_interpolate)
+TEST_F(Grid2DFixture, cubic_interpolate)
 {
     interpolator.set_axis_interpolation_method(0, Method::cubic);
     interpolator.set_axis_interpolation_method(1, Method::cubic);
@@ -279,7 +280,7 @@ TEST_F(GridFixture2D, cubic_interpolate)
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.416), testing::DoubleEq(8.832)));
 }
 
-TEST_F(GridFixture2D, normalize)
+TEST_F(Grid2DFixture, normalize)
 {
     interpolator.set_axis_interpolation_method(0, Method::cubic);
     interpolator.set_axis_interpolation_method(1, Method::cubic);
@@ -292,7 +293,7 @@ TEST_F(GridFixture2D, normalize)
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.0), testing::DoubleEq(8.832)));
 }
 
-TEST_F(GridFixture2D, write_data)
+TEST_F(Grid2DFixture, write_data)
 {
     EXPECT_EQ("Axis 1,Axis 2,Data Set 1,Data Set 2,\n"
               "0,4,6,12,\n"
@@ -304,7 +305,7 @@ TEST_F(GridFixture2D, write_data)
               interpolator.write_data());
 }
 
-TEST_F(FunctionFixture2D, normalization_return_scalar)
+TEST_F(Function2DFixture, normalization_return_scalar)
 {
     target = {7.0, 3.0};
     std::vector<double> normalization_target = {2.0, 3.0};
@@ -318,7 +319,7 @@ TEST_F(FunctionFixture2D, normalization_return_scalar)
     EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
 
-TEST_F(FunctionFixture2D, normalization_return_compound_scalar)
+TEST_F(Function2DFixture, normalization_return_compound_scalar)
 {
     target = {7.0, 3.0};
     std::vector<double> normalization_target = {2.0, 3.0};
@@ -333,7 +334,7 @@ TEST_F(FunctionFixture2D, normalization_return_compound_scalar)
     EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
 
-TEST_F(FunctionFixture4D, construct)
+TEST_F(Function4DFixture, construct)
 {
     interpolator.set_target(target);
 
@@ -341,7 +342,7 @@ TEST_F(FunctionFixture4D, construct)
     EXPECT_THAT(returned_target, testing::ElementsAre(2.2, 3.3, 1.4, 4.1));
 }
 
-TEST_F(FunctionFixture4D, calculate)
+TEST_F(Function4DFixture, calculate)
 {
     interpolator.set_target(target);
 
@@ -350,7 +351,7 @@ TEST_F(FunctionFixture4D, calculate)
     EXPECT_DOUBLE_EQ(result[1], functions[1](target));
 }
 
-TEST_F(FunctionFixture4D, verify_linear)
+TEST_F(Function4DFixture, verify_linear)
 {
     // no matter what we do, result[1] should always be 11!
     std::vector<double> result;
@@ -390,7 +391,7 @@ TEST_F(FunctionFixture4D, verify_linear)
     EXPECT_DOUBLE_EQ(result[1], 11);
 }
 
-TEST_F(FunctionFixture4D, timer)
+TEST_F(Function4DFixture, timer)
 {
     interpolator.set_target(target);
 
@@ -414,7 +415,7 @@ TEST_F(FunctionFixture4D, timer)
         fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
 }
 
-TEST_F(FunctionFixture4D, multi_timer)
+TEST_F(Function4DFixture, multi_timer)
 {
     std::vector<std::vector<double>> set_of_targets = {{0.1, 0.1, 0.1, 0.1},
                                                        {3.3, 2.2, 4.1, 1.4},

@@ -5,13 +5,13 @@
 
 #include <memory>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 // btwxt
-#include "../src/regular-grid-interpolator-private.h"
+#include "regular-grid-interpolator-private.h"
 #include <btwxt/btwxt.h>
 
-#include <fmt/format.h>
+#include "fmt/format.h"
 
 #define EXPECT_STDOUT(action, expected_stdout)                                                     \
     {                                                                                              \
@@ -37,9 +37,9 @@ class GridFixture : public testing::Test {
     virtual void setup() { interpolator = RegularGridInterpolator(grid, data_sets); }
 };
 
-class GridFixture2D : public GridFixture {
+class Grid2DFixture : public GridFixture {
   protected:
-    GridFixture2D()
+    Grid2DFixture()
     {
         grid = {{0, 10, 15}, {4, 6}};
         //         4  6
@@ -80,9 +80,9 @@ class FunctionFixture : public GridFixture {
     }
 };
 
-class FunctionFixture2D : public FunctionFixture {
+class Function2DFixture : public FunctionFixture {
   protected:
-    FunctionFixture2D()
+    Function2DFixture()
     {
         grid = {{2.0, 7.0}, {1.0, 2.0, 3.0}};
         functions = {[](std::vector<double> x) -> double { return x[0] * x[1]; }};
@@ -90,9 +90,9 @@ class FunctionFixture2D : public FunctionFixture {
     }
 };
 
-class FunctionFixture4D : public FunctionFixture {
+class Function4DFixture : public FunctionFixture {
   protected:
-    FunctionFixture4D()
+    Function4DFixture()
     {
         const std::size_t number_of_axes = 4;
         grid.resize(number_of_axes);

@@ -5,36 +5,36 @@
 
 #include <memory>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 // btwxt
-#include "../src/regular-grid-interpolator-private.h"
+#include "regular-grid-interpolator-private.h"
 #include <btwxt/btwxt.h>
 
 #include <fmt/format.h>
 
 namespace Btwxt {
 
-class GridFixturePrivate : public testing::Test {
+class GridImplementationFixture : public testing::Test {
   public:
     std::vector<std::vector<double>> grid;
     std::vector<std::vector<double>> data_sets;
     std::vector<double> target;
-    RegularGridInterpolatorPrivate interpolator;
+    RegularGridInterpolatorImplementation interpolator;
 
-    GridFixturePrivate() = default;
+    GridImplementationFixture() = default;
 
     void setup()
     {
         auto logger = std::make_shared<BtwxtContextCourierr>();
-        interpolator = RegularGridInterpolatorPrivate(
+        interpolator = RegularGridInterpolatorImplementation(
             construct_axes(grid, logger), construct_grid_point_data_sets(data_sets), logger);
     }
 };
 
-class GridFixture2DPrivate : public GridFixturePrivate {
+class Grid2DImplementationFixture : public GridImplementationFixture {
   protected:
-    GridFixture2DPrivate()
+    Grid2DImplementationFixture()
     {
         grid = grid = {{0, 10, 15}, {4, 6}};
         //         4  6
@@ -56,9 +56,9 @@ class GridFixture2DPrivate : public GridFixturePrivate {
     }
 };
 
-class CubicFixture : public GridFixturePrivate {
+class CubicImplementationFixture : public GridImplementationFixture {
   protected:
-    CubicFixture()
+    CubicImplementationFixture()
     {
         grid = {{6, 10, 15, 20}, {2, 4, 6, 8}};
         data_sets =
@@ -103,24 +103,24 @@ class CubicFixture : public GridFixturePrivate {
     }
 };
 
-class EmptyGridFixturePrivate : public testing::Test {
+class EmptyGridImplementationFixture : public testing::Test {
   protected:
   public:
     std::vector<std::vector<double>> grid;
-    RegularGridInterpolatorPrivate interpolator;
+    RegularGridInterpolatorImplementation interpolator;
 
-    EmptyGridFixturePrivate() = default;
+    EmptyGridImplementationFixture() = default;
 
     void setup()
     {
         auto logger = std::make_shared<BtwxtContextCourierr>();
-        interpolator = RegularGridInterpolatorPrivate(construct_axes(grid, logger), logger);
+        interpolator = RegularGridInterpolatorImplementation(construct_axes(grid, logger), logger);
     }
 };
 
-class GridFixture3DPrivate : public GridFixturePrivate {
+class Grid3DImplementationFixture : public GridImplementationFixture {
   protected:
-    GridFixture3DPrivate()
+    Grid3DImplementationFixture()
     {
         grid = {{-15, 0.2, 105}, {0, 10, 15}, {4, 6}};
         data_sets = {{6, 3, 2, 8, 4, 2, 3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};

@@ -17,16 +17,16 @@
 
 namespace Btwxt {
 
-class RegularGridInterpolatorPrivate {
+class RegularGridInterpolatorImplementation {
   public:
-    RegularGridInterpolatorPrivate() = default;
+    RegularGridInterpolatorImplementation() = default;
 
-    RegularGridInterpolatorPrivate(const std::vector<GridAxis>& grid,
-                                   const std::shared_ptr<Courierr::Courierr>& logger);
+    RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid,
+                                          const std::shared_ptr<Courierr::Courierr>& logger);
 
-    RegularGridInterpolatorPrivate(const std::vector<GridAxis>& grid,
-                                   const std::vector<GridPointData>& data_sets,
-                                   const std::shared_ptr<Courierr::Courierr>& logger);
+    RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid,
+                                          const std::vector<GridPointData>& data_sets,
+                                          const std::shared_ptr<Courierr::Courierr>& logger);
 
     // Data manipulation and settings
     std::size_t add_grid_point_data_set(const GridPointData& grid_point_data);

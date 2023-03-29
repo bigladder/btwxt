@@ -17,7 +17,7 @@
 
 namespace Btwxt {
 
-class RegularGridInterpolatorPrivate;
+class RegularGridInterpolatorImplementation;
 
 enum class TargetBoundsStatus {
     below_lower_extrapolation_limit,
@@ -134,7 +134,7 @@ class RegularGridInterpolator {
     std::shared_ptr<Courierr::Courierr> get_logger();
 
   private:
-    std::unique_ptr<RegularGridInterpolatorPrivate> regular_grid_interpolator;
+    std::unique_ptr<RegularGridInterpolatorImplementation> regular_grid_interpolator;
 };
 
 } // namespace Btwxt

@@ -11,7 +11,7 @@
 #include <btwxt/btwxt.h>
 
 // testing
-#include "public-fixtures.h"
+#include "fixtures/public-fixtures.h" // EXPECT_STDOUT
 
 namespace Btwxt {
 
