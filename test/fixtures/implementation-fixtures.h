@@ -3,15 +3,16 @@
 
 #pragma once
 
+// Standard
 #include <memory>
 
+// Vendor
 #include <gtest/gtest.h>
+#include <fmt/format.h>
 
 // btwxt
 #include "regular-grid-interpolator-private.h"
 #include <btwxt/btwxt.h>
-
-#include <fmt/format.h>
 
 namespace Btwxt {
 

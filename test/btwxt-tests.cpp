@@ -2,13 +2,13 @@
  * See the LICENSE file for additional terms and conditions. */
 
 // Standard
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
 #include <chrono>
 #include <iostream>
 
 // vendor
 #include <fmt/format.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 // btwxt
 #include <btwxt/btwxt.h>

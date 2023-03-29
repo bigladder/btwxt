@@ -1,7 +1,8 @@
 /* Copyright (c) 2018 Big Ladder Software LLC. All rights reserved.
  * See the LICENSE file for additional terms and conditions. */
 
-#include "gtest/gtest.h"
+// Vendor
+#include <gtest/gtest.h>
 
 int main(int argc, char** argv)
 {
