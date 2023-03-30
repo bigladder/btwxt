@@ -134,7 +134,7 @@ class RegularGridInterpolator {
     std::shared_ptr<Courierr::Courierr> get_logger();
 
   private:
-    std::unique_ptr<RegularGridInterpolatorImplementation> regular_grid_interpolator;
+    std::unique_ptr<RegularGridInterpolatorImplementation> implementation;
 };
 
 } // namespace Btwxt
