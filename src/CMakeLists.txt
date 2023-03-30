@@ -1,7 +1,7 @@
 # Main library
 
 set(library_sources
-        regular-grid-interpolator-private.h
+        regular-grid-interpolator-implementation.h
         regular-grid-interpolator.cpp
         grid-axis.cpp
         )

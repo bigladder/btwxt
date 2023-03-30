@@ -11,7 +11,7 @@
 #include <fmt/format.h>
 
 // btwxt
-#include "regular-grid-interpolator-private.h"
+#include "regular-grid-interpolator-implementation.h"
 #include <btwxt/btwxt.h>
 
 namespace Btwxt {

@@ -10,7 +10,7 @@
 #include <btwxt/btwxt.h>
 
 // btwxt private
-#include "regular-grid-interpolator-private.h"
+#include "regular-grid-interpolator-implementation.h"
 
 namespace Btwxt {
 
