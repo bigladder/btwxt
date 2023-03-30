@@ -78,17 +78,18 @@ class GridAxis {
 };
 
 // free functions
-inline bool vector_is_sorted(const std::vector<double>& v)
+inline bool vector_is_sorted(const std::vector<double>& vector_in)
 {
-    return std::is_sorted(
-        std::begin(v), std::end(v), [](const double a, const double b) { return a <= b; });
+    return std::is_sorted(std::begin(vector_in),
+                          std::end(vector_in),
+                          [](const double a, const double b) { return a <= b; });
 }
 
 template <typename T>
-std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>>& v)
+std::vector<std::vector<T>> cartesian_product(const std::vector<std::vector<T>>& dimension_vectors)
 {
     std::vector<std::vector<T>> combinations = {{}};
-    for (const auto& list : v) {
+    for (const auto& list : dimension_vectors) {
         std::vector<std::vector<T>> r;
         for (const auto& x : combinations) {
             for (const auto item : list) {

@@ -117,14 +117,14 @@ class RegularGridInterpolator {
 
     void clear_target();
 
-    void set_axis_interpolation_method(std::size_t axis, Method method);
+    void set_axis_interpolation_method(std::size_t axis_index, Method method);
 
-    void set_axis_extrapolation_method(std::size_t axis, Method method);
+    void set_axis_extrapolation_method(std::size_t axis_index, Method method);
 
-    void set_axis_extrapolation_limits(std::size_t axis,
+    void set_axis_extrapolation_limits(std::size_t axis_index,
                                        const std::pair<double, double>& extrapolation_limits);
 
-    std::pair<double, double> get_axis_extrapolation_limits(std::size_t axis);
+    std::pair<double, double> get_axis_extrapolation_limits(std::size_t axis_index);
 
     std::string write_data();
 

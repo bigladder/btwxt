@@ -164,15 +164,15 @@ TEST_F(EmptyGridImplementationFixture, locate_coordinates)
 
     std::vector<std::size_t> coords = {2, 3};
     std::vector<std::size_t> axis_lengths = {5, 7};
-    std::size_t index = interpolator.get_grid_point_index(coords);
-    EXPECT_EQ(index, 17u);
+    std::size_t grid_point_index = interpolator.get_grid_point_index(coords);
+    EXPECT_EQ(grid_point_index, 17u);
 
     coords = {2, 3, 2};
     grid = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5, 6, 7}, {1, 2, 3}};
     setup();
 
-    index = interpolator.get_grid_point_index(coords);
-    EXPECT_EQ(index, 53u);
+    grid_point_index = interpolator.get_grid_point_index(coords);
+    EXPECT_EQ(grid_point_index, 53u);
 }
 
 TEST_F(EmptyGridImplementationFixture, set_axis_floor)

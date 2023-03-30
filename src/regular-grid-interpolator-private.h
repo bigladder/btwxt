@@ -31,38 +31,41 @@ class RegularGridInterpolatorImplementation {
     // Data manipulation and settings
     std::size_t add_grid_point_data_set(const GridPointDataSet& grid_point_data_set);
 
-    void set_axis_interpolation_method(std::size_t axis, Method method)
+    void set_axis_interpolation_method(std::size_t axis_index, Method method)
     {
-        if (axis > number_of_axes - 1) {
-            throw BtwxtException(
-                fmt::format(
-                    not_enough_axes_message, "set axis interpolation method", axis, number_of_axes),
-                *logger);
+        if (axis_index > number_of_axes - 1) {
+            throw BtwxtException(fmt::format(not_enough_axes_message,
+                                             "set axis interpolation method",
+                                             axis_index,
+                                             number_of_axes),
+                                 *logger);
         }
-        grid_axes[axis].set_interpolation_method(method);
+        grid_axes[axis_index].set_interpolation_method(method);
     }
 
-    void set_axis_extrapolation_method(const std::size_t axis, Method method)
+    void set_axis_extrapolation_method(const std::size_t axis_index, Method method)
     {
-        if (axis > number_of_axes - 1) {
-            throw BtwxtException(
-                fmt::format(
-                    not_enough_axes_message, "set axis extrapolation method", axis, number_of_axes),
-                *logger);
+        if (axis_index > number_of_axes - 1) {
+            throw BtwxtException(fmt::format(not_enough_axes_message,
+                                             "set axis extrapolation method",
+                                             axis_index,
+                                             number_of_axes),
+                                 *logger);
         }
-        grid_axes[axis].set_extrapolation_method(method);
+        grid_axes[axis_index].set_extrapolation_method(method);
     }
 
-    void set_axis_extrapolation_limits(const std::size_t axis,
+    void set_axis_extrapolation_limits(const std::size_t axis_index,
                                        const std::pair<double, double>& limits)
     {
-        if (axis > number_of_axes - 1) {
-            throw BtwxtException(
-                fmt::format(
-                    not_enough_axes_message, "set axis extrapolation limits", axis, number_of_axes),
-                *logger);
+        if (axis_index > number_of_axes - 1) {
+            throw BtwxtException(fmt::format(not_enough_axes_message,
+                                             "set axis extrapolation limits",
+                                             axis_index,
+                                             number_of_axes),
+                                 *logger);
         }
-        grid_axes[axis].set_extrapolation_limits(limits);
+        grid_axes[axis_index].set_extrapolation_limits(limits);
     }
 
     // Public methods (mirrored)
@@ -88,27 +91,28 @@ class RegularGridInterpolatorImplementation {
                     bool set_grid_axes_loggers = false);
 
     // Public getters
-    [[nodiscard]] std::pair<double, double> get_extrapolation_limits(std::size_t axis) const;
+    [[nodiscard]] std::pair<double, double> get_extrapolation_limits(std::size_t axis_index) const;
 
     // Internal methods
-    [[nodiscard]] std::size_t get_grid_point_index(const std::vector<std::size_t>& coords) const;
+    [[nodiscard]] std::size_t
+    get_grid_point_index(const std::vector<std::size_t>& coordinates) const;
 
     std::size_t get_grid_point_index_relative(const std::vector<std::size_t>& coordinates,
                                               const std::vector<short>& translation);
 
-    double get_grid_point_weighting_factor(const std::vector<short>& v);
+    double get_grid_point_weighting_factor(const std::vector<short>& hypercube_indices);
 
     void set_floor_grid_point_coordinates();
 
-    void set_axis_floor_grid_point_index(std::size_t axis);
+    void set_axis_floor_grid_point_index(std::size_t axis_index);
 
     [[nodiscard]] const std::vector<double>&
-    get_axis_cubic_spacing_ratios(std::size_t axis, std::size_t floor_or_ceiling) const;
+    get_axis_cubic_spacing_ratios(std::size_t axis_index, std::size_t floor_or_ceiling) const;
 
-    const std::vector<double>& get_grid_point_data(const std::vector<std::size_t>& coords);
-    const std::vector<double>& get_grid_point_data(size_t index);
+    const std::vector<double>& get_grid_point_data(const std::vector<std::size_t>& coordinates);
+    const std::vector<double>& get_grid_point_data(size_t grid_point_index);
 
-    std::vector<double> get_grid_point_data_relative(const std::vector<std::size_t>& coords,
+    std::vector<double> get_grid_point_data_relative(const std::vector<std::size_t>& coordinates,
                                                      const std::vector<short>& translation);
 
     [[nodiscard]] std::vector<Method> get_interpolation_methods() const;
