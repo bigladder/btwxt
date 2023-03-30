@@ -5,7 +5,7 @@
 
 #include <courierr/courierr.h>
 
-class BtwxtContextCourierr : public Courierr::Courierr {
+class BtwxtLogger : public Courierr::Courierr {
   public:
     void error(const std::string_view message) override { write_message("ERROR", message); }
     void warning(const std::string_view message) override { write_message("WARNING", message); }
@@ -23,15 +23,7 @@ class BtwxtContextCourierr : public Courierr::Courierr {
 
 class BtwxtException : public Courierr::CourierrException {
   public:
-    explicit BtwxtException(const char* message, Courierr::Courierr& logger)
-        : CourierrException(message, logger)
-    {
-    }
     explicit BtwxtException(const std::string& message, Courierr::Courierr& logger)
-        : CourierrException(message, logger)
-    {
-    }
-    explicit BtwxtException(const std::string_view message, Courierr::Courierr& logger)
         : CourierrException(message, logger)
     {
     }

@@ -49,7 +49,7 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
                        Method::cubic,
                        Method::constant,
                        {-DBL_MAX, DBL_MAX},
-                       std::make_shared<BtwxtContextCourierr>());
+                       std::make_shared<BtwxtLogger>());
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(floor),
                 testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(ceiling),

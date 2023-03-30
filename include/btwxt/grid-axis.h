@@ -24,13 +24,13 @@ class GridAxis {
     // Constructors
     GridAxis() = default;
 
-    explicit GridAxis(std::vector<double> values,
-                      const std::string& name = "",
-                      Method interpolation_method = Method::linear,
-                      Method extrapolation_method = Method::constant,
-                      std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
-                      const std::shared_ptr<Courierr::Courierr>& logger =
-                          std::make_shared<BtwxtContextCourierr>());
+    explicit GridAxis(
+        std::vector<double> values,
+        const std::string& name = "",
+        Method interpolation_method = Method::linear,
+        Method extrapolation_method = Method::constant,
+        std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
+        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
 
     // Setters
     void set_interpolation_method(Method interpolation_method_in);

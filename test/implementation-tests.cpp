@@ -56,7 +56,7 @@ TEST_F(CubicImplementationFixture, interpolate)
     std::vector<double> result = interpolator.get_results();
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    BtwxtContextCourierr message_display;
+    BtwxtLogger message_display;
     message_display.info(
         fmt::format("Time to do cubic interpolation: {} microseconds", duration.count()));
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));

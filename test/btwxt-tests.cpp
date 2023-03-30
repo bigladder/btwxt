@@ -264,7 +264,7 @@ TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
         "  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
 
-    auto logger2 = std::make_shared<BtwxtContextCourierr>();
+    auto logger2 = std::make_shared<BtwxtLogger>();
     std::string context_str {"RGI2 Context:"};
     logger2->set_message_context(reinterpret_cast<void*>(&context_str));
     RegularGridInterpolator rgi2(interpolator, logger2);
@@ -278,7 +278,7 @@ TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
 TEST_F(Grid2DFixture, access_logger)
 {
     RegularGridInterpolator rgi2(interpolator);
-    rgi2.set_logger(std::make_shared<BtwxtContextCourierr>());
+    rgi2.set_logger(std::make_shared<BtwxtLogger>());
     std::string context_str {"RGI2 Context:"};
     rgi2.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
     std::string expected_error2 {
@@ -288,7 +288,7 @@ TEST_F(Grid2DFixture, access_logger)
 
 TEST_F(Grid2DFixture, alternative_logger)
 {
-    class NewLogger : public BtwxtContextCourierr {
+    class NewLogger : public BtwxtLogger {
         void error(const std::string_view message) override { write_message("UH-OH!", message); }
         void warning(const std::string_view message) override { write_message("UMMM...", message); }
         void info(const std::string_view message) override { write_message("HEY!", message); }
