@@ -21,15 +21,15 @@ class RegularGridInterpolatorImplementation {
   public:
     RegularGridInterpolatorImplementation() = default;
 
-    RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid,
+    RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
                                           const std::shared_ptr<Courierr::Courierr>& logger);
 
-    RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid,
-                                          const std::vector<GridPointData>& data_sets,
+    RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
+                                          const std::vector<GridPointDataSet>& grid_point_data_sets,
                                           const std::shared_ptr<Courierr::Courierr>& logger);
 
     // Data manipulation and settings
-    std::size_t add_grid_point_data_set(const GridPointData& grid_point_data);
+    std::size_t add_grid_point_data_set(const GridPointDataSet& grid_point_data_set);
 
     void set_axis_interpolation_method(std::size_t axis, Method method)
     {
@@ -131,7 +131,7 @@ class RegularGridInterpolatorImplementation {
 
     // Structured data
     std::vector<GridAxis> grid_axes;
-    std::vector<GridPointData> grid_point_data_sets;
+    std::vector<GridPointDataSet> grid_point_data_sets;
     std::size_t number_of_grid_points {0u};
     std::size_t number_of_grid_point_data_sets {0u};
     std::size_t number_of_axes {0u};
@@ -182,10 +182,10 @@ class RegularGridInterpolatorImplementation {
         "Unable to {} for axis (index={}). Number of grid axes = {}."};
 };
 
-std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid,
-                                     const std::shared_ptr<Courierr::Courierr>& logger_in);
+std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>& grid,
+                                          const std::shared_ptr<Courierr::Courierr>& logger_in);
 
-std::vector<GridPointData>
+std::vector<GridPointDataSet>
 construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_point_data_sets);
 
 inline double compute_fraction(const double x, const double start, const double end)

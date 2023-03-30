@@ -14,12 +14,12 @@
 
 namespace Btwxt {
 
-std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& grid_axes_in,
-                                     const std::shared_ptr<Courierr::Courierr>& logger_in)
+std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>& grid_axis_vectors,
+                                          const std::shared_ptr<Courierr::Courierr>& logger_in)
 {
     std::vector<GridAxis> grid_axes;
-    grid_axes.reserve(grid_axes_in.size());
-    for (const auto& axis : grid_axes_in) {
+    grid_axes.reserve(grid_axis_vectors.size());
+    for (const auto& axis : grid_axis_vectors) {
         grid_axes.emplace_back(axis,
                                fmt::format("Axis {}", grid_axes.size() + 1),
                                Method::linear,
@@ -30,65 +30,72 @@ std::vector<GridAxis> construct_axes(const std::vector<std::vector<double>>& gri
     return grid_axes;
 }
 
-std::vector<GridPointData>
-construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_point_data_sets_in)
+std::vector<GridPointDataSet>
+construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_point_data_vectors)
 {
-    std::vector<GridPointData> grid_point_data_sets;
-    grid_point_data_sets.reserve(grid_point_data_sets_in.size());
-    for (const auto& data_set : grid_point_data_sets_in) {
+    std::vector<GridPointDataSet> grid_point_data_sets;
+    grid_point_data_sets.reserve(grid_point_data_vectors.size());
+    for (const auto& grid_point_data_set : grid_point_data_vectors) {
         grid_point_data_sets.emplace_back(
-            data_set, fmt::format("Data Set {}", grid_point_data_sets.size() + 1));
+            grid_point_data_set, fmt::format("Data Set {}", grid_point_data_sets.size() + 1));
     }
     return grid_point_data_sets;
 }
 
 // Constructors
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
-                                                 const std::vector<GridPointData>& data_sets,
-                                                 const std::shared_ptr<Courierr::Courierr>& logger)
-    : regular_grid_interpolator(
-          std::make_unique<RegularGridInterpolatorImplementation>(grid, data_sets, logger))
+RegularGridInterpolator::RegularGridInterpolator(
+    const std::vector<GridAxis>& grid_axes,
+    const std::vector<GridPointDataSet>& grid_point_data_sets,
+    const std::shared_ptr<Courierr::Courierr>& logger)
+    : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorImplementation>(
+          grid_axes, grid_point_data_sets, logger))
 {
 }
 
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
-                                                 const std::vector<std::vector<double>>& data_sets,
-                                                 const std::shared_ptr<Courierr::Courierr>& logger)
+RegularGridInterpolator::RegularGridInterpolator(
+    const std::vector<std::vector<double>>& grid_axis_vectors,
+    const std::vector<std::vector<double>>& grid_point_data_vectors,
+    const std::shared_ptr<Courierr::Courierr>& logger)
+    : RegularGridInterpolator(construct_grid_axes(grid_axis_vectors, logger),
+                              construct_grid_point_data_sets(grid_point_data_vectors),
+                              logger)
+{
+}
+
+RegularGridInterpolator::RegularGridInterpolator(
+    const std::vector<std::vector<double>>& grid_axis_vectors,
+    const std::shared_ptr<Courierr::Courierr>& logger)
     : RegularGridInterpolator(
-          construct_axes(grid, logger), construct_grid_point_data_sets(data_sets), logger)
+          construct_grid_axes(grid_axis_vectors, logger), std::vector<GridPointDataSet>(), logger)
 {
 }
 
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
-                                                 const std::shared_ptr<Courierr::Courierr>& logger)
-    : RegularGridInterpolator(construct_axes(grid, logger), std::vector<GridPointData>(), logger)
-{
-}
-
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
-                                                 const std::vector<std::vector<double>>& data_sets,
-                                                 const std::shared_ptr<Courierr::Courierr>& logger)
+RegularGridInterpolator::RegularGridInterpolator(
+    const std::vector<GridAxis>& grid_axes,
+    const std::vector<std::vector<double>>& grid_point_data_vectors,
+    const std::shared_ptr<Courierr::Courierr>& logger)
     : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorImplementation>(
-          grid, construct_grid_point_data_sets(data_sets), logger))
+          grid_axes, construct_grid_point_data_sets(grid_point_data_vectors), logger))
 {
 }
 
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<std::vector<double>>& grid,
-                                                 const std::vector<GridPointData>& data_sets,
-                                                 const std::shared_ptr<Courierr::Courierr>& logger)
+RegularGridInterpolator::RegularGridInterpolator(
+    const std::vector<std::vector<double>>& grid_axis_vectors,
+    const std::vector<GridPointDataSet>& grid_point_data_sets,
+    const std::shared_ptr<Courierr::Courierr>& logger)
     : regular_grid_interpolator(std::make_unique<RegularGridInterpolatorImplementation>(
-          construct_axes(grid, logger), data_sets, logger))
+          construct_grid_axes(grid_axis_vectors, logger), grid_point_data_sets, logger))
 {
 }
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
-    const std::vector<GridAxis>& grid,
-    const std::vector<GridPointData>& data_sets,
+    const std::vector<GridAxis>& grid_axes,
+    const std::vector<GridPointDataSet>& grid_point_data_sets,
     const std::shared_ptr<Courierr::Courierr>& logger)
-    : grid_axes(grid)
-    , grid_point_data_sets(data_sets)
-    , number_of_grid_point_data_sets(data_sets.size())
-    , number_of_axes(grid.size())
+    : grid_axes(grid_axes)
+    , grid_point_data_sets(grid_point_data_sets)
+    , number_of_grid_point_data_sets(grid_point_data_sets.size())
+    , number_of_axes(grid_axes.size())
     , axis_lengths(number_of_axes)
     , axis_step_size(number_of_axes)
     , temporary_coordinates(number_of_axes)
@@ -160,7 +167,7 @@ void RegularGridInterpolatorImplementation::set_axis_sizes()
 // Public manipulation methods
 
 std::size_t
-RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid_point_data,
+RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid_point_data_vector,
                                                  const std::string& name)
 {
     std::string resolved_name {name};
@@ -169,26 +176,27 @@ RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid
             fmt::format("Data Set {}", regular_grid_interpolator->number_of_grid_point_data_sets);
     }
     return regular_grid_interpolator->add_grid_point_data_set(
-        GridPointData(grid_point_data, resolved_name));
-}
-
-std::size_t RegularGridInterpolator::add_grid_point_data_set(const GridPointData& grid_point_data)
-{
-    return regular_grid_interpolator->add_grid_point_data_set(grid_point_data);
+        GridPointDataSet(grid_point_data_vector, resolved_name));
 }
 
 std::size_t
-RegularGridInterpolatorImplementation::add_grid_point_data_set(const GridPointData& grid_point_data)
+RegularGridInterpolator::add_grid_point_data_set(const GridPointDataSet& grid_point_data_set)
 {
-    if (grid_point_data.data.size() != number_of_grid_points) {
+    return regular_grid_interpolator->add_grid_point_data_set(grid_point_data_set);
+}
+
+std::size_t RegularGridInterpolatorImplementation::add_grid_point_data_set(
+    const GridPointDataSet& grid_point_data_set)
+{
+    if (grid_point_data_set.data.size() != number_of_grid_points) {
         throw BtwxtException(fmt::format("Input grid point data set (name=\"{}\") size ({}) does "
                                          "not match number of grid points ({}).",
-                                         grid_point_data.name,
-                                         grid_point_data.data.size(),
+                                         grid_point_data_set.name,
+                                         grid_point_data_set.data.size(),
                                          number_of_grid_points),
                              *logger);
     }
-    grid_point_data_sets.emplace_back(grid_point_data);
+    grid_point_data_sets.emplace_back(grid_point_data_set);
     number_of_grid_point_data_sets++;
     temporary_grid_point_data.resize(number_of_grid_point_data_sets);
     results.resize(number_of_grid_point_data_sets);

@@ -285,7 +285,7 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
     EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 0u);
     EXPECT_THAT(interpolator.axis_lengths, testing::ElementsAre(3, 2));
 
-    interpolator.add_grid_point_data_set(GridPointData(data_sets[0]));
+    interpolator.add_grid_point_data_set(GridPointDataSet(data_sets[0]));
     EXPECT_EQ(interpolator.number_of_grid_point_data_sets, 1u);
     std::vector<std::size_t> coords {1, 1};
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8));

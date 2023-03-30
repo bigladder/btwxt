@@ -29,7 +29,7 @@ class GridImplementationFixture : public testing::Test {
     {
         auto logger = std::make_shared<BtwxtContextCourierr>();
         interpolator = RegularGridInterpolatorImplementation(
-            construct_axes(grid, logger), construct_grid_point_data_sets(data_sets), logger);
+            construct_grid_axes(grid, logger), construct_grid_point_data_sets(data_sets), logger);
     }
 };
 
@@ -115,7 +115,8 @@ class EmptyGridImplementationFixture : public testing::Test {
     void setup()
     {
         auto logger = std::make_shared<BtwxtContextCourierr>();
-        interpolator = RegularGridInterpolatorImplementation(construct_axes(grid, logger), logger);
+        interpolator =
+            RegularGridInterpolatorImplementation(construct_grid_axes(grid, logger), logger);
     }
 };
 

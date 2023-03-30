@@ -16,14 +16,14 @@
 
 namespace Btwxt {
 
-class GridPointData {
+class GridPointDataSet {
     // Data corresponding to all points within a collection of grid axes. Length of data should
     // equal the total number of permutations of grid axes points.
   public:
     // Constructors
-    GridPointData() = default;
+    GridPointDataSet() = default;
 
-    explicit GridPointData(std::vector<double> data, std::string name = "")
+    explicit GridPointDataSet(std::vector<double> data, std::string name = "")
         : data(std::move(data)), name(std::move(name))
     {
     }
