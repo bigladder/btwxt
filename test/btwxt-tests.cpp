@@ -82,6 +82,22 @@ TEST_F(FunctionFixture, scipy_2d_grid)
     }
 }
 
+TEST(Constructors, test_all_constructors)
+{
+
+    // grid_axis_vectors, no grid point data
+    RegularGridInterpolator rgi1(std::vector<std::vector<double>> {{1}});
+
+    // grid_axes, no grid point data
+    RegularGridInterpolator rgi2({GridAxis({1})});
+
+    // grid_axes, grid_point_data_vectors
+    RegularGridInterpolator rgi3({GridAxis({1})}, std::vector<std::vector<double>> {{1}});
+
+    // grid_axis_vectors, grid point data
+    RegularGridInterpolator rgi4(std::vector<std::vector<double>> {{1}}, {GridPointDataSet({1})});
+}
+
 TEST_F(GridFixture, four_point_1d_cubic_interpolate)
 {
 
@@ -259,14 +275,31 @@ TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
     EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
 }
 
-TEST_F(Grid2DFixture, access_logger_in_btwxt)
+TEST_F(Grid2DFixture, access_logger)
 {
-    RegularGridInterpolator rgi2(interpolator, std::make_shared<BtwxtContextCourierr>());
+    RegularGridInterpolator rgi2(interpolator);
+    rgi2.set_logger(std::make_shared<BtwxtContextCourierr>());
     std::string context_str {"RGI2 Context:"};
     rgi2.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
     std::string expected_error2 {
         "RGI2 Context:  [WARNING] The current target was requested, but no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
+}
+
+TEST_F(Grid2DFixture, alternative_logger)
+{
+    class NewLogger : public BtwxtContextCourierr {
+        void error(const std::string_view message) override { write_message("UH-OH!", message); }
+        void warning(const std::string_view message) override { write_message("UMMM...", message); }
+        void info(const std::string_view message) override { write_message("HEY!", message); }
+        void debug(const std::string_view message) override { write_message("YUCK!", message); }
+    };
+
+    auto new_logger = std::make_shared<NewLogger>();
+    RegularGridInterpolator rgi2(interpolator, new_logger);
+    std::string expected_error {
+        "  [UMMM...] The current target was requested, but no target has been set.\n"};
+    EXPECT_STDOUT(rgi2.get_target();, expected_error)
 }
 
 TEST_F(Grid2DFixture, cubic_interpolate)
@@ -284,13 +317,12 @@ TEST_F(Grid2DFixture, normalize)
 {
     interpolator.set_axis_interpolation_method(0, Method::cubic);
     interpolator.set_axis_interpolation_method(1, Method::cubic);
-    interpolator.set_target(target);
 
     // All values, current target
-    interpolator.normalize_grid_point_data_at_target(
-        static_cast<std::size_t>(0u)); // normalize first grid point data set
+    interpolator.normalize_grid_point_data_sets_at_target(
+        target); // normalize first grid point data set
     std::vector<double> result = interpolator.get_values_at_target();
-    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.0), testing::DoubleEq(8.832)));
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.0), testing::DoubleEq(1.0)));
 }
 
 TEST_F(Grid2DFixture, write_data)
@@ -312,7 +344,7 @@ TEST_F(Function2DFixture, normalization_return_scalar)
     double expected_divisor {functions[0](normalization_target)};
     double expected_value_at_target {functions[0](target) / expected_divisor};
     double return_scalar =
-        interpolator.normalize_grid_point_data_at_target(0, normalization_target, 1.0);
+        interpolator.normalize_grid_point_data_set_at_target(0, normalization_target, 1.0);
     interpolator.set_target(target);
     std::vector<double> results = interpolator.get_values_at_target();
     EXPECT_THAT(return_scalar, testing::DoubleEq(expected_divisor));
@@ -326,7 +358,7 @@ TEST_F(Function2DFixture, normalization_return_compound_scalar)
     double normalization_divisor = 4.0;
     double expected_compound_divisor {functions[0](normalization_target) * normalization_divisor};
     double expected_value_at_target {functions[0](target) / expected_compound_divisor};
-    double return_scalar = interpolator.normalize_grid_point_data_at_target(
+    double return_scalar = interpolator.normalize_grid_point_data_set_at_target(
         0, normalization_target, normalization_divisor);
     interpolator.set_target(target);
     std::vector<double> results = interpolator.get_values_at_target();

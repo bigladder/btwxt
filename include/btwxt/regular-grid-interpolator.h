@@ -100,16 +100,17 @@ class RegularGridInterpolator {
 
     std::vector<double> operator()() { return get_values_at_target(); }
 
-    void normalize_grid_point_data_at_target(double scalar = 1.0);
+    void normalize_grid_point_data_sets_at_target(double scalar = 1.0);
 
-    void normalize_grid_point_data_at_target(const std::vector<double>& target,
-                                             double scalar = 1.0);
+    void normalize_grid_point_data_sets_at_target(const std::vector<double>& target,
+                                                  const double scalar = 1.0);
 
-    double normalize_grid_point_data_at_target(std::size_t data_set_index, double scalar = 1.0);
+    double normalize_grid_point_data_set_at_target(std::size_t data_set_index,
+                                                   const double scalar = 1.0);
 
-    double normalize_grid_point_data_at_target(std::size_t data_set_index,
-                                               const std::vector<double>& target,
-                                               double scalar = 1.0);
+    double normalize_grid_point_data_set_at_target(std::size_t data_set_index,
+                                                   const std::vector<double>& target,
+                                                   const double scalar = 1.0);
 
     const std::vector<double>& get_target();
 
@@ -123,8 +124,6 @@ class RegularGridInterpolator {
 
     void set_axis_extrapolation_limits(std::size_t axis_index,
                                        const std::pair<double, double>& extrapolation_limits);
-
-    std::pair<double, double> get_axis_extrapolation_limits(std::size_t axis_index);
 
     std::string write_data();
 

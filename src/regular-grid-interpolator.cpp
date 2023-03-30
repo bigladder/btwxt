@@ -88,6 +88,12 @@ RegularGridInterpolator::RegularGridInterpolator(
 {
 }
 
+RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
+                                                 const std::shared_ptr<Courierr::Courierr>& logger)
+    : implementation(std::make_unique<RegularGridInterpolatorImplementation>(grid, logger))
+{
+}
+
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const std::vector<GridAxis>& grid_axes,
     const std::vector<GridPointDataSet>& grid_point_data_sets,
@@ -117,12 +123,6 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const std::vector<GridAxis>& grid, const std::shared_ptr<Courierr::Courierr>& logger)
     : RegularGridInterpolatorImplementation(grid, {}, logger)
-{
-}
-
-RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
-                                                 const std::shared_ptr<Courierr::Courierr>& logger)
-    : implementation(std::make_unique<RegularGridInterpolatorImplementation>(grid, logger))
 {
 }
 
@@ -174,8 +174,7 @@ RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid
         resolved_name =
             fmt::format("Data Set {}", implementation->get_number_of_grid_point_data_sets());
     }
-    return implementation->add_grid_point_data_set(
-        GridPointDataSet(grid_point_data_vector, resolved_name));
+    return add_grid_point_data_set(GridPointDataSet(grid_point_data_vector, resolved_name));
 }
 
 std::size_t
@@ -221,82 +220,81 @@ void RegularGridInterpolator::set_axis_extrapolation_limits(
 }
 
 // Public normalization methods
-double RegularGridInterpolator::normalize_grid_point_data_at_target(
+double RegularGridInterpolator::normalize_grid_point_data_set_at_target(
     std::size_t data_set_index, const std::vector<double>& target, const double scalar)
 {
     set_target(target);
-    return normalize_grid_point_data_at_target(data_set_index, scalar);
+    return normalize_grid_point_data_set_at_target(data_set_index, scalar);
 }
 
-double RegularGridInterpolator::normalize_grid_point_data_at_target(std::size_t data_set_index,
-                                                                    const double scalar)
+double RegularGridInterpolator::normalize_grid_point_data_set_at_target(std::size_t data_set_index,
+                                                                        const double scalar)
 {
-    return implementation->normalize_grid_point_data_at_target(data_set_index, scalar);
+    return implementation->normalize_grid_point_data_set_at_target(data_set_index, scalar);
 }
 
-void RegularGridInterpolator::normalize_grid_point_data_at_target(const std::vector<double>& target,
-                                                                  const double scalar)
+void RegularGridInterpolator::normalize_grid_point_data_sets_at_target(
+    const std::vector<double>& target, const double scalar)
 {
     set_target(target);
-    normalize_grid_point_data_at_target(scalar);
+    normalize_grid_point_data_sets_at_target(scalar);
 }
 
-void RegularGridInterpolator::normalize_grid_point_data_at_target(const double scalar)
+void RegularGridInterpolator::normalize_grid_point_data_sets_at_target(const double scalar)
 {
-    return implementation->normalize_grid_point_data_at_target(scalar);
+    return implementation->normalize_grid_point_data_sets_at_target(scalar);
 }
 
-void RegularGridInterpolatorImplementation::normalize_grid_point_data_at_target(const double scalar)
+void RegularGridInterpolatorImplementation::normalize_grid_point_data_sets_at_target(
+    const double scalar)
 {
     if (!target_is_set) {
         throw BtwxtException(
-            fmt::format("Cannot normalize grid point data. No target has been set."), *logger);
+            fmt::format("Cannot normalize grid point data sets. No target has been set."), *logger);
     }
     for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
          ++data_set_index) {
-        normalize_grid_point_data(data_set_index, results[data_set_index] * scalar);
+        normalize_grid_point_data_set(data_set_index, results[data_set_index] * scalar);
     }
     hypercube_cache.clear();
     set_results();
 }
 
-double RegularGridInterpolatorImplementation::normalize_grid_point_data_at_target(
-    std::size_t data_set_index, const double scalar)
+double RegularGridInterpolatorImplementation::normalize_grid_point_data_set_at_target(
+    std::size_t data_set_index, double scalar)
 {
     if (!target_is_set) {
         throw BtwxtException(
-            fmt::format("Cannot normalize grid point data. No target has been set."), *logger);
+            fmt::format(
+                "Cannot normalize grid point data set (name=\"{}\"). No target has been set.",
+                grid_point_data_sets[data_set_index].name),
+            *logger);
     }
     // create a scalar which represents the product of the inverted normalization factor and the
     // value in the data set at the independent variable reference value
     double total_scalar = results[data_set_index] * scalar;
-    normalize_grid_point_data(data_set_index, total_scalar);
+    normalize_grid_point_data_set(data_set_index, total_scalar);
     hypercube_cache.clear();
     set_results();
 
     return total_scalar;
 }
 
-void RegularGridInterpolatorImplementation::normalize_grid_point_data(std::size_t data_set_index,
-                                                                      double scalar)
+void RegularGridInterpolatorImplementation::normalize_grid_point_data_set(
+    std::size_t data_set_index, double scalar)
 {
     auto& data_set = grid_point_data_sets[data_set_index].data;
     if (scalar == 0.0) {
-        throw BtwxtException("Attempt to normalize data set by zero.", *logger);
+        throw BtwxtException(
+            fmt::format("Attempt to normalize grid point data set (name=\"{}\") by zero.",
+                        grid_point_data_sets[data_set_index].name),
+            *logger);
     }
     scalar = 1.0 / scalar;
     std::transform(data_set.begin(),
                    data_set.end(),
                    data_set.begin(),
                    [scalar](double x) -> double { return x * scalar; });
-}
-
-// Public getter methods
-
-std::pair<double, double>
-RegularGridInterpolator::get_axis_extrapolation_limits(const std::size_t axis_index)
-{
-    return implementation->get_extrapolation_limits(axis_index);
 }
 
 // Public printing methods
@@ -591,7 +589,6 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
                                                  get_extrapolation_limits(axis_index).first,
                                                  grid_axes[axis_index].name),
                                      *logger);
-                break;
             case TargetBoundsStatus::above_upper_extrapolation_limit:
                 throw BtwxtException(fmt::format(exception_format,
                                                  target[axis_index],
@@ -599,7 +596,6 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
                                                  get_extrapolation_limits(axis_index).second,
                                                  grid_axes[axis_index].name),
                                      *logger);
-                break;
             case TargetBoundsStatus::interpolate:
                 break;
             }

@@ -12,7 +12,7 @@ class BtwxtContextCourierr : public Courierr::Courierr {
     void info(const std::string_view message) override { write_message("NOTE", message); }
     void debug(const std::string_view message) override { write_message("DEBUG", message); }
 
-  private:
+  protected:
     void write_message(const std::string_view message_type, const std::string_view message)
     {
         std::string context_string =
