@@ -16,8 +16,10 @@ class BtwxtLogger : public Courierr::Courierr {
     void write_message(const std::string_view message_type, const std::string_view message)
     {
         std::string context_string =
-            message_context ? *(reinterpret_cast<std::string*>(message_context)) : "";
-        std::cout << fmt::format("{}  [{}] {}", context_string, message_type, message) << std::endl;
+            message_context
+                ? fmt::format(" ({})", *(reinterpret_cast<std::string*>(message_context)))
+                : "";
+        std::cout << fmt::format("  [{}]{} {}", message_type, context_string, message) << std::endl;
     }
 };
 

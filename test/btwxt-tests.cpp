@@ -250,10 +250,10 @@ TEST_F(Grid2DFixture, logger_modify_context)
     std::string expected_error =
         "  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
-    std::string context_str {"Context 1:"};
+    std::string context_str {"Context 1"};
     interpolator.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
     expected_error =
-        "Context 1:  [WARNING] The current target was requested, but no target has been set.\n";
+        "  [WARNING] (Context 1) The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(interpolator.get_target();, expected_error)
 }
 
@@ -265,11 +265,11 @@ TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
 
     auto logger2 = std::make_shared<BtwxtLogger>();
-    std::string context_str {"RGI2 Context:"};
+    std::string context_str {"RGI2 Context"};
     logger2->set_message_context(reinterpret_cast<void*>(&context_str));
     RegularGridInterpolator rgi2(interpolator, logger2);
-    std::string expected_error2 {
-        "RGI2 Context:  [WARNING] The current target was requested, but no target has been set.\n"};
+    std::string expected_error2 {"  [WARNING] (RGI2 Context) The current target was requested, but "
+                                 "no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 
     EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
@@ -279,10 +279,10 @@ TEST_F(Grid2DFixture, access_logger)
 {
     RegularGridInterpolator rgi2(interpolator);
     rgi2.set_logger(std::make_shared<BtwxtLogger>());
-    std::string context_str {"RGI2 Context:"};
+    std::string context_str {"RGI2 Context"};
     rgi2.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
-    std::string expected_error2 {
-        "RGI2 Context:  [WARNING] The current target was requested, but no target has been set.\n"};
+    std::string expected_error2 {"  [WARNING] (RGI2 Context) The current target was requested, but "
+                                 "no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 }
 
@@ -323,18 +323,6 @@ TEST_F(Grid2DFixture, normalize)
         target); // normalize first grid point data set
     std::vector<double> result = interpolator.get_values_at_target();
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.0), testing::DoubleEq(1.0)));
-}
-
-TEST_F(Grid2DFixture, write_data)
-{
-    EXPECT_EQ("Axis 1,Axis 2,Data Set 1,Data Set 2,\n"
-              "0,4,6,12,\n"
-              "0,6,3,6,\n"
-              "10,4,2,4,\n"
-              "10,6,8,16,\n"
-              "15,4,4,8,\n"
-              "15,6,2,4,\n",
-              interpolator.write_data());
 }
 
 TEST_F(Function2DFixture, normalization_return_scalar)
@@ -472,6 +460,18 @@ TEST_F(Function4DFixture, multi_timer)
         interpolator.get_logger()->info(
             fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
     }
+}
+
+TEST_F(Grid2DFixture, write_data)
+{
+    EXPECT_EQ("Axis 1,Axis 2,Data Set 1,Data Set 2,\n"
+              "0,4,6,12,\n"
+              "0,6,3,6,\n"
+              "10,4,2,4,\n"
+              "10,6,8,16,\n"
+              "15,4,4,8,\n"
+              "15,6,2,4,\n",
+              interpolator.write_data());
 }
 
 TEST(CartesianProduct, cartesian_product)
