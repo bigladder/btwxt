@@ -30,6 +30,7 @@ enum class TargetBoundsStatus {
 // this will be the public-facing class.
 class RegularGridInterpolator {
   public:
+    ~RegularGridInterpolator();
     RegularGridInterpolator() = default;
 
     explicit RegularGridInterpolator(
@@ -124,6 +125,8 @@ class RegularGridInterpolator {
 
     void set_axis_extrapolation_limits(std::size_t axis_index,
                                        const std::pair<double, double>& extrapolation_limits);
+
+    std::size_t get_number_of_dimensions();
 
     std::string write_data();
 

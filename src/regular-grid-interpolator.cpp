@@ -42,6 +42,8 @@ construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_poin
     return grid_point_data_sets;
 }
 
+RegularGridInterpolator::~RegularGridInterpolator() = default; 
+
 // Constructors
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<GridAxis>& grid_axes,
@@ -217,6 +219,11 @@ void RegularGridInterpolator::set_axis_extrapolation_limits(
     const std::size_t axis_index, const std::pair<double, double>& extrapolation_limits)
 {
     implementation->set_axis_extrapolation_limits(axis_index, extrapolation_limits);
+}
+
+std::size_t RegularGridInterpolator::get_number_of_dimensions()
+{
+    return implementation->get_number_of_grid_axes();
 }
 
 // Public normalization methods
