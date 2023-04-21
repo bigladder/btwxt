@@ -200,6 +200,12 @@ std::size_t RegularGridInterpolatorImplementation::add_grid_point_data_set(
     number_of_grid_point_data_sets++;
     temporary_grid_point_data.resize(number_of_grid_point_data_sets);
     results.resize(number_of_grid_point_data_sets);
+    hypercube_grid_point_data.resize(hypercube.size(),
+                                     std::vector<double>(number_of_grid_point_data_sets));
+    hypercube_cache.clear();
+    if (target_is_set) {
+        set_results();
+    }
     return number_of_grid_point_data_sets - 1; // Returns index of new data set
 }
 
@@ -708,12 +714,6 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
 
 void RegularGridInterpolatorImplementation::set_hypercube_grid_point_data()
 {
-    if (results.size() != number_of_grid_point_data_sets) {
-        results.resize(number_of_grid_point_data_sets);
-        hypercube_grid_point_data.resize(hypercube.size(),
-                                         std::vector<double>(number_of_grid_point_data_sets));
-        hypercube_cache.clear();
-    }
     if (hypercube_cache.count({floor_grid_point_index, hypercube_size_hash})) {
         hypercube_grid_point_data =
             hypercube_cache.at({floor_grid_point_index, hypercube_size_hash});
