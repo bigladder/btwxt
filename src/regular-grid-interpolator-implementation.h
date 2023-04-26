@@ -19,8 +19,6 @@ namespace Btwxt {
 
 class RegularGridInterpolatorImplementation {
   public:
-    RegularGridInterpolatorImplementation() = default;
-
     RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
                                           const std::shared_ptr<Courierr::Courierr>& logger);
 

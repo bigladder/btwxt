@@ -43,7 +43,6 @@ construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_poin
 }
 
 // Constructors
-RegularGridInterpolator::RegularGridInterpolator() = default;
 
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<GridAxis>& grid_axes,
@@ -133,8 +132,8 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& source)
 {
     *this = source;
-    this->implementation =
-        std::make_unique<RegularGridInterpolatorImplementation>(*source.implementation);
+    this->implementation = source.implementation ?
+                           std::make_unique<RegularGridInterpolatorImplementation>(*source.implementation) : nullptr;
 }
 
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& source,
@@ -144,10 +143,9 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& 
     this->implementation->set_logger(logger);
 }
 
-RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInterpolator& source)
-{
-    implementation =
-        std::make_unique<RegularGridInterpolatorImplementation>(*(source.implementation));
+RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInterpolator& source) {
+    implementation = source.implementation ?
+                     std::make_unique<RegularGridInterpolatorImplementation>(*(source.implementation)) : nullptr;
     return *this;
 }
 
