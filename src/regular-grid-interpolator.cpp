@@ -44,6 +44,8 @@ construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_poin
 
 // Constructors
 
+RegularGridInterpolator::RegularGridInterpolator() = default;
+
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<GridAxis>& grid_axes,
     const std::vector<GridPointDataSet>& grid_point_data_sets,
