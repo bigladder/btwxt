@@ -41,19 +41,40 @@ TEST(GridAxis, sorting)
 
 TEST(GridAxis, calculate_cubic_spacing_ratios)
 {
-    static constexpr std::size_t floor = 0;
-    static constexpr std::size_t ceiling = 1;
-
-    GridAxis grid_axis({6., 10., 15., 20., 22.},
+    static constexpr std::size_t ix = 2;
+  
+		std::vector<double> x_values={6., 10., 15., 20., 22.};
+    GridAxis grid_axis(x_values,
                        "",
                        Method::cubic,
                        Method::constant,
                        {-DBL_MAX, DBL_MAX},
                        std::make_shared<BtwxtLogger>());
-    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(floor),
-                testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
-    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(ceiling),
-                testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));
+                       
+		std::vector<double> rat_floor(4,0.);
+		std::vector<double> rat_ceiling(4,0.);
+	
+		if (ix > 0)
+		{
+				double w_m1 = x_values[ix] - x_values[ix - 1];
+				double w_0 = x_values[ix + 1] - x_values[ix];
+				rat_floor[0] = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
+				rat_floor[1] = (w_0 - w_m1) / w_m1;
+				rat_floor[2] = w_m1 / (w_0 + w_m1);
+		}
+		if (ix + 1 < x_values.size())
+		{
+				double w_0 = x_values[ix + 1] - x_values[ix];
+				double w_1 = x_values[ix + 2] - x_values[ix + 1];
+				rat_ceiling[1] = -w_1 / (w_0 + w_1);
+				rat_ceiling[2] = (w_1 - w_0) / w_1;
+				rat_ceiling[3] = w_0 * w_0 / w_1 / (w_0 + w_1);
+		}
+
+    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios_floor(1),
+                testing::ElementsAre(rat_floor[0], rat_floor[1], rat_floor[2], rat_floor[3]));
+    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios_ceiling(1),
+                testing::ElementsAre(rat_ceiling[0], rat_ceiling[1], rat_ceiling[2], rat_ceiling[3]));
 }
 
 TEST(GridAxis, bad_limits)

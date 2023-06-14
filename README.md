@@ -14,7 +14,7 @@ class is a RegularGridInterpolator constructed from:
 A RegularGridInterpolator object can then be queried repeatedly for interpolated values that
 fall inside its grid points, or extrapolated values beyond the grid points (up to a limit defined by the user).
 
-Btwxt supports linear and cubic spline (Catmull-Rom) interpolation methods. Different methods can be specified for each 
+Btwxt supports linear and cubic spline (Catmull-Rom) interpolation methods. Both linear and cubic splines maintain continuity of values; cubic splines also maintain continuty of the first derivatives. Different methods can be specified for each 
 axis. The API also allows specification of preferred extrapolation methods (constant or linear)--again independently for
 each axis--and extrapolation limits.
 
@@ -73,3 +73,9 @@ std::vector<double> result = my_interpolator();
 std::vector<double> new_target{11.7, 6.1};
 result = my_interpolator(new_target);
 ```
+### Cubic Interpolation
+Cubic interpolation within an interval between points $P_{0}$, and $P_{1}$ can be performed with consideration of the adjacent points, $P_{-1}$, and $P_{2}$, exterior to the interval in either direction. We define a dimensionless variable
+$$\mu =  {x-x_{0}\over x_{1}-x_{0}}$$
+The three points $P_{-1}$, $P_{0}$, and $P_{1}$ uniquely specify a quadractic curve $g_{0}(\mu)$; $P_{0}$, $P_{1}$, and $P_{2 }$ specify another quadractic curve $g_{1}(\mu)$. Note that these two functions both contain the points $P_{0}$ and $P_{1}$ that define our interval of interest, so the linear interpolation
+$$h(\mu) =  (1-\mu)\cdot g_{0}(\mu)+\mu \cdot g_{1}(\mu)$$
+ will also contain these points. Further analysis reveals that the first derivatives at these points are equal to those of $g_{0}$ and $g_{1}$, respectively. Continuity of both the value and first derivative are therefore maintained.
