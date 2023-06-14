@@ -17,10 +17,8 @@ GridAxis::GridAxis(std::vector<double> values_in,
     , extrapolation_method(extrapolation_method)
     , interpolation_method(interpolation_method)
     , extrapolation_limits(std::move(extrapolation_limits))
-    , cubic_spacing_ratios_floor(
-          4, std::vector<double>(std::max(static_cast<int>(values.size()), 0), 0.0))
-    , cubic_spacing_ratios_ceiling(
-          4, std::vector<double>(std::max(static_cast<int>(values.size()), 0), 0.0))
+    , cubic_spacing_ratios(
+          std::max(static_cast<int>(values.size()) - 1, 0), std::vector<std::pair<double,double>>(4, {0.0, 0.0}))
     , logger(logger_in)
 {
     if (values.empty()) {
@@ -88,37 +86,31 @@ void GridAxis::calculate_cubic_spacing_ratios()
     if (interpolation_method == Method::linear) {
         return;
     }
-    for (std::size_t i = 0; i < values.size(); i++)
+    for (std::size_t i_elem = 0; i_elem < values.size() - 1; i_elem++)
     {
-        if ((i > 0) && (i + 1 < values.size()))
+        if (i_elem > 0)
         {
-    		    double w_m1 = values[i] - values[i - 1];
-    		    double w_0 = values[i + 1] - values[i];
-				    cubic_spacing_ratios_floor[0][i] = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
-				    cubic_spacing_ratios_floor[1][i] = (w_0 - w_m1) / w_m1;
-				    cubic_spacing_ratios_floor[2][i] = w_m1 / (w_0 + w_m1);
+    		    double w_m1 = values[i_elem] - values[i_elem - 1];
+    		    double w_0 = values[i_elem + 1] - values[i_elem];
+				    cubic_spacing_ratios[i_elem][0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
+				    cubic_spacing_ratios[i_elem][1].first = (w_0 - w_m1) / w_m1;
+				    cubic_spacing_ratios[i_elem][2].first = w_m1 / (w_0 + w_m1);
         }
-        if (i + 2 < values.size())
+        if (i_elem + 2 < values.size())
         {
-    		    double w_0 = values[i + 1] - values[i];
-    		    double w_1 = values[i + 2] - values[i + 1];
-				    cubic_spacing_ratios_ceiling[1][i] = -w_1 / (w_0 + w_1);
-				    cubic_spacing_ratios_ceiling[2][i] = (w_1 - w_0) / w_1;
-				    cubic_spacing_ratios_ceiling[3][i] = w_0 * w_0 / w_1 / (w_0 + w_1);
+    		    double w_0 = values[i_elem + 1] - values[i_elem];
+    		    double w_1 = values[i_elem + 2] - values[i_elem + 1];
+				    cubic_spacing_ratios[i_elem][1].second = -w_1 / (w_0 + w_1);
+				    cubic_spacing_ratios[i_elem][2].second = (w_1 - w_0) / w_1;
+				    cubic_spacing_ratios[i_elem][3].second = w_0 * w_0 / w_1 / (w_0 + w_1);
         }
     }
 }
 
-const std::vector<double>&
-GridAxis::get_cubic_spacing_ratios_floor(const std::size_t index) const
+const std::vector<std::pair<double,double>>&
+GridAxis::get_cubic_spacing_ratios(const std::size_t elem_index) const
 {
-    return cubic_spacing_ratios_floor[index];
-}
-
-const std::vector<double>&
-GridAxis::get_cubic_spacing_ratios_ceiling(const std::size_t index) const
-{
-    return cubic_spacing_ratios_ceiling[index];
+    return cubic_spacing_ratios[elem_index];
 }
 
 void GridAxis::check_grid_sorted()

@@ -41,40 +41,40 @@ TEST(GridAxis, sorting)
 
 TEST(GridAxis, calculate_cubic_spacing_ratios)
 {
-    static constexpr std::size_t ix = 2;
+    static constexpr std::size_t i_interval = 2;
   
-		std::vector<double> x_values={6., 10., 15., 20., 22.};
-    GridAxis grid_axis(x_values,
+		std::vector<double> grid_values={6., 10., 15., 20., 22.};
+    GridAxis grid_axis(grid_values,
                        "",
                        Method::cubic,
                        Method::constant,
                        {-DBL_MAX, DBL_MAX},
                        std::make_shared<BtwxtLogger>());
                        
-		std::vector<double> rat_floor(4,0.);
-		std::vector<double> rat_ceiling(4,0.);
+		std::vector<std::pair<double,double>> result(4, {0., 0.});
 	
-		if (ix > 0)
+		if ((i_interval > 0) && (i_interval + 1 < grid_values.size()))
 		{
-				double w_m1 = x_values[ix] - x_values[ix - 1];
-				double w_0 = x_values[ix + 1] - x_values[ix];
-				rat_floor[0] = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
-				rat_floor[1] = (w_0 - w_m1) / w_m1;
-				rat_floor[2] = w_m1 / (w_0 + w_m1);
+				double w_m1 = grid_values[i_interval] - grid_values[i_interval - 1];
+				double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
+				result[0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
+				result[1].first = (w_0 - w_m1) / w_m1;
+				result[2].first = w_m1 / (w_0 + w_m1);
 		}
-		if (ix + 1 < x_values.size())
+		
+		if (i_interval + 2 < grid_values.size())
 		{
-				double w_0 = x_values[ix + 1] - x_values[ix];
-				double w_1 = x_values[ix + 2] - x_values[ix + 1];
-				rat_ceiling[1] = -w_1 / (w_0 + w_1);
-				rat_ceiling[2] = (w_1 - w_0) / w_1;
-				rat_ceiling[3] = w_0 * w_0 / w_1 / (w_0 + w_1);
+				double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
+				double w_1 = grid_values[i_interval + 2] - grid_values[i_interval + 1];
+				result[1].second = -w_1 / (w_0 + w_1);
+				result[2].second = (w_1 - w_0) / w_1;
+				result[3].second = w_0 * w_0 / w_1 / (w_0 + w_1);
 		}
-
-    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios_floor(1),
-                testing::ElementsAre(rat_floor[0], rat_floor[1], rat_floor[2], rat_floor[3]));
-    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios_ceiling(1),
-                testing::ElementsAre(rat_ceiling[0], rat_ceiling[1], rat_ceiling[2], rat_ceiling[3]));
+		
+		auto& expected=grid_axis.get_cubic_spacing_ratios(i_interval);
+		
+		EXPECT_EQ(expected, result);
+		//EXPECT_THAT(expected[0].first, testing::ElementsAre(result[0].first));
 }
 
 TEST(GridAxis, bad_limits)

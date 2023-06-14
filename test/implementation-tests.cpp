@@ -16,22 +16,24 @@ namespace Btwxt {
 
 TEST_F(CubicImplementationFixture, spacing_multiplier)
 {
-    static constexpr std::size_t ratio_index = 2;
+    static constexpr std::size_t elem_index = 1;
+  	const double epsilon = 0.0001;
+
     double result;
-    result = interpolator.get_axis_cubic_spacing_ratios_floor(0, ratio_index )[0];
-    EXPECT_DOUBLE_EQ(result, 1.0);
+    result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[0].first;
+    EXPECT_NEAR(result, -0.694444, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios_ceiling(0, ratio_index )[0];
-    EXPECT_DOUBLE_EQ(result, (10. - 6.) / (15.0 - 6.0));
+    result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[1].first;
+    EXPECT_NEAR(result, 0.25, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios_floor(0, ratio_index )[1];
-    EXPECT_DOUBLE_EQ(result, (15. - 10.) / (15.0 - 6.0));
+    result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[1].second;
+    EXPECT_NEAR(result, -0.5, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios_ceiling(0, ratio_index )[2];
-    EXPECT_DOUBLE_EQ(result, 1.0);
+    result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[2].first;
+    EXPECT_NEAR(result, 0.444444, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios_floor(1, ratio_index )[0];
-    EXPECT_DOUBLE_EQ(result, 1.0);
+    result = interpolator.get_axis_cubic_spacing_ratios(1, elem_index)[0].first;
+    EXPECT_NEAR(result, -0.5, epsilon);
 }
 
 TEST_F(CubicImplementationFixture, switch_interp_method)
@@ -76,10 +78,10 @@ TEST_F(CubicImplementationFixture, grid_point_interp_coeffs)
 
     EXPECT_EQ(interpolator.get_cubic_slope_coefficients()[0][0],
               (mu * mu * mu - 2 * mu * mu + mu) *
-                  interpolator.get_axis_cubic_spacing_ratios_floor(0, ratio_index)[floor_grid_point_index]);
+                  interpolator.get_axis_cubic_spacing_ratios(0, ratio_index)[floor_grid_point_index].first);
     EXPECT_EQ(interpolator.get_cubic_slope_coefficients()[0][1],
               (mu * mu * mu - mu * mu) *
-                  interpolator.get_axis_cubic_spacing_ratios_ceiling(0, ratio_index)[floor_grid_point_index]);
+                  interpolator.get_axis_cubic_spacing_ratios(0, ratio_index)[floor_grid_point_index].second);
 }
 
 TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
@@ -145,17 +147,17 @@ TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
     // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:
     // floor: {4/4, 5/9, 5/10}
     // ceiling: {4/9, 5/10, 5/5}
-    static constexpr std::size_t ratio_index = 0;
+    static constexpr std::size_t i_ratio = 0;
 
     std::vector<std::vector<double>> expected_results {{4.0 / 4, 5.0 / 9, 5.0 / 10},
                                                        {4.0 / 9, 5.0 / 10, 5.0 / 5}};
     double result;
    	for (std::size_t index = 0; index < 3; index++) {
-				result = interpolator.get_axis_cubic_spacing_ratios_floor(0, ratio_index)[index];
-				EXPECT_DOUBLE_EQ(result, expected_results[ratio_index][index]);
+				result = interpolator.get_axis_cubic_spacing_ratios(0, i_ratio)[index].first;
+				EXPECT_DOUBLE_EQ(result, expected_results[i_ratio][index]);
 
-				result = interpolator.get_axis_cubic_spacing_ratios_ceiling(0, ratio_index)[index];
-				EXPECT_DOUBLE_EQ(result, expected_results[ratio_index][index]);
+				result = interpolator.get_axis_cubic_spacing_ratios(0, i_ratio)[index].second;
+				EXPECT_DOUBLE_EQ(result, expected_results[i_ratio][index]);
     }
 }
 

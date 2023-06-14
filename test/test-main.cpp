@@ -17,7 +17,12 @@ double fCubic(double x)
 
 void Phil_test()
 {
-		std::vector<double> x_values={0, 2, 5, 10};
+		std::vector<double> x_values = {2, 4, 6, 8};
+	  Method extrapolation_method = Method::linear;
+		Method interpolation_method = Method::cubic;
+		std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
+		GridAxis axis(x_values, "x", interpolation_method, extrapolation_method, extrapolation_limits);
+
 		std::vector<double> y_values={6, 5, 4, 3};
 		
 		/*for(auto &x_value:x_values)
@@ -25,21 +30,24 @@ void Phil_test()
 			y_values.push_back(fCubic(x_value));
 		}
 		*/
-	  Method extrapolation_method = Method::linear;
-		Method interpolation_method = Method::cubic;
 
-		std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
 
 		std::vector<std::vector<double>> values;
 		values.push_back(y_values);
 
-		GridAxis axis(x_values, "x", interpolation_method, extrapolation_method, extrapolation_limits);
-		RegularGridInterpolator my_interpolator({axis}, values);
+		RegularGridInterpolator interpolator({axis}, values);
 
+		static constexpr std::size_t elem_index = 1;
+		for(size_t i=0;i<4;++i)
+		{
+			std::cout<<axis.get_cubic_spacing_ratios(elem_index)[i].first<<",\t";
+			std::cout<<axis.get_cubic_spacing_ratios(elem_index)[i].second<<"\n";
+		}
+		
 		double x(2.5);
 		std::vector<double> target{x};
-		my_interpolator.set_target(target);
-		double estimate = my_interpolator.get_values_at_target()[0];
+		interpolator.set_target(target);
+		double estimate = interpolator.get_values_at_target()[0];
 		std::cout<<x<< std::fixed << std::setw(11)<<std::setprecision(6)<<"\t"<<"\t"<<estimate<<"\n";
 
 }

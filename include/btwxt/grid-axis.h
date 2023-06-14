@@ -58,10 +58,8 @@ class GridAxis {
         return extrapolation_limits;
     }
 
-    [[nodiscard]] const std::vector<double>&
-        get_cubic_spacing_ratios_floor(std::size_t index) const;
-		[[nodiscard]] const std::vector<double>&
-        get_cubic_spacing_ratios_ceiling(std::size_t index) const;
+    [[nodiscard]] const std::vector<std::pair<double,double>>&
+        get_cubic_spacing_ratios(std::size_t elem_index) const;
 
     std::string name;
 
@@ -70,8 +68,7 @@ class GridAxis {
     Method extrapolation_method {Method::constant};
     Method interpolation_method {Method::linear};
     std::pair<double, double> extrapolation_limits {-DBL_MAX, DBL_MAX};
-    std::vector<std::vector<double>> cubic_spacing_ratios_floor;
-    std::vector<std::vector<double>> cubic_spacing_ratios_ceiling;
+    std::vector<std::vector<std::pair<double,double>>> cubic_spacing_ratios;
     std::shared_ptr<Courierr::Courierr> logger;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();

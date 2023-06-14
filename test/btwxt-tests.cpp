@@ -136,9 +136,9 @@ TEST(Constructors, test_all_constructors)
 TEST_F(GridFixture, four_point_1d_cubic_interpolate)
 {
     grid = {{1., 2., 4., 5.}};
-    std::vector<double> data_values;
-		data_sets.clear();
-		
+    
+ 		data_sets.clear();
+		std::vector<double> data_values;
 		for(auto &grid_value:grid[0])
 		{
 			data_values.push_back(fCubic(grid_value));
