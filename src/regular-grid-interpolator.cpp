@@ -710,9 +710,9 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
         }
         
         weighting_factors[axis_index][0] =
-            cubic_slope_coefficients[axis_index][0]; // point below floor (-1)
+            -cubic_slope_coefficients[axis_index][0]; // point below floor (-1)
         weighting_factors[axis_index][1] =
-            interpolation_coefficients[axis_index][floor] +
+            interpolation_coefficients[axis_index][floor] -
             cubic_slope_coefficients[axis_index][1]; // floor (0)
         weighting_factors[axis_index][2] =
             interpolation_coefficients[axis_index][ceiling] +

@@ -1,0 +1,1499 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		5B38E18BEC1C48499BF8BBDC /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = B50B2B0A919540E6AC4B8B55 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				B50757D9B658564CE69185F2 /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				8ED3AE7620AE4060BB370D5A /* PBXTargetDependency */,
+				90056AA8A2314B8AA5E305F9 /* PBXTargetDependency */,
+				BFD6C8288CC44091AF60E835 /* PBXTargetDependency */,
+				8EA30BB19A7B45DB81069AAF /* PBXTargetDependency */,
+				7FCB4B7F30C24AA7B1727CF2 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		A5DF9D4DC9144CCE8B0EB5D6 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4F7BC6FE4BCD49BF98B2F6AF /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				DD6363903B56BA3E51209CE3 /* Generate CMakeFiles/ZERO_CHECK */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+		B80628235E684A608DE1385F /* RUN_TESTS */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 37DB4731CF694A638A2B41EC /* Build configuration list for PBXAggregateTarget "RUN_TESTS" */;
+			buildPhases = (
+				003C8D08B0008F35F218E126 /* CMake PostBuild Rules */,
+			);
+			dependencies = (
+			);
+			name = RUN_TESTS;
+			productName = RUN_TESTS;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		09CC5F9ABC4B429CBBB52695 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 328DD32C9F064A5698835B0A /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */; };
+		0ECF8C7809CC4D5198FC0136 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 773FD1BC63AA4E9E8EF9F716 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */; };
+		17251F8040DA4EB4BCD701C9 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 12619F1D7C6846E0B785A60E /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */; };
+		232FD7BB353546C8AB1624DE /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest-all.cc */ = {isa = PBXBuildFile; fileRef = 9FBFAFCADB784A4A9E6702B6 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest-all.cc */; };
+		345D6D6EAA8E470B81FCB8A3 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 160C0564D97246E7AC7EB9D6 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */; };
+		A96BC01C454145D99AC10A4F /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock-all.cc */ = {isa = PBXBuildFile; fileRef = A21913E589B84B12B8175721 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock-all.cc */; };
+		C24CF12B81F74C83B0064474 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock_main.cc */ = {isa = PBXBuildFile; fileRef = 5AC0E847816647B597AC86C9 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock_main.cc */; };
+		DB8F7DFC8CB1438EA50543BC /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest_main.cc */ = {isa = PBXBuildFile; fileRef = B2CD22CD097E4154A6EEE900 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest_main.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		083539D2538940EEB0289B6E /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+		571BFBFC74994666A65A9CA0 /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		5D48BF86A4994F6A99DF2A36 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		93CCF471DA04493EA72C2A9E /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		0A92CBB9E4A843EA9389252F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41D7FDE186A647E99D4B9611;
+			remoteInfo = gtest;
+		};
+		0D38094DEB864B6AB1F9AE07 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41D7FDE186A647E99D4B9611;
+			remoteInfo = gtest;
+		};
+		1119772B9AD54AE0BBF6E546 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 020AC396F3C148C584B5E5C8;
+			remoteInfo = gmock;
+		};
+		12683111462F4F00816CA37F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A5DF9D4DC9144CCE8B0EB5D6;
+			remoteInfo = ZERO_CHECK;
+		};
+		1A4F0139458F45E497549492 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41D7FDE186A647E99D4B9611;
+			remoteInfo = gtest;
+		};
+		535C9C569F7A4656BFCC56AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 020AC396F3C148C584B5E5C8;
+			remoteInfo = gmock;
+		};
+		592914731A2B4E5285009129 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F94CB647FEFD429688C92FD7;
+			remoteInfo = gmock_main;
+		};
+		61224F1F6A2245958D3558A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41D7FDE186A647E99D4B9611;
+			remoteInfo = gtest;
+		};
+		6AE09D1073694C76920769CF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A5DF9D4DC9144CCE8B0EB5D6;
+			remoteInfo = ZERO_CHECK;
+		};
+		B5CFF5288B2445A8A0462B5F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A5DF9D4DC9144CCE8B0EB5D6;
+			remoteInfo = ZERO_CHECK;
+		};
+		BC75662EFEB44DAC9AEB06EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE27E2129E6F469EA16BB414;
+			remoteInfo = gtest_main;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		08503527E380430199591588 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		12619F1D7C6846E0B785A60E /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = "/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt"; sourceTree = "<absolute>"; };
+		160C0564D97246E7AC7EB9D6 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = "/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt"; sourceTree = "<absolute>"; };
+		27E6FCF4AD864E8B97ACE02F /* gmock */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libgmock.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		328DD32C9F064A5698835B0A /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		40BA7BEEE79D496C917A5E6C /* gmock_main */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libgmock_main.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AC0E847816647B597AC86C9 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock_main.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = gmock_main.cc; path = src/gmock_main.cc; sourceTree = SOURCE_ROOT; };
+		773FD1BC63AA4E9E8EF9F716 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		7DD3B82EE5324049BF6CAB33 /* gtest */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libgtest.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9FBFAFCADB784A4A9E6702B6 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest-all.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = "gtest-all.cc"; path = "/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest-all.cc"; sourceTree = "<absolute>"; };
+		A21913E589B84B12B8175721 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock-all.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = "gmock-all.cc"; path = "src/gmock-all.cc"; sourceTree = SOURCE_ROOT; };
+		B2CD22CD097E4154A6EEE900 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest_main.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = gtest_main.cc; path = "/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest_main.cc"; sourceTree = "<absolute>"; };
+		F2DD22227B04429AA6FD4041 /* gtest_main */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libgtest_main.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0CA071550822416FAB0075B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		139B86C3278044E693371BF8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BCE4737A4D1E4B4A8C5E8ABA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D80EC5ED2D244DAD9409CE32 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1CFE5B8DF1214B82AD06E4EB /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				3A5BE19B9F05455E811C1DBB /* CMake Rules */,
+				08503527E380430199591588 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		29420AEC7E8C450E86FC9848 = {
+			isa = PBXGroup;
+			children = (
+				4B77EA46FAD140B5A87D8943 /* gmock */,
+				35514FEA016F4D5CA01C2742 /* gmock_main */,
+				1CFE5B8DF1214B82AD06E4EB /* ALL_BUILD */,
+				5830FB45082B4098A23A0986 /* gtest */,
+				CEB9D03059C4459CA4298052 /* gtest_main */,
+				F0F4DF9980174DEF8BF2EA55 /* Products */,
+				B02F1F30C37F43D39FA26089 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		35514FEA016F4D5CA01C2742 /* gmock_main */ = {
+			isa = PBXGroup;
+			children = (
+				7A91AA989EC54AC39642CEF3 /* Source Files */,
+				773FD1BC63AA4E9E8EF9F716 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */,
+			);
+			name = gmock_main;
+			sourceTree = "<group>";
+		};
+		3A5BE19B9F05455E811C1DBB /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		3AB3E81FCA3D4E44AEBB2C17 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				A21913E589B84B12B8175721 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock-all.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		4B77EA46FAD140B5A87D8943 /* gmock */ = {
+			isa = PBXGroup;
+			children = (
+				3AB3E81FCA3D4E44AEBB2C17 /* Source Files */,
+				328DD32C9F064A5698835B0A /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/CMakeLists.txt */,
+			);
+			name = gmock;
+			sourceTree = "<group>";
+		};
+		575F89D689E14264A4B4AA7B /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				B2CD22CD097E4154A6EEE900 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest_main.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		5830FB45082B4098A23A0986 /* gtest */ = {
+			isa = PBXGroup;
+			children = (
+				AF5D411062744761ACD3441A /* Source Files */,
+				12619F1D7C6846E0B785A60E /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */,
+			);
+			name = gtest;
+			sourceTree = "<group>";
+		};
+		7A91AA989EC54AC39642CEF3 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				5AC0E847816647B597AC86C9 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock_main.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		AF5D411062744761ACD3441A /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				9FBFAFCADB784A4A9E6702B6 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest-all.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		B02F1F30C37F43D39FA26089 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CEB9D03059C4459CA4298052 /* gtest_main */ = {
+			isa = PBXGroup;
+			children = (
+				575F89D689E14264A4B4AA7B /* Source Files */,
+				160C0564D97246E7AC7EB9D6 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/CMakeLists.txt */,
+			);
+			name = gtest_main;
+			sourceTree = "<group>";
+		};
+		F0F4DF9980174DEF8BF2EA55 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				27E6FCF4AD864E8B97ACE02F /* gmock */,
+				40BA7BEEE79D496C917A5E6C /* gmock_main */,
+				7DD3B82EE5324049BF6CAB33 /* gtest */,
+				F2DD22227B04429AA6FD4041 /* gtest_main */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		020AC396F3C148C584B5E5C8 /* gmock */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 15D7D4E1DD7D4F509CB32AC3 /* Build configuration list for PBXNativeTarget "gmock" */;
+			buildPhases = (
+				0DA6E9299EB24CD0A46E05F4 /* Sources */,
+				BCE4737A4D1E4B4A8C5E8ABA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0EED12DF8A054FD495FB3C43 /* PBXTargetDependency */,
+				AC48C795145B48F4B07432D4 /* PBXTargetDependency */,
+			);
+			name = gmock;
+			productName = gmock;
+			productReference = 27E6FCF4AD864E8B97ACE02F /* gmock */;
+			productType = "com.apple.product-type.library.static";
+		};
+		41D7FDE186A647E99D4B9611 /* gtest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 804483DE29E341DD9DF6D101 /* Build configuration list for PBXNativeTarget "gtest" */;
+			buildPhases = (
+				1E71C898EE294C26AF00DD47 /* Sources */,
+				139B86C3278044E693371BF8 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = gtest;
+			productName = gtest;
+			productReference = 7DD3B82EE5324049BF6CAB33 /* gtest */;
+			productType = "com.apple.product-type.library.static";
+		};
+		EE27E2129E6F469EA16BB414 /* gtest_main */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D35BAF8791AB4F3AB907D4B8 /* Build configuration list for PBXNativeTarget "gtest_main" */;
+			buildPhases = (
+				6E0D6F4FAE7B43EAA8A022A5 /* Sources */,
+				0CA071550822416FAB0075B9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A6E8E1B3040D4D189EBAD773 /* PBXTargetDependency */,
+			);
+			name = gtest_main;
+			productName = gtest_main;
+			productReference = F2DD22227B04429AA6FD4041 /* gtest_main */;
+			productType = "com.apple.product-type.library.static";
+		};
+		F94CB647FEFD429688C92FD7 /* gmock_main */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C151C5954AA6466AB94A7BEB /* Build configuration list for PBXNativeTarget "gmock_main" */;
+			buildPhases = (
+				ADAA092BF5FC4901A62735DA /* Sources */,
+				D80EC5ED2D244DAD9409CE32 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9602EB353A99485DB0BC0730 /* PBXTargetDependency */,
+				C114158A7FE148FD8DE67F60 /* PBXTargetDependency */,
+				93159FF85997475C94E0BC9D /* PBXTargetDependency */,
+			);
+			name = gmock_main;
+			productName = gmock_main;
+			productReference = 40BA7BEEE79D496C917A5E6C /* gmock_main */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		099DE5EBAA3B4D73B6C035C4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1420;
+			};
+			buildConfigurationList = 5E1AF71421A849A3BC28FB0C /* Build configuration list for PBXProject "gmock" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				93CCF471DA04493EA72C2A9E /* Debug */,
+				083539D2538940EEB0289B6E /* Release */,
+				5D48BF86A4994F6A99DF2A36 /* MinSizeRel */,
+				571BFBFC74994666A65A9CA0 /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 29420AEC7E8C450E86FC9848;
+			projectDirPath = "/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock";
+			projectRoot = "";
+			targets = (
+				5B38E18BEC1C48499BF8BBDC /* ALL_BUILD */,
+				B80628235E684A608DE1385F /* RUN_TESTS */,
+				A5DF9D4DC9144CCE8B0EB5D6 /* ZERO_CHECK */,
+				020AC396F3C148C584B5E5C8 /* gmock */,
+				F94CB647FEFD429688C92FD7 /* gmock_main */,
+				41D7FDE186A647E99D4B9611 /* gtest */,
+				EE27E2129E6F469EA16BB414 /* gtest_main */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		003C8D08B0008F35F218E126 /* CMake PostBuild Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake PostBuild Rules";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  /Applications/CMake.app/Contents/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  /Applications/CMake.app/Contents/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  /Applications/CMake.app/Contents/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  /Applications/CMake.app/Contents/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		3C0110FC8322DE7E50886E21 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		910A41151295C5F9742C25BD = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		9B50530E35CC49C82C2FACCF = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		B50757D9B658564CE69185F2 /* Generate CMakeFiles/ALL_BUILD */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ALL_BUILD";
+			outputPaths = (
+"/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock/CMakeFiles/ALL_BUILD"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  echo Build\\ all\\ projects
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		DD6363903B56BA3E51209CE3 /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+"/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock/CMakeFiles/ZERO_CHECK"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  make -f /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  make -f /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  make -f /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock
+  make -f /Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/vendor/googletest/googlemock/CMakeScripts/ReRunCMake.make
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0DA6E9299EB24CD0A46E05F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A96BC01C454145D99AC10A4F /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock-all.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1E71C898EE294C26AF00DD47 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				232FD7BB353546C8AB1624DE /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest-all.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6E0D6F4FAE7B43EAA8A022A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB8F7DFC8CB1438EA50543BC /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/src/gtest_main.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ADAA092BF5FC4901A62735DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C24CF12B81F74C83B0064474 /* /Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/src/gmock_main.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0EED12DF8A054FD495FB3C43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41D7FDE186A647E99D4B9611 /* gtest */;
+			targetProxy = 0D38094DEB864B6AB1F9AE07 /* PBXContainerItemProxy */;
+		};
+		7FCB4B7F30C24AA7B1727CF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A5DF9D4DC9144CCE8B0EB5D6 /* ZERO_CHECK */;
+			targetProxy = 12683111462F4F00816CA37F /* PBXContainerItemProxy */;
+		};
+		8EA30BB19A7B45DB81069AAF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE27E2129E6F469EA16BB414 /* gtest_main */;
+			targetProxy = BC75662EFEB44DAC9AEB06EA /* PBXContainerItemProxy */;
+		};
+		8ED3AE7620AE4060BB370D5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 020AC396F3C148C584B5E5C8 /* gmock */;
+			targetProxy = 535C9C569F7A4656BFCC56AE /* PBXContainerItemProxy */;
+		};
+		90056AA8A2314B8AA5E305F9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F94CB647FEFD429688C92FD7 /* gmock_main */;
+			targetProxy = 592914731A2B4E5285009129 /* PBXContainerItemProxy */;
+		};
+		93159FF85997475C94E0BC9D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A5DF9D4DC9144CCE8B0EB5D6 /* ZERO_CHECK */;
+			targetProxy = B5CFF5288B2445A8A0462B5F /* PBXContainerItemProxy */;
+		};
+		9602EB353A99485DB0BC0730 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 020AC396F3C148C584B5E5C8 /* gmock */;
+			targetProxy = 1119772B9AD54AE0BBF6E546 /* PBXContainerItemProxy */;
+		};
+		A6E8E1B3040D4D189EBAD773 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41D7FDE186A647E99D4B9611 /* gtest */;
+			targetProxy = 61224F1F6A2245958D3558A8 /* PBXContainerItemProxy */;
+		};
+		AC48C795145B48F4B07432D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A5DF9D4DC9144CCE8B0EB5D6 /* ZERO_CHECK */;
+			targetProxy = 6AE09D1073694C76920769CF /* PBXContainerItemProxy */;
+		};
+		BFD6C8288CC44091AF60E835 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41D7FDE186A647E99D4B9611 /* gtest */;
+			targetProxy = 0A92CBB9E4A843EA9389252F /* PBXContainerItemProxy */;
+		};
+		C114158A7FE148FD8DE67F60 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41D7FDE186A647E99D4B9611 /* gtest */;
+			targetProxy = 1A4F0139458F45E497549492 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		07480A569EE245CB83E5293F /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/RelWithDebInfo";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		08E98A3562E94B3C82B9B66E /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/RelWithDebInfo";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		0C6EF73580D74C8E81EADDBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		0DAF09903F054DFE931DE0EF /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		0DB163377BF14C198E1494E4 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SYMROOT = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build";
+			};
+			name = RelWithDebInfo;
+		};
+		15A2AC8564264B0CBB971206 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Release";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		1B30C659F25649C38BB2D9F1 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RUN_TESTS;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		1F785D83B73A41E58CA613C2 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		220AF7828C9C46859F2AD67F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Release";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		2536F43DAF1647F99F763824 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Release";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		2A40B978D30D461D9161FD6E /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RUN_TESTS;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		3801C92EAF074C3587B18EFE /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/MinSizeRel";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		3CDF24A5F0FD4F069D9095AA /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/MinSizeRel";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		3E8B7DC7BC974FE2BB61483F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SYMROOT = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build";
+			};
+			name = Release;
+		};
+		48581AE77B814017B1C3B9EB /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		4B6C340BB7F14F2E856675C7 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/MinSizeRel";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		54E51B002992413C98D0BC03 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SYMROOT = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build";
+			};
+			name = MinSizeRel;
+		};
+		643E21E0A8A04112AA0CE02D /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/MinSizeRel";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		65FFCD316D0C47379E89F63C /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/RelWithDebInfo";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		69A2A02D4A2D47969060FDC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Debug";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		6D4698BC4394401FB0FA3639 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Debug";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		7724D715C0BA4DBAA02A025B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		786977D150914FAEB42A1034 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/RelWithDebInfo";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		85B93FD32BE74719915DEEFE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build";
+			};
+			name = Debug;
+		};
+		8A63CB0405DB4F24A4844615 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		A037A610741E4D6CB37682EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Debug";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		A36DADEF86744988B53F2BEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RUN_TESTS;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		AB26E4D22D0340349EB05427 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = RUN_TESTS;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		BC1E05A1061D455FA4A7F0FD /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		DBEDC7BFD23D427AAF020B64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Release";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googlemock","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gmock;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gmock.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		E2757EB8DA134CA1827672EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/lib/Debug";
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -Wall -Wextra '-std=c++11'  -DGTEST_HAS_PTHREAD=1     -fPIC";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = gtest_main;
+				SECTORDER_FLAGS = "";
+				SYSTEM_HEADER_SEARCH_PATHS = ("/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest/include","/Users/phil-ahrenkiel/documents/GitHub/btwxt/vendor/googletest/googletest","$(inherited)");
+				TARGET_TEMP_DIR = "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/build/gtest_main.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		F8B2870B34E443DF9C7A06EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		15D7D4E1DD7D4F509CB32AC3 /* Build configuration list for PBXNativeTarget "gmock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A037A610741E4D6CB37682EA /* Debug */,
+				DBEDC7BFD23D427AAF020B64 /* Release */,
+				4B6C340BB7F14F2E856675C7 /* MinSizeRel */,
+				08E98A3562E94B3C82B9B66E /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		37DB4731CF694A638A2B41EC /* Build configuration list for PBXAggregateTarget "RUN_TESTS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A36DADEF86744988B53F2BEA /* Debug */,
+				AB26E4D22D0340349EB05427 /* Release */,
+				2A40B978D30D461D9161FD6E /* MinSizeRel */,
+				1B30C659F25649C38BB2D9F1 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F7BC6FE4BCD49BF98B2F6AF /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8B2870B34E443DF9C7A06EF /* Debug */,
+				7724D715C0BA4DBAA02A025B /* Release */,
+				48581AE77B814017B1C3B9EB /* MinSizeRel */,
+				0DAF09903F054DFE931DE0EF /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5E1AF71421A849A3BC28FB0C /* Build configuration list for PBXProject "gmock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85B93FD32BE74719915DEEFE /* Debug */,
+				3E8B7DC7BC974FE2BB61483F /* Release */,
+				54E51B002992413C98D0BC03 /* MinSizeRel */,
+				0DB163377BF14C198E1494E4 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		804483DE29E341DD9DF6D101 /* Build configuration list for PBXNativeTarget "gtest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				69A2A02D4A2D47969060FDC6 /* Debug */,
+				220AF7828C9C46859F2AD67F /* Release */,
+				643E21E0A8A04112AA0CE02D /* MinSizeRel */,
+				786977D150914FAEB42A1034 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B50B2B0A919540E6AC4B8B55 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A63CB0405DB4F24A4844615 /* Debug */,
+				0C6EF73580D74C8E81EADDBB /* Release */,
+				BC1E05A1061D455FA4A7F0FD /* MinSizeRel */,
+				1F785D83B73A41E58CA613C2 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C151C5954AA6466AB94A7BEB /* Build configuration list for PBXNativeTarget "gmock_main" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D4698BC4394401FB0FA3639 /* Debug */,
+				15A2AC8564264B0CBB971206 /* Release */,
+				3CDF24A5F0FD4F069D9095AA /* MinSizeRel */,
+				65FFCD316D0C47379E89F63C /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D35BAF8791AB4F3AB907D4B8 /* Build configuration list for PBXNativeTarget "gtest_main" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2757EB8DA134CA1827672EA /* Debug */,
+				2536F43DAF1647F99F763824 /* Release */,
+				3801C92EAF074C3587B18EFE /* MinSizeRel */,
+				07480A569EE245CB83E5293F /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 099DE5EBAA3B4D73B6C035C4 /* Project object */;
+}

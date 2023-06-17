@@ -1,0 +1,2 @@
+/usr/bin/ar qc libbtwxt.a "CMakeFiles/btwxt.dir/regular-grid-interpolator.cpp.o" "CMakeFiles/btwxt.dir/grid-axis.cpp.o"
+/usr/bin/ranlib libbtwxt.a

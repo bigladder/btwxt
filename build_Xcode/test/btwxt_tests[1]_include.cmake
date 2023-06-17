@@ -1,0 +1,5 @@
+if(EXISTS "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/test/btwxt_tests[1]_tests.cmake")
+  include("/Users/phil-ahrenkiel/Documents/GitHub/btwxt/build_Xcode/test/btwxt_tests[1]_tests.cmake")
+else()
+  add_test(btwxt_tests_NOT_BUILT btwxt_tests_NOT_BUILT)
+endif()

@@ -18,7 +18,7 @@ GridAxis::GridAxis(std::vector<double> values_in,
     , interpolation_method(interpolation_method)
     , extrapolation_limits(std::move(extrapolation_limits))
     , cubic_spacing_ratios(
-          std::max(static_cast<int>(values.size()) - 1, 0), std::vector<std::pair<double,double>>(4, {0.0, 0.0}))
+                           std::max(static_cast<int>(values.size()) - 1, 0), {{1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}})//std::vector<std::pair<double,double>>(4, {1.0, 1.0}))
     , logger(logger_in)
 {
     if (values.empty()) {
@@ -92,16 +92,18 @@ void GridAxis::calculate_cubic_spacing_ratios()
         {
             double w_m1 = values[i_elem] - values[i_elem - 1];
             double w_0 = values[i_elem + 1] - values[i_elem];
-            cubic_spacing_ratios[i_elem][0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
+            cubic_spacing_ratios[i_elem][0].first = -(-w_0 * w_0 / w_m1 / (w_0 + w_m1));
             cubic_spacing_ratios[i_elem][1].first = (w_0 - w_m1) / w_m1;
-            cubic_spacing_ratios[i_elem][2].first = w_m1 / (w_0 + w_m1);
-        }
+            cubic_spacing_ratios[i_elem][2].first = -(w_m1 / (w_0 + w_m1));
+            cubic_spacing_ratios[i_elem][3].first = 0.0;
+       }
         if (i_elem + 2 < values.size())
         {
             double w_0 = values[i_elem + 1] - values[i_elem];
             double w_1 = values[i_elem + 2] - values[i_elem + 1];
+            cubic_spacing_ratios[i_elem][0].second = -(0.0);
             cubic_spacing_ratios[i_elem][1].second = -w_1 / (w_0 + w_1);
-            cubic_spacing_ratios[i_elem][2].second = (w_1 - w_0) / w_1;
+            cubic_spacing_ratios[i_elem][2].second = -((w_1 - w_0) / w_1);
             cubic_spacing_ratios[i_elem][3].second = w_0 * w_0 / w_1 / (w_0 + w_1);
         }
     }

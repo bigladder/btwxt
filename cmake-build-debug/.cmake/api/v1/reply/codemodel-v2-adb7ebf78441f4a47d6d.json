@@ -1,0 +1,221 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "include/btwxt",
+					"jsonFile" : "directory-include.btwxt-Debug-8839222beca289f67b62.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "include/btwxt",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "src",
+					"jsonFile" : "directory-src-Debug-b6cf2213fc5053b67c22.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "src",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "vendor",
+					"childIndexes" : 
+					[
+						4,
+						5
+					],
+					"jsonFile" : "directory-vendor-Debug-650fd368ad88650ee272.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "vendor"
+				},
+				{
+					"build" : "vendor/fmt",
+					"jsonFile" : "directory-vendor.fmt-Debug-fc0f9b4311e4c3d745f2.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.1"
+					},
+					"parentIndex" : 3,
+					"projectIndex" : 1,
+					"source" : "vendor/fmt",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "vendor/courierr",
+					"childIndexes" : 
+					[
+						6,
+						7
+					],
+					"jsonFile" : "directory-vendor.courierr-Debug-3642c646057c82329f4c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 3,
+					"projectIndex" : 2,
+					"source" : "vendor/courierr"
+				},
+				{
+					"build" : "vendor/courierr/include/courierr",
+					"jsonFile" : "directory-vendor.courierr.include.courierr-Debug-d805bdbd05d082477060.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 2,
+					"source" : "vendor/courierr/include/courierr",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "vendor/courierr/vendor",
+					"jsonFile" : "directory-vendor.courierr.vendor-Debug-f594fd5d9cb4197d9dae.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 2,
+					"source" : "vendor/courierr/vendor"
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					],
+					"name" : "btwxt",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4
+					],
+					"name" : "FMT",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						5,
+						6,
+						7
+					],
+					"name" : "courierr",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "btwxt::@145eef247bfb46b6828c",
+					"jsonFile" : "target-btwxt-Debug-bb6a5b16449ca4cf15f9.json",
+					"name" : "btwxt",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "btwxt_interface::@0c0322b46c169a55d922",
+					"jsonFile" : "target-btwxt_interface-Debug-49b9f09e53e178e74b6c.json",
+					"name" : "btwxt_interface",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "courierr::@772a9155beed67bb3a81",
+					"jsonFile" : "target-courierr-Debug-fc0a4c3cbb9705e6b651.json",
+					"name" : "courierr",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "fmt::@38cc4212e091d63328f6",
+					"jsonFile" : "target-fmt-Debug-dadd36ec62aeb123f3d9.json",
+					"name" : "fmt",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/phil-ahrenkiel/Documents/GitHub/btwxt/cmake-build-debug",
+		"source" : "/Users/phil-ahrenkiel/Documents/GitHub/btwxt"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}
