@@ -688,12 +688,12 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
         {
             interpolation_coefficients[axis_index][floor] = 2 * mu * mu * mu - 3 * mu * mu + 1;
             interpolation_coefficients[axis_index][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
-						auto& ratios = get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_coordinates[axis_index]);
-						for (std::size_t i = 0; i < 4; ++i)
-						{
-	         			cubic_slope_coefficients[axis_index][i] =
-          				floor_factor * ratios[i].first + ceiling_factor * ratios[i].second;
-						}
+            auto& ratios = get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_coordinates[axis_index]);
+            for (std::size_t i = 0; i < 4; ++i)
+            {
+                cubic_slope_coefficients[axis_index][i] =
+                floor_factor * ratios[i].first + ceiling_factor * ratios[i].second;
+            }
         }
         else
         {
@@ -703,8 +703,8 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
             }
             interpolation_coefficients[axis_index][floor] = 1 - mu;
             interpolation_coefficients[axis_index][ceiling] = mu;
-            for (std::size_t i = 0;i<4;++i)
-						{
+            for (std::size_t i = 0; i < 4; ++i)
+            {
             	cubic_slope_coefficients[axis_index][i] = 0.0;
             }
         }

@@ -90,19 +90,19 @@ void GridAxis::calculate_cubic_spacing_ratios()
     {
         if (i_elem > 0)
         {
-    		    double w_m1 = values[i_elem] - values[i_elem - 1];
-    		    double w_0 = values[i_elem + 1] - values[i_elem];
-				    cubic_spacing_ratios[i_elem][0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
-				    cubic_spacing_ratios[i_elem][1].first = (w_0 - w_m1) / w_m1;
-				    cubic_spacing_ratios[i_elem][2].first = w_m1 / (w_0 + w_m1);
+            double w_m1 = values[i_elem] - values[i_elem - 1];
+            double w_0 = values[i_elem + 1] - values[i_elem];
+            cubic_spacing_ratios[i_elem][0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
+            cubic_spacing_ratios[i_elem][1].first = (w_0 - w_m1) / w_m1;
+            cubic_spacing_ratios[i_elem][2].first = w_m1 / (w_0 + w_m1);
         }
         if (i_elem + 2 < values.size())
         {
-    		    double w_0 = values[i_elem + 1] - values[i_elem];
-    		    double w_1 = values[i_elem + 2] - values[i_elem + 1];
-				    cubic_spacing_ratios[i_elem][1].second = -w_1 / (w_0 + w_1);
-				    cubic_spacing_ratios[i_elem][2].second = (w_1 - w_0) / w_1;
-				    cubic_spacing_ratios[i_elem][3].second = w_0 * w_0 / w_1 / (w_0 + w_1);
+            double w_0 = values[i_elem + 1] - values[i_elem];
+            double w_1 = values[i_elem + 2] - values[i_elem + 1];
+            cubic_spacing_ratios[i_elem][1].second = -w_1 / (w_0 + w_1);
+            cubic_spacing_ratios[i_elem][2].second = (w_1 - w_0) / w_1;
+            cubic_spacing_ratios[i_elem][3].second = w_0 * w_0 / w_1 / (w_0 + w_1);
         }
     }
 }

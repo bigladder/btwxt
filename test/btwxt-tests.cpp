@@ -23,32 +23,32 @@ double fCubic(double x)
 
 TEST(PhilsTest, cubic_interp)
 {
-		std::vector<double> x_values={1., 2., 4., 5.};
-		std::vector<double> y_values;
-		
-		for(auto &x_value:x_values)
-		{
-			y_values.push_back(fCubic(x_value));
-		}
-		std::vector<std::vector<double>> values;
-		values.push_back(y_values);
+    std::vector<double> x_values={1., 2., 4., 5.};
+    std::vector<double> y_values;
+    
+    for(auto &x_value:x_values)
+    {
+        y_values.push_back(fCubic(x_value));
+    }
+    std::vector<std::vector<double>> values;
+    values.push_back(y_values);
 
-	  Method extrapolation_method = Method::linear;
-		Method interpolation_method = Method::cubic;
+    Method extrapolation_method = Method::linear;
+    Method interpolation_method = Method::cubic;
 
-		std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
+    std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
 
 
-		GridAxis axis(x_values, "x", interpolation_method, extrapolation_method, extrapolation_limits);
-		RegularGridInterpolator my_interpolator({axis}, values);
+    GridAxis axis(x_values, "x", interpolation_method, extrapolation_method, extrapolation_limits);
+    RegularGridInterpolator my_interpolator({axis}, values);
 
-   	const double epsilon = 0.0001;
- 		double x(3);
- 		double expected_value=fCubic(x);
-		std::vector<double> target{x};
-		my_interpolator.set_target(target);
-		double result = my_interpolator.get_values_at_target()[0];
-		EXPECT_NEAR(result, expected_value, epsilon);
+    const double epsilon = 0.0001;
+    double x(3);
+    double expected_value=fCubic(x);
+    std::vector<double> target{x};
+    my_interpolator.set_target(target);
+    double result = my_interpolator.get_values_at_target()[0];
+    EXPECT_NEAR(result, expected_value, epsilon);
 }
 
 TEST_F(FunctionFixture, scipy_3d_grid)
@@ -137,14 +137,14 @@ TEST_F(GridFixture, four_point_1d_cubic_interpolate)
 {
     grid = {{1., 2., 4., 5.}};
     
- 		data_sets.clear();
-		std::vector<double> data_values;
-		for(auto &grid_value:grid[0])
-		{
-			data_values.push_back(fCubic(grid_value));
-		}
-		std::vector<std::vector<double>> values;
-		data_sets.push_back(data_values);
+    data_sets.clear();
+    std::vector<double> data_values;
+    for(auto &grid_value: grid[0])
+    {
+        data_values.push_back(fCubic(grid_value));
+    }
+    std::vector<std::vector<double>> values;
+    data_sets.push_back(data_values);
 
     target = {3.};
     setup();
