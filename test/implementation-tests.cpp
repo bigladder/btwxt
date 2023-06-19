@@ -67,8 +67,7 @@ TEST_F(CubicImplementationFixture, interpolate)
 TEST_F(CubicImplementationFixture, grid_point_interp_coeffs)
 {
     static constexpr std::size_t axis_index = 0;
-    static constexpr std::size_t rel_elem_index = 0;
-    static constexpr std::size_t ratio_index = 1;
+    static constexpr std::size_t rel_ctrl_index = 0;
     const double epsilon = 0.0001;
 
     interpolator.set_target(target);
@@ -81,10 +80,10 @@ TEST_F(CubicImplementationFixture, grid_point_interp_coeffs)
     EXPECT_NEAR(interpolator.get_interpolation_coefficients()[axis_index][1],
             -2 * mu * mu * mu + 3 * mu * mu, epsilon);
 
-    EXPECT_NEAR(interpolator.get_cubic_slope_coefficients()[axis_index][rel_elem_index],
+    EXPECT_NEAR(interpolator.get_cubic_slope_coefficients()[axis_index][rel_ctrl_index],
                (1 - mu) * mu *
-               ((1 - mu) * interpolator.get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_index)[rel_elem_index].first +
-               mu * interpolator.get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_index)[rel_elem_index].second),
+               ((1 - mu) * interpolator.get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_index)[rel_ctrl_index].first +
+               mu * interpolator.get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_index)[rel_ctrl_index].second),
                epsilon);
 }
 
@@ -93,46 +92,85 @@ TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
     interpolator.set_axis_interpolation_method(1, Method::cubic);
     interpolator.set_target(target);
     std::vector<Method> methods = interpolator.get_current_methods();
-
     std::vector<double> mus = interpolator.get_floor_to_ceiling_fractions();
-    double mx = mus[0];
-    double my = mus[1];
-    double c0x = 2 * mx * mx * mx - 3 * mx * mx + 1;
-    double c0y = 2 * my * my * my - 3 * my * my + 1;
-    // double c1x = -2*mx*mx*mx + 3*mx*mx;
-    double c1y = -2 * my * my * my + 3 * my * my;
-    double d0x = mx * mx * mx - 2 * mx * mx + mx;
-    double d0y = my * my * my - 2 * my * my + my;
-    double d1x = mx * mx * mx - mx * mx;
-    double d1y = my * my * my - my * my;
-    double s1x = 5.0 / 10;
-    double s1y = 2.0 / 4;
-    double s0x = 5.0 / 9;
-    double s0y = 2.0 / 4;
+
+    // get interpolation factors
+    std::vector<std::vector<double>> linear_interpolation_factors;
+    std::vector<std::vector<double>> cubic_interpolation_factors;
+    for (std::size_t i=0; i < 2; ++i)
+    {
+        linear_interpolation_factors.push_back({0.0, 1.0 - mus[i], mus[i], 0.0});
+ 
+        double coef = 1 - 2 * mus[i];
+        cubic_interpolation_factors.push_back({0.0, coef, -coef, 0.0});
+    }
+    
+    // get cubic spacing ratios
+    std::vector<std::vector<std::pair<double, double>>> ratios(2, {{-1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, -1.0}});
+    for (std::size_t i=0; i < 2; ++i)
+    {
+        const std::vector<double>& values = interpolator.get_grid_axis(i).get_values();
+        std::size_t floor_index = interpolator.get_floor_grid_point_coordinates()[i];
+        
+        double w_m1 = values[floor_index] - values[floor_index - 1];
+        double w_0 = values[floor_index + 1] - values[floor_index];
+        double w_1 = values[floor_index + 2] - values[floor_index + 1];
+        {
+            double s_0 = (w_0 - w_m1) / w_m1;
+            double s_1 = w_m1 / (w_0 + w_m1);
+            double s_m1 = -(s_0 + s_1);
+            
+            ratios[i][0].first = s_m1;
+            ratios[i][1].first = s_0;
+            ratios[i][2].first = s_1;
+        }
+        {
+            double s_0 = w_1 / (w_0 + w_1);
+            double s_1 = -(w_1 - w_0) / w_1;
+            double s_2 = -(s_0 + s_1);
+            
+            ratios[i][1].second = s_0;
+            ratios[i][2].second = s_1;
+            ratios[i][3].second = s_2;
+        }
+    }
+    
+    // get slope factors
+    std::vector<std::vector<double>> cubic_slope_factors(2, {0.0, 0.0, 0.0, 0.0});
+    for (std::size_t i=0; i < 2; ++i)
+        for (std::size_t j = 0; j < 4; ++j)
+        {
+            cubic_slope_factors[i][j] = (1 - mus[i]) * ratios[i][j].first + mus[i] * ratios[i][j].second;
+        }
+                                                                            
+    std::vector<std::vector<double>> weighting_factors(2, {0.0, 0.0, 0.0, 0.0});
+    for (std::size_t i=0; i < 2; ++i)
+    {
+        for (std::size_t j = 0; j < 4; ++j)
+        {
+            weighting_factors[i][j] = linear_interpolation_factors[i][j] +
+            (1 - mus[i]) * mus[i] * (cubic_interpolation_factors[i][j] + cubic_slope_factors[i][j]);
+        }
+    }
 
     std::vector<short> this_vertex = {0, 0};
     double weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    double expected_result = c0x * c0y;
-    expected_result += -1 * c0x * d1y * s1y;
-    expected_result += -1 * d1x * s1x * c0y;
-    expected_result += d1x * s1x * d1y * s1y;
+    double expected_result = weighting_factors[0][this_vertex[0] + 1] * weighting_factors[1][this_vertex[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
     this_vertex = {-1, 1};
     weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    expected_result = -1 * d0x * s0x * c1y;
-    expected_result += -1 * d0x * s0x * d0y * s0y;
+    expected_result = weighting_factors[0][this_vertex[0] + 1] * weighting_factors[1][this_vertex[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
     this_vertex = {2, 0};
     weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    expected_result = d1x * s1x * c0y;
-    expected_result += -1 * d1x * s1x * d1y * s1y;
+    expected_result = weighting_factors[0][this_vertex[0] + 1] * weighting_factors[1][this_vertex[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
     this_vertex = {2, 2};
     weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    expected_result = d1x * s1x * d1y * s1y;
+    expected_result = weighting_factors[0][this_vertex[0] + 1] * weighting_factors[1][this_vertex[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 }
 
