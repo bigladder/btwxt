@@ -690,10 +690,10 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
             double coef = 1- 2 * mu; //(1 - mu) - mu;
             std::vector<double> cubic_interpolation_factors = {0.0, coef, -coef, 0.0};
             
-            interpolation_coefficients[axis_index][floor] = linear_interpolation_factors[floor] +
-                (1 - mu) * mu * cubic_interpolation_factors[floor];
-            interpolation_coefficients[axis_index][ceiling] = linear_interpolation_factors[ceiling] +
-                (1 - mu) * mu * cubic_interpolation_factors[ceiling];
+            interpolation_coefficients[axis_index][floor] = linear_interpolation_factors[1] +
+                (1 - mu) * mu * cubic_interpolation_factors[1];
+            interpolation_coefficients[axis_index][ceiling] = linear_interpolation_factors[2] +
+                (1 - mu) * mu * cubic_interpolation_factors[2];
             
             std::vector<double> cubic_slope_factors(4, 0.0);
             auto& ratios = get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_coordinates[axis_index]);
