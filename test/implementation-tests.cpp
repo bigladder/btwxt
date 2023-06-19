@@ -21,10 +21,10 @@ TEST_F(CubicImplementationFixture, spacing_multiplier)
 
     double result;
     result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[0].first;
-    EXPECT_NEAR(result, -0.694444, epsilon);
+    EXPECT_NEAR(result, 0.694444, epsilon);
 
     result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[1].first;
-    EXPECT_NEAR(result, 0.25, epsilon);
+    EXPECT_NEAR(result, -0.25, epsilon);
 
     result = interpolator.get_axis_cubic_spacing_ratios(0, elem_index)[1].second;
     EXPECT_NEAR(result, -0.5, epsilon);

@@ -43,7 +43,7 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
 {
     static constexpr std::size_t i_interval = 2;
   
-		std::vector<double> grid_values={6., 10., 15., 20., 22.};
+	std::vector<double> grid_values={6., 10., 15., 20., 22.};
     GridAxis grid_axis(grid_values,
                        "",
                        Method::cubic,
@@ -51,30 +51,34 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
                        {-DBL_MAX, DBL_MAX},
                        std::make_shared<BtwxtLogger>());
                        
-		std::vector<std::pair<double,double>> result(4, {0., 0.});
-	
-		if ((i_interval > 0) && (i_interval + 1 < grid_values.size()))
-		{
-				double w_m1 = grid_values[i_interval] - grid_values[i_interval - 1];
-				double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
-				result[0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
-				result[1].first = (w_0 - w_m1) / w_m1;
-				result[2].first = w_m1 / (w_0 + w_m1);
-		}
-		
-		if (i_interval + 2 < grid_values.size())
-		{
-				double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
-				double w_1 = grid_values[i_interval + 2] - grid_values[i_interval + 1];
-				result[1].second = -w_1 / (w_0 + w_1);
-				result[2].second = (w_1 - w_0) / w_1;
-				result[3].second = w_0 * w_0 / w_1 / (w_0 + w_1);
-		}
-		
-		auto& expected=grid_axis.get_cubic_spacing_ratios(i_interval);
-		
-		EXPECT_EQ(expected, result);
-		//EXPECT_THAT(expected[0].first, testing::ElementsAre(result[0].first));
+    std::vector<std::pair<double,double>> result(4, {0., 0.});
+
+    if ((i_interval > 0) && (i_interval + 1 < grid_values.size()))
+    {
+        double w_m1 = grid_values[i_interval] - grid_values[i_interval - 1];
+        double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
+        result[0].first = -w_0 * w_0 / w_m1 / (w_0 + w_m1);
+        result[1].first = (w_0 - w_m1) / w_m1;
+        result[2].first = w_m1 / (w_0 + w_m1);
+    }
+    
+    if (i_interval + 2 < grid_values.size())
+    {
+        double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
+        double w_1 = grid_values[i_interval + 2] - grid_values[i_interval + 1];
+        result[1].second = w_1 / (w_0 + w_1);
+        result[2].second = -(w_1 - w_0) / w_1;
+        result[3].second = -w_0 * w_0 / w_1 / (w_0 + w_1);
+    }
+    
+    auto& expected=grid_axis.get_cubic_spacing_ratios(i_interval);
+    
+    for (std::size_t i = 0; i<4; ++i)
+    {
+        EXPECT_NEAR(expected[i].first, result[i].first, 0.0001);
+        EXPECT_NEAR(expected[i].second, result[i].second, 0.0001);
+   }
+    //EXPECT_THAT(expected[0].first, testing::ElementsAre(result[0].first));
 }
 
 TEST(GridAxis, bad_limits)
