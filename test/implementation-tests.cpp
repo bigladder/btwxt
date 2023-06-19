@@ -180,8 +180,8 @@ TEST_F(CubicImplementationFixture, hypercube_calculations)
     interpolator.set_target(target);
 
     auto result = interpolator.get_results();
-    EXPECT_NEAR(result[0], 4.1953, 0.0001);
-    EXPECT_NEAR(result[1], 11.9271, 0.0001);
+    EXPECT_NEAR(result[0], 4.1859, 0.0001);
+    EXPECT_NEAR(result[1], 11.9070, 0.0001);
 }
 
 TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
@@ -189,17 +189,30 @@ TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
     // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:
     // floor: {4/4, 5/9, 5/10}
     // ceiling: {4/9, 5/10, 5/5}
-    static constexpr std::size_t i_ratio = 0;
+    
+    double w_m1 = 10 - 6;
+    double w_0 = 15 - 10;
+    double w_1 = 20 - 15;
 
-    std::vector<std::vector<double>> expected_results {{4.0 / 4, 5.0 / 9, 5.0 / 10},
-                                                       {4.0 / 9, 5.0 / 10, 5.0 / 5}};
+    double sm_0 = (w_0 - w_m1) / w_m1;
+    double sm_1 = w_m1 / (w_0 + w_m1);
+    double sm_m1 = -(sm_0 + sm_1);
+    
+    double sp_0 = w_1 / (w_0 + w_1);
+    double sp_1 = -(w_1 - w_0) / w_1;
+    double sp_2 = -(sp_0 + sp_1);
+
+    static constexpr std::size_t i_ratio = 1;
+
+    std::vector<std::pair<double, double>> expected_results {{sm_m1, 0}, {sm_0, sp_0}, {sm_1, sp_1}, {0, sp_2}};
+
     double result;
-   	for (std::size_t index = 0; index < 3; index++) {
+   	for (std::size_t index = 0; index < 4; index++) {
 				result = interpolator.get_axis_cubic_spacing_ratios(0, i_ratio)[index].first;
-				EXPECT_DOUBLE_EQ(result, expected_results[i_ratio][index]);
+				EXPECT_DOUBLE_EQ(result, expected_results[index].first);
 
 				result = interpolator.get_axis_cubic_spacing_ratios(0, i_ratio)[index].second;
-				EXPECT_DOUBLE_EQ(result, expected_results[i_ratio][index]);
+				EXPECT_DOUBLE_EQ(result, expected_results[index].second);
     }
 }
 
