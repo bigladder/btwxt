@@ -226,6 +226,7 @@ TEST_F(CubicImplementationFixture, null_checking_calculations)
     GridPointDataSet dataset_with_null(table_with_null);
     interpolator.add_grid_point_data_set(dataset_with_null);
 
+    target = {7, 3};
     interpolator.set_target(target);
     auto result = interpolator.get_results();
     EXPECT_TRUE(isnan(result[2]));
