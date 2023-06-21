@@ -137,11 +137,11 @@ class RegularGridInterpolatorImplementation {
         return hypercube;
     };
 
-    [[nodiscard]] const std::vector<double>&
-    get_axis_cubic_spacing_ratios(std::size_t axis_index, std::size_t floor_or_ceiling) const
+    [[nodiscard]] const std::vector<std::pair<double,double>>&
+    get_axis_cubic_spacing_ratios(std::size_t axis_index, std::size_t elem_index) const
     {
         check_axis_index(axis_index, "get axis cubic spacing ratios");
-        return grid_axes[axis_index].get_cubic_spacing_ratios(floor_or_ceiling);
+        return grid_axes[axis_index].get_cubic_spacing_ratios(elem_index);
     };
 
     const std::vector<double>& get_grid_point_data(const std::vector<std::size_t>& coordinates);

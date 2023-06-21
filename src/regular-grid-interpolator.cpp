@@ -97,7 +97,7 @@ RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& gr
 {
 }
 
-RegularGridInterpolator::~RegularGridInterpolator() = default; 
+RegularGridInterpolator::~RegularGridInterpolator() = default;
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const std::vector<GridAxis>& grid_axes,
@@ -119,7 +119,7 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     , weighting_factors(number_of_grid_axes, std::vector<double>(4, 0.))
     , results(number_of_grid_point_data_sets, 0.)
     , interpolation_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
-    , cubic_slope_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
+    , cubic_slope_coefficients(number_of_grid_axes, std::vector<double>(4, 0.))
     , logger(logger)
 {
     set_axis_sizes();
@@ -678,39 +678,55 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
 {
     static constexpr std::size_t floor = 0;
     static constexpr std::size_t ceiling = 1;
-    for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; axis_index++) {
+    
+    for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; axis_index++)
+    {
         double mu = floor_to_ceiling_fractions[axis_index];
-        if (methods[axis_index] == Method::cubic) {
-            interpolation_coefficients[axis_index][floor] = 2 * mu * mu * mu - 3 * mu * mu + 1;
-            interpolation_coefficients[axis_index][ceiling] = -2 * mu * mu * mu + 3 * mu * mu;
-            cubic_slope_coefficients[axis_index][floor] =
-                (mu * mu * mu - 2 * mu * mu + mu) *
-                get_axis_cubic_spacing_ratios(axis_index,
-                                              floor)[floor_grid_point_coordinates[axis_index]];
-            cubic_slope_coefficients[axis_index][ceiling] =
-                (mu * mu * mu - mu * mu) *
-                get_axis_cubic_spacing_ratios(axis_index,
-                                              ceiling)[floor_grid_point_coordinates[axis_index]];
+        
+        if (methods[axis_index] == Method::cubic)
+        {
+            std::vector<double> linear_interpolation_factors = {0.0, 1.0 - mu, mu, 0.0};
+             
+            double coef = 1- 2 * mu; //(1 - mu) - mu;
+            std::vector<double> cubic_interpolation_factors = {0.0, coef, -coef, 0.0};
+            
+            interpolation_coefficients[axis_index][floor] = linear_interpolation_factors[1] +
+                (1 - mu) * mu * cubic_interpolation_factors[1];
+            interpolation_coefficients[axis_index][ceiling] = linear_interpolation_factors[2] +
+                (1 - mu) * mu * cubic_interpolation_factors[2];
+            
+            std::vector<double> cubic_slope_factors(4, 0.0);
+            auto& ratios = get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_coordinates[axis_index]);
+            for (std::size_t i = 0; i < 4; ++i)
+            {
+                cubic_slope_factors[i] = (1 - mu) * ratios[i].first + mu * ratios[i].second;
+                cubic_slope_coefficients[axis_index][i] = (1 - mu) * mu * cubic_slope_factors[i];
+            }
+            for (std::size_t i = 0; i < 4; ++i)
+            {
+                weighting_factors[axis_index][i] = linear_interpolation_factors[i] +
+                    (1 - mu) * mu * (cubic_interpolation_factors[i] + cubic_slope_factors[i]);
+            }
+            continue;
         }
-        else {
-            if (methods[axis_index] == Method::constant) {
+            
+        {
+            if (methods[axis_index] == Method::constant)
+            {
                 mu = mu < 0 ? 0 : 1;
             }
+            
+            std::vector<double> linear_interpolation_factors = {0.0, 1.0 - mu, mu, 0.0};
+            
             interpolation_coefficients[axis_index][floor] = 1 - mu;
             interpolation_coefficients[axis_index][ceiling] = mu;
-            cubic_slope_coefficients[axis_index][floor] = 0.0;
-            cubic_slope_coefficients[axis_index][ceiling] = 0.0;
+            
+            for (std::size_t i = 0; i < 4; ++i)
+            {
+                cubic_slope_coefficients[axis_index][i] = 0.0;
+                weighting_factors[axis_index][i] = linear_interpolation_factors[i];
+            }
         }
-        weighting_factors[axis_index][0] =
-            -cubic_slope_coefficients[axis_index][floor]; // point below floor (-1)
-        weighting_factors[axis_index][1] =
-            interpolation_coefficients[axis_index][floor] -
-            cubic_slope_coefficients[axis_index][ceiling]; // floor (0)
-        weighting_factors[axis_index][2] =
-            interpolation_coefficients[axis_index][ceiling] +
-            cubic_slope_coefficients[axis_index][floor]; // ceiling (1)
-        weighting_factors[axis_index][3] =
-            cubic_slope_coefficients[axis_index][ceiling]; // point above ceiling (2)
     }
 }
 
