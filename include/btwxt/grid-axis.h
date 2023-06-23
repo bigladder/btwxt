@@ -18,6 +18,7 @@
 namespace Btwxt {
 
 enum class Method { undefined, constant, linear, cubic };
+enum class SlopeMethod { undefined, finite_diff, cardinal_0, cardinal_1, quadratic };
 
 class GridAxis {
     // A single input dimension of the grid
@@ -31,6 +32,7 @@ class GridAxis {
         Method interpolation_method = Method::linear,
         Method extrapolation_method = Method::constant,
         std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
+        SlopeMethod slope_method = SlopeMethod::quadratic,
         const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
 
     // Setters
@@ -41,6 +43,7 @@ class GridAxis {
         extrapolation_limits = limits;
         check_extrapolation_limits();
     }
+    void set_slope_method(SlopeMethod slope_method_in);
 
     void set_logger(std::shared_ptr<Courierr::Courierr> logger_in)
     {
@@ -67,8 +70,12 @@ class GridAxis {
     std::vector<double> values;
     Method extrapolation_method {Method::constant};
     Method interpolation_method {Method::linear};
+    SlopeMethod slope_method {SlopeMethod::quadratic};
     std::pair<double, double> extrapolation_limits {-DBL_MAX, DBL_MAX};
-    std::vector<std::vector<std::pair<double,double>>> cubic_spacing_ratios;
+    std::vector<std::vector<std::pair<double,double>>>
+        cubic_spacing_ratios; // Used for cubic interpolation. Outer vector is length
+                              // of axis values; inner vector is size 4 (points in relative positions
+                              // -1, 0, 1, 2). Pair elements are applied to (-) and (+) coefficients.
     std::shared_ptr<Courierr::Courierr> logger;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();

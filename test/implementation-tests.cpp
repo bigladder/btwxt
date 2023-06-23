@@ -28,13 +28,13 @@ TEST_F(CubicImplementationFixture, spacing_multiplier)
     EXPECT_NEAR(result, 0.25, epsilon);
 
     result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[1].second;
-    EXPECT_NEAR(result, 0.5, epsilon);
+    EXPECT_NEAR(result, -0.5, epsilon);
 
     result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[2].first;
     EXPECT_NEAR(result, 0.444444, epsilon);
 
     result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[3].second;
-    EXPECT_NEAR(result, -0.5, epsilon);
+    EXPECT_NEAR(result, 0.5, epsilon);
 }
 
 TEST_F(CubicImplementationFixture, switch_interp_method)
@@ -106,31 +106,40 @@ TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
     }
     
     // get cubic spacing ratios
-    std::vector<std::vector<std::pair<double, double>>> ratios(2, {{-1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, -1.0}});
-    for (std::size_t i=0; i < 2; ++i)
+    std::vector<std::vector<std::pair<double, double>>> ratios(2, {{-1.0, 0.0}, {0.0, -1.0}, {1.0, 0.0}, {0.0, 1.0}});
+    for (std::size_t i = 0; i < 2; ++i)
     {
         const std::vector<double>& values = interpolator.get_grid_axis(i).get_values();
         std::size_t floor_index = interpolator.get_floor_grid_point_coordinates()[i];
         
-        double w_m1 = values[floor_index] - values[floor_index - 1];
         double w_0 = values[floor_index + 1] - values[floor_index];
-        double w_1 = values[floor_index + 2] - values[floor_index + 1];
         {
-            double s_0 = (w_0 - w_m1) / w_m1;
-            double s_1 = w_m1 / (w_0 + w_m1);
-            double s_m1 = -(s_0 + s_1);
+            double w_m1 = values[floor_index] - values[floor_index - 1];
+            double t_0 = w_0 / w_m1;
+
+            double c_0(0.5);
+            c_0 = t_0 / (1 + t_0); // quadratic
             
+            //general
+            double s_m1 = -t_0 * c_0;
+            double s_1 = 1 - c_0;
+ 
             ratios[i][0].first = s_m1;
-            ratios[i][1].first = s_0;
+            ratios[i][1].first = -(s_m1 + s_1);
             ratios[i][2].first = s_1;
         }
         {
-            double s_0 = w_1 / (w_0 + w_1);
-            double s_1 = -(w_1 - w_0) / w_1;
-            double s_2 = -(s_0 + s_1);
+            double w_1 = values[floor_index + 2] - values[floor_index + 1];
+            double t_1 = w_0 / w_1;
+
+            double c_1(0.5);
+            c_1 = t_1 / (1 + t_1); // quadratic
+
+            double s_0 = -(1 - c_1);
+            double s_2 = t_1 * c_1;
             
             ratios[i][1].second = s_0;
-            ratios[i][2].second = s_1;
+            ratios[i][2].second = -(s_0 + s_2);
             ratios[i][3].second = s_2;
         }
     }
@@ -140,7 +149,7 @@ TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
     for (std::size_t i=0; i < 2; ++i)
         for (std::size_t j = 0; j < 4; ++j)
         {
-            cubic_slope_factors[i][j] = (1 - mus[i]) * ratios[i][j].first + mus[i] * ratios[i][j].second;
+            cubic_slope_factors[i][j] = (1 - mus[i]) * ratios[i][j].first - mus[i] * ratios[i][j].second;
         }
                                                                             
     std::vector<std::vector<double>> weighting_factors(2, {0.0, 0.0, 0.0, 0.0});
@@ -193,17 +202,23 @@ TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
     double w_0 = axis_values[2] - axis_values[1];
     double w_1 = axis_values[3] - axis_values[2];
 
-    double sm_0 = (w_0 - w_m1) / w_m1;
-    double sm_1 = w_m1 / (w_0 + w_m1);
-    double sm_m1 = -(sm_0 + sm_1);
-    
-    double sp_0 = w_1 / (w_0 + w_1);
-    double sp_1 = -(w_1 - w_0) / w_1;
-    double sp_2 = -(sp_0 + sp_1);
+    double t_0 = w_0 / w_m1;
+    double t_1 = w_0 / w_1;
+
+    double c_0(0.5), c_1(0.5);
+    c_0 = t_0 / (1 + t_0); // quadratic
+    c_1 = t_1 / (1 + t_1); // quadratic
+
+    //general
+    double s_m1_m = -t_0 * c_0;
+    double s_1_m = 1 - c_0;
+
+    double s_0_p = -(1 - c_1);
+    double s_2_p = t_1 * c_1;
 
     static constexpr std::size_t i_ratio = 1;
 
-    std::vector<std::pair<double, double>> expected_results {{sm_m1, 0}, {sm_0, sp_0}, {sm_1, sp_1}, {0, sp_2}};
+    std::vector<std::pair<double, double>> expected_results {{s_m1_m, 0}, {-(s_m1_m + s_1_m), s_0_p}, {s_1_m, -(s_0_p + s_2_p)}, {0, s_2_p}};
 
     double result;
        for (std::size_t index = 0; index < 4; index++) {
@@ -343,7 +358,7 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
     GridAxis ax0 = GridAxis({0, 10, 15}, "ax0");
     auto logger = ax0.get_logger();
     GridAxis ax1 =
-        GridAxis({4, 6}, "ax1", Method::linear, Method::constant, {-DBL_MAX, DBL_MAX}, logger);
+        GridAxis({4, 6}, "ax1", Method::linear, Method::constant, {-DBL_MAX, DBL_MAX}, SlopeMethod::quadratic, logger);
     std::vector<GridAxis> test_axes = {ax0, ax1};
     interpolator = RegularGridInterpolatorImplementation(test_axes, logger);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);

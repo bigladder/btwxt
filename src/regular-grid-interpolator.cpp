@@ -25,6 +25,7 @@ std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>
                                Method::linear,
                                Method::constant,
                                std::pair<double, double> {-DBL_MAX, DBL_MAX},
+                               SlopeMethod::quadratic,
                                logger_in);
     }
     return grid_axes;
@@ -151,16 +152,18 @@ RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInt
     return *this;
 }
 
-void RegularGridInterpolatorImplementation::set_axis_sizes()
-{
+void RegularGridInterpolatorImplementation::set_axis_sizes() {
     number_of_grid_points = 1;
+
     for (std::size_t axis_index = number_of_grid_axes; axis_index-- > 0;) {
         std::size_t length = grid_axes[axis_index].get_length();
+
         if (length == 0) {
             throw BtwxtException(
-                fmt::format("Grid axis (name=\"{}\") has zero length.", grid_axes[axis_index].name),
-                *logger);
+                      fmt::format("Grid axis (name=\"{}\") has zero length.", grid_axes[axis_index].name),
+                      *logger);
         }
+
         grid_axis_lengths[axis_index] = length;
         grid_axis_step_size[axis_index] = number_of_grid_points;
         number_of_grid_points *= length;
@@ -168,7 +171,6 @@ void RegularGridInterpolatorImplementation::set_axis_sizes()
 }
 
 // Public manipulation methods
-
 std::size_t
 RegularGridInterpolator::add_grid_point_data_set(const std::vector<double>& grid_point_data_vector,
                                                  const std::string& name)
@@ -699,7 +701,7 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
             auto& ratios = get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_coordinates[axis_index]);
             for (std::size_t i = 0; i < 4; ++i)
             {
-                cubic_slope_factors[i] = (1 - mu) * ratios[i].first + mu * ratios[i].second;
+                cubic_slope_factors[i] = (1 - mu) * ratios[i].first - mu * ratios[i].second;
                 cubic_slope_coefficients[axis_index][i] = (1 - mu) * mu * cubic_slope_factors[i];
             }
             for (std::size_t i = 0; i < 4; ++i)
