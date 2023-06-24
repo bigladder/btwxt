@@ -62,16 +62,20 @@ std::vector<double> result = my_interpolator({12.5, 5.1});
 ```
 ### Single-Axis Interpolation
 #### Linear case
-The *linear* interpolation of a function $f(x)$ on a single axis within the interval between control points $P_{0}$ and $P_{1}$, with axis coordinates $x_{0}$ and $x_{1}$, respectively, can be expressed as
-$$h(\mu) =  (1-\mu)\cdot f_{0}+\mu \cdot f_{1}$$
+A *linear* interpolation over the interval [$x_{k}$, $x_{k+1}$] can be expressed in terms of the data values $f_{k}$ and $f_{k+1}$ as
+$$h_{k}(\mu_{k}) =  (1-\mu)\cdot f_{k}+\mu \cdot f_{k+1}$$
 
 where
-$$\mu =  {x-x_{0}\over x_{1}-x_{0}}$$
+$$\mu_{k} =  {x-x_{k}\over w_{k}}$$
 
-and $f_{0}=f(x_{0})$ and $f_{1}=f(x_{1})$.
+using the interval width $w_{k}=x_{k+1}-x_{k}$. The resulting interpolation will consist of straight line segments spanning each interval between control points.
 
 #### Cubic case
-We can also ensure continuity of the function slope through the use of *cubic* interpolation, by incorporating the neighboring control points, $P_{-1}$, and $P_{2}$, exterior to the interval in either direction. Various methods have been considered for specifying the slopes at $P_{0}$ and $P_{1}$.
-The three points $P_{-1}$, $P_{0}$, and $P_{1}$ specify a quadractic curve $g_{0}(\mu)$; $P_{0}$, $P_{1}$, and $P_{2 }$ specify another quadractic curve $g_{1}(\mu)$. Note that these two functions both contain the points $P_{0}$ and $P_{1}$ that define our interval of interest, so the linear interpolation
-$$h(\mu) =  (1-\mu)\cdot g_{0}(\mu)+\mu \cdot g_{1}(\mu)$$
- will also contain these points. Further analysis reveals that the first derivatives at these points are equal to those of $g_{0}$ and $g_{1}$, respectively. Continuity of both the value and first derivative are therefore maintained.
+A *cubic* interpolation generates a smoother funciton that can be constructed to have continuous first derivative (slope), which is useful for many types of data analysis. We apply the formulation used above to a pair of functions $g_{k}(\mu_{k})$ and $g_{k+1}(\mu_{k})$, up to quadratic in order, associated with each control point, rather than the data values, themselves. The interpolation becomes
+$$h(\mu_{k}) =  (1-\mu_{k})\cdot g_{k}(\mu_{k})+\mu_{k} \cdot g_{k+1}(\mu_{k})$$
+
+(Note that the representations of these functions may depend on the argument indicated.) To enforce continuity, these two functions must intersect and have the appropriate data value at both $x_{k}$ and $x_{k+1}$. Although the slope is not uniquely defined for a discrete data set, it can be estimated by inspection of neighboring control points. It is useful to express the slope at $x_{k}$ as
+$$f'_{k}=(1-c_{k})\cdot r_{k}+c_{k}\cdot r_{k-1}$$
+where
+$$r_{k}=\frac{f_{k+1}-f_{k}}{w_{k}}$$
+In **btwxt**, the user can select from among various methods to specify $c_{k}$, which may be applicable in different contexts.
