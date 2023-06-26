@@ -244,7 +244,7 @@ TEST_F(CubicImplementationFixture, null_checking_calculations)
     target = {7, 3};
     interpolator.set_target(target);
     auto result = interpolator.get_results();
-    EXPECT_TRUE(isnan(result[2]));
+    EXPECT_TRUE(std::isnan(result[2]));
 }
 
 TEST_F(EmptyGridImplementationFixture, locate_coordinates)
