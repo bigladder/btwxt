@@ -47,10 +47,9 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
     std::vector<SlopeMethod> slope_method_vector
     ({  SlopeMethod::quadratic,
         SlopeMethod::finite_diff,
-        SlopeMethod::cardinal_0,
-        SlopeMethod::cardinal_1
-            
+        SlopeMethod::cardinal,
     });
+    double slope_reduction = 0.0;
     for (auto slope_method: slope_method_vector)
     {
         GridAxis grid_axis(grid_values,
@@ -59,6 +58,7 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
                            Method::constant,
                            {-DBL_MAX, DBL_MAX},
                            slope_method,
+                           slope_reduction,
                            std::make_shared<BtwxtLogger>());
         
         std::vector<std::pair<double,double>> result(4, {0., 0.});
@@ -68,34 +68,27 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
             double w_m1 = grid_values[i_interval] - grid_values[i_interval - 1];
             double t_0 = w_0 / w_m1;
             
-            double c_0(0.0);
+            double beta_0(0.0);
             switch (slope_method){
                 case SlopeMethod::finite_diff:
                 {
-                    c_0 = 0.5;
+                    beta_0 = 0.5;
                     break;
                 }
-                    
-                case SlopeMethod::cardinal_0:{
-                    c_0 = 1 / (1 + t_0);
+                case SlopeMethod::cardinal:{
+                    beta_0 = 1 / (1 + t_0);
                     break;
                 }
-                    
-               case SlopeMethod::cardinal_1:{
-                    c_0 = 0.0;
-                    break;
-                }
-
                 case SlopeMethod::quadratic:
                 default:{
-                    c_0 = t_0 / (1 + t_0);
+                    beta_0 = t_0 / (1 + t_0);
                     break;
                 }
             }
 
             //general
-            double s_m1_m = -t_0 * c_0;;
-            double s_1_m = 1 - c_0;
+            double s_m1_m = (1 - slope_reduction) * (-t_0 * beta_0);
+            double s_1_m = (1 - slope_reduction) * (1 - beta_0);
             result[0].first =  s_m1_m;
             result[1].first = -(s_m1_m + s_1_m);
             result[2].first = s_1_m;
@@ -103,34 +96,27 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
         
         if (i_interval + 2 < grid_values.size()){
             double w_1 = grid_values[i_interval + 2] - grid_values[i_interval + 1];
-            double t_1 = w_0 / w_1;
+            double t_1 = w_1 / w_0;
             
-            double c_1(0.0);
+            double beta_1(0.0);
             switch (slope_method){
                 case SlopeMethod::finite_diff:{
-                    c_1 = 0.5;
+                    beta_1 = 0.5;
                     break;
                 }
-                    
-                case SlopeMethod::cardinal_0:{
-                    c_1 = 1 / (1 + t_1);;
+                case SlopeMethod::cardinal:{
+                    beta_1 = 1 / (1 + t_1);
                     break;
                 }
-                    
-                case SlopeMethod::cardinal_1:{
-                    c_1 = 0.0;
-                    break;
-                }
-
                 case SlopeMethod::quadratic:
                 default:{
-                    c_1 = t_1 / (1 + t_1);
+                    beta_1 = t_1 / (1 + t_1);
                     break;
                 }
             }
 
-            double s_0_p = -(1 - c_1);
-            double s_2_p = t_1 * c_1;
+            double s_0_p = (1 - slope_reduction) * (-beta_1);
+            double s_2_p = (1 - slope_reduction) * (1 - beta_1) / t_1;
             
             result[1].second = s_0_p;
             result[2].second = -(s_0_p + s_2_p);

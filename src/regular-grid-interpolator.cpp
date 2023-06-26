@@ -26,6 +26,7 @@ std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>
                                Method::constant,
                                std::pair<double, double> {-DBL_MAX, DBL_MAX},
                                SlopeMethod::quadratic,
+                               0.0,
                                logger_in);
     }
     return grid_axes;

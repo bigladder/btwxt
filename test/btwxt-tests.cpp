@@ -36,10 +36,11 @@ TEST(BasicSplineTest, cubic_interp)
     Method extrapolation_method = Method::linear;
     Method interpolation_method = Method::cubic;
     SlopeMethod slope_method = SlopeMethod::quadratic;
+    double slope_reduction = 0.0;
 
     std::pair<double, double> extrapolation_limits{-DBL_MAX, DBL_MAX};
 
-    GridAxis axis(x_values, "x", interpolation_method, extrapolation_method, extrapolation_limits, slope_method);
+    GridAxis axis(x_values, "x", interpolation_method, extrapolation_method, extrapolation_limits, slope_method, slope_reduction);
     RegularGridInterpolator my_interpolator({axis}, values);
 
     const double epsilon = 0.0001;

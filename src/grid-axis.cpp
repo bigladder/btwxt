@@ -11,13 +11,15 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    Method interpolation_method,
                    Method extrapolation_method,
                    std::pair<double, double> extrapolation_limits,
-                   SlopeMethod slope_method,
+                   SlopeMethod slope_method_in,
+                   double slope_reduction_in,
                    const std::shared_ptr<Courierr::Courierr>& logger_in)
     : name(name)
     , values(std::move(values_in))
     , extrapolation_method(extrapolation_method)
     , interpolation_method(interpolation_method)
-    , slope_method(slope_method)
+    , slope_method(slope_method_in)
+    , slope_reduction(slope_reduction_in)
     , extrapolation_limits(std::move(extrapolation_limits))
     , cubic_spacing_ratios(
         std::max(static_cast<int>(values.size()) - 1, 0),
@@ -83,6 +85,11 @@ void GridAxis::set_slope_method(SlopeMethod slope_method_in)
     slope_method = slope_method_in;
 }
 
+void GridAxis::set_slope_reduction(double slope_reduction_in)
+{
+    slope_reduction = slope_reduction_in;
+}
+
 void GridAxis::calculate_cubic_spacing_ratios()
 {
     if (get_length() == 1) {
@@ -111,12 +118,8 @@ void GridAxis::calculate_cubic_spacing_ratios()
                     c_0 = 0.5;
                     break;
                 }
-                case SlopeMethod::cardinal_0:{
+                case SlopeMethod::cardinal:{
                     c_0 = 1 / (1 + t_0);
-                    break;
-                }
-               case SlopeMethod::cardinal_1:{
-                    c_0 = 0.0;
                     break;
                 }
                 case SlopeMethod::quadratic:
@@ -127,8 +130,8 @@ void GridAxis::calculate_cubic_spacing_ratios()
             }
             
             //general
-            double s_m1_m = -t_0 * c_0;;
-            double s_1_m = 1 - c_0;
+            double s_m1_m = (1 - slope_reduction) * (-t_0 * c_0);
+            double s_1_m = (1 - slope_reduction) * (1 - c_0);
 
             ratio[0].first = s_m1_m;
             ratio[1].first = -(s_m1_m + s_1_m);
@@ -138,7 +141,7 @@ void GridAxis::calculate_cubic_spacing_ratios()
         if (i_elem + 2 < values.size())
         {
             double w_1 = values[i_elem + 2] - values[i_elem + 1];
-            double t_1 = w_0 / w_1;
+            double t_1 = w_1 / w_0;
 
             double c_1(0.0);
             switch (slope_method){
@@ -147,12 +150,8 @@ void GridAxis::calculate_cubic_spacing_ratios()
                     c_1 = 0.5;
                     break;
                 }
-                case SlopeMethod::cardinal_0:{
+                case SlopeMethod::cardinal:{
                     c_1 = 1 / (1 + t_1);
-                    break;
-                }
-                case SlopeMethod::cardinal_1:{
-                    c_1 = 0.0;
                     break;
                 }
                 case SlopeMethod::quadratic:
@@ -162,8 +161,8 @@ void GridAxis::calculate_cubic_spacing_ratios()
                 }
             }
 
-            double s_0_p = -(1 - c_1);
-            double s_2_p = t_1 * c_1;
+            double s_0_p = (1 - slope_reduction) * (-c_1);
+            double s_2_p = (1 - slope_reduction) * ((1 - c_1) / t_1);
 
             ratio[0].second = 0.0;
             ratio[1].second = s_0_p;
