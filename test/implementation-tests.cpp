@@ -16,23 +16,25 @@ namespace Btwxt {
 
 TEST_F(CubicImplementationFixture, spacing_multiplier)
 {
-    static constexpr std::size_t floor = 0;
-    static constexpr std::size_t ceiling = 1;
+    static constexpr std::size_t axis_index = 0;
+    static constexpr std::size_t elem_index = 1;
+      const double epsilon = 0.0001;
+
     double result;
-    result = interpolator.get_axis_cubic_spacing_ratios(0, floor)[0];
-    EXPECT_DOUBLE_EQ(result, 1.0);
+    result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[0].first;
+    EXPECT_NEAR(result, -0.694444, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[0];
-    EXPECT_DOUBLE_EQ(result, (10. - 6.) / (15.0 - 6.0));
+    result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[1].first;
+    EXPECT_NEAR(result, 0.25, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios(0, floor)[1];
-    EXPECT_DOUBLE_EQ(result, (15. - 10.) / (15.0 - 6.0));
+    result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[1].second;
+    EXPECT_NEAR(result, -0.5, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[2];
-    EXPECT_DOUBLE_EQ(result, 1.0);
+    result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[2].first;
+    EXPECT_NEAR(result, 0.444444, epsilon);
 
-    result = interpolator.get_axis_cubic_spacing_ratios(1, floor)[0];
-    EXPECT_DOUBLE_EQ(result, 1.0);
+    result = interpolator.get_axis_cubic_spacing_ratios(axis_index, elem_index)[3].second;
+    EXPECT_NEAR(result, 0.5, epsilon);
 }
 
 TEST_F(CubicImplementationFixture, switch_interp_method)
@@ -59,29 +61,30 @@ TEST_F(CubicImplementationFixture, interpolate)
     BtwxtLogger message_display;
     message_display.info(
         fmt::format("Time to do cubic interpolation: {} microseconds", duration.count()));
-    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.1475), testing::DoubleEq(11.82)));
 }
 
 TEST_F(CubicImplementationFixture, grid_point_interp_coeffs)
 {
-    static constexpr std::size_t floor = 0;
-    static constexpr std::size_t ceiling = 1;
+    static constexpr std::size_t axis_index = 0;
+    static constexpr std::size_t rel_ctrl_index = 0;
+    const double epsilon = 0.0001;
 
     interpolator.set_target(target);
 
     double mu = interpolator.get_floor_to_ceiling_fractions()[0];
     std::size_t floor_grid_point_index = interpolator.get_floor_grid_point_coordinates()[0];
 
-    EXPECT_EQ(interpolator.get_interpolation_coefficients()[0][0],
-              2 * mu * mu * mu - 3 * mu * mu + 1);
-    EXPECT_EQ(interpolator.get_interpolation_coefficients()[0][1], -2 * mu * mu * mu + 3 * mu * mu);
+    EXPECT_NEAR(interpolator.get_interpolation_coefficients()[axis_index][0],
+            2 * mu * mu * mu - 3 * mu * mu + 1, epsilon);
+    EXPECT_NEAR(interpolator.get_interpolation_coefficients()[axis_index][1],
+            -2 * mu * mu * mu + 3 * mu * mu, epsilon);
 
-    EXPECT_EQ(interpolator.get_cubic_slope_coefficients()[0][0],
-              (mu * mu * mu - 2 * mu * mu + mu) *
-                  interpolator.get_axis_cubic_spacing_ratios(0, floor)[floor_grid_point_index]);
-    EXPECT_EQ(interpolator.get_cubic_slope_coefficients()[0][1],
-              (mu * mu * mu - mu * mu) *
-                  interpolator.get_axis_cubic_spacing_ratios(0, ceiling)[floor_grid_point_index]);
+    EXPECT_NEAR(interpolator.get_cubic_slope_coefficients()[axis_index][rel_ctrl_index],
+               (1 - mu) * mu *
+               ((1 - mu) * interpolator.get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_index)[rel_ctrl_index].first +
+               mu * interpolator.get_axis_cubic_spacing_ratios(axis_index, floor_grid_point_index)[rel_ctrl_index].second),
+               epsilon);
 }
 
 TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
@@ -89,46 +92,95 @@ TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
     interpolator.set_axis_interpolation_method(1, Method::cubic);
     interpolator.set_target(target);
     std::vector<Method> methods = interpolator.get_current_methods();
-
     std::vector<double> mus = interpolator.get_floor_to_ceiling_fractions();
-    double mx = mus[0];
-    double my = mus[1];
-    double c0x = 2 * mx * mx * mx - 3 * mx * mx + 1;
-    double c0y = 2 * my * my * my - 3 * my * my + 1;
-    // double c1x = -2*mx*mx*mx + 3*mx*mx;
-    double c1y = -2 * my * my * my + 3 * my * my;
-    double d0x = mx * mx * mx - 2 * mx * mx + mx;
-    double d0y = my * my * my - 2 * my * my + my;
-    double d1x = mx * mx * mx - mx * mx;
-    double d1y = my * my * my - my * my;
-    double s1x = 5.0 / 10;
-    double s1y = 2.0 / 4;
-    double s0x = 5.0 / 9;
-    double s0y = 2.0 / 4;
 
-    std::vector<short> this_vertex = {0, 0};
-    double weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    double expected_result = c0x * c0y;
-    expected_result += -1 * c0x * d1y * s1y;
-    expected_result += -1 * d1x * s1x * c0y;
-    expected_result += d1x * s1x * d1y * s1y;
+    // get interpolation factors
+    std::vector<std::vector<double>> linear_interpolation_factors;
+    std::vector<std::vector<double>> cubic_interpolation_factors;
+    for (std::size_t i=0; i < 2; ++i)
+    {
+        linear_interpolation_factors.push_back({0.0, 1.0 - mus[i], mus[i], 0.0});
+ 
+        double coef = 1 - 2 * mus[i];
+        cubic_interpolation_factors.push_back({0.0, coef, -coef, 0.0});
+    }
+    
+    // get cubic spacing ratios
+    std::vector<std::vector<std::pair<double, double>>> ratios(2, {{-1.0, 0.0}, {0.0, -1.0}, {1.0, 0.0}, {0.0, 1.0}});
+    double slope_reduction = 0.0;
+    for (std::size_t i = 0; i < 2; ++i)
+    {
+        const std::vector<double>& values = interpolator.get_grid_axis(i).get_values();
+        std::size_t floor_index = interpolator.get_floor_grid_point_coordinates()[i];
+        
+        double w_0 = values[floor_index + 1] - values[floor_index];
+        {
+            double w_m1 = values[floor_index] - values[floor_index - 1];
+            double t_0 = w_0 / w_m1;
+
+            double c_0(0.5);
+            c_0 = t_0 / (1 + t_0); // quadratic
+            
+            //general
+            double s_m1 = (1 - slope_reduction) * (-t_0 * c_0);
+            double s_1 = (1 - slope_reduction) * (1 - c_0);
+ 
+            ratios[i][0].first = s_m1;
+            ratios[i][1].first = -(s_m1 + s_1);
+            ratios[i][2].first = s_1;
+        }
+        {
+            double w_1 = values[floor_index + 2] - values[floor_index + 1];
+            double t_1 = w_1 / w_0;
+
+            double c_1(0.5);
+            c_1 = t_1 / (1 + t_1); // quadratic
+
+            double s_0 = (1 - slope_reduction) * (-c_1);
+            double s_2 = (1 - slope_reduction) * (t_1 * (1 - c_1));
+            
+            ratios[i][1].second = s_0;
+            ratios[i][2].second = -(s_0 + s_2);
+            ratios[i][3].second = s_2;
+        }
+    }
+    
+    // get slope factors
+    std::vector<std::vector<double>> cubic_slope_factors(2, {0.0, 0.0, 0.0, 0.0});
+    for (std::size_t i=0; i < 2; ++i)
+        for (std::size_t j = 0; j < 4; ++j)
+        {
+            cubic_slope_factors[i][j] = (1 - mus[i]) * ratios[i][j].first - mus[i] * ratios[i][j].second;
+        }
+                                                                            
+    std::vector<std::vector<double>> weighting_factors(2, {0.0, 0.0, 0.0, 0.0});
+    for (std::size_t i=0; i < 2; ++i)
+    {
+        for (std::size_t j = 0; j < 4; ++j)
+        {
+            weighting_factors[i][j] = linear_interpolation_factors[i][j] +
+            (1 - mus[i]) * mus[i] * (cubic_interpolation_factors[i][j] + cubic_slope_factors[i][j]);
+        }
+    }
+
+    std::vector<short> hypercube_indices = {0, 0};
+    double weight = interpolator.get_grid_point_weighting_factor(hypercube_indices);
+    double expected_result = weighting_factors[0][hypercube_indices[0] + 1] * weighting_factors[1][hypercube_indices[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
-    this_vertex = {-1, 1};
-    weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    expected_result = -1 * d0x * s0x * c1y;
-    expected_result += -1 * d0x * s0x * d0y * s0y;
+    hypercube_indices = {-1, 1};
+    weight = interpolator.get_grid_point_weighting_factor(hypercube_indices);
+    expected_result = weighting_factors[0][hypercube_indices[0] + 1] * weighting_factors[1][hypercube_indices[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
-    this_vertex = {2, 0};
-    weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    expected_result = d1x * s1x * c0y;
-    expected_result += -1 * d1x * s1x * d1y * s1y;
+    hypercube_indices = {2, 0};
+    weight = interpolator.get_grid_point_weighting_factor(hypercube_indices);
+    expected_result = weighting_factors[0][hypercube_indices[0] + 1] * weighting_factors[1][hypercube_indices[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 
-    this_vertex = {2, 2};
-    weight = interpolator.get_grid_point_weighting_factor(this_vertex);
-    expected_result = d1x * s1x * d1y * s1y;
+    hypercube_indices = {2, 2};
+    weight = interpolator.get_grid_point_weighting_factor(hypercube_indices);
+    expected_result = weighting_factors[0][hypercube_indices[0] + 1] * weighting_factors[1][hypercube_indices[1] + 1];
     EXPECT_DOUBLE_EQ(weight, expected_result);
 }
 
@@ -138,24 +190,61 @@ TEST_F(CubicImplementationFixture, hypercube_calculations)
     interpolator.set_target(target);
 
     auto result = interpolator.get_results();
-    EXPECT_NEAR(result[0], 4.1953, 0.0001);
-    EXPECT_NEAR(result[1], 11.9271, 0.0001);
+    EXPECT_NEAR(result[0], 4.1859, 0.0001);
+    EXPECT_NEAR(result[1], 11.9070, 0.0001);
 }
 
 TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
 {
-    // for cubic dimension 0: {6, 10, 15, 20}, multipliers should be:
-    // floor: {4/4, 5/9, 5/10}
-    // ceiling: {4/9, 5/10, 5/5}
-    std::vector<std::vector<double>> expected_results {{4.0 / 4, 5.0 / 9, 5.0 / 10},
-                                                       {4.0 / 9, 5.0 / 10, 5.0 / 5}};
+    static constexpr std::size_t axis_index = 0;
+    const std::vector<double>& axis_values = interpolator.get_grid_axis(axis_index).get_values();
+
+    double w_m1 = axis_values[1] - axis_values[0];
+    double w_0 = axis_values[2] - axis_values[1];
+    double w_1 = axis_values[3] - axis_values[2];
+
+    double t_0 = w_0 / w_m1;
+    double t_1 = w_1 / w_0;
+
+    double beta_0(0.0), beta_1(0.0);
+    beta_0 = t_0 / (1 + t_0); // quadratic
+    beta_1 = t_1 / (1 + t_1); // quadratic
+
+    //general
+    double s_m1_m = -t_0 * beta_0;
+    double s_1_m = 1 - beta_0;
+
+    double s_0_p = -beta_1;
+    double s_2_p = (1 - beta_1) / t_1;
+
+    static constexpr std::size_t i_ratio = 1;
+
+    std::vector<std::pair<double, double>> expected_results {{s_m1_m, 0}, {-(s_m1_m + s_1_m), s_0_p}, {s_1_m, -(s_0_p + s_2_p)}, {0, s_2_p}};
+
     double result;
-    for (std::size_t floor_or_ceiling = 0; floor_or_ceiling <= 1; floor_or_ceiling++) {
-        for (std::size_t index = 0; index < 3; index++) {
-            result = interpolator.get_axis_cubic_spacing_ratios(0, floor_or_ceiling)[index];
-            EXPECT_DOUBLE_EQ(result, expected_results[floor_or_ceiling][index]);
-        }
+       for (std::size_t index = 0; index < 4; index++) {
+                result = interpolator.get_axis_cubic_spacing_ratios(0, i_ratio)[index].first;
+                EXPECT_DOUBLE_EQ(result, expected_results[index].first);
+
+                result = interpolator.get_axis_cubic_spacing_ratios(0, i_ratio)[index].second;
+                EXPECT_DOUBLE_EQ(result, expected_results[index].second);
     }
+}
+
+TEST_F(CubicImplementationFixture, null_checking_calculations)
+{
+    std::vector<double> table_with_null = {std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1,
+                                         5, 4, 2, 1,
+                                         8, 6, 3, 2,
+                                         10, 8, 4, 2};
+    
+    GridPointDataSet dataset_with_null(table_with_null);
+    interpolator.add_grid_point_data_set(dataset_with_null);
+
+    target = {7, 3};
+    interpolator.set_target(target);
+    auto result = interpolator.get_results();
+    EXPECT_TRUE(std::isnan(result[2]));
 }
 
 TEST_F(EmptyGridImplementationFixture, locate_coordinates)
@@ -270,7 +359,7 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
     GridAxis ax0 = GridAxis({0, 10, 15}, "ax0");
     auto logger = ax0.get_logger();
     GridAxis ax1 =
-        GridAxis({4, 6}, "ax1", Method::linear, Method::constant, {-DBL_MAX, DBL_MAX}, logger);
+        GridAxis({4, 6}, "ax1", Method::linear, Method::constant, {-DBL_MAX, DBL_MAX}, SlopeMethod::quadratic, 1.0, logger);
     std::vector<GridAxis> test_axes = {ax0, ax1};
     interpolator = RegularGridInterpolatorImplementation(test_axes, logger);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);

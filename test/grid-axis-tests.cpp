@@ -41,19 +41,95 @@ TEST(GridAxis, sorting)
 
 TEST(GridAxis, calculate_cubic_spacing_ratios)
 {
-    static constexpr std::size_t floor = 0;
-    static constexpr std::size_t ceiling = 1;
+    static constexpr std::size_t i_interval = 2;
+  
+    std::vector<double> grid_values={6., 10., 15., 20., 22.};
+    std::vector<SlopeMethod> slope_method_vector
+    ({  SlopeMethod::quadratic,
+        SlopeMethod::finite_diff,
+        SlopeMethod::cardinal,
+    });
+    double slope_reduction = 0.0;
+    for (auto slope_method: slope_method_vector)
+    {
+        GridAxis grid_axis(grid_values,
+                           "",
+                           Method::cubic,
+                           Method::constant,
+                           {-DBL_MAX, DBL_MAX},
+                           slope_method,
+                           slope_reduction,
+                           std::make_shared<BtwxtLogger>());
+        
+        std::vector<std::pair<double,double>> result(4, {0., 0.});
+        
+        double w_0 = grid_values[i_interval + 1] - grid_values[i_interval];
+        if ((i_interval > 0) && (i_interval + 1 < grid_values.size())){
+            double w_m1 = grid_values[i_interval] - grid_values[i_interval - 1];
+            double t_0 = w_0 / w_m1;
+            
+            double beta_0(0.0);
+            switch (slope_method){
+                case SlopeMethod::finite_diff:
+                {
+                    beta_0 = 0.5;
+                    break;
+                }
+                case SlopeMethod::cardinal:{
+                    beta_0 = 1 / (1 + t_0);
+                    break;
+                }
+                case SlopeMethod::quadratic:
+                default:{
+                    beta_0 = t_0 / (1 + t_0);
+                    break;
+                }
+            }
 
-    GridAxis grid_axis({6., 10., 15., 20., 22.},
-                       "",
-                       Method::cubic,
-                       Method::constant,
-                       {-DBL_MAX, DBL_MAX},
-                       std::make_shared<BtwxtLogger>());
-    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(floor),
-                testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
-    EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(ceiling),
-                testing::ElementsAre(4.0 / 9, 0.5, 5.0 / 7, 1));
+            //general
+            double s_m1_m = (1 - slope_reduction) * (-t_0 * beta_0);
+            double s_1_m = (1 - slope_reduction) * (1 - beta_0);
+            result[0].first =  s_m1_m;
+            result[1].first = -(s_m1_m + s_1_m);
+            result[2].first = s_1_m;
+        }
+        
+        if (i_interval + 2 < grid_values.size()){
+            double w_1 = grid_values[i_interval + 2] - grid_values[i_interval + 1];
+            double t_1 = w_1 / w_0;
+            
+            double beta_1(0.0);
+            switch (slope_method){
+                case SlopeMethod::finite_diff:{
+                    beta_1 = 0.5;
+                    break;
+                }
+                case SlopeMethod::cardinal:{
+                    beta_1 = 1 / (1 + t_1);
+                    break;
+                }
+                case SlopeMethod::quadratic:
+                default:{
+                    beta_1 = t_1 / (1 + t_1);
+                    break;
+                }
+            }
+
+            double s_0_p = (1 - slope_reduction) * (-beta_1);
+            double s_2_p = (1 - slope_reduction) * (1 - beta_1) / t_1;
+            
+            result[1].second = s_0_p;
+            result[2].second = -(s_0_p + s_2_p);
+            result[3].second = s_2_p;
+        }
+        
+        auto& expected=grid_axis.get_cubic_spacing_ratios(i_interval);
+        
+        for (std::size_t i = 0; i < 4; ++i){
+            EXPECT_NEAR(expected[i].first, result[i].first, 0.0001);
+            EXPECT_NEAR(expected[i].second, result[i].second, 0.0001);
+        }
+    }
 }
 
 TEST(GridAxis, bad_limits)

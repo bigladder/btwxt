@@ -18,6 +18,7 @@
 namespace Btwxt {
 
 enum class Method { undefined, constant, linear, cubic };
+enum class SlopeMethod { undefined, finite_diff, cardinal, quadratic };
 
 class GridAxis {
     // A single input dimension of the grid
@@ -31,6 +32,8 @@ class GridAxis {
         Method interpolation_method = Method::linear,
         Method extrapolation_method = Method::constant,
         std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
+        SlopeMethod slope_method_in = SlopeMethod::quadratic,
+        double slope_reduction_in = 0.0,
         const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
 
     // Setters
@@ -41,6 +44,8 @@ class GridAxis {
         extrapolation_limits = limits;
         check_extrapolation_limits();
     }
+    void set_slope_method(SlopeMethod slope_method_in);
+    void set_slope_reduction(double slope_reduction_in);
 
     void set_logger(std::shared_ptr<Courierr::Courierr> logger_in)
     {
@@ -58,20 +63,22 @@ class GridAxis {
         return extrapolation_limits;
     }
 
-    [[nodiscard]] const std::vector<double>&
-    get_cubic_spacing_ratios(std::size_t floor_or_ceiling) const;
+    [[nodiscard]] const std::vector<std::pair<double,double>>&
+        get_cubic_spacing_ratios(std::size_t elem_index) const;
+
     std::string name;
 
   private:
     std::vector<double> values;
     Method extrapolation_method {Method::constant};
     Method interpolation_method {Method::linear};
+    SlopeMethod slope_method {SlopeMethod::quadratic};
+    double slope_reduction = 0.0;
     std::pair<double, double> extrapolation_limits {-DBL_MAX, DBL_MAX};
-    std::vector<std::vector<double>>
-        cubic_spacing_ratios; // Used for cubic interpolation. Outer vector is size 2: 0: spacing
-                              // for the floor, 1: spacing for the ceiling. Inner vector is length
-                              // of axis values, but the floor vector doesn't use the first entry
-                              // and the ceiling doesn't use the last entry.
+    std::vector<std::vector<std::pair<double,double>>>
+        cubic_spacing_ratios; // Used for cubic interpolation. Outer vector is length
+                              // of axis values; inner vector is size 4 (points in relative positions
+                              // -1, 0, 1, 2). Pair elements are applied to (-) and (+) coefficients.
     std::shared_ptr<Courierr::Courierr> logger;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();
