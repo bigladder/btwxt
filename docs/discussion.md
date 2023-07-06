@@ -100,7 +100,7 @@ Evaluate at 0 and 1:
      $f'(0)=c/\delta_x$   
      $f'(1)=(3a+2b+c)/\delta_x$   
 
-Solve for coefficients:   
+Solve for coefficients [^1]:   
      $a=2f(0)-2f(1)+\delta_x\cdot f'(0)+\delta_x\cdot f'(1)$   
      $b=-3f(0)+3f(1)-2\delta_x\cdot f'(0)-\delta_x\cdot f'(1)$   
      $c=\delta_x\cdot f'(0)$   
@@ -118,7 +118,7 @@ f(\mu)=&(2\mu^3-3\mu^2+1)\cdot f(0)\\
 ## 1-D Cubic
 We know $f(0)$ and $f(1)$. Those are our known grid values. But what about the derivatives?
 
-In Catmull-Rom splines, we use the slope of the line between the previous and next points on the axis as the derivative:   
+In Catmull-Rom splines, we use the slope of the line between the previous and next points on the axis as the derivative [^2]:   
      $f'(0)=(f(1)-f(-1))/(x_1-x_{-1})$   
      $f'(1)=(f(2)-f(0))/(x_2-x_0)$  
 
@@ -192,3 +192,6 @@ for point in hypercube:
                case 2: weight * = d[$`dim`$][1] $`*`$ s[$`dim`$][1];        
      f[x] += f[point] $`*`$ weight;  
 return f[x];
+
+[^1]: http://www.mvps.org/directx/articles/catmull/
+[^2]: https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
