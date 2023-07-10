@@ -6,7 +6,7 @@
 ## 1-D Linear
 We do not know the true function $f$. We only know values of $f$ at a set of grid points $x_i$.
 
-To find $f(x)$ for $x$ in $(x_0,x_0)$,
+To find $f(x)$ for $x$ in $(x_0, x_1)$,
 
 let $\mu=(x-x_0)/(x_1-x_0)$.
 
@@ -44,39 +44,42 @@ We left off with:
 
 $f(x)=(1-\mu_1)\cdot [(1-\mu_0)\cdot f(x_{00}) + \mu_0 \cdot f(x_{10})]+\mu_1\cdot [(1-\mu_{0})\cdot f(x_{01}) + \mu_0 \cdot f(x_{11})]$
 
-f[x]=0;  
-for each vertex x<sub>ij</sub> in the rectangle,  
-    f[x] += f[x<sub>ij</sub>] $`*`$ (j==0? 1-$`\mu`$<sub>0</sub>: $\mu$<sub>0</sub>) $`*`$ (i==0? 1-$`\mu`$<sub>1</sub>: $\mu$<sub>1</sub>);  
-return f[x];
-
+```c++
+f(x)=0;  
+for each vertex x[i][j] in the rectangle,  
+    f(x)+= f[i][j] * (j==0? 1-mu[0]: mu[0]) * (i==0? 1-mu[1]: mu[1]);  
+return f(x);
+```
 
 ## Hypercube
-The N-dimensional bounding box for the point we are interpolating.
+The N-dimensional bounding box for the point we are interpolating is referred to as a *hypercube*.
 
-If 1-D, a line
+If 1-D, it is a line
 
-If 2-D, a rectangle
+If 2-D, is is a rectangle
 
-If 3-D, a rectangular prism.
+If 3-D, it is a rectangular prism.
 
 The number of vertices of the hypercube = 2<sup>N</sup>.
 
 ## N-D Linear pseudocode
-f[x]=0;  
-for each vertex x<sub>ij...k</sub> in the hypercube:  
+```c++
+f(x)=0;  
+for each vertex x[i][j] in the hypercube:  
     vertex_weight = 1.0;   
-    for each dimension $dim$:  
-         vertex_weight $`*=`$ (coord $\_{dim}\$ == 0? $1-\mu_{dim}$: $\mu_{dim}$);   
-    f[x] += f[x<sub>ij...k</sub>] $`*`$ vertex_weight;  
+    for each dimension dim:  
+         vertex_weight *= (coord[dim] == 0? 1 - mu[dim]: mu[dim]);   
+    f(x) += f[i][j] * vertex_weight;  
 return f(x);
+```
+
 ## 1-D Cubic
 Assume $f$ is a degree-3 polynomial:   
      $\ f(x)=a\cdot x^3+b\cdot x^2+c\cdot x+d \$
 
-
 We need additional information, so let's use the slopes at $f(x_0)$ and $f(x_1)$: $f'(x_0)$ and $f'(x_1)$.
 
-Warning of notation change. I am shortening $f(x_i)$ to $f(i)$ at this point.
+Warning of notation change. We are shortening $f(x_i)$ to $f(i)$ at this point.
 
 
 <p align="center">
@@ -116,9 +119,9 @@ f(\mu)=&(2\mu^3-3\mu^2+1)\cdot f(0)\\
 \end{align*}
 ```
 ## 1-D Cubic
-We know $f(0)$ and $f(1)$. Those are our known grid values. But what about the derivatives?
+We know $f(0)$ and $f(1)$. Those are our known grid values. But what about the derivatives? Several methods for evaluating the derivatives have been proposed.[^2]
 
-In Catmull-Rom splines, we use the slope of the line between the previous and next points on the axis as the derivative [^2]:   
+In Catmull-Rom splines, we use the slope of the line between the previous and next points on the axis as the derivative:   
      $f'(0)=(f(1)-f(-1))/(x_1-x_{-1})$   
      $f'(1)=(f(2)-f(0))/(x_2-x_0)$  
 
@@ -134,17 +137,18 @@ Group the coefficients:
  $f(\mu)=-d_{0}\cdot s_0\cdot f(-1)+(c_{0} -d_{1}\cdot s_1)\cdot f(0)+(c_{1}+d_{0}\cdot s_0)\cdot f(1)+d_{1}\cdot s_1\cdot f(2)$  
 
 ## 1-D Cubic, Pseudocode
- 
-f[x]=0;   
+```c++ 
+f(x)=0;   
 weight = 1.0;   
 for i = -1 to 2:   
     switch i:   
-        case -1: weight *= -d[0] $`*`$ s[0];     
-        case 0: weight *= c[0] - d[1] $`*`$ s[1];  
-        case 1: weight *= c[1] + d[0] $`*`$ s[0];   
-        case 2: weight *= d[1] $`*`$ s[1];  
-    f[x] += f[i] $\*\$ weight;  
-return f[x];
+        case -1: weight *= -d[0] * s[0];     
+        case 0: weight *= c[0] - d[1] * s[1];  
+        case 1: weight *= c[1] + d[0] * s[0];   
+        case 2: weight *= d[1] * s[1];  
+    f(x) += f[i] * weight;  
+return f(x);
+```
 
 Terms $c_{0}$ and $c_{1}$ are referred to programmatically as *interpolation coefficients*.
 
@@ -166,32 +170,36 @@ There are 4 weight factors along each axis, 4N total. Points are weighted by the
 
 
 ## N-D Cubic/Linear Pseudocode
-f[x]=0;  
+```c++ 
+f(x)=0;  
 for point in hypercube:  
      weight = 1.0;   
-     for $`dim`$ in ndims:  
-         switch point.index($`dim`$):  
-               case -1: weight * = -d[$`dim`$][0] $`*`$ s[$`dim`$][0];     
-               case 0: weight * = c[$`dim`$][0] - d[$`dim`$][1] $`*`$ s[$`dim`$][1];  
-               case 1: weight * = c[$`dim`$][1] + d[$`dim`$][0] $`*`$ s[$`dim`$][0];   
-               case 2: weight * = d[$`dim`$][1] $`*`$s[$`dim`$][1];        
-     f[x] += f[point] $\*\$ weight;  
-return f[x];
+     for dim in ndims:  
+         switch point.index(dim):  
+               case -1: weight * = -d[dim][0] * s[dim][0];     
+               case 0: weight * = c[dim][0] - d[dim][1] * s[dim][1];  
+               case 1: weight * = c[dim][1] + d[dim][0] * s[dim][0];   
+               case 2: weight * = d[dim][1] * s[dim][1];        
+     f(x) += f(point) * weight;  
+return f(x);
+```
 
 ## N-D Cubic/Linear Pseudocode
-f[x]=0;  
+```c++ 
+f(x)=0;  
 for point in hypercube:  
      weight = 1.0;   
-     for $`dim`$ in ndims:  
-          if method[$`dim`$] == linear:  
-               weight *= (point.index($`dim`$) == 0? 1-$`\mu_{dim}`$ : $`\mu_{dim}`$)  
-          else:  switch point.index($dim$):  
-               case -1: weight * = -d[$`dim`$][0] $`*`$ s[$`dim`$][0];     
-               case 0: weight * = c[$`dim`$][0] - d[$`dim`$][1] $`*`$ s[$`dim`$][1];  
-               case 1: weight * = c[$`dim`$][1] + d[$`dim`$][0] $`*`$ s[$`dim`$][0];   
-               case 2: weight * = d[$`dim`$][1] $`*`$ s[$`dim`$][1];        
-     f[x] += f[point] $`*`$ weight;  
-return f[x];
+     for dim in ndims:  
+          if method[dim] == linear:  
+               weight *= (point.index(dim) == 0? 1 - mu[dim] : mu[dim])  
+          else:  switch point.index(dim):  
+               case -1: weight * = -d[dim][0] * s[dim][0];     
+               case 0: weight * = c[dim][0] - d[dim][1] * s[dim][1];  
+               case 1: weight * = c[dim][1] + d[dim][0] * s[dim][0];   
+               case 2: weight * = d[dim][1] * s[dim][1];        
+     f(x) += f(point) * weight;  
+return f(x);
+```
 
 [^1]: http://www.mvps.org/directx/articles/catmull/
 [^2]: https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
