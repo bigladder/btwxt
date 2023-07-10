@@ -45,9 +45,9 @@ We left off with:
 $f(x)=(1-\mu_1)\cdot [(1-\mu_0)\cdot f(x_{00}) + \mu_0 \cdot f(x_{10})]+\mu_1\cdot [(1-\mu_{0})\cdot f(x_{01}) + \mu_0 \cdot f(x_{11})]$
 
 ```c++
-f(x)=0;  
+f(x) = 0;  
 for each vertex x[i][j] in the rectangle,  
-    f(x)+= f[i][j] * (j==0? 1-mu[0]: mu[0]) * (i==0? 1-mu[1]: mu[1]);  
+    f(x) += f[i][j] * (j==0? 1-mu[0]: mu[0]) * (i==0? 1-mu[1]: mu[1]);  
 return f(x);
 ```
 
@@ -64,7 +64,7 @@ The number of vertices of the hypercube = 2<sup>N</sup>.
 
 ## N-D Linear pseudocode
 ```c++
-f(x)=0;  
+f(x) = 0;  
 for each vertex x[i][j] in the hypercube:  
     vertex_weight = 1.0;   
     for each dimension dim:  
@@ -138,7 +138,7 @@ Group the coefficients:
 
 ## 1-D Cubic, Pseudocode
 ```c++ 
-f(x)=0;   
+f(x) = 0;   
 weight = 1.0;   
 for i = -1 to 2:   
     switch i:   
@@ -171,7 +171,7 @@ There are 4 weight factors along each axis, 4N total. Points are weighted by the
 
 ## N-D Cubic/Linear Pseudocode
 ```c++ 
-f(x)=0;  
+f(x) = 0;  
 for point in hypercube:  
      weight = 1.0;   
      for dim in ndims:  
@@ -186,7 +186,7 @@ return f(x);
 
 ## N-D Cubic/Linear Pseudocode
 ```c++ 
-f(x)=0;  
+f(x) = 0;  
 for point in hypercube:  
      weight = 1.0;   
      for dim in ndims:  
