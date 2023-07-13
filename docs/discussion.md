@@ -20,17 +20,21 @@ Let $\mu=(x-x_0)/(x_1-x_0)$.
 
 To find $f(x)$ for $\mu$ in $(0, 1)$, a linear interpolation computes:
 
-$$\begin{align*}
+```math
+\begin{align*}
 f(x)=(1-\mu)\cdot f(x_0) + \mu \cdot f(x_1)
-\end{align*}$$
+\end{align*}
+```
 
 This shows that the linear interpolation for a given $\mu$ can be calculated from only the function values for the two neighboring grid points, multiplied by appropriate coefficients. For clarity, we will organize these expressions as shown below, to develop the general algorithm:
 
-$$\begin{align*}
+```math
+\begin{align*}
 f(x)\quad=
 \quad&(1-\mu)&\cdot \quad f(x_0)\\
 + \quad&\mu&\cdot \quad f(x_1)
-\end{align*}$$
+\end{align*}
+```
 
 Notice that sum of these coefficients is unity, ensuring that the interpolation returns a weighted average of the neighboring function values. We therefore refer to these coefficients as *weights*, or *weight factors*. The linearly interpolated function $f(x)$ consists of a train of straight-line segments connecting each pair of neighboring points. 
 <p align="center">
@@ -45,13 +49,15 @@ f(x)=(1-\mu_1)\cdot [(1-\mu_0)\cdot f(x_{00}) + \mu_0 \cdot f(x_{10})]+\mu_1\cdo
 
 For the purpose of computation, the equation above is expanded, so that each neighboring function value appears exactly once:
 
-$$\begin{align*}
+```math
+\begin{align*}
 f(x)\quad=
 \quad&(1-\mu_0)\cdot (1-\mu_1)&\cdot \quad f(x_{00})\\ 
 + \quad&\mu_0\cdot (1-\mu_1)&\cdot \quad f(x_{10})\\
 + \quad&(1-\mu_0)\cdot \mu_1&\cdot  \quad f(x_{01})\\
 + \quad&\mu_0 \cdot \mu_1&\cdot  \quad f(x_{11})
-\end{align*}$$
+\end{align*}
+```
 
 <p align="center">
     <img width="50%" src="./figs/fig_2D_linear.png"> 
@@ -66,9 +72,8 @@ For an N-D system, when linear interpolation is applied along all axes, the hype
 All known function values will be precisely reproduced by a linear interpolation, and the interpolated function will be continuous. However, the slope of this interpolation will not be continuous, and a smoother form of spline may be desireable. This condition can be met by a cubic interpolation.
 
 ## Cubic Interpolation
-Assume $f$ is a degree-3 polynomial:
-
-&ensp;&ensp;$f(x)=a\cdot x^3+b\cdot x^2+c\cdot x+d$
+Assume $f$ is a degree-3 polynomial:   
+     $f(x)=a\cdot x^3+b\cdot x^2+c\cdot x+d$
 
 The expression above has four unknown coefficients, so we need more information than just the two neighboring function values, $f(x_0)$ and $f(x_1)$. It is sufficient for this purpose to use the slopes at $x_0$ and $x_1$, labeled $f'(x_0)$ and $f'(x_1)$.
 
@@ -82,7 +87,7 @@ The cubic polynomial can be written:
      $f(\mu)=a\cdot \mu ^3+b\cdot \mu ^2+c\cdot \mu+d$
 
 To express the derivate in terms of $\mu$ , we use   
-&ensp;&ensp;$f'=\dfrac{df}{dx}=\dfrac{d\mu}{dx} \cdot \dfrac{df}{d\mu}=\dfrac{1}{x_1-x_0}\cdot\dfrac{df}{d\mu}$  
+     $f'=\dfrac{df}{dx}=\dfrac{d\mu}{dx} \cdot \dfrac{df}{d\mu}=\dfrac{1}{x_1-x_0}\cdot\dfrac{df}{d\mu}$  
 
 Now take the derivative of the cubic function:   
      $f'(\mu)=(3a\cdot \mu^2+2b\cdot \mu+c)/(x_1-x_0)$
@@ -100,18 +105,17 @@ We can invert ths system of equations to find the coefficients [^1]:
      $d=f(0)$
 
 Substitute into $f(\mu)$:
-$$
+```math
 \begin{align*}
 f(\mu)=&(2\mu^3-3\mu^2+1)\cdot f(0)+(-2\mu^3+3\mu^2)\cdot f(1)\\
 +&(\mu^3-2\mu^2+\mu)\cdot (x_1-x_0)\cdot  f'(0)
 +(\mu^3-\mu^2)\cdot (x_1-x_0)\cdot f'(1)\\
 \end{align*}
-$$
+```
 
-Whereas we know the function values, $f(0)$ and $f(1)$, we can only estimate the slopes, $f'(0)$ and $f'(1)$, from the data, itself. Several methods for estimating these slopes have been proposed.[^2]. A common assumption is that the slope at any grid point is equal to that of the line containing the previous and next points on the axis:
-
-&ensp;&ensp;$f'(0)=(f(1)-f(-1))/(x_1-x_{-1})$   
-&ensp;&ensp;$f'(1)=(f(2)-f(0))/(x_2-x_0)$  
+Whereas we know the function values, $f(0)$ and $f(1)$, we can only estimate the slopes, $f'(0)$ and $f'(1)$, from the data, itself. Several methods for estimating these slopes have been proposed.[^2]. A common assumption is that the slope at any grid point is equal to that of the line containing the previous and next points on the axis:   
+     $f'(0)=(f(1)-f(-1))/(x_1-x_{-1})$   
+     $f'(1)=(f(2)-f(0))/(x_2-x_0)$  
 
 <p align="center">
     <img width="70%" src="./figs/fig_slope_est.png"> 
@@ -119,24 +123,23 @@ Whereas we know the function values, $f(0)$ and $f(1)$, we can only estimate the
 
 This approximation works well when the supplied data clearly represent a smooth function, but is less suitable when the supplied data set is sparse, or subject to noise.
 
-
 We define:   
-&ensp;&ensp;$c_{0}=2\mu^3-3\mu^2+1, \quad  c_{1}=-2\mu^3+3\mu^2$   
-&ensp;&ensp;$d_{0}=\mu^3-2\mu^2+\mu, \quad d_{1}=\mu^3-\mu^2$  
-&ensp;&ensp;$s_0=(x_1-x_0)/(x_1-x_{-1}), \quad s_1=(x_1-x_0)/(x_2-x_0)$
+     $c_{0}=2\mu^3-3\mu^2+1, \quad  c_{1}=-2\mu^3+3\mu^2$   
+     $d_{0}=\mu^3-2\mu^2+\mu, \quad d_{1}=\mu^3-\mu^2$   
+     $s_0=(x_1-x_0)/(x_1-x_{-1}), \quad s_1=(x_1-x_0)/(x_2-x_0)$
 
 then rewrite the polynomial:   
-&ensp;&ensp;$f(\mu)=c_{0}\cdot f(0)+c_{1}\cdot f(1)+d_{0}\cdot s_0\cdot (f(1)-f(-1))+d_{1}\cdot s_1\cdot (f(2)-f(0))$  
+     $f(\mu)=c_{0}\cdot f(0)+c_{1}\cdot f(1)+d_{0}\cdot s_0\cdot (f(1)-f(-1))+d_{1}\cdot s_1\cdot (f(2)-f(0))$  
 
 Finally, identify the coefficients:
-$$  
+```math 
 \begin{align*}
 f(\mu)\quad=&-d_{0}\cdot s_0&\cdot\quad &f(-1)\\
 &+(c_{0} -d_{1}\cdot s_1)&\cdot \quad &f(0)\\
 &+(c_{1}+d_{0}\cdot s_0)&\cdot\quad &f(1)\\
 &+d_{1}\cdot s_1&\cdot\quad &f(2)
 \end{align*}
-$$
+```
 
 Terms $c_{0}$ and $c_{1}$ are referred to as *interpolation coefficients*.
 
