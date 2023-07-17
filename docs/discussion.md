@@ -18,23 +18,24 @@ Linear interpolation along an axis is often sufficient if either of the followin
 
 We let $\mu=(x-x_0)/(x_1-x_0)$, and identify $f(\mu)$ for $0\leq\mu\leq1$. The linear interpolation has the form:
 
-&ensp;&ensp;$f(\mu)=a\cdot\mu+b$
+&ensp; &ensp; $f(\mu)=a\cdot\mu+b$
 
 We require that $f(\mu)$ contain the function values at $x_0$ and $x_1$. 
 In 1-D, we will represent $f(x_i)$ by $f(i)$, for simplicity. Then
 
-&ensp;&ensp;$a=f(1)-f(0)$    
-&ensp;&ensp;$b=f(0)$
+&ensp; &ensp; $a=f(1)-f(0)$
+
+&ensp; &ensp; $b=f(0)$
 
 For clarity, we can organize these expressions as shown below, to develop the general algorithm:
 
-$$
+```math
 \begin{align*}
 f(\mu)\quad=
 &\quad(1-\mu)&\cdot \quad f(0)\\
 &\quad+ \mu&\cdot \quad f(1)
 \end{align*}
-$$
+```
 
 Notice that sum of these coefficients is unity, ensuring that the interpolation returns a weighted average of the neighboring function values. We therefore refer to these coefficients as *weights*, or *weight factors*. The linearly interpolated function $f(\mu)$ consists of a train of straight-line segments connecting each pair of neighboring points. 
 <p align="center">
@@ -43,17 +44,17 @@ Notice that sum of these coefficients is unity, ensuring that the interpolation 
 
 **btwxt** performs interpolations spanning an arbritrary number of grid-axis dimensions. Analytically, we can extend the 1-D interpolation to a two-dimensional (2-D) data set as follows:
 
-$$
+```math
 \begin{align*}
 f(\mu_0,\mu_1)\quad=
-&\quad(1-\mu_1)&\cdot &\quad&[(1-\mu_0)\cdot f(x_{00}) + \mu_0 \cdot f(x_{10})]\\
-&\quad+\mu_1&\cdot &\quad&[(1-\mu_{0})\cdot f(x_{01}) + \mu_0 \cdot f(x_{11})]
+&\quad(1-\mu_1)&\cdot \quad&[(1-\mu_0)\cdot f(x_{00}) + \mu_0 \cdot f(x_{10})]\\
+&\quad+\mu_1&\cdot \quad&[(1-\mu_{0})\cdot f(x_{01}) + \mu_0 \cdot f(x_{11})]
 \end{align*}
-$$
+```
 
 For the purpose of computation, the equation above is expanded, so that each neighboring function value appears exactly once:
 
-$$
+```math
 \begin{align*}
 f(\mu_0,\mu_1)\quad=
 &\quad(1-\mu_0)\cdot (1-\mu_1)&\cdot \quad f(x_{00})\\ 
@@ -61,7 +62,7 @@ f(\mu_0,\mu_1)\quad=
 &\quad+(1-\mu_0)\cdot \mu_1&\cdot  \quad f(x_{01})\\
 &\quad+\mu_0 \cdot \mu_1&\cdot  \quad f(x_{11})
 \end{align*}
-$$
+```
 
 <p align="center">
     <img width="70%" src="./figs/fig_2D_linear.png"> 
@@ -76,8 +77,9 @@ For an N-D system, when linear interpolation is applied along all axes, the hype
 All known function values will be precisely reproduced by a linear interpolation, and the interpolated function will be continuous. However, the slope of this interpolation will not be continuous, and a smoother form of spline may be desireable. This condition can be met by a cubic interpolation.
 
 ## Cubic Interpolation
-Assume $f(\mu)$ is a degree-3 polynomial:  
-     $f(\mu)=a\cdot \mu ^3+b\cdot \mu ^2+c\cdot \mu+d$
+Assume $f(\mu)$ is a degree-3 polynomial:
+
+&ensp; &ensp; $f(\mu)=a\cdot \mu ^3+b\cdot \mu ^2+c\cdot \mu+d$
 
 The expression above has four unknown coefficients, so we need more information than just the two neighboring function values, $f(0)$ and $f(1)$. It is sufficient for this purpose to use the slopes at $x_0$ and $x_1$, labeled $f'(0)$ and $f'(1)$, respectively.
 
@@ -85,53 +87,66 @@ The expression above has four unknown coefficients, so we need more information 
     <img width="60%" src="./figs/fig_slopes.png"> 
 </p>
 
-To express the derivate in terms of $\mu$ , we use   
-&ensp;&ensp;$f'=\dfrac{df}{dx}=\dfrac{d\mu}{dx} \cdot \dfrac{df}{d\mu}=\dfrac{1}{x_1-x_0}\cdot\dfrac{df}{d\mu}$  
+To express the derivate in terms of $\mu$, we use
+
+&ensp; &ensp; $f'=\dfrac{df}{dx}=\dfrac{d\mu}{dx} \cdot \dfrac{df}{d\mu}=\dfrac{1}{x_1-x_0}\cdot\dfrac{df}{d\mu}$  
 
 Now take the derivative of the cubic function:   
      $f'(\mu)=(3a\cdot \mu^2+2b\cdot \mu+c)/(x_1-x_0)$
 
 Evaluate at 0 and 1:   
-     $f(0)=d$   
-     $f(1)=a+b+c+d$   
-     $f'(0)=c/(x_1-x_0)$   
-     $f'(1)=(3a+2b+c)/(x_1-x_0)$   
+     $f(0)=d$
+     
+     $f(1)=a+b+c+d$
+     
+     $f'(0)=c/(x_1-x_0)$
+     
+     $f'(1)=(3a+2b+c)/(x_1-x_0)$
+     
 
-We can invert ths system of equations to find the coefficients:[^1]  
-     $a=2f(0)-2f(1)+(x_1-x_0)\cdot f'(0)+(x_1-x_0)\cdot f'(1)$   
-     $b=-3f(0)+3f(1)-2(x_1-x_0)\cdot f'(0)-(x_1-x_0)\cdot f'(1)$   
-     $c=(x_1-x_0)\cdot f'(0)$   
+We can invert ths system of equations to find the coefficients:[^1]
+
+     $a=2f(0)-2f(1)+(x_1-x_0)\cdot f'(0)+(x_1-x_0)\cdot f'(1)$
+     
+     $b=-3f(0)+3f(1)-2(x_1-x_0)\cdot f'(0)-(x_1-x_0)\cdot f'(1)$
+     
+     $c=(x_1-x_0)\cdot f'(0)$
+     
      $d=f(0)$
 
 Substitute into $f(\mu)$:
 
-$$
+```math
 \begin{align*}
 f(\mu)=
-&\quad(2\mu^3-3\mu^2+1)&\cdot\quad( &f(0)\\
-&\quad+(-2\mu^3+3\mu^2)&\cdot\quad( &f(1)\\
-&\quad+(\mu^3-2\mu^2+\mu)\cdot (x_1-x_0)&\cdot\quad(  &f'(0)\\
-&\quad+(\mu^3-\mu^2)\cdot (x_1-x_0)&\cdot\quad( &f'(1)\\
+&\quad(2\mu^3-3\mu^2+1)&\cdot\quad &f(0)\\
+&\quad+(-2\mu^3+3\mu^2)&\cdot\quad &f(1)\\
+&\quad+(\mu^3-2\mu^2+\mu)\cdot (x_1-x_0)&\cdot\quad  &f'(0)\\
+&\quad+(\mu^3-\mu^2)\cdot (x_1-x_0)&\cdot\quad &f'(1)\\
 \end{align*}
-$$
+```
 
 Whereas we know the function values, $f(0)$ and $f(1)$, we can only estimate the slopes, $f'(0)$ and $f'(1)$, from the data, itself. Several methods for estimating these slopes have been proposed.[^2] A common assumption is that the slope at any grid point is equal to that of the line containing the previous and next points on the axis:
 
-&ensp;&ensp;$f'(0)=(f(1)-f(-1))/(x_1-x_{-1})$   
-&ensp;&ensp;$f'(1)=(f(2)-f(0))/(x_2-x_0)$  
+&ensp; &ensp; $f'(0)=(f(1)-f(-1))/(x_1-x_{-1})$
+
+&ensp; &ensp; $f'(1)=(f(2)-f(0))/(x_2-x_0)$
 
 <p align="center">
     <img width="70%" src="./figs/fig_slope_est.png"> 
 </p>
 
-We define:   
-&ensp;&ensp;$c_{0}=2\mu^3-3\mu^2+1, \quad  c_{1}=-2\mu^3+3\mu^2$   
-&ensp;&ensp;$d_{0}=\mu^3-2\mu^2+\mu, \quad d_{1}=\mu^3-\mu^2$  
-&ensp;&ensp;$s_0=(x_1-x_0)/(x_1-x_{-1}), \quad s_1=(x_1-x_0)/(x_2-x_0)$
+We define:
+
+&ensp; &ensp; $c_{0}=2\mu^3-3\mu^2+1, \quad  c_{1}=-2\mu^3+3\mu^2$
+
+&ensp; &ensp; $d_{0}=\mu^3-2\mu^2+\mu, \quad d_{1}=\mu^3-\mu^2$
+
+&ensp; &ensp; $s_0=(x_1-x_0)/(x_1-x_{-1}), \quad s_1=(x_1-x_0)/(x_2-x_0)$
 
 then rewrite the polynomial:   
 
-$$
+```math
 \begin{align*}
 f(\mu)=
 &\quad\quad c_{0}&\cdot\quad &f(0)\\
@@ -139,18 +154,18 @@ f(\mu)=
 &\quad+d_{0}\cdot s_0&\cdot\quad &(f(1)-f(-1))\\
 &\quad+d_{1}\cdot s_1&\cdot\quad &(f(2)-f(0))
 \end{align*}
-$$
+```
 
 Finally, identify the coefficients:
 
-$$
+```math
 \begin{align*}
 f(\mu)=&-d_{0}\cdot s_0&\cdot\quad &f(-1)\\
 &+(c_{0} -d_{1}\cdot s_1)&\cdot \quad &f(0)\\
 &+(c_{1}+d_{0}\cdot s_0)&\cdot\quad &f(1)\\
 &+d_{1}\cdot s_1&\cdot\quad &f(2)
 \end{align*}
-$$
+```
 
 Terms $c_{0}$ and $c_{1}$ are referred to as *interpolation coefficients*.
 
@@ -162,10 +177,14 @@ The terms $d_{0}\cdot s_0$ and  $d_{1}\cdot s_1$ are referred to as *cubic_slope
 
 The above formulation allows cubic interpolation using the four function values associated with the grid-point coordinates in the vicinity of the queried coordinate. Notice that our slope estimations must be revised for edge cases, i.e., when either $x_0$ or $x_1$ represent the smallest or largest values, respectively, of the provided grid-axis coordinates. These cases can be handled by assigning the slope $(f(1)-f(0))/(x_1-x_0)$ to either $f'(0)$ or $f'(1)$, if either $x_{-1}$ or $x_2$, respectively, are outside the valid interpolation range.
 
-An equivalent method is used by **btwxt** to enforce this: If $x_0$ is the minimum coordinate, the assigments   
-&ensp;&ensp;$s_0\gets 1$, $f(-1)\gets f(0)$    
-are applied. If $x_1$ is the maximum coordinate, the assignments   
-&ensp;&ensp;$s_1\gets 1$ , $f(2)\gets f(1)$   
+An equivalent method is used by **btwxt** to enforce this: If $x_0$ is the minimum coordinate, the assigments
+
+&ensp; &ensp; $s_0\gets 1$, $f(-1)\gets f(0)$
+
+are applied. If $x_1$ is the maximum coordinate, the assignments
+
+&ensp; &ensp; $s_1\gets 1$ , $f(2)\gets f(1)$
+
 are applied. 
 
 **btwxt** also enables *extrapolation* for estimation of the function outside the valid interpolation range. Two methods for extrapolation are available: *constant* and *linear*. If constant is selected, the function value for extrapolation is assumed to equal that of the nearest endpoint. A linear extrapolation returns the function value of the nearest endpoint at the grid-point coordinate for that endpoint, and has the slope assigned to that endpoint.
@@ -173,7 +192,7 @@ are applied.
 Cubic interpolation along both axes of a 2-D system involves $4^2=16$ points, as shown below.
 
 <p align="center">
-    <img width="70%" src="./figs/fig_2D_cubic_pic1.png"> 
+    <img width="50%" src="./figs/fig_2D_cubic_pic1.png"> 
 </p>
 
 As for the 2-D linear case, the coefficient for each vertex is the product of the coefficients computed for each axis, separately. Therefore, we first find the $2\cdot4=8$ single-axis coefficients, then we evaluate each of the $4^2=16$ pair products, which are the weighting coefficients for the 2-D vertices.
@@ -181,7 +200,7 @@ As for the 2-D linear case, the coefficient for each vertex is the product of th
 For example, let us label the coefficients for axis-0 as u<sub>i</sub>. Those for axis-1 we will label as  v<sub>j</sub>. Then the weighting coefficient for vetex i,j is given by w<sub>i,j</sub>= u<sub>i</sub> $\cdot$ v<sub>j</sub>
 
 <p align="center">
-    <img width="70%" src="./figs/fig_2D_cubic_pic2.png"> 
+    <img width="50%" src="./figs/fig_2D_cubic_pic2.png"> 
 </p>
 
 Again, the extension to the N-D case is straightforward. If cubic interpolation is applied to all axes, a hypercube about each queried coordinate will contain 4<sup>N</sup> vertices.
