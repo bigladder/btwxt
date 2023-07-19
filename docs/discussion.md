@@ -13,7 +13,7 @@ There are several approaches to interpolate a discrete set of known function val
     
 ##  Linear Interpolation
 Linear interpolation along an axis is often sufficient if either of the following conditions apply:
-1) the known funciton values are closely spaced, such that variations between neighboring points are within acceptable tolerances, or
+1) the known function values are closely spaced, such that variations between neighboring points are within acceptable tolerances, or
 2) the function itself is expected to follow a linear (constant slope) trend between any two known, adjacent grid-axis points.  
 
 We let $\mu=(x-x_0)/(x_1-x_0)$, and identify $f(\mu)$ for $0\leq\mu\leq1$. The linear interpolation has the form:
@@ -37,7 +37,7 @@ f(\mu)\quad=
 \end{align*}
 ```
 
-Notice that sum of these coefficients is unity, ensuring that the interpolation returns a weighted average of the neighboring function values. We therefore refer to these coefficients as *weights*, or *weight factors*. The linearly interpolated function $f(\mu)$ consists of a train of straight-line segments connecting each pair of neighboring points. 
+Notice that sum of these coefficients is unity, ensuring that the interpolation returns a weighted average of the neighboring function values. We therefore refer to these coefficients as *weights*, or *weighting_factors*. The linearly interpolated function $f(\mu)$ consists of a train of straight-line segments connecting each pair of neighboring points. 
 <p align="center">
     <img width="60%" src="./figs/fig_1D_linear.png"> 
 </p>
@@ -167,7 +167,7 @@ f(\mu)=&-d_{0}\cdot s_0&\cdot\quad &f(-1)\\
 \end{align*}
 ```
 
-Terms $c_{0}$ and $c_{1}$ are referred to as *interpolation coefficients*.
+Terms $c_{0}$ and $c_{1}$ are referred to as *interpolation_coefficients*.
 
 The terms $d_{0}\cdot s_0$ and  $d_{1}\cdot s_1$ are referred to as *cubic_slope_coefficients*.
 
@@ -195,16 +195,16 @@ Cubic interpolation along both axes of a 2-D system involves $4^2=16$ points, as
     <img width="50%" src="./figs/fig_2D_cubic_pic1.png"> 
 </p>
 
-As for the 2-D linear case, the coefficient for each vertex is the product of the coefficients computed for each axis, separately. Therefore, we first find the $2\cdot4=8$ single-axis coefficients, then we evaluate each of the $4^2=16$ pair products, which are the weighting coefficients for the 2-D vertices.
+As for the 2-D linear case, the coefficient for each vertex is the product of the coefficients computed for each axis, separately. Therefore, we first find the $2\cdot4=8$ single-axis coefficients, then we evaluate each of the $4^2=16$ pair products, which are the combined weighting factors for the 2-D vertices.
 
-For example, let us label the coefficients for axis-0 as u<sub>i</sub>. Those for axis-1 we will label as  v<sub>j</sub>. Then the weighting coefficient for vetex i,j is given by w<sub>i,j</sub>= u<sub>i</sub> $\cdot$ v<sub>j</sub>
+For example, let us label the weighting factors for axis-0 as u<sub>i</sub>. Those for axis-1 we will label as  v<sub>j</sub>. Then the combined weighting factor for vetex i,j is given by w<sub>i,j</sub>= u<sub>i</sub> $\cdot$ v<sub>j</sub>
 
 <p align="center">
     <img width="50%" src="./figs/fig_2D_cubic_pic2.png"> 
 </p>
 
 Again, the extension to the N-D case is straightforward. If cubic interpolation is applied to all axes, a hypercube about each queried coordinate will contain 4<sup>N</sup> vertices.
-There are four coefficients along each axis, and 4N total. Each vertex is weighted by the product among all axes of the weight factors for each axis.
+There are four coefficients along each axis, and 4N total. Each vertex is weighted by the product among all axes of the weighting factors for each axis.
 
 Pseudocode for the described algorithm is listed below.
 
