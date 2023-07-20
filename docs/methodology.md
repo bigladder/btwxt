@@ -7,7 +7,7 @@
     <img width="60%" src="./figs/fig_curve.png"> 
 </p>
 
-There are several approaches to interpolate a discrete set of known function values. For any single axis, **btwxt** supports both *linear* and *cubic* interpolation. The mathematical bases for these methods are described in this document. 
+There are several approaches to interpolate a discrete set of known function values. The piecewise representation of a function by polynomials is called a *spline*. Spline interpolation avoids many of the pitfalls encountered with other, more comprehensive methods. For any single axis, **btwxt** supports both *linear* and *cubic* interpolation. The mathematical bases for these methods are described in this document. 
 
 **btwxt** also enables the interpolation of data sets that span multiple dimensions in parameter space. This requires combining the variation of the function with respect to each axis. This document also contains a description of the algorithm used to perform this N-dimensional interpolation.
     
@@ -48,7 +48,7 @@ The coefficients are easily identified as
 
 &ensp; &ensp; $C_0=1-\mu, \quad  C_1=\mu$
 
-These are labeled `interpolation_coefficients` in the **btwxt** source code . Notice that sum of these coefficients is unity, ensuring that the interpolation returns a weighted average of the neighboring function values. More generally, we refer to the coefficients mutliplying the function values as *weights*, or `weighting_factors`. 
+These are labeled `interpolation_coefficients` in the **btwxt** source code. Notice that sum of these coefficients is unity, ensuring that the interpolation returns a weighted average of the neighboring function values. More generally, we refer to the coefficients mutliplying the function values as *weights*, or `weighting_factors`. 
 
 The linearly interpolated function $f(\mu)$ consists of a train of straight-line segments connecting each pair of neighboring points. 
 <p align="center">
@@ -155,6 +155,7 @@ Whereas we know the function values, $f(0)$ and $f(1)$, we can only estimate the
 </p>
 
 Now we have
+
 $$
 \begin{align*}
 f(\mu)=
@@ -165,7 +166,7 @@ f(\mu)=
 \end{align*}
 $$
 
-In the cubic case, the `interpolation_coefficents` have the following forms:
+In the cubic case, the `interpolation_coefficients` have the following forms:
 
 &ensp; &ensp; $C_0=2\mu^3-3\mu^2+1, \quad  C_1=-2\mu^3+3\mu^2$
 
@@ -178,7 +179,6 @@ The ratios
 &ensp; &ensp; $S_0=(x_1-x_0)/(x_1-x_{-1}), \quad S_1=(x_1-x_0)/(x_2-x_0)$
 
 are assigned to variables in **btwxt** labeled `cubic_spacing_ratios`. 
-
 
 We can rewrite the polynomial:   
 
@@ -207,7 +207,7 @@ $$
     <img width="70%" src="./figs/fig_1D_cubic.png"> 
 </p>
 
-### Edge case
+### Edge cases
 The above formulation allows cubic interpolation using the four function values associated with the grid-point coordinates in the vicinity of the queried coordinate. Notice that our slope estimations must be revised for edge cases, i.e., when either $x_0$ or $x_1$ represent the smallest or largest values, respectively, of the provided grid-axis coordinates. These cases can be handled by assigning the slope $(f(1)-f(0))/(x_1-x_0)$ to either $f'(0)$ or $f'(1)$, if either $x_{-1}$ or $x_2$, respectively, are outside the valid interpolation range.
 
 An equivalent method is used by **btwxt** to enforce this: If $x_0$ is the minimum coordinate, the assigments
