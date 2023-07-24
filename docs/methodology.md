@@ -248,7 +248,7 @@ Pseudocode for the described algorithm is listed below.
 Routine to compute weights of points in a hypercube.
 */ 
 for dim in ndims:
-	mu = (x[dim] - x[dim][0]) / (x[dim][1] - x[dim][0]);
+	mu = (x[dim] - grid_axis[dim].x[0]) / (grid_axis[dim].x[1] - grid_axis[dim].x[0]);
 	if method[dim] == linear:
 	   interp_coef[dim][0] = 1 - mu;
 	   interp_coef[dim][1] = mu;
