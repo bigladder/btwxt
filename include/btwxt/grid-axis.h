@@ -81,9 +81,16 @@ class GridAxis {
 // free functions
 inline bool vector_is_sorted(const std::vector<double>& vector_in)
 {
-    return std::is_sorted(std::begin(vector_in),
-                          std::end(vector_in),
-                          [](const double a, const double b) { return a <= b; });
+    if (std::is_sorted(std::begin(vector_in), std::end(vector_in)))
+    {
+        auto it = std::adjacent_find(vector_in.begin(), vector_in.end());
+        if (it == vector_in.end())
+        {
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 template <typename T>
