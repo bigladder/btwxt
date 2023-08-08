@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
-   sodipodi:docname="curve3.svg"
+   sodipodi:docname="curve.svg"
    inkscape:export-filename="curve1.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
@@ -27,15 +27,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.0263363"
-     inkscape:cx="445.27316"
-     inkscape:cy="432.11957"
-     inkscape:window-width="1195"
-     inkscape:window-height="737"
-     inkscape:window-x="3261"
-     inkscape:window-y="1465"
+     inkscape:zoom="1.4468942"
+     inkscape:cx="426.7762"
+     inkscape:cy="445.78243"
+     inkscape:window-width="1528"
+     inkscape:window-height="940"
+     inkscape:window-x="219"
+     inkscape:window-y="1082"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer6" />
+     inkscape:current-layer="layer4" />
   <defs
      id="defs2">
     <marker
@@ -149,7 +149,7 @@
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="cubic"
-     style="display:none">
+     style="display:inline">
     <path
        style="display:none;fill:#008000;stroke:#0000ff;stroke-width:0.529167;stroke-dasharray:0.529167, 0.529167;stroke-dashoffset:0;stroke-opacity:1"
        d="m 85.712323,104.89921 78.635537,1.56548 v 0"
@@ -161,7 +161,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="display:inline;fill:none;fill-opacity:1;stroke:#dd00f2;stroke-width:1.05833;stroke-dasharray:none;stroke-opacity:1"
-       d="m 46.307692,107.7244 c 0,0 6.160785,-0.7106 11.665393,-3.1455 10.262658,-4.53957 24.585882,-4.679918 31.431847,-5.196994 10.675658,-0.806333 31.643608,6.688144 47.164028,6.723254 8.25606,0.0187 17.02207,-5.67953 22.17767,-9.246382 5.28583,-3.656948 8.06902,-4.595863 8.06902,-4.595863"
+       d="m 46.307692,107.7244 c 0,0 6.160785,-0.7106 11.665393,-3.1455 10.262658,-4.53957 19.814326,-5.012051 31.431847,-5.196994 11.043818,-0.17581 31.718058,8.242054 47.164028,6.723254 12.82763,-1.26134 17.02207,-5.67953 22.17767,-9.246382 5.28583,-3.656948 8.06902,-4.595863 8.06902,-4.595863"
        id="path2346"
        sodipodi:nodetypes="cssssc"
        inkscape:export-filename="cubic.png"
@@ -178,6 +178,22 @@
        d="m 46.705726,107.97603 11.117043,-3.49264 31.520546,-5.005789 47.070535,6.647109 22.30043,-9.139121 9.03918,-2.230738"
        id="path339"
        sodipodi:nodetypes="cccccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g401"
+     inkscape:label="est_slope"
+     style="display:inline">
+    <path
+       style="display:inline;fill:none;stroke:#0000ff;stroke-width:0.529;stroke-dasharray:0.529,0.529;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 125.76522,106.65418 20.76876,-0.76903"
+       id="path397"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="display:inline;fill:#008000;stroke:#0000ff;stroke-width:0.529;stroke-dasharray:0.529,0.529;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 78.222005,99.087236 23.590655,0.37408 v 0.0956"
+       id="path399"
+       sodipodi:nodetypes="ccc" />
   </g>
   <g
      inkscape:groupmode="layer"
