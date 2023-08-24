@@ -96,13 +96,15 @@ RegularGridInterpolator::RegularGridInterpolator(
 {
 }
 
-RegularGridInterpolator::~RegularGridInterpolator() = default; 
+RegularGridInterpolator::~RegularGridInterpolator() = default;
 
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& source)
 {
     *this = source;
-    this->implementation = source.implementation ?
-                           std::make_unique<RegularGridInterpolatorImplementation>(*source.implementation) : nullptr;
+    this->implementation =
+        source.implementation
+            ? std::make_unique<RegularGridInterpolatorImplementation>(*source.implementation)
+            : nullptr;
 }
 
 RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& source,
@@ -112,9 +114,12 @@ RegularGridInterpolator::RegularGridInterpolator(const RegularGridInterpolator& 
     this->implementation->set_logger(logger);
 }
 
-RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInterpolator& source) {
-    implementation = source.implementation ?
-                     std::make_unique<RegularGridInterpolatorImplementation>(*(source.implementation)) : nullptr;
+RegularGridInterpolator& RegularGridInterpolator::operator=(const RegularGridInterpolator& source)
+{
+    implementation =
+        source.implementation
+            ? std::make_unique<RegularGridInterpolatorImplementation>(*(source.implementation))
+            : nullptr;
     return *this;
 }
 
