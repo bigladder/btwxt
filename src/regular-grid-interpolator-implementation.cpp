@@ -3,6 +3,7 @@
 
 // Standard
 #include <sstream>
+#include <unordered_map>
 
 #include <btwxt/btwxt.h>
 
@@ -245,8 +246,12 @@ std::vector<double> RegularGridInterpolatorImplementation::get_grid_point_data_r
 std::vector<Method> RegularGridInterpolatorImplementation::get_interpolation_methods() const
 {
     std::vector<Method> interpolation_methods(number_of_grid_axes);
+    static const std::unordered_map<InterpolationMethod, Method> interpolation_method_map {
+        {InterpolationMethod::linear, Method::linear}, {InterpolationMethod::cubic, Method::cubic}};
+
     for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; axis_index++) {
-        interpolation_methods[axis_index] = grid_axes[axis_index].get_interpolation_method();
+        interpolation_methods[axis_index] =
+            interpolation_method_map.at(grid_axes[axis_index].get_interpolation_method());
     }
     return interpolation_methods;
 }
@@ -254,8 +259,12 @@ std::vector<Method> RegularGridInterpolatorImplementation::get_interpolation_met
 std::vector<Method> RegularGridInterpolatorImplementation::get_extrapolation_methods() const
 {
     std::vector<Method> extrapolation_methods(number_of_grid_axes);
+    static const std::unordered_map<ExtrapolationMethod, Method> extrapolation_method_map {
+        {ExtrapolationMethod::constant, Method::constant},
+        {ExtrapolationMethod::linear, Method::linear}};
     for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; axis_index++) {
-        extrapolation_methods[axis_index] = grid_axes[axis_index].get_extrapolation_method();
+        extrapolation_methods[axis_index] =
+            extrapolation_method_map.at(grid_axes[axis_index].get_extrapolation_method());
     }
     return extrapolation_methods;
 }

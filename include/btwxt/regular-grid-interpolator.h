@@ -74,9 +74,9 @@ class RegularGridInterpolator {
 
     std::size_t add_grid_point_data_set(const GridPointDataSet& grid_point_data_set);
 
-    void set_axis_extrapolation_method(std::size_t axis_index, Method method);
+    void set_axis_extrapolation_method(std::size_t axis_index, ExtrapolationMethod method);
 
-    void set_axis_interpolation_method(std::size_t axis_index, Method method);
+    void set_axis_interpolation_method(std::size_t axis_index, InterpolationMethod method);
 
     void set_axis_extrapolation_limits(std::size_t axis_index,
                                        const std::pair<double, double>& extrapolation_limits);

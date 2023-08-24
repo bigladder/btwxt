@@ -21,8 +21,8 @@ std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>
     for (const auto& axis : grid_axis_vectors) {
         grid_axes.emplace_back(axis,
                                fmt::format("Axis {}", grid_axes.size() + 1),
-                               Method::linear,
-                               Method::constant,
+                               InterpolationMethod::linear,
+                               ExtrapolationMethod::constant,
                                std::pair<double, double> {-DBL_MAX, DBL_MAX},
                                logger_in);
     }
@@ -139,13 +139,13 @@ RegularGridInterpolator::add_grid_point_data_set(const GridPointDataSet& grid_po
 }
 
 void RegularGridInterpolator::set_axis_extrapolation_method(const std::size_t axis_index,
-                                                            const Method method)
+                                                            const ExtrapolationMethod method)
 {
     implementation->set_axis_extrapolation_method(axis_index, method);
 }
 
 void RegularGridInterpolator::set_axis_interpolation_method(const std::size_t axis_index,
-                                                            const Method method)
+                                                            const InterpolationMethod method)
 {
     implementation->set_axis_interpolation_method(axis_index, method);
 }

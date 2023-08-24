@@ -53,7 +53,7 @@ class Grid2DImplementationFixture : public GridImplementationFixture {
                       4}}; // 15
         target = {12, 5};
         setup();
-        interpolator.set_axis_extrapolation_method(0, Method::linear);
+        interpolator.set_axis_extrapolation_method(0, ExtrapolationMethod::linear);
     }
 };
 
@@ -100,7 +100,7 @@ class CubicImplementationFixture : public GridImplementationFixture {
 
         target = {12, 4.5};
         setup();
-        interpolator.set_axis_interpolation_method(0, Method::cubic);
+        interpolator.set_axis_interpolation_method(0, InterpolationMethod::cubic);
     }
 };
 
@@ -128,9 +128,9 @@ class Grid3DImplementationFixture : public GridImplementationFixture {
         data_sets = {{6, 3, 2, 8, 4, 2, 3, 6, 13, 2, 0, 15, 3, 6, 13, 2, 0, 15}};
         target = {26.9, 12, 5};
         setup();
-        interpolator.set_axis_interpolation_method(0, Method::linear);
-        interpolator.set_axis_interpolation_method(1, Method::cubic);
-        interpolator.set_axis_interpolation_method(2, Method::linear);
+        interpolator.set_axis_interpolation_method(0, InterpolationMethod::linear);
+        interpolator.set_axis_interpolation_method(1, InterpolationMethod::cubic);
+        interpolator.set_axis_interpolation_method(2, InterpolationMethod::linear);
     }
 };
 
