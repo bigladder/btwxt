@@ -107,9 +107,9 @@ GridAxis::get_cubic_spacing_ratios(const std::size_t floor_or_ceiling) const
 
 void GridAxis::check_grid_sorted()
 {
-    bool grid_is_sorted = vector_is_sorted(values);
+    bool grid_is_sorted = vector_is_valid(values);
     if (!grid_is_sorted) {
-        throw BtwxtException(fmt::format("Grid axis (name=\"{}\") values are not sorted.", name),
+        throw BtwxtException(fmt::format("Grid axis (name=\"{}\") values are not sorted, or have duplicates.", name),
                              *logger);
     }
 }

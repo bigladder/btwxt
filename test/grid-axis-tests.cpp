@@ -24,10 +24,10 @@ TEST(GridAxis, vector_is_sorted)
                                                               {{9, 7, 5, 3, 1}, false},
                                                               {{1, 3, 3, 7, 9}, false},
                                                               {{9}, true}};
-    bool is_sorted;
+    bool is_valid;
     for (const auto& pair : axes) {
-        is_sorted = Btwxt::vector_is_sorted(pair.first);
-        EXPECT_EQ(is_sorted, pair.second);
+        is_valid = Btwxt::vector_is_valid(pair.first);
+        EXPECT_EQ(is_valid, pair.second);
     }
 }
 
