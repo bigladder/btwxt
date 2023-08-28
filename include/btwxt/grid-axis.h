@@ -17,7 +17,8 @@
 
 namespace Btwxt {
 
-enum class Method { undefined, constant, linear, cubic };
+enum class InterpolationMethod { linear, cubic };
+enum class ExtrapolationMethod { constant, linear };
 
 class GridAxis {
     // A single input dimension of the grid
@@ -28,14 +29,14 @@ class GridAxis {
     explicit GridAxis(
         std::vector<double> values,
         const std::string& name = "",
-        Method interpolation_method = Method::linear,
-        Method extrapolation_method = Method::constant,
+        InterpolationMethod interpolation_method = InterpolationMethod::linear,
+        ExtrapolationMethod extrapolation_method = ExtrapolationMethod::constant,
         std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
         const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
 
     // Setters
-    void set_interpolation_method(Method interpolation_method_in);
-    void set_extrapolation_method(Method extrapolation_method_in);
+    void set_interpolation_method(InterpolationMethod interpolation_method_in);
+    void set_extrapolation_method(ExtrapolationMethod extrapolation_method_in);
     void set_extrapolation_limits(std::pair<double, double> limits)
     {
         extrapolation_limits = limits;
@@ -51,8 +52,14 @@ class GridAxis {
     // Getters
     [[nodiscard]] const std::vector<double>& get_values() const { return values; }
     [[nodiscard]] std::size_t get_length() const { return values.size(); }
-    [[nodiscard]] Method get_extrapolation_method() const { return extrapolation_method; }
-    [[nodiscard]] Method get_interpolation_method() const { return interpolation_method; }
+    [[nodiscard]] InterpolationMethod get_interpolation_method() const
+    {
+        return interpolation_method;
+    }
+    [[nodiscard]] ExtrapolationMethod get_extrapolation_method() const
+    {
+        return extrapolation_method;
+    }
     [[nodiscard]] std::pair<double, double> get_extrapolation_limits() const
     {
         return extrapolation_limits;
@@ -64,8 +71,8 @@ class GridAxis {
 
   private:
     std::vector<double> values;
-    Method extrapolation_method {Method::constant};
-    Method interpolation_method {Method::linear};
+    InterpolationMethod interpolation_method {InterpolationMethod::linear};
+    ExtrapolationMethod extrapolation_method {ExtrapolationMethod::constant};
     std::pair<double, double> extrapolation_limits {-DBL_MAX, DBL_MAX};
     std::vector<std::vector<double>>
         cubic_spacing_ratios; // Used for cubic interpolation. Outer vector is size 2: 0: spacing

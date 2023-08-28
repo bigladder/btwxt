@@ -46,8 +46,8 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
 
     GridAxis grid_axis({6., 10., 15., 20., 22.},
                        "",
-                       Method::cubic,
-                       Method::constant,
+                       InterpolationMethod::cubic,
+                       ExtrapolationMethod::constant,
                        {-DBL_MAX, DBL_MAX},
                        std::make_shared<BtwxtLogger>());
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(floor),

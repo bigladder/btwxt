@@ -58,7 +58,7 @@ class Grid2DFixture : public GridFixture {
                       4}}; // 15
         target = {12, 5};
         setup();
-        interpolator.set_axis_extrapolation_method(0, Method::linear);
+        interpolator.set_axis_extrapolation_method(0, ExtrapolationMethod::linear);
     }
 };
 
