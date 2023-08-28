@@ -38,11 +38,11 @@ TEST_F(CubicImplementationFixture, spacing_multiplier)
 TEST_F(CubicImplementationFixture, switch_interp_method)
 {
     for (auto i = 0u; i < interpolator.get_number_of_grid_axes(); i++) {
-        interpolator.set_axis_interpolation_method(i, Method::cubic);
+        interpolator.set_axis_interpolation_method(i, InterpolationMethod::cubic);
     }
     std::vector<double> result1 = interpolator.get_results(target);
     for (auto i = 0u; i < interpolator.get_number_of_grid_axes(); i++) {
-        interpolator.set_axis_interpolation_method(i, Method::linear);
+        interpolator.set_axis_interpolation_method(i, InterpolationMethod::linear);
     }
     std::vector<double> result2 = interpolator.get_results(target);
     EXPECT_NE(result1, result2);
@@ -86,7 +86,7 @@ TEST_F(CubicImplementationFixture, grid_point_interp_coeffs)
 
 TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
 {
-    interpolator.set_axis_interpolation_method(1, Method::cubic);
+    interpolator.set_axis_interpolation_method(1, InterpolationMethod::cubic);
     interpolator.set_target(target);
     std::vector<Method> methods = interpolator.get_current_methods();
 
@@ -134,7 +134,7 @@ TEST_F(CubicImplementationFixture, hypercube_weigh_one_vertex)
 
 TEST_F(CubicImplementationFixture, hypercube_calculations)
 {
-    interpolator.set_axis_interpolation_method(1, Method::cubic);
+    interpolator.set_axis_interpolation_method(1, InterpolationMethod::cubic);
     interpolator.set_target(target);
 
     auto result = interpolator.get_results();
@@ -156,6 +156,22 @@ TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
             EXPECT_DOUBLE_EQ(result, expected_results[floor_or_ceiling][index]);
         }
     }
+}
+
+TEST_F(CubicImplementationFixture, null_checking_calculations)
+{
+    std::vector<double> table_with_null = {std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1,
+                                         5, 4, 2, 1,
+                                         8, 6, 3, 2,
+                                         10, 8, 4, 2};
+    
+    GridPointDataSet dataset_with_null(table_with_null);
+    interpolator.add_grid_point_data_set(dataset_with_null);
+
+    target = {7, 3};
+    interpolator.set_target(target);
+    auto result = interpolator.get_results();
+    EXPECT_TRUE(std::isnan(result[2]));
 }
 
 TEST_F(EmptyGridImplementationFixture, locate_coordinates)
@@ -269,8 +285,12 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
 {
     GridAxis ax0 = GridAxis({0, 10, 15}, "ax0");
     auto logger = ax0.get_logger();
-    GridAxis ax1 =
-        GridAxis({4, 6}, "ax1", Method::linear, Method::constant, {-DBL_MAX, DBL_MAX}, logger);
+    GridAxis ax1 = GridAxis({4, 6},
+                            "ax1",
+                            InterpolationMethod::linear,
+                            ExtrapolationMethod::constant,
+                            {-DBL_MAX, DBL_MAX},
+                            logger);
     std::vector<GridAxis> test_axes = {ax0, ax1};
     interpolator = RegularGridInterpolatorImplementation(test_axes, logger);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);
@@ -349,7 +369,7 @@ TEST_F(Grid3DImplementationFixture, test_hypercube)
 
 TEST_F(Grid3DImplementationFixture, make_linear_hypercube)
 {
-    interpolator.set_axis_interpolation_method(1, Method::linear);
+    interpolator.set_axis_interpolation_method(1, InterpolationMethod::linear);
     auto& hypercube = interpolator.get_hypercube();
     EXPECT_EQ(hypercube.size(), 8u);
     EXPECT_THAT(hypercube[0], testing::ElementsAre(0, 0, 0));
