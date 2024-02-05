@@ -34,7 +34,7 @@ TEST(GridAxis, vector_is_sorted)
 TEST(GridAxis, sorting)
 {
     std::vector<double> grid_vector = {0, 5, 7, 17, 15};
-    EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector), BtwxtException);
+    EXPECT_THROW(GridAxis my_grid_axis = GridAxis(grid_vector), std::runtime_error);
     grid_vector = {0, 5, 7, 10, 15};
     EXPECT_NO_THROW(GridAxis my_grid_axis = GridAxis(grid_vector););
 }
@@ -49,7 +49,7 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
                        InterpolationMethod::cubic,
                        ExtrapolationMethod::constant,
                        {-DBL_MAX, DBL_MAX},
-                       std::make_shared<BtwxtLogger>());
+                       std::make_shared<BtwxtDefaultCourier>());
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(floor),
                 testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(ceiling),

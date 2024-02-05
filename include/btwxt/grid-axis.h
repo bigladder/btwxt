@@ -32,7 +32,7 @@ class GridAxis {
         InterpolationMethod interpolation_method = InterpolationMethod::linear,
         ExtrapolationMethod extrapolation_method = ExtrapolationMethod::constant,
         std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     // Setters
     void set_interpolation_method(InterpolationMethod interpolation_method_in);
@@ -43,11 +43,8 @@ class GridAxis {
         check_extrapolation_limits();
     }
 
-    void set_logger(std::shared_ptr<Courierr::Courierr> logger_in)
-    {
-        logger = std::move(logger_in);
-    }
-    std::shared_ptr<Courierr::Courierr> get_logger() { return logger; };
+    void set_logger(std::shared_ptr<Courier::Courier> logger_in) { logger = std::move(logger_in); }
+    std::shared_ptr<Courier::Courier> get_logger() { return logger; };
 
     // Getters
     [[nodiscard]] const std::vector<double>& get_values() const { return values; }
@@ -79,7 +76,7 @@ class GridAxis {
                               // for the floor, 1: spacing for the ceiling. Inner vector is length
                               // of axis values, but the floor vector doesn't use the first entry
                               // and the ceiling doesn't use the last entry.
-    std::shared_ptr<Courierr::Courierr> logger;
+    std::shared_ptr<Courier::Courier> logger;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();
     void check_extrapolation_limits();
@@ -88,16 +85,14 @@ class GridAxis {
 // free functions
 
 /// @brief Check to see if a vector is valid to be a GridAxis
-/// @param vector_in 
+/// @param vector_in
 /// @return true if sorted with no duplicates
 inline bool vector_is_valid(const std::vector<double>& vector_in)
 {
-    if (std::is_sorted(std::begin(vector_in), std::end(vector_in)))
-    {
+    if (std::is_sorted(std::begin(vector_in), std::end(vector_in))) {
         // If a vector is sorted, any duplicates will be adjacent to each other
         auto it = std::adjacent_find(vector_in.begin(), vector_in.end());
-        if (it == vector_in.end())
-        {
+        if (it == vector_in.end()) {
             return true;
         }
         return false;

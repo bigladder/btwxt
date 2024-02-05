@@ -56,8 +56,8 @@ TEST_F(CubicImplementationFixture, interpolate)
     std::vector<double> result = interpolator.get_results();
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    BtwxtLogger message_display;
-    message_display.info(
+    BtwxtDefaultCourier message_display;
+    message_display.send_info(
         fmt::format("Time to do cubic interpolation: {} microseconds", duration.count()));
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));
 }
@@ -160,11 +160,9 @@ TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
 
 TEST_F(CubicImplementationFixture, null_checking_calculations)
 {
-    std::vector<double> table_with_null = {std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1,
-                                         5, 4, 2, 1,
-                                         8, 6, 3, 2,
-                                         10, 8, 4, 2};
-    
+    std::vector<double> table_with_null = {
+        std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1, 5, 4, 2, 1, 8, 6, 3, 2, 10, 8, 4, 2};
+
     GridPointDataSet dataset_with_null(table_with_null);
     interpolator.add_grid_point_data_set(dataset_with_null);
 
@@ -212,12 +210,12 @@ TEST_F(EmptyGridImplementationFixture, set_axis_floor)
     EXPECT_EQ(interpolator.get_target_bounds_status()[0], TargetBoundsStatus::extrapolate_high);
     EXPECT_EQ(interpolator.get_floor_grid_point_coordinates()[0], 3u);
 
-    EXPECT_THROW(interpolator.set_target({-0.3}), BtwxtException);
+    EXPECT_THROW(interpolator.set_target({-0.3}), std::runtime_error);
     EXPECT_EQ(interpolator.get_target_bounds_status()[0],
               TargetBoundsStatus::below_lower_extrapolation_limit);
     EXPECT_EQ(interpolator.get_floor_grid_point_coordinates()[0], 0u);
 
-    EXPECT_THROW(interpolator.set_target({11.3}), BtwxtException);
+    EXPECT_THROW(interpolator.set_target({11.3}), std::runtime_error);
     EXPECT_EQ(interpolator.get_target_bounds_status()[0],
               TargetBoundsStatus::above_upper_extrapolation_limit);
     EXPECT_EQ(interpolator.get_floor_grid_point_coordinates()[0], 3u);

@@ -22,7 +22,7 @@ if (${PROJECT_NAME}_BUILD_TESTING AND NOT TARGET gtest)
 
 endif ()
 
-if (NOT TARGET courierr)
-    add_subdirectory(courierr)
-    mark_as_advanced(courierr_BUILD_TESTING courierr_COVERAGE courierr_STATIC_LIB)
+if (NOT TARGET courier)
+    add_subdirectory(courier)
+    mark_as_advanced(courier_BUILD_TESTING courier_COVERAGE courier_STATIC_LIB)
 endif ()

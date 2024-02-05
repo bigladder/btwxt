@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-#include <courierr/courierr.h>
+#include <courier/courier.h>
 
 // btwxt
 #include "grid-axis.h"
@@ -34,38 +34,38 @@ class RegularGridInterpolator {
 
     explicit RegularGridInterpolator(
         const std::vector<std::vector<double>>& grid_axis_vectors,
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     RegularGridInterpolator(
         const std::vector<std::vector<double>>& grid_axis_vectors,
         const std::vector<std::vector<double>>& grid_point_data_vectors,
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     explicit RegularGridInterpolator(
         const std::vector<GridAxis>& grid_axes,
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     RegularGridInterpolator(
         const std::vector<GridAxis>& grid_axes,
         const std::vector<std::vector<double>>& grid_point_data_vectors,
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     RegularGridInterpolator(
         const std::vector<std::vector<double>>& grid_axis_vectors,
         const std::vector<GridPointDataSet>& grid_point_data_sets,
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     RegularGridInterpolator(
         const std::vector<GridAxis>& grid_axes,
         const std::vector<GridPointDataSet>& grid_point_data_sets,
-        const std::shared_ptr<Courierr::Courierr>& logger = std::make_shared<BtwxtLogger>());
+        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
 
     ~RegularGridInterpolator();
 
     RegularGridInterpolator(const RegularGridInterpolator& source);
 
     RegularGridInterpolator(const RegularGridInterpolator& source,
-                            const std::shared_ptr<Courierr::Courierr>& logger);
+                            const std::shared_ptr<Courier::Courier>& logger);
 
     RegularGridInterpolator& operator=(const RegularGridInterpolator& source);
 
@@ -131,10 +131,10 @@ class RegularGridInterpolator {
 
     void clear_target();
 
-    void set_logger(const std::shared_ptr<Courierr::Courierr>& logger,
+    void set_logger(const std::shared_ptr<Courier::Courier>& logger,
                     bool set_grid_axes_loggers = false);
 
-    std::shared_ptr<Courierr::Courierr> get_logger();
+    std::shared_ptr<Courier::Courier> get_logger();
 
   private:
     std::unique_ptr<RegularGridInterpolatorImplementation> implementation;

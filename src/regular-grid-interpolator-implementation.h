@@ -10,7 +10,7 @@
 #include <vector>
 
 // vendor
-#include <courierr/courierr.h>
+#include <courier/courier.h>
 
 // btwxt
 #include <btwxt/btwxt.h>
@@ -24,11 +24,11 @@ class RegularGridInterpolatorImplementation {
     RegularGridInterpolatorImplementation() = default;
 
     RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
-                                          const std::shared_ptr<Courierr::Courierr>& logger);
+                                          const std::shared_ptr<Courier::Courier>& logger);
 
     RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
                                           const std::vector<GridPointDataSet>& grid_point_data_sets,
-                                          const std::shared_ptr<Courierr::Courierr>& logger);
+                                          const std::shared_ptr<Courier::Courier>& logger);
 
     // Data manipulation and settings
     std::size_t add_grid_point_data_set(const GridPointDataSet& grid_point_data_set);
@@ -71,7 +71,7 @@ class RegularGridInterpolatorImplementation {
 
     std::string write_data();
 
-    void set_logger(const std::shared_ptr<Courierr::Courierr>& logger,
+    void set_logger(const std::shared_ptr<Courier::Courier>& logger,
                     bool set_grid_axes_loggers = false);
 
     // Public getters
@@ -81,7 +81,7 @@ class RegularGridInterpolatorImplementation {
         return grid_axes[axis_index].get_extrapolation_limits();
     };
 
-    [[nodiscard]] inline std::shared_ptr<Courierr::Courierr> get_logger() const { return logger; };
+    [[nodiscard]] inline std::shared_ptr<Courier::Courier> get_logger() const { return logger; };
 
     [[nodiscard]] inline std::size_t get_number_of_grid_axes() const
     {
@@ -208,7 +208,7 @@ class RegularGridInterpolatorImplementation {
 
     std::size_t hypercube_size_hash {0u};
 
-    std::shared_ptr<Courierr::Courierr> logger;
+    std::shared_ptr<Courier::Courier> logger;
 
     // Internal methods
     std::size_t get_grid_point_index_relative(const std::vector<std::size_t>& coordinates,
@@ -235,18 +235,17 @@ class RegularGridInterpolatorImplementation {
     void check_axis_index(std::size_t axis_index, const std::string_view& action_description) const
     {
         if (axis_index > number_of_grid_axes - 1) {
-            throw BtwxtException(
+            logger->send_error(
                 fmt::format("Unable to {} for axis (index={}). Number of grid axes = {}.",
                             action_description,
                             axis_index,
-                            number_of_grid_axes),
-                *logger);
+                            number_of_grid_axes));
         }
     }
 };
 
 std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>& grid,
-                                          const std::shared_ptr<Courierr::Courierr>& logger_in);
+                                          const std::shared_ptr<Courier::Courier>& logger_in);
 
 std::vector<GridPointDataSet>
 construct_grid_point_data_sets(const std::vector<std::vector<double>>& grid_point_data_sets);
