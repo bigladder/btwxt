@@ -28,8 +28,11 @@ class GridImplementationFixture : public testing::Test {
     void setup()
     {
         auto courier = std::make_shared<BtwxtDefaultCourier>();
-        interpolator = RegularGridInterpolatorImplementation(
-            construct_grid_axes(grid, courier), construct_grid_point_data_sets(data_sets), courier);
+        interpolator =
+            RegularGridInterpolatorImplementation(construct_grid_axes(grid, courier),
+                                                  construct_grid_point_data_sets(data_sets),
+                                                  "Test Implementation RGI",
+                                                  courier);
     }
 };
 
@@ -115,8 +118,8 @@ class EmptyGridImplementationFixture : public testing::Test {
     void setup()
     {
         auto courier = std::make_shared<BtwxtDefaultCourier>();
-        interpolator =
-            RegularGridInterpolatorImplementation(construct_grid_axes(grid, courier), courier);
+        interpolator = RegularGridInterpolatorImplementation(
+            construct_grid_axes(grid, courier), "Test Implementation RGI", courier);
     }
 };
 

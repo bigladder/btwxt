@@ -47,52 +47,68 @@ RegularGridInterpolator::RegularGridInterpolator() = default;
 
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<std::vector<double>>& grid_axis_vectors,
+    std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
-    : RegularGridInterpolator(
-          construct_grid_axes(grid_axis_vectors, courier), std::vector<GridPointDataSet>(), courier)
+    : RegularGridInterpolator(construct_grid_axes(grid_axis_vectors, courier),
+                              std::vector<GridPointDataSet>(),
+                              std::move(name),
+                              courier)
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<std::vector<double>>& grid_axis_vectors,
     const std::vector<std::vector<double>>& grid_point_data_vectors,
+    std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
     : RegularGridInterpolator(construct_grid_axes(grid_axis_vectors, courier),
                               construct_grid_point_data_sets(grid_point_data_vectors),
+                              std::move(name),
                               courier)
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(const std::vector<GridAxis>& grid,
+                                                 std::string name,
                                                  const std::shared_ptr<Courier::Courier>& courier)
-    : implementation(std::make_unique<RegularGridInterpolatorImplementation>(grid, courier))
+    : implementation(
+          std::make_unique<RegularGridInterpolatorImplementation>(grid, std::move(name), courier))
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<GridAxis>& grid_axes,
     const std::vector<std::vector<double>>& grid_point_data_vectors,
+    std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
     : implementation(std::make_unique<RegularGridInterpolatorImplementation>(
-          grid_axes, construct_grid_point_data_sets(grid_point_data_vectors), courier))
+          grid_axes,
+          construct_grid_point_data_sets(grid_point_data_vectors),
+          std::move(name),
+          courier))
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<std::vector<double>>& grid_axis_vectors,
     const std::vector<GridPointDataSet>& grid_point_data_sets,
+    std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
     : implementation(std::make_unique<RegularGridInterpolatorImplementation>(
-          construct_grid_axes(grid_axis_vectors, courier), grid_point_data_sets, courier))
+          construct_grid_axes(grid_axis_vectors, courier),
+          grid_point_data_sets,
+          std::move(name),
+          courier))
 {
 }
 
 RegularGridInterpolator::RegularGridInterpolator(
     const std::vector<GridAxis>& grid_axes,
     const std::vector<GridPointDataSet>& grid_point_data_sets,
+    std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
     : implementation(std::make_unique<RegularGridInterpolatorImplementation>(
-          grid_axes, grid_point_data_sets, courier))
+          grid_axes, grid_point_data_sets, std::move(name), courier))
 {
 }
 

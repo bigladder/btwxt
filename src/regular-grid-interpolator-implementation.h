@@ -24,10 +24,12 @@ class RegularGridInterpolatorImplementation {
     RegularGridInterpolatorImplementation() = default;
 
     RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
+                                          std::string name,
                                           const std::shared_ptr<Courier::Courier>& courier);
 
     RegularGridInterpolatorImplementation(const std::vector<GridAxis>& grid_axes,
                                           const std::vector<GridPointDataSet>& grid_point_data_sets,
+                                          std::string name,
                                           const std::shared_ptr<Courier::Courier>& courier);
 
     // Data manipulation and settings
@@ -160,6 +162,8 @@ class RegularGridInterpolatorImplementation {
     get_grid_point_index(const std::vector<std::size_t>& coordinates) const;
 
     double get_grid_point_weighting_factor(const std::vector<short>& hypercube_indices);
+
+    std::string name;
 
   private:
     // Structured data

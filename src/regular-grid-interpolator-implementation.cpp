@@ -12,16 +12,20 @@
 namespace Btwxt {
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
-    const std::vector<GridAxis>& grid, const std::shared_ptr<Courier::Courier>& courier)
-    : RegularGridInterpolatorImplementation(grid, {}, courier)
+    const std::vector<GridAxis>& grid,
+    std::string name,
+    const std::shared_ptr<Courier::Courier>& courier)
+    : RegularGridInterpolatorImplementation(grid, {}, std::move(name), courier)
 {
 }
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const std::vector<GridAxis>& grid_axes,
     const std::vector<GridPointDataSet>& grid_point_data_sets,
+    std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
-    : grid_axes(grid_axes)
+    : name(std::move(name))
+    , grid_axes(grid_axes)
     , grid_point_data_sets(grid_point_data_sets)
     , number_of_grid_point_data_sets(grid_point_data_sets.size())
     , number_of_grid_axes(grid_axes.size())

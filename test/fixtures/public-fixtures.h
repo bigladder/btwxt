@@ -50,8 +50,8 @@ class GridFixture : public testing::Test {
 
     virtual void setup()
     {
-        interpolator =
-            RegularGridInterpolator(grid, data_sets, std::make_shared<CourierWithContext>());
+        interpolator = RegularGridInterpolator(
+            grid, data_sets, "Test RGI", std::make_shared<CourierWithContext>());
     }
 };
 

@@ -290,7 +290,7 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
                             {-DBL_MAX, DBL_MAX},
                             courier);
     std::vector<GridAxis> test_axes = {ax0, ax1};
-    interpolator = RegularGridInterpolatorImplementation(test_axes, courier);
+    interpolator = RegularGridInterpolatorImplementation(test_axes, "Test 2D Grid RGI", courier);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);
     EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets(), 0u);
     EXPECT_THAT(interpolator.get_grid_axis_lengths(), testing::ElementsAre(3, 2));
@@ -301,7 +301,7 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8));
 
     interpolator = RegularGridInterpolatorImplementation(
-        test_axes, construct_grid_point_data_sets(data_sets), courier);
+        test_axes, construct_grid_point_data_sets(data_sets), "Test 2D Grid RGI", courier);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);
     EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets(), 2u);
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8, 16));
