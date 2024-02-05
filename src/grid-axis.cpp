@@ -11,7 +11,7 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    InterpolationMethod interpolation_method,
                    ExtrapolationMethod extrapolation_method,
                    std::pair<double, double> extrapolation_limits,
-                   const std::shared_ptr<Courier::Courier>& logger_in)
+                   const std::shared_ptr<Courier::Courier>& courier_in)
     : name(name)
     , values(std::move(values_in))
     , interpolation_method(interpolation_method)
@@ -19,10 +19,10 @@ GridAxis::GridAxis(std::vector<double> values_in,
     , extrapolation_limits(std::move(extrapolation_limits))
     , cubic_spacing_ratios(
           2, std::vector<double>(std::max(static_cast<int>(values.size()) - 1, 0), 1.0))
-    , logger(logger_in)
+    , courier(courier_in)
 {
     if (values.empty()) {
-        logger->send_error(
+        courier->send_error(
             fmt::format("Cannot create grid axis (name=\"{}\") from a zero-length vector.", name));
     }
     check_grid_sorted();
@@ -49,7 +49,7 @@ void GridAxis::set_extrapolation_method(ExtrapolationMethod extrapolation_method
     case ExtrapolationMethod::linear: {
         if (get_length() == 1) {
             extrapolation_method = ExtrapolationMethod::constant;
-            logger->send_info(fmt::format(info_format, "linear", name, "one", "constant"));
+            courier->send_info(fmt::format(info_format, "linear", name, "one", "constant"));
             return;
         }
         break;
@@ -65,7 +65,7 @@ void GridAxis::calculate_cubic_spacing_ratios()
 {
     if (get_length() == 1) {
         interpolation_method = InterpolationMethod::linear;
-        logger->send_info(fmt::format(
+        courier->send_info(fmt::format(
             "A cubic interpolation method is not valid for grid axis (name=\"{}\") with "
             "only one value. Interpolation method reset to linear.",
             name));
@@ -96,7 +96,7 @@ void GridAxis::check_grid_sorted()
 {
     bool grid_is_sorted = vector_is_valid(values);
     if (!grid_is_sorted) {
-        logger->send_error(fmt::format(
+        courier->send_error(fmt::format(
             "Grid axis (name=\"{}\") values are not sorted, or have duplicates.", name));
     }
 }
@@ -107,12 +107,12 @@ void GridAxis::check_extrapolation_limits()
         "Grid axis (name=\"{}\") {} extrapolation limit ({}) is within the set of grid axis "
         "values. Setting to {} axis value ({})."};
     if (extrapolation_limits.first > values[0]) {
-        logger->send_info(fmt::format(
+        courier->send_info(fmt::format(
             info_format, name, "lower", extrapolation_limits.first, "smallest", values[0]));
         extrapolation_limits.first = values[0];
     }
     if (extrapolation_limits.second < values.back()) {
-        logger->send_info(fmt::format(
+        courier->send_info(fmt::format(
             info_format, name, "upper", extrapolation_limits.second, "largest", values.back()));
         extrapolation_limits.second = values.back();
     }

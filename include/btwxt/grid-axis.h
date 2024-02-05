@@ -13,7 +13,7 @@
 #include <vector>
 
 // btwxt
-#include "logging.h"
+#include "messaging.h"
 
 namespace Btwxt {
 
@@ -32,7 +32,7 @@ class GridAxis {
         InterpolationMethod interpolation_method = InterpolationMethod::linear,
         ExtrapolationMethod extrapolation_method = ExtrapolationMethod::constant,
         std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
-        const std::shared_ptr<Courier::Courier>& logger = std::make_shared<BtwxtDefaultCourier>());
+        const std::shared_ptr<Courier::Courier>& courier = std::make_shared<BtwxtDefaultCourier>());
 
     // Setters
     void set_interpolation_method(InterpolationMethod interpolation_method_in);
@@ -43,8 +43,11 @@ class GridAxis {
         check_extrapolation_limits();
     }
 
-    void set_logger(std::shared_ptr<Courier::Courier> logger_in) { logger = std::move(logger_in); }
-    std::shared_ptr<Courier::Courier> get_logger() { return logger; };
+    void set_courier(std::shared_ptr<Courier::Courier> courier_in)
+    {
+        courier = std::move(courier_in);
+    }
+    std::shared_ptr<Courier::Courier> get_courier() { return courier; };
 
     // Getters
     [[nodiscard]] const std::vector<double>& get_values() const { return values; }
@@ -76,7 +79,7 @@ class GridAxis {
                               // for the floor, 1: spacing for the ceiling. Inner vector is length
                               // of axis values, but the floor vector doesn't use the first entry
                               // and the ceiling doesn't use the last entry.
-    std::shared_ptr<Courier::Courier> logger;
+    std::shared_ptr<Courier::Courier> courier;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();
     void check_extrapolation_limits();

@@ -12,15 +12,15 @@
 namespace Btwxt {
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
-    const std::vector<GridAxis>& grid, const std::shared_ptr<Courier::Courier>& logger)
-    : RegularGridInterpolatorImplementation(grid, {}, logger)
+    const std::vector<GridAxis>& grid, const std::shared_ptr<Courier::Courier>& courier)
+    : RegularGridInterpolatorImplementation(grid, {}, courier)
 {
 }
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const std::vector<GridAxis>& grid_axes,
     const std::vector<GridPointDataSet>& grid_point_data_sets,
-    const std::shared_ptr<Courier::Courier>& logger)
+    const std::shared_ptr<Courier::Courier>& courier)
     : grid_axes(grid_axes)
     , grid_point_data_sets(grid_point_data_sets)
     , number_of_grid_point_data_sets(grid_point_data_sets.size())
@@ -38,7 +38,7 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     , results(number_of_grid_point_data_sets, 0.)
     , interpolation_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
     , cubic_slope_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
-    , logger(logger)
+    , courier(courier)
 {
     set_axis_sizes();
 }
@@ -47,11 +47,11 @@ std::size_t RegularGridInterpolatorImplementation::add_grid_point_data_set(
     const GridPointDataSet& grid_point_data_set)
 {
     if (grid_point_data_set.data.size() != number_of_grid_points) {
-        logger->send_error(fmt::format("Input grid point data set (name=\"{}\") size ({}) does "
-                                       "not match number of grid points ({}).",
-                                       grid_point_data_set.name,
-                                       grid_point_data_set.data.size(),
-                                       number_of_grid_points));
+        courier->send_error(fmt::format("Input grid point data set (name=\"{}\") size ({}) does "
+                                        "not match number of grid points ({}).",
+                                        grid_point_data_set.name,
+                                        grid_point_data_set.data.size(),
+                                        number_of_grid_points));
     }
     grid_point_data_sets.emplace_back(grid_point_data_set);
     number_of_grid_point_data_sets++;
@@ -69,7 +69,7 @@ std::size_t RegularGridInterpolatorImplementation::add_grid_point_data_set(
 void RegularGridInterpolatorImplementation::set_target(const std::vector<double>& target_in)
 {
     if (target_in.size() != number_of_grid_axes) {
-        logger->send_error(
+        courier->send_error(
             fmt::format("Target (size={}) and grid (size={}) do not have the same dimensions.",
                         target_in.size(),
                         number_of_grid_axes));
@@ -91,7 +91,7 @@ void RegularGridInterpolatorImplementation::set_target(const std::vector<double>
 const std::vector<double>& RegularGridInterpolatorImplementation::get_target() const
 {
     if (!target_is_set) {
-        logger->send_warning(
+        courier->send_warning(
             fmt::format("The current target was requested, but no target has been set."));
     }
     return target;
@@ -107,11 +107,11 @@ void RegularGridInterpolatorImplementation::clear_target()
 std::vector<double> RegularGridInterpolatorImplementation::get_results() const
 {
     if (number_of_grid_point_data_sets == 0u) {
-        logger->send_warning(
+        courier->send_warning(
             fmt::format("There are no grid point data sets. No results returned."));
     }
     if (!target_is_set) {
-        logger->send_warning(fmt::format("Results were requested, but no target has been set."));
+        courier->send_warning(fmt::format("Results were requested, but no target has been set."));
     }
     return results;
 }
@@ -127,7 +127,7 @@ void RegularGridInterpolatorImplementation::normalize_grid_point_data_sets_at_ta
     const double scalar)
 {
     if (!target_is_set) {
-        logger->send_error(
+        courier->send_error(
             fmt::format("Cannot normalize grid point data sets. No target has been set."));
     }
     for (std::size_t data_set_index = 0; data_set_index < number_of_grid_point_data_sets;
@@ -142,7 +142,7 @@ double RegularGridInterpolatorImplementation::normalize_grid_point_data_set_at_t
     std::size_t data_set_index, double scalar)
 {
     if (!target_is_set) {
-        logger->send_error(fmt::format(
+        courier->send_error(fmt::format(
             "Cannot normalize grid point data set (name=\"{}\"). No target has been set.",
             grid_point_data_sets[data_set_index].name));
     }
@@ -161,7 +161,7 @@ void RegularGridInterpolatorImplementation::normalize_grid_point_data_set(
 {
     auto& data_set = grid_point_data_sets[data_set_index].data;
     if (scalar == 0.0) {
-        logger->send_error(
+        courier->send_error(
             fmt::format("Attempt to normalize grid point data set (name=\"{}\") by zero.",
                         grid_point_data_sets[data_set_index].name));
     }
@@ -205,13 +205,13 @@ std::string RegularGridInterpolatorImplementation::write_data()
     return output.str();
 }
 
-void RegularGridInterpolatorImplementation::set_logger(
-    const std::shared_ptr<Courier::Courier>& logger_in, bool set_grid_axes_loggers)
+void RegularGridInterpolatorImplementation::set_courier(
+    const std::shared_ptr<Courier::Courier>& courier_in, bool set_grid_axes_couriers)
 {
-    logger = logger_in;
-    if (set_grid_axes_loggers) {
+    courier = courier_in;
+    if (set_grid_axes_couriers) {
         for (auto& axis : grid_axes) {
-            axis.set_logger(logger);
+            axis.set_courier(courier);
         }
     }
 }
@@ -293,8 +293,8 @@ void RegularGridInterpolatorImplementation::set_axis_sizes()
     for (std::size_t axis_index = number_of_grid_axes; axis_index-- > 0;) {
         std::size_t length = grid_axes[axis_index].get_length();
         if (length == 0) {
-            logger->send_error(fmt::format("Grid axis (name=\"{}\") has zero length.",
-                                           grid_axes[axis_index].name));
+            courier->send_error(fmt::format("Grid axis (name=\"{}\") has zero length.",
+                                            grid_axes[axis_index].name));
         }
         grid_axis_lengths[axis_index] = length;
         grid_axis_step_size[axis_index] = number_of_grid_points;
@@ -415,17 +415,17 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
                 methods[axis_index] = extrapolation_methods[axis_index];
                 break;
             case TargetBoundsStatus::below_lower_extrapolation_limit:
-                logger->send_error(fmt::format(exception_format,
-                                               target[axis_index],
-                                               "below",
-                                               get_extrapolation_limits(axis_index).first,
-                                               grid_axes[axis_index].name));
+                courier->send_error(fmt::format(exception_format,
+                                                target[axis_index],
+                                                "below",
+                                                get_extrapolation_limits(axis_index).first,
+                                                grid_axes[axis_index].name));
             case TargetBoundsStatus::above_upper_extrapolation_limit:
-                logger->send_error(fmt::format(exception_format,
-                                               target[axis_index],
-                                               "above",
-                                               get_extrapolation_limits(axis_index).second,
-                                               grid_axes[axis_index].name));
+                courier->send_error(fmt::format(exception_format,
+                                                target[axis_index],
+                                                "above",
+                                                get_extrapolation_limits(axis_index).second,
+                                                grid_axes[axis_index].name));
             case TargetBoundsStatus::interpolate:
                 break;
             }
@@ -441,10 +441,10 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
 void RegularGridInterpolatorImplementation::set_hypercube(std::vector<Method> methods_in)
 {
     if (methods_in.size() != number_of_grid_axes) {
-        logger->send_error(fmt::format("Error setting hypercube. Methods vector (size={}) and "
-                                       "grid (size={}) do not have the dimensions.",
-                                       methods_in.size(),
-                                       number_of_grid_axes));
+        courier->send_error(fmt::format("Error setting hypercube. Methods vector (size={}) and "
+                                        "grid (size={}) do not have the dimensions.",
+                                        methods_in.size(),
+                                        number_of_grid_axes));
     }
     std::size_t previous_size = hypercube.size();
     std::vector<std::vector<int>> options(number_of_grid_axes, {0, 1});

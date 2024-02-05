@@ -244,28 +244,29 @@ TEST_F(Grid2DFixture, invalid_inputs)
     EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_long);, std::runtime_error);
 }
 
-TEST_F(Grid2DFixture, logger_modify_context)
+TEST_F(Grid2DFixture, courier_modify_context)
 {
     std::vector<double> returned_target;
     std::string expected_error =
         "  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
-    std::dynamic_pointer_cast<CourierWithContext>(interpolator.get_logger())->context = "Context 1";
+    std::dynamic_pointer_cast<CourierWithContext>(interpolator.get_courier())->context =
+        "Context 1";
     expected_error =
         "  [WARNING] (Context 1) The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(interpolator.get_target();, expected_error)
 }
 
-TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
+TEST_F(Grid2DFixture, unique_courier_per_rgi_instance)
 {
     std::vector<double> returned_target;
     std::string expected_error =
         "  [WARNING] The current target was requested, but no target has been set.\n";
     EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
 
-    auto logger2 = std::make_shared<CourierWithContext>();
-    logger2->context = "RGI2 Context";
-    RegularGridInterpolator rgi2(interpolator, logger2);
+    auto courier2 = std::make_shared<CourierWithContext>();
+    courier2->context = "RGI2 Context";
+    RegularGridInterpolator rgi2(interpolator, courier2);
     std::string expected_error2 {"  [WARNING] (RGI2 Context) The current target was requested, but "
                                  "no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
@@ -273,19 +274,19 @@ TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
     EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
 }
 
-TEST_F(Grid2DFixture, access_logger)
+TEST_F(Grid2DFixture, access_courier)
 {
     RegularGridInterpolator rgi2(interpolator);
-    rgi2.set_logger(std::make_shared<CourierWithContext>());
-    std::dynamic_pointer_cast<CourierWithContext>(rgi2.get_logger())->context = "RGI2 Context";
+    rgi2.set_courier(std::make_shared<CourierWithContext>());
+    std::dynamic_pointer_cast<CourierWithContext>(rgi2.get_courier())->context = "RGI2 Context";
     std::string expected_error2 {"  [WARNING] (RGI2 Context) The current target was requested, but "
                                  "no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error2)
 }
 
-TEST_F(Grid2DFixture, alternative_logger)
+TEST_F(Grid2DFixture, alternative_courier)
 {
-    class NewLogger : public BtwxtDefaultCourier {
+    class NewCourier : public BtwxtDefaultCourier {
         void receive_error(const std::string& message) override
         {
             write_message("UH-OH!", message);
@@ -298,8 +299,8 @@ TEST_F(Grid2DFixture, alternative_logger)
         void receive_debug(const std::string& message) override { write_message("YUCK!", message); }
     };
 
-    auto new_logger = std::make_shared<NewLogger>();
-    RegularGridInterpolator rgi2(interpolator, new_logger);
+    auto new_courier = std::make_shared<NewCourier>();
+    RegularGridInterpolator rgi2(interpolator, new_courier);
     std::string expected_error {
         "  [UMMM...] The current target was requested, but no target has been set.\n"};
     EXPECT_STDOUT(rgi2.get_target();, expected_error)
@@ -440,7 +441,7 @@ TEST_F(Function4DFixture, timer)
     // Get ending time point
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    interpolator.get_logger()->send_info(
+    interpolator.get_courier()->send_info(
         fmt::format("Time taken by interpolation: {} microseconds", duration.count()));
 
     // time running the functions straight
@@ -450,7 +451,7 @@ TEST_F(Function4DFixture, timer)
     // Get ending time point
     stop = std::chrono::high_resolution_clock::now();
     auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    interpolator.get_logger()->send_info(
+    interpolator.get_courier()->send_info(
         fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
 }
 
@@ -476,7 +477,7 @@ TEST_F(Function4DFixture, multi_timer)
         // Get ending time point
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        interpolator.get_logger()->send_info(
+        interpolator.get_courier()->send_info(
             fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
     }
 }
