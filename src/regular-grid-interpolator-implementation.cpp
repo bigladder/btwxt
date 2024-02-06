@@ -4,6 +4,7 @@
 // Standard
 #include <sstream>
 #include <unordered_map>
+#include <cassert>
 
 #include <btwxt/btwxt.h>
 
@@ -404,7 +405,7 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
     methods = get_interpolation_methods();
     if (target_is_set) {
         auto extrapolation_methods = get_extrapolation_methods();
-        constexpr std::string_view exception_format {
+        constexpr std::string_view error_format {
             "GridAxis '{}': The target ({:.3g}) is {} the extrapolation "
             "limit ({:.3g})."};
         for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; axis_index++) {
@@ -414,17 +415,19 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
                 methods[axis_index] = extrapolation_methods[axis_index];
                 break;
             case TargetBoundsStatus::below_lower_extrapolation_limit:
-                send_error(fmt::format(exception_format,
+                send_error(fmt::format(error_format,
                                        grid_axes[axis_index].name,
                                        target[axis_index],
                                        "below",
                                        get_extrapolation_limits(axis_index).first));
+                break;
             case TargetBoundsStatus::above_upper_extrapolation_limit:
-                send_error(fmt::format(exception_format,
+                send_error(fmt::format(error_format,
                                        grid_axes[axis_index].name,
                                        target[axis_index],
                                        "above",
                                        get_extrapolation_limits(axis_index).second));
+                break;
             case TargetBoundsStatus::interpolate:
                 break;
             }
