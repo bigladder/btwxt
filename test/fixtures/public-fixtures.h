@@ -33,7 +33,7 @@ class CourierWithContext : public BtwxtDefaultCourier {
   protected:
     void write_message(const std::string& message_type, const std::string& message) override
     {
-        std::string message_context = context.empty() ? "" : fmt::format(" ({})", context);
+        std::string message_context = context.empty() ? "" : fmt::format(" {}:", context);
         std::cout << fmt::format("  [{}]{} {}", message_type, message_context, message)
                   << std::endl;
     }

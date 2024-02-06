@@ -83,6 +83,19 @@ class GridAxis {
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();
     void check_extrapolation_limits();
+    [[nodiscard]] std::string make_message(const std::string& message) const
+    {
+        return fmt::format("GridAxis '{}': {}", name, message);
+    }
+    void send_error(const std::string& message) const
+    {
+        courier->send_error(make_message(message));
+    }
+    void send_info(const std::string& message) const { courier->send_info(make_message(message)); }
+    void send_warning(const std::string& message) const
+    {
+        courier->send_warning(make_message(message));
+    }
 };
 
 // free functions
