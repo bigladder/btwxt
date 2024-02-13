@@ -406,8 +406,8 @@ void RegularGridInterpolatorImplementation::consolidate_methods()
     if (target_is_set) {
         auto extrapolation_methods = get_extrapolation_methods();
         constexpr std::string_view error_format {
-            "GridAxis '{}': The target ({:.3g}) is {} the extrapolation "
-            "limit ({:.3g})."};
+            "GridAxis '{}': The target ({:.6g}) is {} the extrapolation "
+            "limit ({:.6g})."};
         for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; axis_index++) {
             switch (target_bounds_status[axis_index]) {
             case TargetBoundsStatus::extrapolate_low:
