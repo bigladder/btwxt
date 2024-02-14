@@ -21,10 +21,10 @@ std::vector<GridAxis> construct_grid_axes(const std::vector<std::vector<double>>
     for (const auto& axis : grid_axis_vectors) {
         grid_axes.emplace_back(axis,
                                fmt::format("Axis {}", grid_axes.size() + 1),
+                               courier_in,
                                InterpolationMethod::linear,
                                ExtrapolationMethod::constant,
-                               std::pair<double, double> {-DBL_MAX, DBL_MAX},
-                               courier_in);
+                               std::pair<double, double> {-DBL_MAX, DBL_MAX});
     }
     return grid_axes;
 }

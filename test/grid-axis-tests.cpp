@@ -46,10 +46,10 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
 
     GridAxis grid_axis({6., 10., 15., 20., 22.},
                        "",
+                       std::make_shared<BtwxtDefaultCourier>(),
                        InterpolationMethod::cubic,
                        ExtrapolationMethod::constant,
-                       {-DBL_MAX, DBL_MAX},
-                       std::make_shared<BtwxtDefaultCourier>());
+                       {-DBL_MAX, DBL_MAX});
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(floor),
                 testing::ElementsAre(1, 5.0 / 9, 0.5, 2.0 / 7));
     EXPECT_THAT(grid_axis.get_cubic_spacing_ratios(ceiling),
