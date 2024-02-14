@@ -45,7 +45,14 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     , cubic_slope_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
     , courier(courier)
 {
-    set_axis_sizes();
+    setup();
+}
+
+RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
+    const RegularGridInterpolatorImplementation& source)
+{
+    *this = source;
+    this->set_axes_parent_pointers();
 }
 
 std::size_t RegularGridInterpolatorImplementation::add_grid_point_data_set(
@@ -283,7 +290,7 @@ double RegularGridInterpolatorImplementation::get_grid_point_weighting_factor(
 
 // private methods
 
-void RegularGridInterpolatorImplementation::set_axis_sizes()
+void RegularGridInterpolatorImplementation::setup()
 {
     // set axis sizes and calculate number of grid points
     number_of_grid_points = 1;
@@ -293,13 +300,21 @@ void RegularGridInterpolatorImplementation::set_axis_sizes()
         grid_axis_lengths[axis_index] = length;
         grid_axis_step_size[axis_index] = number_of_grid_points;
         number_of_grid_points *= length;
-
-        // set parent interpolator pointer
-        grid_axes[axis_index].parent_interpolator = this;
     }
+
+    // set parent interpolator pointer
+    set_axes_parent_pointers();
+
     // Check grid point data set sizes
     for (const auto& grid_point_data_set : grid_point_data_sets) {
         check_grid_point_data_set_size(grid_point_data_set);
+    }
+}
+
+void RegularGridInterpolatorImplementation::set_axes_parent_pointers()
+{
+    for (auto& grid_axis : grid_axes) {
+        grid_axis.parent_interpolator = this;
     }
 }
 

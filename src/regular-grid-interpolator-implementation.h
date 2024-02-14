@@ -34,6 +34,8 @@ class RegularGridInterpolatorImplementation {
                                           std::string name,
                                           const std::shared_ptr<Courier::Courier>& courier);
 
+    RegularGridInterpolatorImplementation(const RegularGridInterpolatorImplementation& source);
+
     // Data manipulation and settings
     std::size_t add_grid_point_data_set(const GridPointDataSet& grid_point_data_set);
 
@@ -220,7 +222,9 @@ class RegularGridInterpolatorImplementation {
     std::size_t get_grid_point_index_relative(const std::vector<std::size_t>& coordinates,
                                               const std::vector<short>& translation);
 
-    void set_axis_sizes();
+    void setup();
+
+    void set_axes_parent_pointers();
 
     void check_grid_point_data_set_size(const GridPointDataSet& grid_point_data_set);
 
