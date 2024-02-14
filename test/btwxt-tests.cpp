@@ -133,6 +133,20 @@ TEST_F(GridFixture, single_point_1d_extrapolate)
     EXPECT_NEAR(result, 5., 0.0001);
 }
 
+TEST_F(GridFixture, grid_axis_error)
+{
+    grid = {{1., 2.}};
+    data_sets = {{5., 5.}};
+    target = {2.5};
+    setup();
+    std::string expected_stdout =
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': Upper extrapolation "
+        "limit (1.5) is within the range of grid axis values [1, 2].\n";
+    EXPECT_STDOUT(
+        EXPECT_THROW(interpolator.set_axis_extrapolation_limits(0, {0.5, 1.5}), std::runtime_error);
+        , expected_stdout)
+}
+
 TEST_F(GridFixture, two_point_cubic_1d_interpolate)
 {
     grid = {{0, 10}};

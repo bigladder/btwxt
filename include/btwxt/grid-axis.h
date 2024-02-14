@@ -20,15 +20,20 @@ namespace Btwxt {
 enum class InterpolationMethod { linear, cubic };
 enum class ExtrapolationMethod { constant, linear };
 
+class RegularGridInterpolatorImplementation;
+
 class GridAxis {
     // A single input dimension of the grid
+
+    friend class RegularGridInterpolatorImplementation;
+
   public:
     // Constructors
     GridAxis() = default;
 
     explicit GridAxis(
         std::vector<double> values,
-        const std::string& name = "",
+        std::string name = "",
         InterpolationMethod interpolation_method = InterpolationMethod::linear,
         ExtrapolationMethod extrapolation_method = ExtrapolationMethod::constant,
         std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
@@ -79,14 +84,12 @@ class GridAxis {
                               // for the floor, 1: spacing for the ceiling. Inner vector is length
                               // of axis values, but the floor vector doesn't use the first entry
                               // and the ceiling doesn't use the last entry.
+    RegularGridInterpolatorImplementation* parent_interpolator {nullptr};
     std::shared_ptr<Courier::Courier> courier;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();
     void check_extrapolation_limits();
-    [[nodiscard]] std::string make_message(const std::string& message) const
-    {
-        return fmt::format("GridAxis '{}': {}", name, message);
-    }
+    [[nodiscard]] std::string make_message(const std::string& message) const;
     void send_error(const std::string& message) const
     {
         courier->send_error(make_message(message));

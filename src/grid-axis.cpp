@@ -3,16 +3,17 @@
 
 // btwxt
 #include <btwxt/btwxt.h>
+#include "regular-grid-interpolator-implementation.h"
 
 namespace Btwxt {
 
 GridAxis::GridAxis(std::vector<double> values_in,
-                   const std::string& name,
+                   std::string name,
                    InterpolationMethod interpolation_method,
                    ExtrapolationMethod extrapolation_method,
                    std::pair<double, double> extrapolation_limits,
                    const std::shared_ptr<Courier::Courier>& courier_in)
-    : name(name)
+    : name(std::move(name))
     , values(std::move(values_in))
     , interpolation_method(interpolation_method)
     , extrapolation_method(extrapolation_method)
@@ -110,6 +111,15 @@ void GridAxis::check_extrapolation_limits()
             error_format, "Upper", extrapolation_limits.second, values[0], values.back()));
         extrapolation_limits.second = values.back();
     }
+}
+
+std::string GridAxis::make_message(const std::string& message) const
+{
+    std::string grid_axis_message = fmt::format("GridAxis '{}': {}", name, message);
+    if (parent_interpolator) {
+        return parent_interpolator->make_message(grid_axis_message);
+    }
+    return grid_axis_message;
 }
 
 // return an evenly spaced 1-d vector of doubles.

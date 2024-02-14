@@ -20,6 +20,8 @@ namespace Btwxt {
 enum class Method { undefined, constant, linear, cubic };
 
 class RegularGridInterpolatorImplementation {
+    friend class GridAxis;
+
   public:
     RegularGridInterpolatorImplementation() = default;
 

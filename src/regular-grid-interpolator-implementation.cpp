@@ -285,6 +285,7 @@ double RegularGridInterpolatorImplementation::get_grid_point_weighting_factor(
 
 void RegularGridInterpolatorImplementation::set_axis_sizes()
 {
+    // set axis sizes and calculate number of grid points
     number_of_grid_points = 1;
     for (std::size_t axis_index = number_of_grid_axes; axis_index-- > 0;) {
         std::size_t length =
@@ -292,7 +293,11 @@ void RegularGridInterpolatorImplementation::set_axis_sizes()
         grid_axis_lengths[axis_index] = length;
         grid_axis_step_size[axis_index] = number_of_grid_points;
         number_of_grid_points *= length;
+
+        // set parent interpolator pointer
+        grid_axes[axis_index].parent_interpolator = this;
     }
+    // Check grid point data set sizes
     for (const auto& grid_point_data_set : grid_point_data_sets) {
         check_grid_point_data_set_size(grid_point_data_set);
     }
