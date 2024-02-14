@@ -22,7 +22,7 @@ enum class ExtrapolationMethod { constant, linear };
 
 class RegularGridInterpolatorImplementation;
 
-class GridAxis {
+class GridAxis : public Courier::Dispatcher {
     // A single input dimension of the grid
 
     friend class RegularGridInterpolatorImplementation;
@@ -72,7 +72,6 @@ class GridAxis {
 
     [[nodiscard]] const std::vector<double>&
     get_cubic_spacing_ratios(std::size_t floor_or_ceiling) const;
-    std::string name;
 
   private:
     std::vector<double> values;
@@ -84,21 +83,9 @@ class GridAxis {
                               // for the floor, 1: spacing for the ceiling. Inner vector is length
                               // of axis values, but the floor vector doesn't use the first entry
                               // and the ceiling doesn't use the last entry.
-    RegularGridInterpolatorImplementation* parent_interpolator {nullptr};
-    std::shared_ptr<Courier::Courier> courier;
     void calculate_cubic_spacing_ratios();
     void check_grid_sorted();
     void check_extrapolation_limits();
-    [[nodiscard]] std::string make_message(const std::string& message) const;
-    void send_error(const std::string& message) const
-    {
-        courier->send_error(make_message(message));
-    }
-    void send_info(const std::string& message) const { courier->send_info(make_message(message)); }
-    void send_warning(const std::string& message) const
-    {
-        courier->send_warning(make_message(message));
-    }
 };
 
 // free functions

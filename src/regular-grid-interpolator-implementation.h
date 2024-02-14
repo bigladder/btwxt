@@ -11,6 +11,7 @@
 
 // vendor
 #include <courier/courier.h>
+#include <courier/helpers.h>
 
 // btwxt
 #include <btwxt/btwxt.h>
@@ -19,7 +20,7 @@ namespace Btwxt {
 
 enum class Method { undefined, constant, linear, cubic };
 
-class RegularGridInterpolatorImplementation {
+class RegularGridInterpolatorImplementation : public Courier::Dispatcher {
     friend class GridAxis;
 
   public:
@@ -35,6 +36,9 @@ class RegularGridInterpolatorImplementation {
                                           const std::shared_ptr<Courier::Courier>& courier);
 
     RegularGridInterpolatorImplementation(const RegularGridInterpolatorImplementation& source);
+
+    RegularGridInterpolatorImplementation&
+    operator=(const RegularGridInterpolatorImplementation& source) = default;
 
     // Data manipulation and settings
     std::size_t add_grid_point_data_set(const GridPointDataSet& grid_point_data_set);
@@ -167,8 +171,6 @@ class RegularGridInterpolatorImplementation {
 
     double get_grid_point_weighting_factor(const std::vector<short>& hypercube_indices);
 
-    std::string name;
-
   private:
     // Structured data
     std::vector<GridAxis> grid_axes;
@@ -215,8 +217,6 @@ class RegularGridInterpolatorImplementation {
     std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
 
     std::size_t hypercube_size_hash {0u};
-
-    std::shared_ptr<Courier::Courier> courier;
 
     // Internal methods
     std::size_t get_grid_point_index_relative(const std::vector<std::size_t>& coordinates,

@@ -7,24 +7,13 @@
 #include <fmt/format.h>
 
 #include <courier/courier.h>
+#include <courier/helpers.h>
 
 namespace Btwxt {
 
-class BtwxtDefaultCourier : public Courier::Courier {
+class BtwxtDefaultCourier : public Courier::DefaultCourier {
   protected:
-    void receive_error(const std::string& message) override
-    {
-        write_message("ERROR", message);
-        throw std::runtime_error(message);
-    }
-
-    void receive_warning(const std::string& message) override { write_message("WARNING", message); }
-
-    void receive_info(const std::string& message) override { write_message("NOTE", message); }
-
-    void receive_debug(const std::string& message) override { write_message("DEBUG", message); }
-
-    virtual void write_message(const std::string& message_type, const std::string& message)
+    void write_message(const std::string& message_type, const std::string& message) override
     {
         std::cout << fmt::format("  [{}] {}", message_type, message) << std::endl;
         std::cout

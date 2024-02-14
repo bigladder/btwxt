@@ -13,15 +13,15 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    InterpolationMethod interpolation_method,
                    ExtrapolationMethod extrapolation_method,
                    std::pair<double, double> extrapolation_limits)
-    : name(std::move(name))
+    : Courier::Dispatcher(std::move(name), courier_in)
     , values(std::move(values_in))
     , interpolation_method(interpolation_method)
     , extrapolation_method(extrapolation_method)
     , extrapolation_limits(std::move(extrapolation_limits))
     , cubic_spacing_ratios(
           2, std::vector<double>(std::max(static_cast<int>(values.size()) - 1, 0), 1.0))
-    , courier(courier_in)
 {
+    class_name = "GridAxis";
     if (values.empty()) {
         send_error("Cannot create grid axis from a zero-length vector.");
     }
@@ -111,15 +111,6 @@ void GridAxis::check_extrapolation_limits()
             error_format, "Upper", extrapolation_limits.second, values[0], values.back()));
         extrapolation_limits.second = values.back();
     }
-}
-
-std::string GridAxis::make_message(const std::string& message) const
-{
-    std::string grid_axis_message = fmt::format("GridAxis '{}': {}", name, message);
-    if (parent_interpolator) {
-        return parent_interpolator->make_message(grid_axis_message);
-    }
-    return grid_axis_message;
 }
 
 // return an evenly spaced 1-d vector of doubles.
