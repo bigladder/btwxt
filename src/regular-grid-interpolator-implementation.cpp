@@ -51,13 +51,7 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
 std::size_t RegularGridInterpolatorImplementation::add_grid_point_data_set(
     const GridPointDataSet& grid_point_data_set)
 {
-    if (grid_point_data_set.data.size() != number_of_grid_points) {
-        send_error(fmt::format(
-            "GridPointDataSet '{}': Size ({}) does not match number of grid points ({}).",
-            grid_point_data_set.name,
-            grid_point_data_set.data.size(),
-            number_of_grid_points));
-    }
+    check_grid_point_data_set_size(grid_point_data_set);
     grid_point_data_sets.emplace_back(grid_point_data_set);
     number_of_grid_point_data_sets++;
     temporary_grid_point_data.resize(number_of_grid_point_data_sets);
@@ -298,6 +292,21 @@ void RegularGridInterpolatorImplementation::set_axis_sizes()
         grid_axis_lengths[axis_index] = length;
         grid_axis_step_size[axis_index] = number_of_grid_points;
         number_of_grid_points *= length;
+    }
+    for (const auto& grid_point_data_set : grid_point_data_sets) {
+        check_grid_point_data_set_size(grid_point_data_set);
+    }
+}
+
+void RegularGridInterpolatorImplementation::check_grid_point_data_set_size(
+    const GridPointDataSet& grid_point_data_set)
+{
+    if (grid_point_data_set.data.size() != number_of_grid_points) {
+        send_error(fmt::format(
+            "GridPointDataSet '{}': Size ({}) does not match number of grid points ({}).",
+            grid_point_data_set.name,
+            grid_point_data_set.data.size(),
+            number_of_grid_points));
     }
 }
 

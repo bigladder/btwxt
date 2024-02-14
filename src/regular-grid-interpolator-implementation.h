@@ -220,6 +220,8 @@ class RegularGridInterpolatorImplementation {
 
     void set_axis_sizes();
 
+    void check_grid_point_data_set_size(const GridPointDataSet& grid_point_data_set);
+
     void calculate_floor_to_ceiling_fractions();
 
     void consolidate_methods();

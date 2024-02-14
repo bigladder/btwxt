@@ -491,6 +491,19 @@ TEST_F(Grid2DFixture, write_data)
               interpolator.write_data());
 }
 
+TEST(GridPointDataSet, wrong_size)
+{
+    std::string expected_error {
+        "  [ERROR] RegularGridInterpolator 'Unnamed RegularGridInterpolator': GridPointDataSet '': "
+        "Size (2) does not match number of grid points (1).\n"
+        "  Generated using BtwxtDefaultCourier. Consider deriving your own Courier class!\n"};
+
+    EXPECT_STDOUT(
+        EXPECT_THROW(RegularGridInterpolator({GridAxis({1.})}, {GridPointDataSet({1., 1.})}),
+                     std::runtime_error);
+        , expected_error)
+}
+
 TEST(CartesianProduct, cartesian_product)
 {
     std::vector<std::vector<short>> result =

@@ -99,7 +99,7 @@ void GridAxis::check_grid_sorted()
 void GridAxis::check_extrapolation_limits()
 {
     constexpr std::string_view error_format {"{} extrapolation limit ({:.6g}) is within the range "
-                                             "of grid axis values, [{:.6g}, {:.6g}]."};
+                                             "of grid axis values [{:.6g}, {:.6g}]."};
     if (extrapolation_limits.first > values[0]) {
         send_error(fmt::format(
             error_format, "Lower", extrapolation_limits.first, values[0], values.back()));
