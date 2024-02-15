@@ -22,7 +22,7 @@ enum class ExtrapolationMethod { constant, linear };
 
 class RegularGridInterpolatorImplementation;
 
-class GridAxis : public Courier::Dispatcher {
+class GridAxis : public Courier::Sender {
     // A single input dimension of the grid
 
     friend class RegularGridInterpolatorImplementation;

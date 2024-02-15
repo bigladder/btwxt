@@ -13,7 +13,7 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    InterpolationMethod interpolation_method,
                    ExtrapolationMethod extrapolation_method,
                    std::pair<double, double> extrapolation_limits)
-    : Courier::Dispatcher(std::move(name), courier_in)
+    : Courier::Sender(std::move(name), courier_in)
     , values(std::move(values_in))
     , interpolation_method(interpolation_method)
     , extrapolation_method(extrapolation_method)

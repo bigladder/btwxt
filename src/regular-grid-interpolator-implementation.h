@@ -20,7 +20,7 @@ namespace Btwxt {
 
 enum class Method { undefined, constant, linear, cubic };
 
-class RegularGridInterpolatorImplementation : public Courier::Dispatcher {
+class RegularGridInterpolatorImplementation : public Courier::Sender {
     friend class GridAxis;
 
   public:
