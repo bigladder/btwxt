@@ -33,11 +33,11 @@ class GridAxis : public Courier::Sender {
 
     explicit GridAxis(
         std::vector<double> values,
-        std::string name = "",
-        const std::shared_ptr<Courier::Courier>& courier = std::make_shared<BtwxtDefaultCourier>(),
         InterpolationMethod interpolation_method = InterpolationMethod::linear,
         ExtrapolationMethod extrapolation_method = ExtrapolationMethod::constant,
-        std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX});
+        std::pair<double, double> extrapolation_limits = {-DBL_MAX, DBL_MAX},
+        std::string name = "",
+        const std::shared_ptr<Courier::Courier>& courier = std::make_shared<BtwxtDefaultCourier>());
 
     // Setters
     void set_interpolation_method(InterpolationMethod interpolation_method_in);

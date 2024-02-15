@@ -45,8 +45,6 @@ TEST(GridAxis, calculate_cubic_spacing_ratios)
     static constexpr std::size_t ceiling = 1;
 
     GridAxis grid_axis({6., 10., 15., 20., 22.},
-                       "",
-                       std::make_shared<BtwxtDefaultCourier>(),
                        InterpolationMethod::cubic,
                        ExtrapolationMethod::constant,
                        {-DBL_MAX, DBL_MAX});

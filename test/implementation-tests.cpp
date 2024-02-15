@@ -281,14 +281,18 @@ TEST_F(Grid2DImplementationFixture, interpolation_coefficients)
 
 TEST_F(Grid2DImplementationFixture, construct_from_axes)
 {
-    GridAxis ax0 = GridAxis({0, 10, 15}, "ax0");
-    auto courier = ax0.get_courier();
-    GridAxis ax1 = GridAxis({4, 6},
-                            "ax1",
-                            courier,
+    GridAxis ax0 = GridAxis({0, 10, 15},
                             InterpolationMethod::linear,
                             ExtrapolationMethod::constant,
-                            {-DBL_MAX, DBL_MAX});
+                            {-DBL_MAX, DBL_MAX},
+                            "ax0");
+    auto courier = ax0.get_courier();
+    GridAxis ax1 = GridAxis({4, 6},
+                            InterpolationMethod::linear,
+                            ExtrapolationMethod::constant,
+                            {-DBL_MAX, DBL_MAX},
+                            "ax1",
+                            courier);
     std::vector<GridAxis> test_axes = {ax0, ax1};
     interpolator = RegularGridInterpolatorImplementation(test_axes, "Test 2D Grid RGI", courier);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);
