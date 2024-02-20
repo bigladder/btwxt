@@ -12,7 +12,7 @@
 #include <vector>
 
 // btwxt
-#include "logging.h"
+#include "messaging.h"
 
 namespace Btwxt {
 

@@ -2,7 +2,7 @@ set(public_headers
         btwxt.h
         grid-axis.h
         grid-point-data.h
-        logging.h
+        messaging.h
         regular-grid-interpolator.h
         )
 

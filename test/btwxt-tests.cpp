@@ -119,7 +119,7 @@ TEST_F(GridFixture, empty_grid_throw_test)
     grid = {{}};
     data_sets = {{}};
     target = {};
-    EXPECT_THROW(setup(), BtwxtException);
+    EXPECT_THROW(setup(), std::runtime_error);
 }
 
 TEST_F(GridFixture, single_point_1d_extrapolate)
@@ -131,6 +131,20 @@ TEST_F(GridFixture, single_point_1d_extrapolate)
     interpolator.set_axis_extrapolation_method(0, ExtrapolationMethod::linear);
     double result = interpolator.get_values_at_target(target)[0];
     EXPECT_NEAR(result, 5., 0.0001);
+}
+
+TEST_F(GridFixture, grid_axis_error)
+{
+    grid = {{1., 2.}};
+    data_sets = {{5., 5.}};
+    target = {2.5};
+    setup();
+    std::string expected_stdout =
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': Upper extrapolation "
+        "limit (1.5) is within the range of grid axis values [1, 2].\n";
+    EXPECT_STDOUT(
+        EXPECT_THROW(interpolator.set_axis_extrapolation_limits(0, {0.5, 1.5}), std::runtime_error);
+        , expected_stdout)
 }
 
 TEST_F(GridFixture, two_point_cubic_1d_interpolate)
@@ -147,35 +161,30 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate)
 TEST_F(Grid2DFixture, target_undefined)
 {
     std::vector<double> returned_target;
-    std::string expected_stdout =
-        "  [WARNING] The current target was requested, but no target has been set.\n";
+    std::string expected_stdout = "  [ERROR] RegularGridInterpolator 'Test RGI': The current "
+                                  "target was requested, but no target has been set.\n";
 
     // The test fixture does not instantiate a GridPoint.
-    EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_stdout)
-    std::vector<double> expected_result = {0, 0};
-    EXPECT_EQ(returned_target, expected_result);
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);, expected_stdout)
 
-    double bad_result;
-    std::string ResultsExpectedOut =
-        "  [WARNING] Results were requested, but no target has been set.\n";
-    EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut)
-    EXPECT_EQ(bad_result, 0);
+    std::string ResultsExpectedOut = "  [ERROR] RegularGridInterpolator 'Test RGI': Results were "
+                                     "requested, but no target has been set.\n";
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_value_at_target(0), std::runtime_error);
+                  , ResultsExpectedOut)
 
     // Define the target; make sure it works now.
     interpolator.set_target(target);
     std::string empty_out; // intentionally default ""
     EXPECT_STDOUT(returned_target = interpolator.get_target();, empty_out)
-    expected_result = {12, 5};
+    std::vector<double> expected_result {12, 5};
     EXPECT_EQ(returned_target, expected_result);
 
-    // Clear the target; see that it reverts to warnings.
+    // Clear the target; see that it reverts to errors.
     interpolator.clear_target();
-    EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_stdout)
-    expected_result = {0, 0};
-    EXPECT_EQ(returned_target, expected_result);
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);, expected_stdout)
 
-    EXPECT_STDOUT(bad_result = interpolator.get_value_at_target(0);, ResultsExpectedOut)
-    EXPECT_EQ(bad_result, 0);
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_value_at_target(0), std::runtime_error);
+                  , ResultsExpectedOut)
 }
 
 TEST_F(Grid2DFixture, interpolate)
@@ -213,93 +222,99 @@ TEST_F(Grid2DFixture, extrapolate)
 
 TEST_F(Grid2DFixture, invalid_inputs)
 {
-    std::vector<double> short_target = {1};
     constexpr std::string_view expected_error_format {
-        "  [ERROR] Target (size={}) and grid (size={}) do not have the same dimensions.\n"};
-    // Redirect cout to temporary local buffer (do not use EXPECT_STDOUT for throwing functions)
-    std::ostringstream buffer;
-    std::streambuf* sbuf = std::cout.rdbuf();
-    std::cout.rdbuf(buffer.rdbuf());
+        "  [ERROR] RegularGridInterpolator 'Test RGI': Target (size={}) and grid (size={}) do not "
+        "have the same dimensions.\n"};
 
-    try {
-        interpolator.set_target(short_target);
-    }
-    catch (BtwxtException&) {
-        EXPECT_STREQ(fmt::format(expected_error_format, 1, 2).c_str(), buffer.str().c_str());
-    }
+    std::vector<double> short_target = {1};
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.set_target(short_target), std::runtime_error);
+                  , fmt::format(expected_error_format, 1, 2))
+
     std::vector<double> long_target = {1, 2, 3};
-    buffer.str("");
-    buffer.clear();
-    try {
-        interpolator.set_target(long_target);
-    }
-    catch (BtwxtException&) {
-        EXPECT_STREQ(fmt::format(expected_error_format, 3, 2).c_str(), buffer.str().c_str());
-    }
-    std::cout.rdbuf(sbuf);
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.set_target(long_target), std::runtime_error);
+                  , fmt::format(expected_error_format, 3, 2))
+
+    constexpr std::string_view expected_error_format_grid_data {
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridPointDataSet 'Data Set 2': Size ({}) "
+        "does not match number of grid points (6).\n"};
 
     std::vector<double> data_set_too_short = {6, 3, 2, 8, 4};
-    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_short);, BtwxtException);
+
+    EXPECT_STDOUT(
+        EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_short);, std::runtime_error);
+        , fmt::format(expected_error_format_grid_data, 5))
+
     std::vector<double> data_set_too_long = {1, 1, 1, 1, 1, 1, 1};
-    EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_long);, BtwxtException);
+    EXPECT_STDOUT(
+        EXPECT_THROW(interpolator.add_grid_point_data_set(data_set_too_long);, std::runtime_error);
+        , fmt::format(expected_error_format_grid_data, 7))
 }
 
-TEST_F(Grid2DFixture, logger_modify_context)
+TEST_F(Grid2DFixture, courier_modify_context)
+{
+    std::string expected_error = "  [ERROR] RegularGridInterpolator 'Test RGI': The current target "
+                                 "was requested, but no target has been set.\n";
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);, expected_error)
+    std::dynamic_pointer_cast<CourierWithContext>(interpolator.get_courier())->context =
+        "Context 1";
+    expected_error = "  [ERROR] Context 1: RegularGridInterpolator 'Test RGI': The current target "
+                     "was requested, but no target has been set.\n";
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);, expected_error)
+}
+
+TEST_F(Grid2DFixture, unique_courier_per_rgi_instance)
 {
     std::vector<double> returned_target;
-    std::string expected_error =
-        "  [WARNING] The current target was requested, but no target has been set.\n";
-    EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
-    std::string context_str {"Context 1"};
-    interpolator.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
-    expected_error =
-        "  [WARNING] (Context 1) The current target was requested, but no target has been set.\n";
-    EXPECT_STDOUT(interpolator.get_target();, expected_error)
+    std::string expected_error = "  [ERROR] RegularGridInterpolator 'Test RGI': The current target "
+                                 "was requested, but no target has been set.\n";
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);, expected_error)
+
+    auto courier2 = std::make_shared<CourierWithContext>();
+    courier2->context = "RGI2 Context";
+    RegularGridInterpolator rgi2(interpolator, courier2);
+    std::string expected_error2 {"  [ERROR] RGI2 Context: RegularGridInterpolator 'Test RGI': The "
+                                 "current target was requested, but no target has been set.\n"};
+    EXPECT_STDOUT(EXPECT_THROW(rgi2.get_target(), std::runtime_error);, expected_error2)
+
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);
+                  , expected_error) // recheck
 }
 
-TEST_F(Grid2DFixture, unique_logger_per_rgi_instance)
-{
-    std::vector<double> returned_target;
-    std::string expected_error =
-        "  [WARNING] The current target was requested, but no target has been set.\n";
-    EXPECT_STDOUT(returned_target = interpolator.get_target();, expected_error)
-
-    auto logger2 = std::make_shared<BtwxtLogger>();
-    std::string context_str {"RGI2 Context"};
-    logger2->set_message_context(reinterpret_cast<void*>(&context_str));
-    RegularGridInterpolator rgi2(interpolator, logger2);
-    std::string expected_error2 {"  [WARNING] (RGI2 Context) The current target was requested, but "
-                                 "no target has been set.\n"};
-    EXPECT_STDOUT(rgi2.get_target();, expected_error2)
-
-    EXPECT_STDOUT(interpolator.get_target();, expected_error) // Recheck
-}
-
-TEST_F(Grid2DFixture, access_logger)
+TEST_F(Grid2DFixture, access_courier)
 {
     RegularGridInterpolator rgi2(interpolator);
-    rgi2.set_logger(std::make_shared<BtwxtLogger>());
-    std::string context_str {"RGI2 Context"};
-    rgi2.get_logger()->set_message_context(reinterpret_cast<void*>(&context_str));
-    std::string expected_error2 {"  [WARNING] (RGI2 Context) The current target was requested, but "
-                                 "no target has been set.\n"};
-    EXPECT_STDOUT(rgi2.get_target();, expected_error2)
+    rgi2.set_courier(std::make_shared<CourierWithContext>());
+    std::dynamic_pointer_cast<CourierWithContext>(rgi2.get_courier())->context = "RGI2 Context";
+    std::string expected_error2 {"  [ERROR] RGI2 Context: RegularGridInterpolator 'Test RGI': The "
+                                 "current target was requested, but no target has been set.\n"};
+    EXPECT_STDOUT(EXPECT_THROW(rgi2.get_target(), std::runtime_error);, expected_error2)
 }
 
-TEST_F(Grid2DFixture, alternative_logger)
+TEST_F(Grid2DFixture, alternative_courier)
 {
-    class NewLogger : public BtwxtLogger {
-        void error(const std::string_view message) override { write_message("UH-OH!", message); }
-        void warning(const std::string_view message) override { write_message("UMMM...", message); }
-        void info(const std::string_view message) override { write_message("HEY!", message); }
-        void debug(const std::string_view message) override { write_message("YUCK!", message); }
+    class NewCourier : public BtwxtDefaultCourier {
+        void receive_error(const std::string& message) override
+        {
+            write_message("UH-OH!", message);
+            throw std::runtime_error(message);
+        }
+        void receive_warning(const std::string& message) override
+        {
+            write_message("UMMM...", message);
+        }
+        void receive_info(const std::string& message) override { write_message("HEY!", message); }
+        void receive_debug(const std::string& message) override { write_message("YUCK!", message); }
+        void write_message(const std::string& message_type, const std::string& message) override
+        {
+            std::cout << fmt::format("  [{}] {}", message_type, message) << std::endl;
+        }
     };
 
-    auto new_logger = std::make_shared<NewLogger>();
-    RegularGridInterpolator rgi2(interpolator, new_logger);
-    std::string expected_error {
-        "  [UMMM...] The current target was requested, but no target has been set.\n"};
-    EXPECT_STDOUT(rgi2.get_target();, expected_error)
+    auto new_courier = std::make_shared<NewCourier>();
+    RegularGridInterpolator rgi2(interpolator, new_courier);
+    std::string expected_error {"  [UH-OH!] RegularGridInterpolator 'Test RGI': The current target "
+                                "was requested, but no target has been set.\n"};
+    EXPECT_STDOUT(EXPECT_THROW(rgi2.get_target(), std::runtime_error);, expected_error)
 }
 
 TEST_F(Grid2DFixture, cubic_interpolate)
@@ -437,7 +452,7 @@ TEST_F(Function4DFixture, timer)
     // Get ending time point
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    interpolator.get_logger()->info(
+    interpolator.get_courier()->send_info(
         fmt::format("Time taken by interpolation: {} microseconds", duration.count()));
 
     // time running the functions straight
@@ -447,7 +462,7 @@ TEST_F(Function4DFixture, timer)
     // Get ending time point
     stop = std::chrono::high_resolution_clock::now();
     auto nano_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    interpolator.get_logger()->info(
+    interpolator.get_courier()->send_info(
         fmt::format("Time taken by direct functions: {} nanoseconds", nano_duration.count()));
 }
 
@@ -473,7 +488,7 @@ TEST_F(Function4DFixture, multi_timer)
         // Get ending time point
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        interpolator.get_logger()->info(
+        interpolator.get_courier()->send_info(
             fmt::format("Time taken by ten interpolations: {} microseconds", duration.count()));
     }
 }
@@ -488,6 +503,19 @@ TEST_F(Grid2DFixture, write_data)
               "15,4,4,8,\n"
               "15,6,2,4,\n",
               interpolator.write_data());
+}
+
+TEST(GridPointDataSet, wrong_size)
+{
+    std::string expected_error {
+        "  [ERROR] RegularGridInterpolator 'Unnamed RegularGridInterpolator': GridPointDataSet '': "
+        "Size (2) does not match number of grid points (1).\n"
+        "  Generated using BtwxtDefaultCourier. Consider deriving your own Courier class!\n"};
+
+    EXPECT_STDOUT(
+        EXPECT_THROW(RegularGridInterpolator({GridAxis({1.})}, {GridPointDataSet({1., 1.})}),
+                     std::runtime_error);
+        , expected_error)
 }
 
 TEST(CartesianProduct, cartesian_product)

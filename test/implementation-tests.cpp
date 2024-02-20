@@ -56,8 +56,8 @@ TEST_F(CubicImplementationFixture, interpolate)
     std::vector<double> result = interpolator.get_results();
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    BtwxtLogger message_display;
-    message_display.info(
+    BtwxtDefaultCourier message_display;
+    message_display.send_info(
         fmt::format("Time to do cubic interpolation: {} microseconds", duration.count()));
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(4.158), testing::DoubleEq(11.836)));
 }
@@ -160,11 +160,9 @@ TEST_F(CubicImplementationFixture, get_cubic_spacing_ratios)
 
 TEST_F(CubicImplementationFixture, null_checking_calculations)
 {
-    std::vector<double> table_with_null = {std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1,
-                                         5, 4, 2, 1,
-                                         8, 6, 3, 2,
-                                         10, 8, 4, 2};
-    
+    std::vector<double> table_with_null = {
+        std::numeric_limits<double>::quiet_NaN(), 3, 1.5, 1, 5, 4, 2, 1, 8, 6, 3, 2, 10, 8, 4, 2};
+
     GridPointDataSet dataset_with_null(table_with_null);
     interpolator.add_grid_point_data_set(dataset_with_null);
 
@@ -212,12 +210,12 @@ TEST_F(EmptyGridImplementationFixture, set_axis_floor)
     EXPECT_EQ(interpolator.get_target_bounds_status()[0], TargetBoundsStatus::extrapolate_high);
     EXPECT_EQ(interpolator.get_floor_grid_point_coordinates()[0], 3u);
 
-    EXPECT_THROW(interpolator.set_target({-0.3}), BtwxtException);
+    EXPECT_THROW(interpolator.set_target({-0.3}), std::runtime_error);
     EXPECT_EQ(interpolator.get_target_bounds_status()[0],
               TargetBoundsStatus::below_lower_extrapolation_limit);
     EXPECT_EQ(interpolator.get_floor_grid_point_coordinates()[0], 0u);
 
-    EXPECT_THROW(interpolator.set_target({11.3}), BtwxtException);
+    EXPECT_THROW(interpolator.set_target({11.3}), std::runtime_error);
     EXPECT_EQ(interpolator.get_target_bounds_status()[0],
               TargetBoundsStatus::above_upper_extrapolation_limit);
     EXPECT_EQ(interpolator.get_floor_grid_point_coordinates()[0], 3u);
@@ -283,16 +281,20 @@ TEST_F(Grid2DImplementationFixture, interpolation_coefficients)
 
 TEST_F(Grid2DImplementationFixture, construct_from_axes)
 {
-    GridAxis ax0 = GridAxis({0, 10, 15}, "ax0");
-    auto logger = ax0.get_logger();
-    GridAxis ax1 = GridAxis({4, 6},
-                            "ax1",
+    GridAxis ax0 = GridAxis({0, 10, 15},
                             InterpolationMethod::linear,
                             ExtrapolationMethod::constant,
                             {-DBL_MAX, DBL_MAX},
-                            logger);
+                            "ax0");
+    auto courier = ax0.get_courier();
+    GridAxis ax1 = GridAxis({4, 6},
+                            InterpolationMethod::linear,
+                            ExtrapolationMethod::constant,
+                            {-DBL_MAX, DBL_MAX},
+                            "ax1",
+                            courier);
     std::vector<GridAxis> test_axes = {ax0, ax1};
-    interpolator = RegularGridInterpolatorImplementation(test_axes, logger);
+    interpolator = RegularGridInterpolatorImplementation(test_axes, "Test 2D Grid RGI", courier);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);
     EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets(), 0u);
     EXPECT_THAT(interpolator.get_grid_axis_lengths(), testing::ElementsAre(3, 2));
@@ -303,7 +305,7 @@ TEST_F(Grid2DImplementationFixture, construct_from_axes)
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8));
 
     interpolator = RegularGridInterpolatorImplementation(
-        test_axes, construct_grid_point_data_sets(data_sets), logger);
+        test_axes, construct_grid_point_data_sets(data_sets), "Test 2D Grid RGI", courier);
     EXPECT_EQ(interpolator.get_number_of_grid_axes(), 2u);
     EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets(), 2u);
     EXPECT_THAT(interpolator.get_grid_point_data(coords), testing::ElementsAre(8, 16));
