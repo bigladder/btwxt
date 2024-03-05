@@ -244,15 +244,6 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
 
     void set_axis_floor_grid_point_index(std::size_t axis_index);
 
-    [[nodiscard]] std::string make_message(const std::string& message) const
-    {
-        return fmt::format("RegularGridInterpolator '{}': {}", name, message);
-    }
-    void send_error(const std::string& message) const
-    {
-        courier->send_error(make_message(message));
-    }
-
     void check_axis_index(std::size_t axis_index, const std::string& action_description) const
     {
         if (axis_index > number_of_grid_axes - 1) {

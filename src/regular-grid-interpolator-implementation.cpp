@@ -50,6 +50,7 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const RegularGridInterpolatorImplementation& source)
+    : Sender(source)
 {
     *this = source;
     this->set_axes_parent_pointers();
@@ -231,8 +232,7 @@ RegularGridInterpolatorImplementation::get_grid_point_data(std::size_t grid_poin
 const std::vector<double>&
 RegularGridInterpolatorImplementation::get_grid_point_data(const std::vector<std::size_t>& coords)
 {
-    std::size_t grid_point_index = get_grid_point_index(coords);
-    return get_grid_point_data(grid_point_index);
+    return get_grid_point_data(get_grid_point_index(coords));
 }
 
 std::vector<double> RegularGridInterpolatorImplementation::get_grid_point_data_relative(
