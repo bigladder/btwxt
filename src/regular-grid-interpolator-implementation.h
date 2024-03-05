@@ -129,6 +129,10 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
         return floor_grid_point_coordinates;
     };
 
+    std::vector<std::size_t> get_neighboring_indices_at_target();
+
+    std::vector<std::size_t> get_neighboring_indices_at_target(const std::vector<double>& target);
+
     [[nodiscard]] inline const std::vector<std::vector<double>>&
     get_interpolation_coefficients() const
     {

@@ -131,6 +131,10 @@ class RegularGridInterpolator {
 
     std::vector<double> operator()() { return get_values_at_target(); }
 
+    [[nodiscard]] std::vector<std::size_t> get_neighboring_indices_at_target() const;
+
+    std::vector<std::size_t> get_neighboring_indices_at_target(const std::vector<double>& target);
+    
     const std::vector<double>& get_target();
 
     [[nodiscard]] const std::vector<TargetBoundsStatus>& get_target_bounds_status() const;
