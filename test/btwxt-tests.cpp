@@ -161,6 +161,8 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate)
 TEST_F(GridFixture, get_neighboring_indices)
 {
     grid = {{0, 1, 2}, {0, 1, 2}};
+
+    // data_set[i] = i useful for testing
     // clang-format off
     data_sets = {{
     //  0  1  2 < dim 2
