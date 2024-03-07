@@ -158,6 +158,74 @@ TEST_F(GridFixture, two_point_cubic_1d_interpolate)
     EXPECT_NEAR(result, 5.25, 0.0001);
 }
 
+TEST_F(GridFixture, get_neighboring_indices)
+{
+    grid = {{0, 1, 2}, {0, 1, 2}};
+
+    // data_set[i] = i useful for testing
+    // clang-format off
+    data_sets = {{
+    //  0  1  2 < dim 2
+        0, 1, 2, // 0 dim 1
+        3, 4, 5, // 1  "
+        6, 7, 8  // 2  "
+    }};
+    // clang-format on
+    setup();
+
+    // Outside grid points
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({-1, -1}), testing::ElementsAre(0));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({-1, 0.5}),
+                testing::ElementsAre(0, 1));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({-1, 3}), testing::ElementsAre(2));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({3, 3}), testing::ElementsAre(8));
+
+    // On outside boundaries
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({0, 0.5}),
+                testing::ElementsAre(0, 1));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({0.5, 0}),
+                testing::ElementsAre(0, 3));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({2, 1.5}),
+                testing::ElementsAre(7, 8));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({0.5, 2}),
+                testing::ElementsAre(2, 5));
+
+    // On inside boundaries
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({1, 0.5}),
+                testing::ElementsAre(3, 4));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({0.5, 1}),
+                testing::ElementsAre(1, 4));
+
+    // Inside cells
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({0.5, 0.5}),
+                testing::ElementsAre(0, 1, 3, 4));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({0.5, 1.5}),
+                testing::ElementsAre(1, 2, 4, 5));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({1.5, 0.5}),
+                testing::ElementsAre(3, 4, 6, 7));
+
+    EXPECT_THAT(interpolator.get_neighboring_indices_at_target({1.5, 1.5}),
+                testing::ElementsAre(4, 5, 7, 8));
+
+    // On grid points
+    for (auto g0 : grid[0]) {
+        for (auto g1 : grid[1]) {
+            interpolator.set_target({g0, g1});
+            EXPECT_THAT(interpolator.get_neighboring_indices_at_target(),
+                        testing::ElementsAre(interpolator.get_values_at_target()[0]));
+        }
+    }
+}
+
 TEST_F(Grid2DFixture, target_undefined)
 {
     std::vector<double> returned_target;

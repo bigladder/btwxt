@@ -50,6 +50,7 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
 
 RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const RegularGridInterpolatorImplementation& source)
+    : Sender(source)
 {
     *this = source;
     this->set_axes_parent_pointers();
@@ -231,8 +232,7 @@ RegularGridInterpolatorImplementation::get_grid_point_data(std::size_t grid_poin
 const std::vector<double>&
 RegularGridInterpolatorImplementation::get_grid_point_data(const std::vector<std::size_t>& coords)
 {
-    std::size_t grid_point_index = get_grid_point_index(coords);
-    return get_grid_point_data(grid_point_index);
+    return get_grid_point_data(get_grid_point_index(coords));
 }
 
 std::vector<double> RegularGridInterpolatorImplementation::get_grid_point_data_relative(
@@ -288,6 +288,39 @@ double RegularGridInterpolatorImplementation::get_grid_point_weighting_factor(
     return weighting_factor;
 }
 
+std::vector<std::size_t> RegularGridInterpolatorImplementation::get_neighboring_indices_at_target()
+{
+    if (!target_is_set) {
+        send_error("Cannot retrieve neighboring indices. No target has been set.");
+    }
+    std::vector<std::vector<std::size_t>> axes_neighbor_indices(
+        number_of_grid_axes,
+        std::vector<std::size_t>()); // For each axis, what are the neighboring indices?
+    for (std::size_t axis_index = 0; axis_index < number_of_grid_axes; ++axis_index) {
+        auto floor_index = floor_grid_point_coordinates[axis_index];
+        if (floor_to_ceiling_fractions[axis_index] < 1.0) {
+            axes_neighbor_indices[axis_index].push_back(floor_index);
+        }
+        if (grid_axis_lengths[axis_index] > 1 && floor_to_ceiling_fractions[axis_index] > 0.0) {
+            axes_neighbor_indices[axis_index].push_back(floor_index + 1);
+        }
+    }
+    std::vector<std::vector<std::size_t>> axes_neighbor_coordinates =
+        cartesian_product(axes_neighbor_indices);
+    std::vector<std::size_t> neighbor_indices;
+    neighbor_indices.reserve(axes_neighbor_coordinates.size());
+    for (const auto& coordinates : axes_neighbor_coordinates) {
+        neighbor_indices.push_back(get_grid_point_index(coordinates));
+    }
+    return neighbor_indices;
+}
+
+std::vector<std::size_t> RegularGridInterpolatorImplementation::get_neighboring_indices_at_target(
+    const std::vector<double>& target_in)
+{
+    set_target(target_in);
+    return get_neighboring_indices_at_target();
+}
 // private methods
 
 void RegularGridInterpolatorImplementation::setup()
