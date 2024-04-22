@@ -145,6 +145,7 @@ void RegularGridInterpolatorImplementation::normalize_grid_point_data_sets_at_ta
 double RegularGridInterpolatorImplementation::normalize_grid_point_data_set_at_target(
     std::size_t data_set_index, double scalar)
 {
+    check_data_set_index(data_set_index, "normalize grid point data set");
     if (!target_is_set) {
         send_error(fmt::format(
             "GridPointDataSet '{}': Cannot normalize grid point data set. No target has been set.",
@@ -163,6 +164,7 @@ double RegularGridInterpolatorImplementation::normalize_grid_point_data_set_at_t
 void RegularGridInterpolatorImplementation::normalize_grid_point_data_set(
     std::size_t data_set_index, double scalar)
 {
+    check_data_set_index(data_set_index, "normalize grid point data set");
     auto& data_set = grid_point_data_sets[data_set_index].data;
     if (scalar == 0.0) {
         send_error(
@@ -574,7 +576,7 @@ void RegularGridInterpolatorImplementation::calculate_interpolation_coefficients
             cubic_slope_coefficients[axis_index][ceiling]; // floor (0)
         weighting_factors[axis_index][2] =
             interpolation_coefficients[axis_index][ceiling] +
-            cubic_slope_coefficients[axis_index][floor];   // ceiling (1)
+            cubic_slope_coefficients[axis_index][floor]; // ceiling (1)
         weighting_factors[axis_index][3] =
             cubic_slope_coefficients[axis_index][ceiling]; // point above ceiling (2)
     }

@@ -444,15 +444,25 @@ TEST(SimpleData, normalize_after_adding_grid_point_data_set)
     RegularGridInterpolator interpolator(grid);
     std::size_t data_set_index {0};
     interpolator.add_grid_point_data_set(data_sets[data_set_index]);
-    EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets, 1);
+    EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets(), 1);
     interpolator.normalize_grid_point_data_set_at_target(data_set_index, {0.5, 0.5}, 1.0);
     data_set_index++;
     interpolator.add_grid_point_data_set(data_sets[data_set_index]);
-    EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets, 2);
+    EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets(), 2);
     interpolator.normalize_grid_point_data_set_at_target(data_set_index, {0.5, 0.5}, 1.0);
     auto results = interpolator.get_values_at_target({1., 1.});
     EXPECT_NEAR(results[0], 2.0, 0.00001);
     EXPECT_NEAR(results[1], 1.0, 0.00001);
+
+    // Test other getters
+    EXPECT_EQ(interpolator.get_number_of_dimensions(), 2);
+    EXPECT_EQ(interpolator.get_number_of_grid_points(),
+              interpolator.get_grid_axis(0).get_length() *
+                  interpolator.get_grid_axis(1).get_length());
+    EXPECT_EQ(interpolator.get_number_of_grid_points(),
+              interpolator.get_grid_point_data_set(0).data.size());
+    EXPECT_EQ(interpolator.get_number_of_grid_points(),
+              interpolator.get_grid_point_data_set(1).data.size());
 }
 
 TEST_F(Function4DFixture, construct)
