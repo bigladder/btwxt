@@ -444,9 +444,11 @@ TEST(SimpleData, normalize_after_adding_grid_point_data_set)
     RegularGridInterpolator interpolator(grid);
     std::size_t data_set_index {0};
     interpolator.add_grid_point_data_set(data_sets[data_set_index]);
+    EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets, 1);
     interpolator.normalize_grid_point_data_set_at_target(data_set_index, {0.5, 0.5}, 1.0);
     data_set_index++;
     interpolator.add_grid_point_data_set(data_sets[data_set_index]);
+    EXPECT_EQ(interpolator.get_number_of_grid_point_data_sets, 2);
     interpolator.normalize_grid_point_data_set_at_target(data_set_index, {0.5, 0.5}, 1.0);
     auto results = interpolator.get_values_at_target({1., 1.});
     EXPECT_NEAR(results[0], 2.0, 0.00001);

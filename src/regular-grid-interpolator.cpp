@@ -182,6 +182,11 @@ std::size_t RegularGridInterpolator::get_number_of_dimensions()
     return implementation->get_number_of_grid_axes();
 }
 
+std::size_t RegularGridInterpolator::get_number_of_grid_point_data_sets()
+{
+    return implementation->get_number_of_grid_point_data_sets();
+}
+
 // Public normalization methods
 double RegularGridInterpolator::normalize_grid_point_data_set_at_target(
     std::size_t data_set_index, const std::vector<double>& target, const double scalar)
