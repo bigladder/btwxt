@@ -87,7 +87,16 @@ class RegularGridInterpolator {
     void set_axis_extrapolation_limits(std::size_t axis_index,
                                        const std::pair<double, double>& extrapolation_limits);
 
+    // Public getters
     std::size_t get_number_of_dimensions();
+
+    std::size_t get_number_of_grid_points();
+
+    std::size_t get_number_of_grid_point_data_sets();
+
+    const GridPointDataSet& get_grid_point_data_set(std::size_t data_set_index);
+
+    const GridAxis& get_grid_axis(std::size_t axis_index);
 
     // Public normalization methods
     double normalize_grid_point_data_set_at_target(std::size_t data_set_index, double scalar = 1.0);
@@ -134,7 +143,7 @@ class RegularGridInterpolator {
     [[nodiscard]] std::vector<std::size_t> get_neighboring_indices_at_target() const;
 
     std::vector<std::size_t> get_neighboring_indices_at_target(const std::vector<double>& target);
-    
+
     const std::vector<double>& get_target();
 
     [[nodiscard]] const std::vector<TargetBoundsStatus>& get_target_bounds_status() const;

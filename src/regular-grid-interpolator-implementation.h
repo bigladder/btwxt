@@ -98,10 +98,22 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
         return number_of_grid_axes;
     };
 
+    [[nodiscard]] inline std::size_t get_number_of_grid_points() const
+    {
+        return number_of_grid_points;
+    };
+
     [[nodiscard]] inline const GridAxis& get_grid_axis(std::size_t axis_index) const
     {
         check_axis_index(axis_index, "get grid axis");
         return grid_axes[axis_index];
+    };
+
+    [[nodiscard]] inline const GridPointDataSet&
+    get_grid_point_data_set(std::size_t data_set_index) const
+    {
+        check_data_set_index(data_set_index, "get grid point data set");
+        return grid_point_data_sets[data_set_index];
     };
 
     [[nodiscard]] inline std::size_t get_number_of_grid_point_data_sets() const
@@ -256,6 +268,18 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
                 axis_index,
                 action_description,
                 number_of_grid_axes));
+        }
+    }
+
+    void check_data_set_index(std::size_t data_set_index,
+                              const std::string& action_description) const
+    {
+        if (data_set_index > number_of_grid_point_data_sets - 1) {
+            send_error(fmt::format("Data set index, {}, does not exist. Unable to {}. Number of "
+                                   "grid point data sets = {}.",
+                                   data_set_index,
+                                   action_description,
+                                   number_of_grid_point_data_sets));
         }
     }
 };
