@@ -47,13 +47,7 @@ class GridAxis : public Courier::Sender {
         extrapolation_limits = limits;
         check_extrapolation_limits();
     }
-
-    void set_courier(std::shared_ptr<Courier::Courier> courier_in)
-    {
-        courier = std::move(courier_in);
-    }
-    std::shared_ptr<Courier::Courier> get_courier() { return courier; };
-
+    
     // Getters
     [[nodiscard]] const std::vector<double>& get_values() const { return values; }
     [[nodiscard]] std::size_t get_length() const { return values.size(); }

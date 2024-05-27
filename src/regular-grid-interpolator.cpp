@@ -295,4 +295,9 @@ std::shared_ptr<Courier::Courier> RegularGridInterpolator::get_courier()
     return implementation->get_courier();
 }
 
+void RegularGridInterpolator::set_parent_pointer(Courier::Sender* parent_pointer_in)
+{
+    implementation->set_parent_pointer(parent_pointer_in);
+}
+
 } // namespace Btwxt

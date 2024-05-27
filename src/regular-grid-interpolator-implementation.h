@@ -91,8 +91,6 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
         return grid_axes[axis_index].get_extrapolation_limits();
     };
 
-    [[nodiscard]] inline std::shared_ptr<Courier::Courier> get_courier() const { return courier; };
-
     [[nodiscard]] inline std::size_t get_number_of_grid_axes() const
     {
         return number_of_grid_axes;

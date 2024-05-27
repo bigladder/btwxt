@@ -155,6 +155,8 @@ class RegularGridInterpolator {
 
     std::shared_ptr<Courier::Courier> get_courier();
 
+    void set_parent_pointer(Courier::Sender* parent_pointer);
+
   private:
     std::unique_ptr<RegularGridInterpolatorImplementation> implementation;
 };
