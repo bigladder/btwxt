@@ -95,7 +95,7 @@ jobs:
           fi;
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config }} -D${{ env.REPOSITORY_NAME }}_BUILD_TESTING=ON -D${{ env.REPOSITORY_NAME }}_STATIC_LIB=${{ steps.cov.outputs.STATIC_LIB }} -D${{ env.REPOSITORY_NAME }}_COVERAGE=${{ steps.cov.outputs.COVERAGE }} -DBUILD_PYTHON_BINDINGS:BOOL=ON
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config }} -D${{ env.REPOSITORY_NAME }}_BUILD_TESTING=ON -D${{ env.REPOSITORY_NAME }}_STATIC_LIB=${{ steps.cov.outputs.STATIC_LIB }} -D${{ env.REPOSITORY_NAME }}_COVERAGE=${{ steps.cov.outputs.COVERAGE }}
       - name: Build
         run: |
           cmake --build build --config ${{ matrix.config }}
@@ -116,8 +116,10 @@ jobs:
 
 
       - name: Build Python Wheel
+        working-directory: ./build/
         run: |
-          cmake --build build --config ${{ matrix.config }}  --target python_package
+          cmake -DBUILD_PYTHON_BINDINGS:BOOL=ON .
+          cmake --build . --config ${{ matrix.config }}  --target python_package
 
       - name: Zip the wheel to maintain case sensitivy and file permissions
         working-directory: ./build/python
