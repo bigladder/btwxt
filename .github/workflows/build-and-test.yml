@@ -71,10 +71,34 @@ jobs:
           echo "COVERAGE=OFF" >> $GITHUB_OUTPUT
           echo "STATIC_LIB=ON" >> $GITHUB_OUTPUT
           fi
+
+      - name: Set up Python 3.12
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install System dependencies
+        shell: bash
+        run: |
+          set -x
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            echo "Using Apt to install swig"
+            sudo apt update
+            sudo apt install swig
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo "Using brew to install swig"
+            brew install swig
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            echo "Using chocolatey to swig"
+            choco install swig
+          fi;
+
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE="${{ matrix.config }}" -D${{ env.REPOSITORY_NAME }}_BUILD_TESTING="ON" -D${{ env.REPOSITORY_NAME }}_STATIC_LIB="${{ steps.cov.outputs.STATIC_LIB }}" -D${{ env.REPOSITORY_NAME }}_COVERAGE="${{ steps.cov.outputs.COVERAGE }}"
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config }} -D${{ env.REPOSITORY_NAME }}_BUILD_TESTING=ON -D${{ env.REPOSITORY_NAME }}_STATIC_LIB=${{ steps.cov.outputs.STATIC_LIB }} -D${{ env.REPOSITORY_NAME }}_COVERAGE=${{ steps.cov.outputs.COVERAGE }} -DBUILD_PYTHON_BINDINGS:BOOL=ON
       - name: Build
-        run: cmake --build build --config ${{ matrix.config }}
+        run: |
+          cmake --build build --config ${{ matrix.config }}
       - name: Test
         run: ctest -C ${{ matrix.config }} --output-on-failure
         working-directory: build
@@ -89,3 +113,20 @@ jobs:
           flags: integration
           functionalities: "gcov"
           move_coverage_to_trash: true
+
+
+      - name: Build Python Wheel
+        run: |
+          cmake --build build --config ${{ matrix.config }}  --target python_package
+
+      - name: Zip the wheel to maintain case sensitivy and file permissions
+        working-directory: ./build/python
+        shell: bash
+        run: |
+          tar -cvzf btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-{{ matrix.config }}.tar.gz dist/
+
+      - name: Upload .whl to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-{{ matrix.config }}
+          path: ./build/python/btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-{{ matrix.config }}..tar.gz
