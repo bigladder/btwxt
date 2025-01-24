@@ -145,5 +145,5 @@ jobs:
       - name: Upload .whl to artifact
         uses: actions/upload-artifact@v4
         with:
-          name: btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}
-          path: ./build/python/btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}.tar.gz
+          name: "btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}"
+          path: "./build/python/btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}.tar.gz"
