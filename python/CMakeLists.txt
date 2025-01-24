@@ -62,7 +62,7 @@ if (BUILD_PYTHON_BINDINGS)
     PUBLIC ${PROJECT_NAME}
   )
 
-  if(MSVC)
+  if(MSVC OR APPLE)
     swig_link_libraries(${swig_target_name} PRIVATE Python::Module)
   endif()
 
