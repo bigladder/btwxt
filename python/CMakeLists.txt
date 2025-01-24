@@ -25,6 +25,16 @@ endif()
 
 if (BUILD_PYTHON_BINDINGS)
 
+  set(Python_REQUIRED_VERSION "" CACHE STRING "The specific Python version you want to link to (Optional)")
+  set(Python_ROOT_DIR "" CACHE PATH "The path to the root installation of your python version, if you want to explicitly set it (Optional)")
+  mark_as_advanced(Python_REQUIRED_VERSION)
+  mark_as_advanced(Python_ROOT_DIR)
+  if(Python_REQUIRED_VERSION)
+    find_package(Python ${Python_REQUIRED_VERSION} EXACT COMPONENTS Interpreter Development REQUIRED)
+  else()
+    find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
+  endif()
+
   set(swig_target_name ${PROJECT_NAME}_python)
 
   # **Only** find static libs
