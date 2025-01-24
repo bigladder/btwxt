@@ -12,8 +12,8 @@ jobs:
             os_ver: "24.04"
             config: Release
             coverage: false
-            cc: gcc-11
-            cxx: g++-11
+            cc: gcc-14
+            cxx: g++-14
           - os: ubuntu
             os_ver: "22.04"
             config: Release
