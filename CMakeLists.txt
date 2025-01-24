@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+cmake_policy(SET CMP0078 NEW)
+cmake_policy(SET CMP0086 NEW)
+
 project(btwxt)
 
 # Set a default build type if none was specified
