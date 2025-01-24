@@ -14,36 +14,42 @@ jobs:
             coverage: false
             cc: gcc-14
             cxx: g++-14
+            arch: x86_64
           - os: ubuntu
             os_ver: "22.04"
             config: Release
             coverage: false
             cc: gcc-10
             cxx: g++-10
+            arch: x86_64
           - os: windows
             os_ver: "2022"
             config: Release
             coverage: false
             cc: cl
             cxx: cl
+            arch: x86_64
           - os: macos
             os_ver: "14"
             config: Release
             coverage: false
             cc: clang
             cxx: clang++
+            arch: arm64
           - os: macos
             os_ver: "13"
             config: Release
             coverage: false
             cc: clang
             cxx: clang++
+            arch: x86_64
           - os: ubuntu
             os_ver: "22.04"
             config: Debug
             coverage: true
             cc: gcc-10
             cxx: g++-10
+            arch: x86_64
     defaults:
       run:
         shell: bash
@@ -126,7 +132,7 @@ jobs:
           echo -e "::endgroup::"
 
           begin_group "Build target"
-          cmake -DBUILD_PYTHON_BINDINGS:BOOL=ON .
+          cmake -DBUILD_PYTHON_BINDINGS:BOOL=ON -DPython_REQUIRED_VERSION:STRING=${{ steps.setup-python.outputs.python-version }} -DPython_ROOT_DIR:PATH=$RUNNER_TOOL_CACHE/Python/${{ steps.setup-python.outputs.python-version }}/${{ matrix.arch }}/ .
           cmake --build . --config ${{ matrix.config }}  --target python_package
           echo -e "::endgroup::"
 
@@ -134,10 +140,10 @@ jobs:
         working-directory: ./build/python
         shell: bash
         run: |
-          tar -cvzf btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-{{ matrix.config }}.tar.gz dist/
+          tar -cvzf "btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}.tar.gz" dist/
 
       - name: Upload .whl to artifact
         uses: actions/upload-artifact@v4
         with:
-          name: btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-{{ matrix.config }}
-          path: ./build/python/btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-{{ matrix.config }}..tar.gz
+          name: btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}
+          path: ./build/python/btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}-{{ matrix.config }}.tar.gz
