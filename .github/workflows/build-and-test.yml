@@ -118,8 +118,17 @@ jobs:
       - name: Build Python Wheel
         working-directory: ./build/
         run: |
+          begin_group() { echo -e "::group::\033[93m$1\033[0m"; }
+
+          begin_group "Install other python dependencies"
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine requests packaging pytest
+          echo -e "::endgroup::"
+
+          begin_group "Build target"
           cmake -DBUILD_PYTHON_BINDINGS:BOOL=ON .
           cmake --build . --config ${{ matrix.config }}  --target python_package
+          echo -e "::endgroup::"
 
       - name: Zip the wheel to maintain case sensitivy and file permissions
         working-directory: ./build/python
