@@ -10,42 +10,42 @@ jobs:
         include:
           - os: ubuntu
             os_ver: "24.04"
-            config: Release
+            config: "Release"
             coverage: false
             cc: gcc-14
             cxx: g++-14
             arch: x86_64
           - os: ubuntu
             os_ver: "22.04"
-            config: Release
+            config: "Release"
             coverage: false
             cc: gcc-10
             cxx: g++-10
             arch: x86_64
           - os: windows
             os_ver: "2022"
-            config: Release
+            config: "Release"
             coverage: false
             cc: cl
             cxx: cl
             arch: x86_64
           - os: macos
             os_ver: "14"
-            config: Release
+            config: "Release"
             coverage: false
             cc: clang
             cxx: clang++
             arch: arm64
           - os: macos
             os_ver: "13"
-            config: Release
+            config: "Release"
             coverage: false
             cc: clang
             cxx: clang++
             arch: x86_64
           - os: ubuntu
             os_ver: "22.04"
-            config: Debug
+            config: "Debug"
             coverage: true
             cc: gcc-10
             cxx: g++-10
