@@ -29,6 +29,8 @@ if (BUILD_PYTHON_BINDINGS)
   set(Python_ROOT_DIR "" CACHE PATH "The path to the root installation of your python version, if you want to explicitly set it (Optional)")
   mark_as_advanced(Python_REQUIRED_VERSION)
   mark_as_advanced(Python_ROOT_DIR)
+  # **Only** find static libs
+  set(Python_USE_STATIC_LIBS TRUE)
   if(Python_REQUIRED_VERSION)
     find_package(Python ${Python_REQUIRED_VERSION} EXACT COMPONENTS Interpreter Development REQUIRED)
   else()
@@ -36,14 +38,6 @@ if (BUILD_PYTHON_BINDINGS)
   endif()
 
   set(swig_target_name ${PROJECT_NAME}_python)
-
-  # **Only** find static libs
-  set(Python_USE_STATIC_LIBS TRUE)
-
-  find_package(
-    Python
-    COMPONENTS Interpreter Development
-    REQUIRED)
 
   swig_add_library(
     ${swig_target_name}
