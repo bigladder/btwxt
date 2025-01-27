@@ -146,7 +146,7 @@ jobs:
         working-directory: ./build/python
         shell: bash
         run: |
-          TGZ_STEM="btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}"
+          TGZ_STEM="btwxt-python-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}"
           echo "TGZ_STEM=$TGZ_STEM" >> $GITHUB_ENV
           tar -cvzf "$TGZ_STEM.tar.gz" dist/
 
