@@ -48,25 +48,20 @@ if (BUILD_PYTHON_BINDINGS)
   swig_add_library(
     ${swig_target_name}
     TYPE SHARED
-    LANGUAGE python OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/btwxt"
-                    OUTFILE_DIR "${CMAKE_CURRENT_BINARY_DIR}/btwxt_wrapper"
-    SOURCES ${${PROJECT_NAME}_swig_src})
+    LANGUAGE python
+    OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/btwxt"
+    OUTFILE_DIR "${CMAKE_CURRENT_BINARY_DIR}/btwxt_wrapper"
+    SOURCES ${${PROJECT_NAME}_swig_src}
+  )
 
-  set_target_properties(${swig_target_name} PROPERTIES OUTPUT_NAME
-                                                       ${PROJECT_NAME})
+  set_target_properties(${swig_target_name} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-  set_target_properties(
-    ${swig_target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
-                                   "${CMAKE_CURRENT_BINARY_DIR}/btwxt/")
-  set_target_properties(
-    ${swig_target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-                                   "${CMAKE_CURRENT_BINARY_DIR}/btwxt/")
-  set_target_properties(
-    ${swig_target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                                   "${CMAKE_CURRENT_BINARY_DIR}/btwxt/")
+  set_target_properties(${swig_target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/btwxt/")
+  set_target_properties(${swig_target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/btwxt/")
+  set_target_properties(${swig_target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/btwxt/")
 
-   target_include_directories(${swig_target_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
-   target_include_directories(${swig_target_name} PRIVATE SYSTEM ${Python_INCLUDE_DIRS})
+  target_include_directories(${swig_target_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  target_include_directories(${swig_target_name} PRIVATE SYSTEM ${Python_INCLUDE_DIRS})
 
   swig_link_libraries(${swig_target_name}
     PUBLIC ${PROJECT_NAME}
@@ -76,14 +71,14 @@ if (BUILD_PYTHON_BINDINGS)
     swig_link_libraries(${swig_target_name} PRIVATE Python::Module)
   endif()
   if(MSVC)
-    set_target_properties(${swig_target} PROPERTIES SUFFIX ".pyd")
+    set_target_properties(${swig_target_name} PROPERTIES SUFFIX ".pyd")
     # Avoid having a python/btwxt/Release/*.pyd path.
-    set_target_properties(${swig_target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
-    set_target_properties(${swig_target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
-    set_target_properties(${swig_target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
-    set_target_properties(${swig_target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
-    set_target_properties(${swig_target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
-    set_target_properties(${swig_target} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
+    set_target_properties(${swig_target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
+    set_target_properties(${swig_target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
+    set_target_properties(${swig_target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
+    set_target_properties(${swig_target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
+    set_target_properties(${swig_target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
+    set_target_properties(${swig_target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/btwxt")
   elseif(APPLE)
     set_target_properties(${swig_target_name} PROPERTIES SUFFIX ".so")
   endif()
