@@ -14,6 +14,7 @@ jobs:
             coverage: false
             cc: gcc-14
             cxx: g++-14
+            python_bindings: false
             arch: x86_64
           - os: ubuntu
             os_ver: "22.04"
@@ -21,6 +22,7 @@ jobs:
             coverage: false
             cc: gcc-10
             cxx: g++-10
+            python_bindings: true
             arch: x86_64
           - os: windows
             os_ver: "2022"
@@ -28,6 +30,7 @@ jobs:
             coverage: false
             cc: cl
             cxx: cl
+            python_bindings: true
             arch: x86_64
           - os: macos
             os_ver: "14"
@@ -35,6 +38,7 @@ jobs:
             coverage: false
             cc: clang
             cxx: clang++
+            python_bindings: true
             arch: arm64
           - os: macos
             os_ver: "13"
@@ -42,6 +46,7 @@ jobs:
             coverage: false
             cc: clang
             cxx: clang++
+            python_bindings: true
             arch: x86_64
           - os: ubuntu
             os_ver: "22.04"
@@ -49,6 +54,7 @@ jobs:
             coverage: true
             cc: gcc-10
             cxx: g++-10
+            python_bindings: false
             arch: x86_64
     defaults:
       run:
@@ -106,23 +112,22 @@ jobs:
           move_coverage_to_trash: true
 
       - name: Set up Python 3.12
-        if: matrix.config == 'Release'
+        if: ${{ matrix.python_bindings }}
         id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
       - name: Build Python Wheel
-        if: matrix.config == 'Release'
+        if: ${{ matrix.python_bindings }}
         working-directory: ./build/
         run: |
           begin_group() { echo -e "::group::\033[93m$1\033[0m"; }
 
           begin_group "Install other python dependencies"
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine requests packaging pytest
-          # Ubuntu 22.04 from apt will get swig that's too old to support attributes like [[ nodiscard ]]
-          pip install swig
+          # Ubuntu 22.04 from apt will get swig that's too old to support attributes like [[ nodiscard ]], so get from PyPi
+          pip install setuptools wheel twine requests packaging pytest swig
           echo -e "::endgroup::"
 
           begin_group "Build target"
@@ -130,16 +135,24 @@ jobs:
           cmake --build . --config ${{ matrix.config }}  --target python_package
           echo -e "::endgroup::"
 
+      - name: Python CTest
+        if: ${{ matrix.python_bindings }}
+        working-directory: ./build/
+        run: |
+          ctest -R python -VV
+
       - name: Zip the wheel to maintain case sensitivy and file permissions
-        if: matrix.config == 'Release'
+        if: ${{ matrix.python_bindings }}
         working-directory: ./build/python
         shell: bash
         run: |
-          tar -cvzf "btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}}.tar.gz" dist/
+          TGZ_STEM="btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}"
+          echo "TGZ_STEM=$TGZ_STEM" >> $GITHUB_ENV
+          tar -cvzf "$TGZ_STEM.tar.gz" dist/
 
       - name: Upload .whl to artifact
-        if: matrix.config == 'Release'
+        if: ${{ matrix.python_bindings }}
         uses: actions/upload-artifact@v4
         with:
-          name: "btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}"
-          path: "./build/python/btwxt-${{ matrix.os }}-${{ matrix.os_ver }}-${{ matrix.arch }}.tar.gz"
+          name: ${{ env.TGZ_STEM }}
+          path: "./build/python/${{ env.TGZ_STEM }}.tar.gz"
