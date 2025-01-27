@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+cmake_policy(SET CMP0078 NEW)
+cmake_policy(SET CMP0086 NEW)
+
 project(btwxt)
 
 # Set a default build type if none was specified
@@ -32,6 +35,7 @@ endif ()
 add_subdirectory("include/${PROJECT_NAME}")
 add_subdirectory(src)
 add_subdirectory(vendor)
+add_subdirectory(python)
 
 if (${PROJECT_NAME}_BUILD_TESTING)
     add_subdirectory(test)
