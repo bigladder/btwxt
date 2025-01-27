@@ -139,7 +139,7 @@ jobs:
         if: ${{ matrix.python_bindings }}
         working-directory: ./build/
         run: |
-          ctest -R python -VV
+          ctest -C ${{ matrix.config }} -R python -VV
 
       - name: Zip the wheel to maintain case sensitivy and file permissions
         if: ${{ matrix.python_bindings }}
