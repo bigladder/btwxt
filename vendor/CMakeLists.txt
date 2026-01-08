@@ -1,6 +1,11 @@
 include(initialize-submodules)
 initialize_submodules()
 
+if (NOT TARGET courier)
+    add_subdirectory(courier)
+    mark_as_advanced(courier_BUILD_TESTING courier_COVERAGE courier_STATIC_LIB)
+endif ()
+
 if (NOT TARGET fmt)
     add_subdirectory(fmt)
     set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
@@ -22,7 +27,3 @@ if (${PROJECT_NAME}_BUILD_TESTING AND NOT TARGET gtest)
 
 endif ()
 
-if (NOT TARGET courier)
-    add_subdirectory(courier)
-    mark_as_advanced(courier_BUILD_TESTING courier_COVERAGE courier_STATIC_LIB)
-endif ()
