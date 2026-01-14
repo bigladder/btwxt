@@ -13,7 +13,7 @@ GridAxis::GridAxis(std::vector<double> values_in,
                    std::pair<double, double> extrapolation_limits,
                    std::string name,
                    const std::shared_ptr<Courier::Courier>& courier_in)
-    : Courier::Sender(std::move(name), courier_in)
+    : Courier::Sender("GridAxis", std::move(name), courier_in)
     , values(std::move(values_in))
     , interpolation_method(interpolation_method)
     , extrapolation_method(extrapolation_method)
@@ -21,7 +21,6 @@ GridAxis::GridAxis(std::vector<double> values_in,
     , cubic_spacing_ratios(
           2, std::vector<double>(std::max(static_cast<int>(values.size()) - 1, 0), 1.0))
 {
-    class_name = "GridAxis";
     if (values.empty()) {
         send_error("Cannot create grid axis from a zero-length vector.");
     }

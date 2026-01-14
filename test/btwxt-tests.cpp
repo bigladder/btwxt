@@ -330,6 +330,37 @@ TEST_F(Grid2DFixture, courier_modify_context)
     EXPECT_STDOUT(EXPECT_THROW(interpolator.get_target(), std::runtime_error);, expected_error)
 }
 
+TEST_F(Grid2DFixture, courier_parent_pointer)
+{
+    class ParentClass : public Courier::Sender {
+      public:
+        explicit ParentClass(std::string name_in,
+                             const std::shared_ptr<Courier::Courier>& courier_in =
+                                 std::make_shared<Courier::DefaultCourier>())
+            : Courier::Sender("ParentClass", std::move(name_in), courier_in)
+        {
+        }
+        RegularGridInterpolator rgi;
+    };
+
+    ParentClass my_parent_object("My Parent Object", interpolator.get_courier());
+    my_parent_object.rgi = interpolator;
+    my_parent_object.rgi.set_parent_pointer(&my_parent_object);
+
+    std::string expected_error = "  [ERROR] ParentClass 'My Parent Object': "
+                                 "RegularGridInterpolator 'Test RGI': The current target "
+                                 "was requested, but no target has been set.\n";
+    EXPECT_STDOUT(EXPECT_THROW(my_parent_object.rgi.get_target(), std::runtime_error);
+                  , expected_error)
+    std::dynamic_pointer_cast<CourierWithContext>(my_parent_object.rgi.get_courier())->context =
+        "Context 1";
+    expected_error = "  [ERROR] Context 1: ParentClass 'My Parent Object': RegularGridInterpolator "
+                     "'Test RGI': The current target "
+                     "was requested, but no target has been set.\n";
+    EXPECT_STDOUT(EXPECT_THROW(my_parent_object.rgi.get_target(), std::runtime_error);
+                  , expected_error)
+}
+
 TEST_F(Grid2DFixture, unique_courier_per_rgi_instance)
 {
     std::vector<double> returned_target;

@@ -25,7 +25,7 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     const std::vector<GridPointDataSet>& grid_point_data_sets,
     std::string name,
     const std::shared_ptr<Courier::Courier>& courier)
-    : Courier::Sender(std::move(name), courier)
+    : Courier::Sender("RegularGridInterpolator", std::move(name), courier)
     , grid_axes(grid_axes)
     , grid_point_data_sets(grid_point_data_sets)
     , number_of_grid_point_data_sets(grid_point_data_sets.size())
@@ -44,7 +44,6 @@ RegularGridInterpolatorImplementation::RegularGridInterpolatorImplementation(
     , interpolation_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
     , cubic_slope_coefficients(number_of_grid_axes, std::vector<double>(2, 0.))
 {
-    class_name = "RegularGridInterpolator";
     setup();
 }
 
@@ -349,7 +348,7 @@ void RegularGridInterpolatorImplementation::setup()
 void RegularGridInterpolatorImplementation::set_axes_parent_pointers()
 {
     for (auto& grid_axis : grid_axes) {
-        grid_axis.parent_pointer = this;
+        grid_axis.set_parent_pointer(this);
     }
 }
 
