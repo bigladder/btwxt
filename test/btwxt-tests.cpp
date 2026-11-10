@@ -288,6 +288,32 @@ TEST_F(Grid2DFixture, extrapolate)
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
 }
 
+TEST_F(Grid2DFixture, extrapolation_method_change_at_same_target)
+{
+    // axis0 is designated linear extrapolation
+    target = {18, 5};
+    std::vector<double> result = interpolator(target);
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
+
+    // Same target, constant extrapolation: the result must be the value at axis0 = 15
+    interpolator.set_axis_extrapolation_method(0, ExtrapolationMethod::constant);
+    result = interpolator(target);
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3), testing::DoubleEq(6)));
+}
+
+TEST_F(Grid2DFixture, extrapolation_limits_change_at_same_target)
+{
+    target = {18, 5};
+    std::vector<double> result = interpolator(target);
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
+
+    // Same target, now beyond the upper extrapolation limit: this must be reported
+    interpolator.set_axis_extrapolation_limits(0, {-10, 17});
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);
+                  , std::string("  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
+                                "The target (18) is above the extrapolation limit (17).\n"))
+}
+
 TEST_F(Grid2DFixture, invalid_inputs)
 {
     constexpr std::string_view expected_error_format {
