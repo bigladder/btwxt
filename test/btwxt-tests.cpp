@@ -513,6 +513,26 @@ TEST_F(Function2DFixture, normalization_return_compound_scalar)
     EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
 }
 
+TEST(SimpleData, clear_target_with_more_data_sets_than_axes)
+{
+    // 1 axis, 3 data sets: clear_target() must not size the results by the number of axes
+    std::vector<std::vector<double>> grid {{0., 10.}};
+    std::vector<std::vector<double>> data_sets {{0., 10.}, {0., 20.}, {0., 30.}};
+    RegularGridInterpolator interpolator(grid, data_sets);
+    std::vector<double> target {5.};
+
+    auto results = interpolator(target);
+    EXPECT_THAT(results,
+                testing::ElementsAre(
+                    testing::DoubleEq(5.), testing::DoubleEq(10.), testing::DoubleEq(15.)));
+
+    interpolator.clear_target();
+    results = interpolator(target);
+    EXPECT_THAT(results,
+                testing::ElementsAre(
+                    testing::DoubleEq(5.), testing::DoubleEq(10.), testing::DoubleEq(15.)));
+}
+
 TEST(SimpleData, normalize_after_adding_grid_point_data_set)
 {
     std::vector<std::vector<double>> grid {{0., 1.}, {0., 1.}};
