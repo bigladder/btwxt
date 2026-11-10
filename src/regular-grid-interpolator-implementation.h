@@ -238,6 +238,8 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
 
     void setup();
 
+    void calculate_at_target();
+
     void set_axes_parent_pointers();
 
     void check_grid_point_data_set_size(const GridPointDataSet& grid_point_data_set);
