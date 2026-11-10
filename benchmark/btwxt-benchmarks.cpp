@@ -157,25 +157,6 @@ void BM_RepeatedTarget(benchmark::State& state)
     state.SetItemsProcessed(state.iterations()); // items = targets, each with data_sets evaluations
 }
 
-// Targets that all fall in the same grid cell.
-void BM_SameCell(benchmark::State& state)
-{
-    const auto dimensions = static_cast<std::size_t>(state.range(0));
-    const auto data_sets = static_cast<std::size_t>(state.range(2));
-    auto interpolator = make_interpolator(dimensions, method_from(state), data_sets);
-
-    std::vector<std::vector<double>> targets(2, std::vector<double>(dimensions, 3.25));
-    std::fill(targets[1].begin(), targets[1].end(), 3.75);
-
-    std::size_t i = 0;
-    for (auto _ : state) {
-        auto result = interpolator(targets[i]);
-        benchmark::DoNotOptimize(result.data());
-        i ^= 1U;
-    }
-    state.SetItemsProcessed(state.iterations());
-}
-
 // Cold cache: each lookup builds the hypercube data (cache miss path).
 void BM_ColdCache(benchmark::State& state)
 {
@@ -248,7 +229,7 @@ void BM_UnitaryHybridAC(benchmark::State& state)
 void arguments(benchmark::Benchmark* b)
 {
     b->ArgNames({"dims", "cubic", "sets"});
-    for (int dimensions : {1, 2, 3, 4}) {
+    for (int dimensions : {2, 4}) {
         for (int cubic : {0, 1}) {
             for (int data_sets : {1, 8}) {
                 b->Args({dimensions, cubic, data_sets});
@@ -262,12 +243,14 @@ void arguments(benchmark::Benchmark* b)
 BENCHMARK(BM_WarmCacheRandomTargets)->Apply(arguments);
 BENCHMARK(BM_OnGridAxis) // dims >= 2: with 1 dim every target would be identical
     ->ArgNames({"dims", "cubic", "sets", "on_grid"})
-    ->ArgsProduct({{2, 3, 4}, {0, 1}, {1, 8}, {0, 1}});
+    ->ArgsProduct({{2, 4}, {1}, {8}, {0, 1}});
 BENCHMARK(BM_RepeatedTarget)
     ->ArgNames({"dims", "cubic", "extrapolate"})
-    ->ArgsProduct({{1, 2, 4}, {0, 1}, {0, 1}});
-BENCHMARK(BM_SameCell)->Apply(arguments);
-BENCHMARK(BM_ColdCache)->Apply(arguments)->Iterations(2000);
+    ->ArgsProduct({{2, 4}, {0, 1}, {1}});
+BENCHMARK(BM_ColdCache)
+    ->ArgNames({"dims", "cubic", "sets"})
+    ->ArgsProduct({{2, 4}, {1}, {8}})
+    ->Iterations(2000);
 BENCHMARK(BM_UnitaryHybridAC)->ArgName("sets")->Arg(1)->Arg(6);
 
 BENCHMARK_MAIN();
