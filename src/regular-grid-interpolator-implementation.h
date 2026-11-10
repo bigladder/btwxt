@@ -59,6 +59,9 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
         grid_axes[axis_index].set_interpolation_method(method);
         interpolation_methods[axis_index] =
             to_method(grid_axes[axis_index].get_interpolation_method());
+        if (target_is_set) {
+            calculate_at_target();
+        }
     }
 
     void set_axis_extrapolation_method(const std::size_t axis_index, ExtrapolationMethod method)
@@ -67,6 +70,9 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
         grid_axes[axis_index].set_extrapolation_method(method);
         extrapolation_methods[axis_index] =
             to_method(grid_axes[axis_index].get_extrapolation_method());
+        if (target_is_set) {
+            calculate_at_target();
+        }
     }
 
     void set_axis_extrapolation_limits(const std::size_t axis_index,
@@ -74,6 +80,9 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
     {
         check_axis_index(axis_index, "set axis extrapolation limits");
         grid_axes[axis_index].set_extrapolation_limits(limits);
+        if (target_is_set) {
+            calculate_at_target();
+        }
     }
 
     // Public methods (mirrored)

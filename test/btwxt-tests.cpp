@@ -307,9 +307,9 @@ TEST_F(Grid2DFixture, extrapolation_limits_change_at_same_target)
     std::vector<double> result = interpolator(target);
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
 
-    // Same target, now beyond the upper extrapolation limit: this must be reported
-    interpolator.set_axis_extrapolation_limits(0, {-10, 17});
-    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);
+    // The current target is now beyond the upper extrapolation limit: this must be reported
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.set_axis_extrapolation_limits(0, {-10, 17}),
+                               std::runtime_error);
                   , std::string("  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
                                 "The target (18) is above the extrapolation limit (17).\n"))
 }

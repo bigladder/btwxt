@@ -77,10 +77,8 @@ void RegularGridInterpolatorImplementation::set_target(const std::vector<double>
                         target_in.size(),
                         number_of_grid_axes));
     }
-    if (target_is_set) {
-        if ((target_in == target) && (methods == get_interpolation_methods())) {
-            return;
-        }
+    if (target_is_set && target_in == target) {
+        return;
     }
     target = target_in;
     target_is_set = true;
