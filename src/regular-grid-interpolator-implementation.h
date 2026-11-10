@@ -225,7 +225,6 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
     std::vector<std::vector<double>> interpolation_coefficients;
     std::vector<std::vector<double>> cubic_slope_coefficients;
 
-    std::vector<std::vector<double>> hypercube_grid_point_data;
     std::vector<double> hypercube_weights;
 
     std::map<std::pair<std::size_t, std::size_t>, std::vector<std::vector<double>>> hypercube_cache;
@@ -250,7 +249,7 @@ class RegularGridInterpolatorImplementation : public Courier::Sender {
 
     void set_hypercube(std::vector<Method> methods);
 
-    void set_hypercube_grid_point_data();
+    const std::vector<std::vector<double>>& get_hypercube_grid_point_data();
 
     void set_results();
 
