@@ -307,11 +307,30 @@ TEST_F(Grid2DFixture, extrapolation_limits_change_at_same_target)
     std::vector<double> result = interpolator(target);
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
 
+    const std::string expected_error {
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
+        "The target (18) is above the extrapolation limit (17).\n"};
+
     // The current target is now beyond the upper extrapolation limit: this must be reported
     EXPECT_STDOUT(EXPECT_THROW(interpolator.set_axis_extrapolation_limits(0, {-10, 17}),
                                std::runtime_error);
-                  , std::string("  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
-                                "The target (18) is above the extrapolation limit (17).\n"))
+                  , expected_error)
+
+    // Same target again: must not return the results from before the limits changed
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);, expected_error)
+}
+
+TEST_F(Grid2DFixture, error_at_target_is_reported_again)
+{
+    const std::string expected_error {
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
+        "The target (18) is above the extrapolation limit (17).\n"};
+    interpolator.set_axis_extrapolation_limits(0, {-10, 17});
+    target = {18, 5};
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);, expected_error)
+
+    // Same target again: must not return results from an incomplete calculation
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);, expected_error)
 }
 
 TEST_F(Grid2DFixture, invalid_inputs)
