@@ -19,6 +19,7 @@ include(compiler-flags)
 
 option(${PROJECT_NAME}_BUILD_TESTING "Build ${PROJECT_NAME} testing targets" OFF)
 option(${PROJECT_NAME}_COVERAGE "Add ${PROJECT_NAME} coverage reports" OFF)
+option(${PROJECT_NAME}_BUILD_BENCHMARKS "Build ${PROJECT_NAME} benchmark targets" OFF)
 
 # Set up testing/coverage
 if (${PROJECT_NAME}_BUILD_TESTING)
@@ -38,4 +39,8 @@ if (${PROJECT_NAME}_BUILD_TESTING)
     if (${PROJECT_NAME}_COVERAGE)
         coverage_evaluate()
     endif ()
+endif ()
+
+if (${PROJECT_NAME}_BUILD_BENCHMARKS)
+    add_subdirectory(benchmark)
 endif ()

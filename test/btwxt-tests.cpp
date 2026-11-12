@@ -288,6 +288,51 @@ TEST_F(Grid2DFixture, extrapolate)
     EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
 }
 
+TEST_F(Grid2DFixture, extrapolation_method_change_at_same_target)
+{
+    // axis0 is designated linear extrapolation
+    target = {18, 5};
+    std::vector<double> result = interpolator(target);
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
+
+    // Same target, constant extrapolation: the result must be the value at axis0 = 15
+    interpolator.set_axis_extrapolation_method(0, ExtrapolationMethod::constant);
+    result = interpolator(target);
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(3), testing::DoubleEq(6)));
+}
+
+TEST_F(Grid2DFixture, extrapolation_limits_change_at_same_target)
+{
+    target = {18, 5};
+    std::vector<double> result = interpolator(target);
+    EXPECT_THAT(result, testing::ElementsAre(testing::DoubleEq(1.8), testing::DoubleEq(3.6)));
+
+    const std::string expected_error {
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
+        "The target (18) is above the extrapolation limit (17).\n"};
+
+    // The current target is now beyond the upper extrapolation limit: this must be reported
+    EXPECT_STDOUT(EXPECT_THROW(interpolator.set_axis_extrapolation_limits(0, {-10, 17}),
+                               std::runtime_error);
+                  , expected_error)
+
+    // Same target again: must not return the results from before the limits changed
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);, expected_error)
+}
+
+TEST_F(Grid2DFixture, error_at_target_is_reported_again)
+{
+    const std::string expected_error {
+        "  [ERROR] RegularGridInterpolator 'Test RGI': GridAxis 'Axis 1': "
+        "The target (18) is above the extrapolation limit (17).\n"};
+    interpolator.set_axis_extrapolation_limits(0, {-10, 17});
+    target = {18, 5};
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);, expected_error)
+
+    // Same target again: must not return results from an incomplete calculation
+    EXPECT_STDOUT(EXPECT_THROW(interpolator(target), std::runtime_error);, expected_error)
+}
+
 TEST_F(Grid2DFixture, invalid_inputs)
 {
     constexpr std::string_view expected_error_format {
@@ -466,6 +511,26 @@ TEST_F(Function2DFixture, normalization_return_compound_scalar)
     std::vector<double> results = interpolator.get_values_at_target();
     EXPECT_THAT(return_scalar, testing::DoubleEq(expected_compound_divisor));
     EXPECT_THAT(results, testing::ElementsAre(expected_value_at_target));
+}
+
+TEST(SimpleData, clear_target_with_more_data_sets_than_axes)
+{
+    // 1 axis, 3 data sets: clear_target() must not size the results by the number of axes
+    std::vector<std::vector<double>> grid {{0., 10.}};
+    std::vector<std::vector<double>> data_sets {{0., 10.}, {0., 20.}, {0., 30.}};
+    RegularGridInterpolator interpolator(grid, data_sets);
+    std::vector<double> target {5.};
+
+    auto results = interpolator(target);
+    EXPECT_THAT(results,
+                testing::ElementsAre(
+                    testing::DoubleEq(5.), testing::DoubleEq(10.), testing::DoubleEq(15.)));
+
+    interpolator.clear_target();
+    results = interpolator(target);
+    EXPECT_THAT(results,
+                testing::ElementsAre(
+                    testing::DoubleEq(5.), testing::DoubleEq(10.), testing::DoubleEq(15.)));
 }
 
 TEST(SimpleData, normalize_after_adding_grid_point_data_set)
